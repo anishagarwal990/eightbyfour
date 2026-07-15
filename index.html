@@ -768,7 +768,7 @@
       <div class="section-eyebrow">Inspiration</div>
       <h3>Moodboard</h3>
     </div>
-    <p class="moodboard-intro">Scroll to browse laminates and boards side by side — a running wall of combinations to help you build your palette before you commit.</p>
+    <p class="moodboard-intro">Scroll to browse laminate finishes side by side — a running wall of combinations to help you build your palette before you commit.</p>
   </section>
 
   <div class="moodboard-wall" id="moodboardWall"></div>
@@ -1016,8 +1016,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     if(!wall) return;
 
     const laminates = PRODUCTS.filter(p => p.category === "Laminates" && p.mainImg);
-    const plyBoards = shuffle(PLYWOOD_PRODUCTS).slice(0, 14);
-    const pool = shuffle([...laminates, ...plyBoards]);
+    const pool = shuffle(laminates);
     if(pool.length === 0) return;
 
     const tiles = [];
