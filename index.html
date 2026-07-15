@@ -402,6 +402,34 @@
   .list-empty-note{font-size:12px; color:#9a9a9a; margin-bottom:16px; font-style:italic;}
   .list-empty-note[hidden]{display:none;}
   .list-divider{border:none; border-top:1px dashed var(--line-strong); margin:18px 0 4px;}
+  .list-or-divider{
+    display:flex; align-items:center; gap:12px; margin:16px 0; color:#9a9a9a;
+    font-size:11px; text-transform:uppercase; letter-spacing:2px; font-family:'Cormorant Garamond',serif; font-weight:600;
+  }
+  .list-or-divider::before, .list-or-divider::after{content:""; flex:1; border-top:1px dashed var(--line-strong);}
+  .list-upload-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .list-upload-info{display:flex; flex-direction:column; gap:3px;}
+  .list-upload-info label{
+    font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--walnut);
+    font-family:'Cormorant Garamond',serif; font-weight:600;
+  }
+  .list-upload-hint{font-size:11.5px; color:#9a9a9a;}
+  .btn-upload{
+    background:var(--card); border:1.5px solid var(--ink); border-radius:3px; color:var(--ink);
+    font-size:12.5px; font-weight:600; padding:9px 14px; cursor:pointer; white-space:nowrap;
+  }
+  .btn-upload:hover{background:var(--paper-dim);}
+  .list-upload-preview{
+    display:flex; align-items:center; gap:10px; margin-top:12px;
+    background:var(--card); border:1px dashed var(--line-strong); border-radius:3px; padding:8px 10px;
+  }
+  .list-upload-preview[hidden]{display:none;}
+  .list-upload-preview img{width:44px; height:44px; object-fit:cover; border-radius:3px; border:1px solid var(--line-strong); flex-shrink:0;}
+  .list-upload-filename{font-size:12.5px; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .list-upload-remove{background:none; border:none; color:var(--walnut); font-size:17px; cursor:pointer; line-height:1; padding:0 4px;}
+  .list-upload-remove:hover{color:var(--ink);}
+  .list-submit-note{font-size:12px; color:#b8442f; margin:10px 0 0; font-style:italic;}
+  .list-submit-note[hidden]{display:none;}
 
   /* ---------- Pages ---------- */
   .page[hidden]{display:none;}
@@ -465,7 +493,7 @@
     <span class="search-icon">⌕</span>
     <input type="text" id="searchInput" placeholder="Search by brand, product line or category…">
   </div>
-  <button class="list-btn" id="listRequestBtn" type="button">Product List <span class="list-count" id="listCount" hidden>0</span></button>
+  <button class="list-btn" id="listRequestBtn" type="button">Request a Quote <span class="list-count" id="listCount" hidden>0</span></button>
   <div class="result-tag" id="resultTag"></div>
 </header>
 
@@ -731,7 +759,7 @@
     <div class="slip-inner">
       <button class="close-btn" id="closeListModal" aria-label="Close">×</button>
       <div class="slip-head">
-        <span id="listSlipTitle">Product List Request</span>
+        <span id="listSlipTitle">Request a Quotation</span>
       </div>
 
       <div id="listFormView">
@@ -750,6 +778,22 @@
         <div class="list-items" id="listItems"></div>
         <p class="list-empty-note" id="listEmptyNote">No items added yet — add your first item above.</p>
 
+        <div class="list-or-divider"><span>or</span></div>
+
+        <div class="list-upload-row">
+          <div class="list-upload-info">
+            <label for="listImageUpload">Upload a photo of your list instead</label>
+            <span class="list-upload-hint">A handwritten note, WhatsApp screenshot, or BOQ photo works fine.</span>
+          </div>
+          <button type="button" class="btn-upload" id="listUploadBtn">Choose Image</button>
+          <input type="file" id="listImageUpload" accept="image/*" hidden>
+        </div>
+        <div class="list-upload-preview" id="listUploadPreview" hidden>
+          <img id="listUploadThumb" alt="Uploaded list preview">
+          <span class="list-upload-filename" id="listUploadFilename"></span>
+          <button type="button" class="list-upload-remove" id="listUploadRemove" aria-label="Remove image">×</button>
+        </div>
+
         <hr class="list-divider">
 
         <form id="listInquiryForm">
@@ -761,13 +805,14 @@
           <input id="lEmail" name="email" type="email">
           <label for="lMessage">Additional notes</label>
           <textarea id="lMessage" name="message" placeholder="Delivery location, timeline…"></textarea>
-          <button type="submit" class="submit-btn">Log Request</button>
+          <p class="list-submit-note" id="listSubmitNote" hidden>Add at least one item, or upload a photo of your list, before requesting a quotation.</p>
+          <button type="submit" class="submit-btn">Request Quotation</button>
         </form>
       </div>
 
       <div class="confirmation" id="listConfirmView" hidden>
         <div class="stamp-logged">Logged</div>
-        <p>Your product list request has been recorded.</p>
+        <p>Your quotation request has been recorded.</p>
         <p class="ref" id="listConfirmRef"></p>
         <p>A dealer representative will follow up on the contact details you provided.</p>
         <button class="confirm-close" id="listConfirmClose">Done</button>
@@ -1141,6 +1186,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
 
   // ---------- Product list request ----------
   let listItemsData = [];
+  let uploadedListImage = null;
   const listModalOverlay = document.getElementById("listModalOverlay");
   const listFormView = document.getElementById("listFormView");
   const listConfirmView = document.getElementById("listConfirmView");
@@ -1150,6 +1196,12 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   const itemQty = document.getElementById("itemQty");
   const listCountEl = document.getElementById("listCount");
   const listInquiryForm = document.getElementById("listInquiryForm");
+  const listSubmitNote = document.getElementById("listSubmitNote");
+  const listUploadBtn = document.getElementById("listUploadBtn");
+  const listImageUpload = document.getElementById("listImageUpload");
+  const listUploadPreview = document.getElementById("listUploadPreview");
+  const listUploadThumb = document.getElementById("listUploadThumb");
+  const listUploadFilename = document.getElementById("listUploadFilename");
 
   function openListModal(){
     listFormView.hidden = false;
@@ -1159,6 +1211,12 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   }
   function closeListModal(){ listModalOverlay.hidden = true; }
 
+  function updateListCount(){
+    const n = listItemsData.length + (uploadedListImage ? 1 : 0);
+    listCountEl.textContent = n;
+    listCountEl.hidden = n === 0;
+  }
+
   function renderListItems(){
     listEmptyNote.hidden = listItemsData.length > 0;
     listItemsEl.innerHTML = listItemsData.map((item, i) => `
@@ -1167,8 +1225,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
         <button type="button" class="list-item-remove" data-idx="${i}" aria-label="Remove item">×</button>
       </div>
     `).join("");
-    listCountEl.textContent = listItemsData.length;
-    listCountEl.hidden = listItemsData.length === 0;
+    updateListCount();
   }
 
   function addItem(){
@@ -1178,8 +1235,17 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     listItemsData.push({desc, qty});
     itemDesc.value = "";
     itemQty.value = "1";
+    listSubmitNote.hidden = true;
     renderListItems();
     itemDesc.focus();
+  }
+
+  function clearUploadedImage(){
+    uploadedListImage = null;
+    listImageUpload.value = "";
+    listUploadThumb.src = "";
+    listUploadPreview.hidden = true;
+    updateListCount();
   }
 
   document.getElementById("listRequestBtn").addEventListener("click", openListModal);
@@ -1194,13 +1260,31 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   });
   listModalOverlay.addEventListener("click", e=>{ if(e.target === listModalOverlay) closeListModal(); });
 
+  listUploadBtn.addEventListener("click", ()=> listImageUpload.click());
+  listImageUpload.addEventListener("change", ()=>{
+    const file = listImageUpload.files[0];
+    if(!file) return;
+    uploadedListImage = file;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      listUploadThumb.src = reader.result;
+      listUploadFilename.textContent = file.name;
+      listUploadPreview.hidden = false;
+      listSubmitNote.hidden = true;
+      updateListCount();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById("listUploadRemove").addEventListener("click", clearUploadedImage);
+
   listInquiryForm.addEventListener("submit", e=>{
     e.preventDefault();
-    if(listItemsData.length === 0){
+    if(listItemsData.length === 0 && !uploadedListImage){
+      listSubmitNote.hidden = false;
       itemDesc.focus();
       return;
     }
-    const ref = "LIST-" + Math.floor(1000 + Math.random()*9000);
+    const ref = "QUOTE-" + Math.floor(1000 + Math.random()*9000);
     document.getElementById("listConfirmRef").textContent = "Reference: " + ref;
     listFormView.hidden = true;
     listConfirmView.hidden = false;
@@ -1208,8 +1292,10 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   document.getElementById("listConfirmClose").addEventListener("click", ()=>{
     closeListModal();
     listItemsData = [];
+    listSubmitNote.hidden = true;
     renderListItems();
     listInquiryForm.reset();
+    clearUploadedImage();
   });
   renderListItems();
 
