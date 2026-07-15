@@ -488,6 +488,46 @@
   }
   .about-content h4:first-of-type{margin-top:26px;}
   .about-stats{display:flex; gap:34px; flex-wrap:wrap; margin:30px 0 10px; padding-top:26px; border-top:1px dashed var(--line-strong);}
+
+  /* ---------- Moodboard ---------- */
+  .moodboard-intro{font-size:14px; color:#6b6b6b; max-width:620px; line-height:1.55; margin-top:-6px;}
+  .moodboard-wall{
+    position:relative; display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;
+    height:220vh; overflow:hidden; padding:6px 28px 0; max-width:1320px; margin:26px auto 0;
+    mask-image:linear-gradient(to bottom, transparent, black 4%, black 96%, transparent);
+    -webkit-mask-image:linear-gradient(to bottom, transparent, black 4%, black 96%, transparent);
+    overflow-anchor:none;
+  }
+  .mb-col{will-change:transform;}
+  .mb-col:nth-child(2){margin-top:-70px;}
+  .mb-col:nth-child(3){margin-top:-30px;}
+  .mb-col:nth-child(4){margin-top:-110px;}
+  .mb-col-inner{display:flex; flex-direction:column; gap:16px;}
+  .mb-card{
+    border:1.3px solid var(--line-strong); border-radius:4px; overflow:hidden; background:var(--card);
+  }
+  .mb-card-media{width:100%; aspect-ratio:4/3; overflow:hidden; background:var(--paper-dim);}
+  .mb-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
+  .mb-card-media svg{display:block; width:100%; height:100%;}
+  .mb-card-label{
+    padding:8px 10px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12px;
+    letter-spacing:0.8px; color:var(--walnut); line-height:1.35;
+  }
+  .mb-combo .mb-card-media{aspect-ratio:auto; height:150px; display:flex;}
+  .mb-combo .mb-card-media > *{flex:1; height:100%; min-width:0;}
+  .mb-combo .mb-card-media img{object-fit:cover;}
+  @media (max-width:900px){
+    .moodboard-wall{grid-template-columns:repeat(2, 1fr); height:260vh; padding:6px 16px 0;}
+    .mb-col:nth-child(3), .mb-col:nth-child(4){display:none;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .mb-col{transform:none !important;}
+  }
+  .moodboard-cta{
+    max-width:1320px; margin:0 auto; padding:34px 28px 60px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+  }
+  .moodboard-cta p{font-family:'Playfair Display',serif; font-weight:600; font-size:16px; margin:0;}
 </style>
 </head>
 <body>
@@ -503,6 +543,7 @@
   <nav class="main-nav" id="mainNav">
     <a href="#home" class="nav-link" data-page="home">Home</a>
     <a href="#products" class="nav-link" data-page="products">Products</a>
+    <a href="#moodboard" class="nav-link" data-page="moodboard">Moodboard</a>
     <a href="#blog" class="nav-link" data-page="blog">Blog</a>
     <a href="#about" class="nav-link" data-page="about">About Us</a>
   </nav>
@@ -721,6 +762,23 @@
 
 </section>
 
+<section class="page" id="page-moodboard" hidden>
+  <section class="categories-section">
+    <div class="section-head">
+      <div class="section-eyebrow">Inspiration</div>
+      <h3>Moodboard</h3>
+    </div>
+    <p class="moodboard-intro">Scroll to browse laminates and boards side by side — a running wall of combinations to help you build your palette before you commit.</p>
+  </section>
+
+  <div class="moodboard-wall" id="moodboardWall"></div>
+
+  <div class="moodboard-cta">
+    <p>Found a combination you like?</p>
+    <button class="btn-primary" id="moodboardQuoteBtn" type="button">Request a Quote</button>
+  </div>
+</section>
+
 <div class="lightbox-overlay" id="lightboxOverlay" hidden>
   <div class="lightbox-panel">
     <button class="close-btn" id="lightboxClose" aria-label="Close">×</button>
@@ -919,8 +977,105 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   }
   PLYWOOD_PRODUCTS.forEach(p => p.swatch = makeSwatch(p));
 
+  // ---------- Moodboard (parallax infinite wall) ----------
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function mbMediaHTML(p){
+    if(p.category === "Laminates"){
+      return `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`;
+    }
+    return p.swatch;
+  }
+
+  function mbCardHTML(tile){
+    if(tile.items.length === 2){
+      const [a, b] = tile.items;
+      return `
+        <div class="mb-card mb-combo">
+          <div class="mb-card-media">${mbMediaHTML(a)}${mbMediaHTML(b)}</div>
+          <div class="mb-card-label">${a.brand} ${a.name} + ${b.brand} ${b.name}</div>
+        </div>`;
+    }
+    const p = tile.items[0];
+    return `
+      <div class="mb-card">
+        <div class="mb-card-media">${mbMediaHTML(p)}</div>
+        <div class="mb-card-label">${p.brand} — ${p.name}</div>
+      </div>`;
+  }
+
+  function initMoodboard(){
+    const wall = document.getElementById("moodboardWall");
+    if(!wall) return;
+
+    const laminates = PRODUCTS.filter(p => p.category === "Laminates" && p.mainImg);
+    const plyBoards = shuffle(PLYWOOD_PRODUCTS).slice(0, 14);
+    const pool = shuffle([...laminates, ...plyBoards]);
+    if(pool.length === 0) return;
+
+    const tiles = [];
+    let i = 0;
+    while(i < pool.length){
+      const asCombo = i % 3 === 1 && i + 1 < pool.length;
+      if(asCombo){ tiles.push({items: [pool[i], pool[i+1]]}); i += 2; }
+      else { tiles.push({items: [pool[i]]}); i += 1; }
+    }
+
+    const COLS = 4;
+    const speeds = [0.22, 0.42, 0.3, 0.5];
+    const cols = Array.from({length: COLS}, () => []);
+    tiles.forEach((t, idx) => cols[idx % COLS].push(t));
+
+    wall.innerHTML = "";
+    const colEls = cols.filter(t => t.length).map((colTiles, idx) => {
+      const html = colTiles.map(mbCardHTML).join("");
+      const col = document.createElement("div");
+      col.className = "mb-col";
+      col.dataset.speed = speeds[idx % speeds.length];
+      col.innerHTML = `<div class="mb-col-inner">${html}</div><div class="mb-col-inner" aria-hidden="true">${html}</div>`;
+      wall.appendChild(col);
+      return col;
+    });
+
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduceMotion || colEls.length === 0) return;
+
+    let ticking = false;
+    function updateParallax(){
+      const scrollY = window.scrollY;
+      colEls.forEach(col => {
+        if(col.offsetParent === null) return;
+        const speed = parseFloat(col.dataset.speed);
+        const inner = col.querySelector(".mb-col-inner");
+        const loopHeight = inner.offsetHeight;
+        if(!loopHeight) return;
+        let offset = (scrollY * speed) % loopHeight;
+        if(offset < 0) offset += loopHeight;
+        col.style.transform = `translateY(${-offset}px)`;
+      });
+      ticking = false;
+    }
+    function onScroll(){
+      if(!ticking){ requestAnimationFrame(updateParallax); ticking = true; }
+    }
+    window.addEventListener("scroll", onScroll, {passive:true});
+    window.addEventListener("resize", onScroll);
+    updateParallax();
+  }
+  initMoodboard();
+
+  const moodboardQuoteBtnEl = document.getElementById("moodboardQuoteBtn");
+  if(moodboardQuoteBtnEl) moodboardQuoteBtnEl.addEventListener("click", ()=> openListModal());
+
   // ---------- Page routing ----------
-  const PAGES = ["home","products","blog","about"];
+  const PAGES = ["home","products","moodboard","blog","about"];
   function showPage(name){
     if(!PAGES.includes(name)) name = "home";
     PAGES.forEach(p=>{ document.getElementById("page-"+p).hidden = (p!==name); });
