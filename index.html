@@ -219,12 +219,13 @@
     padding:10px 12px; margin-bottom:16px; font-size:12.5px;
   }
   .slip-product b{display:block; font-family:'Playfair Display',serif; font-weight:600; font-size:14.5px; margin-bottom:3px;}
-  #inquiryForm label{display:block; font-size:12.5px; text-transform:uppercase; letter-spacing:1.5px; color:var(--walnut); margin:12px 0 5px; font-family:'Cormorant Garamond',serif; font-weight:600;}
-  #inquiryForm input, #inquiryForm select, #inquiryForm textarea{
+  #inquiryForm label, #listInquiryForm label{display:block; font-size:12.5px; text-transform:uppercase; letter-spacing:1.5px; color:var(--walnut); margin:12px 0 5px; font-family:'Cormorant Garamond',serif; font-weight:600;}
+  #inquiryForm input, #inquiryForm select, #inquiryForm textarea,
+  #listInquiryForm input, #listInquiryForm select, #listInquiryForm textarea{
     width:100%; padding:9px 10px; border:1.3px solid var(--ink); border-radius:3px;
     background:var(--card); font-size:13.5px; color:var(--ink);
   }
-  #inquiryForm textarea{resize:vertical; min-height:64px;}
+  #inquiryForm textarea, #listInquiryForm textarea{resize:vertical; min-height:64px;}
   .submit-btn{
     margin-top:18px; width:100%; background:var(--ink); color:var(--paper);
     border:none; padding:12px; border-radius:3px; font-size:13.5px; font-weight:600;
@@ -361,6 +362,47 @@
   .nav-link.active{color:var(--ink); font-weight:600; border-bottom-color:var(--ink);}
   @media (max-width:760px){ .main-nav{gap:12px; order:4; width:100%; justify-content:center; padding-top:10px; border-top:1px dashed var(--line-strong); margin-top:10px;} }
 
+  /* ---------- Product list request ---------- */
+  .list-btn{
+    background:var(--card); border:1.5px solid var(--ink); border-radius:3px; color:var(--ink);
+    font-size:12.5px; font-weight:600; letter-spacing:0.3px; text-transform:uppercase;
+    padding:9px 14px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:7px;
+  }
+  .list-btn:hover{background:var(--paper-dim);}
+  .list-count{
+    background:var(--ink); color:var(--paper); border-radius:10px; font-size:10.5px;
+    font-family:'IBM Plex Sans',sans-serif; padding:1px 6px; min-width:16px; text-align:center;
+  }
+  .list-slip{max-width:480px;}
+  .list-add-row{display:flex; gap:8px; align-items:flex-end; margin-bottom:16px;}
+  .list-add-field{flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .list-add-field.qty-field{flex:0 0 68px;}
+  .list-add-field label{
+    font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--walnut);
+    font-family:'Cormorant Garamond',serif; font-weight:600;
+  }
+  .list-add-field input{
+    padding:9px 10px; border:1.3px solid var(--ink); border-radius:3px;
+    background:var(--card); font-size:13.5px; color:var(--ink); width:100%;
+  }
+  .btn-add-item{
+    background:var(--ink); color:var(--paper); border:none; border-radius:3px;
+    padding:9px 14px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; height:37px;
+  }
+  .btn-add-item:hover{background:#000;}
+  .list-items{display:flex; flex-direction:column; gap:8px; margin-bottom:8px; max-height:220px; overflow-y:auto;}
+  .list-item-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--card); border:1px dashed var(--line-strong); border-radius:3px;
+    padding:8px 10px; font-size:13px;
+  }
+  .list-item-text{line-height:1.4;}
+  .list-item-remove{background:none; border:none; color:var(--walnut); font-size:17px; cursor:pointer; line-height:1; padding:0 4px;}
+  .list-item-remove:hover{color:var(--ink);}
+  .list-empty-note{font-size:12px; color:#9a9a9a; margin-bottom:16px; font-style:italic;}
+  .list-empty-note[hidden]{display:none;}
+  .list-divider{border:none; border-top:1px dashed var(--line-strong); margin:18px 0 4px;}
+
   /* ---------- Pages ---------- */
   .page[hidden]{display:none;}
 
@@ -423,6 +465,7 @@
     <span class="search-icon">⌕</span>
     <input type="text" id="searchInput" placeholder="Search by brand, product line or category…">
   </div>
+  <button class="list-btn" id="listRequestBtn" type="button">Product List <span class="list-count" id="listCount" hidden>0</span></button>
   <div class="result-tag" id="resultTag"></div>
 </header>
 
@@ -677,6 +720,57 @@
         <p id="confirmSampleNote" hidden>A physical sample will be included with the follow-up.</p>
         <p>A dealer representative will follow up on the contact details you provided.</p>
         <button class="confirm-close" id="confirmClose">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="listModalOverlay" hidden>
+  <div class="dispatch-slip list-slip" role="dialog" aria-modal="true" aria-labelledby="listSlipTitle">
+    <div class="slip-perf"></div>
+    <div class="slip-inner">
+      <button class="close-btn" id="closeListModal" aria-label="Close">×</button>
+      <div class="slip-head">
+        <span id="listSlipTitle">Product List Request</span>
+      </div>
+
+      <div id="listFormView">
+        <div class="list-add-row">
+          <div class="list-add-field">
+            <label for="itemDesc">Product / Description</label>
+            <input id="itemDesc" type="text" placeholder="e.g. 19mm Century Sainik MR">
+          </div>
+          <div class="list-add-field qty-field">
+            <label for="itemQty">Qty</label>
+            <input id="itemQty" type="number" min="1" value="1">
+          </div>
+          <button type="button" class="btn-add-item" id="addItemBtn">Add</button>
+        </div>
+
+        <div class="list-items" id="listItems"></div>
+        <p class="list-empty-note" id="listEmptyNote">No items added yet — add your first item above.</p>
+
+        <hr class="list-divider">
+
+        <form id="listInquiryForm">
+          <label for="lName">Name</label>
+          <input id="lName" name="name" required>
+          <label for="lPhone">Phone</label>
+          <input id="lPhone" name="phone" type="tel" required placeholder="+91">
+          <label for="lEmail">Email (optional)</label>
+          <input id="lEmail" name="email" type="email">
+          <label for="lMessage">Additional notes</label>
+          <textarea id="lMessage" name="message" placeholder="Delivery location, timeline…"></textarea>
+          <button type="submit" class="submit-btn">Log Request</button>
+        </form>
+      </div>
+
+      <div class="confirmation" id="listConfirmView" hidden>
+        <div class="stamp-logged">Logged</div>
+        <p>Your product list request has been recorded.</p>
+        <p class="ref" id="listConfirmRef"></p>
+        <p>A dealer representative will follow up on the contact details you provided.</p>
+        <button class="confirm-close" id="listConfirmClose">Done</button>
       </div>
     </div>
   </div>
@@ -1031,6 +1125,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     if(e.key !== "Escape") return;
     if(!lightboxOverlay.hidden) closeLightbox();
     else if(!modalOverlay.hidden) closeModal();
+    else if(!listModalOverlay.hidden) closeListModal();
   });
 
   inquiryForm.addEventListener("submit", e=>{
@@ -1043,6 +1138,80 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     confirmView.hidden = false;
   });
   document.getElementById("confirmClose").addEventListener("click", closeModal);
+
+  // ---------- Product list request ----------
+  let listItemsData = [];
+  const listModalOverlay = document.getElementById("listModalOverlay");
+  const listFormView = document.getElementById("listFormView");
+  const listConfirmView = document.getElementById("listConfirmView");
+  const listItemsEl = document.getElementById("listItems");
+  const listEmptyNote = document.getElementById("listEmptyNote");
+  const itemDesc = document.getElementById("itemDesc");
+  const itemQty = document.getElementById("itemQty");
+  const listCountEl = document.getElementById("listCount");
+  const listInquiryForm = document.getElementById("listInquiryForm");
+
+  function openListModal(){
+    listFormView.hidden = false;
+    listConfirmView.hidden = true;
+    listModalOverlay.hidden = false;
+    itemDesc.focus();
+  }
+  function closeListModal(){ listModalOverlay.hidden = true; }
+
+  function renderListItems(){
+    listEmptyNote.hidden = listItemsData.length > 0;
+    listItemsEl.innerHTML = listItemsData.map((item, i) => `
+      <div class="list-item-row">
+        <div class="list-item-text"><b>${item.qty} ×</b> ${item.desc}</div>
+        <button type="button" class="list-item-remove" data-idx="${i}" aria-label="Remove item">×</button>
+      </div>
+    `).join("");
+    listCountEl.textContent = listItemsData.length;
+    listCountEl.hidden = listItemsData.length === 0;
+  }
+
+  function addItem(){
+    const desc = itemDesc.value.trim();
+    const qty = Math.max(1, parseInt(itemQty.value, 10) || 1);
+    if(!desc){ itemDesc.focus(); return; }
+    listItemsData.push({desc, qty});
+    itemDesc.value = "";
+    itemQty.value = "1";
+    renderListItems();
+    itemDesc.focus();
+  }
+
+  document.getElementById("listRequestBtn").addEventListener("click", openListModal);
+  document.getElementById("closeListModal").addEventListener("click", closeListModal);
+  document.getElementById("addItemBtn").addEventListener("click", addItem);
+  itemDesc.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); addItem(); } });
+  listItemsEl.addEventListener("click", e=>{
+    const btn = e.target.closest(".list-item-remove");
+    if(!btn) return;
+    listItemsData.splice(Number(btn.dataset.idx), 1);
+    renderListItems();
+  });
+  listModalOverlay.addEventListener("click", e=>{ if(e.target === listModalOverlay) closeListModal(); });
+
+  listInquiryForm.addEventListener("submit", e=>{
+    e.preventDefault();
+    if(listItemsData.length === 0){
+      itemDesc.focus();
+      return;
+    }
+    const ref = "LIST-" + Math.floor(1000 + Math.random()*9000);
+    document.getElementById("listConfirmRef").textContent = "Reference: " + ref;
+    listFormView.hidden = true;
+    listConfirmView.hidden = false;
+  });
+  document.getElementById("listConfirmClose").addEventListener("click", ()=>{
+    closeListModal();
+    listItemsData = [];
+    renderListItems();
+    listInquiryForm.reset();
+  });
+  renderListItems();
 
   // ---------- Init ----------
   showPage(location.hash.replace("#","") || "home");
