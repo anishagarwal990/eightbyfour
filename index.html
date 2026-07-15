@@ -425,6 +425,13 @@
   }
   .list-upload-preview[hidden]{display:none;}
   .list-upload-preview img{width:44px; height:44px; object-fit:cover; border-radius:3px; border:1px solid var(--line-strong); flex-shrink:0;}
+  .list-upload-icon{
+    width:44px; height:44px; border-radius:3px; border:1px solid var(--line-strong); background:var(--paper);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'IBM Plex Sans',sans-serif; font-size:10px; font-weight:700; letter-spacing:0.3px;
+    color:var(--walnut); text-transform:uppercase;
+  }
+  .list-upload-icon[hidden]{display:none;}
   .list-upload-filename{font-size:12.5px; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .list-upload-remove{background:none; border:none; color:var(--walnut); font-size:17px; cursor:pointer; line-height:1; padding:0 4px;}
   .list-upload-remove:hover{color:var(--ink);}
@@ -782,16 +789,17 @@
 
         <div class="list-upload-row">
           <div class="list-upload-info">
-            <label for="listImageUpload">Upload a photo of your list instead</label>
-            <span class="list-upload-hint">A handwritten note, WhatsApp screenshot, or BOQ photo works fine.</span>
+            <label for="listImageUpload">Upload a file instead</label>
+            <span class="list-upload-hint">Excel, PDF, photo — whatever's easiest.</span>
           </div>
-          <button type="button" class="btn-upload" id="listUploadBtn">Choose Image</button>
-          <input type="file" id="listImageUpload" accept="image/*" hidden>
+          <button type="button" class="btn-upload" id="listUploadBtn">Choose File</button>
+          <input type="file" id="listImageUpload" accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,image/*" hidden>
         </div>
         <div class="list-upload-preview" id="listUploadPreview" hidden>
-          <img id="listUploadThumb" alt="Uploaded list preview">
+          <img id="listUploadThumb" alt="" hidden>
+          <div class="list-upload-icon" id="listUploadIcon" hidden></div>
           <span class="list-upload-filename" id="listUploadFilename"></span>
-          <button type="button" class="list-upload-remove" id="listUploadRemove" aria-label="Remove image">×</button>
+          <button type="button" class="list-upload-remove" id="listUploadRemove" aria-label="Remove file">×</button>
         </div>
 
         <hr class="list-divider">
@@ -805,16 +813,17 @@
           <input id="lEmail" name="email" type="email">
           <label for="lMessage">Additional notes</label>
           <textarea id="lMessage" name="message" placeholder="Delivery location, timeline…"></textarea>
-          <p class="list-submit-note" id="listSubmitNote" hidden>Add at least one item, or upload a photo of your list, before requesting a quotation.</p>
-          <button type="submit" class="submit-btn">Request Quotation</button>
+          <p class="list-submit-note" id="listSubmitNote" hidden>Add at least one item, or upload a file, before requesting a quotation.</p>
+          <button type="submit" class="submit-btn">Request Quotation via WhatsApp</button>
         </form>
       </div>
 
       <div class="confirmation" id="listConfirmView" hidden>
         <div class="stamp-logged">Logged</div>
-        <p>Your quotation request has been recorded.</p>
+        <p>We've opened WhatsApp with your request pre-filled — just hit send there to reach us.</p>
         <p class="ref" id="listConfirmRef"></p>
-        <p>A dealer representative will follow up on the contact details you provided.</p>
+        <p id="listConfirmFileNote" hidden>Don't forget to attach your file in the WhatsApp chat before sending — it can't be attached automatically.</p>
+        <p>Didn't open? <a href="#" id="listConfirmWaLink" target="_blank" rel="noopener">Tap here to open WhatsApp</a>.</p>
         <button class="confirm-close" id="listConfirmClose">Done</button>
       </div>
     </div>
@@ -1184,9 +1193,10 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   });
   document.getElementById("confirmClose").addEventListener("click", closeModal);
 
-  // ---------- Product list request ----------
+  // ---------- Product list request (via WhatsApp) ----------
+  const WHATSAPP_NUMBER = "919703739918";
   let listItemsData = [];
-  let uploadedListImage = null;
+  let uploadedListFile = null;
   const listModalOverlay = document.getElementById("listModalOverlay");
   const listFormView = document.getElementById("listFormView");
   const listConfirmView = document.getElementById("listConfirmView");
@@ -1201,6 +1211,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   const listImageUpload = document.getElementById("listImageUpload");
   const listUploadPreview = document.getElementById("listUploadPreview");
   const listUploadThumb = document.getElementById("listUploadThumb");
+  const listUploadIcon = document.getElementById("listUploadIcon");
   const listUploadFilename = document.getElementById("listUploadFilename");
 
   function openListModal(){
@@ -1212,7 +1223,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   function closeListModal(){ listModalOverlay.hidden = true; }
 
   function updateListCount(){
-    const n = listItemsData.length + (uploadedListImage ? 1 : 0);
+    const n = listItemsData.length + (uploadedListFile ? 1 : 0);
     listCountEl.textContent = n;
     listCountEl.hidden = n === 0;
   }
@@ -1240,10 +1251,12 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     itemDesc.focus();
   }
 
-  function clearUploadedImage(){
-    uploadedListImage = null;
+  function clearUploadedFile(){
+    uploadedListFile = null;
     listImageUpload.value = "";
     listUploadThumb.src = "";
+    listUploadThumb.hidden = true;
+    listUploadIcon.hidden = true;
     listUploadPreview.hidden = true;
     updateListCount();
   }
@@ -1264,28 +1277,56 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   listImageUpload.addEventListener("change", ()=>{
     const file = listImageUpload.files[0];
     if(!file) return;
-    uploadedListImage = file;
-    const reader = new FileReader();
-    reader.onload = ()=>{
-      listUploadThumb.src = reader.result;
-      listUploadFilename.textContent = file.name;
-      listUploadPreview.hidden = false;
-      listSubmitNote.hidden = true;
-      updateListCount();
-    };
-    reader.readAsDataURL(file);
+    uploadedListFile = file;
+    listUploadFilename.textContent = file.name;
+    listUploadPreview.hidden = false;
+    listSubmitNote.hidden = true;
+    if(file.type.startsWith("image/")){
+      const reader = new FileReader();
+      reader.onload = ()=>{ listUploadThumb.src = reader.result; };
+      reader.readAsDataURL(file);
+      listUploadThumb.hidden = false;
+      listUploadIcon.hidden = true;
+    } else {
+      listUploadThumb.hidden = true;
+      listUploadThumb.src = "";
+      listUploadIcon.textContent = (file.name.split(".").pop() || "FILE").slice(0, 4).toUpperCase();
+      listUploadIcon.hidden = false;
+    }
+    updateListCount();
   });
-  document.getElementById("listUploadRemove").addEventListener("click", clearUploadedImage);
+  document.getElementById("listUploadRemove").addEventListener("click", clearUploadedFile);
 
   listInquiryForm.addEventListener("submit", e=>{
     e.preventDefault();
-    if(listItemsData.length === 0 && !uploadedListImage){
+    if(listItemsData.length === 0 && !uploadedListFile){
       listSubmitNote.hidden = false;
       itemDesc.focus();
       return;
     }
     const ref = "QUOTE-" + Math.floor(1000 + Math.random()*9000);
+    const name = document.getElementById("lName").value.trim();
+    const phone = document.getElementById("lPhone").value.trim();
+    const email = document.getElementById("lEmail").value.trim();
+    const notes = document.getElementById("lMessage").value.trim();
+
+    const lines = [`Quotation request (Ref: ${ref})`, `Name: ${name}`, `Phone: ${phone}`];
+    if(email) lines.push(`Email: ${email}`);
+    if(listItemsData.length){
+      lines.push("", "Items:");
+      listItemsData.forEach(item => lines.push(`- ${item.qty} × ${item.desc}`));
+    }
+    if(uploadedListFile){
+      lines.push("", `Attached file: ${uploadedListFile.name} (I'll attach it in this chat)`);
+    }
+    if(notes) lines.push("", `Notes: ${notes}`);
+
+    const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+    window.open(waUrl, "_blank", "noopener");
+
     document.getElementById("listConfirmRef").textContent = "Reference: " + ref;
+    document.getElementById("listConfirmFileNote").hidden = !uploadedListFile;
+    document.getElementById("listConfirmWaLink").href = waUrl;
     listFormView.hidden = true;
     listConfirmView.hidden = false;
   });
@@ -1295,7 +1336,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     listSubmitNote.hidden = true;
     renderListItems();
     listInquiryForm.reset();
-    clearUploadedImage();
+    clearUploadedFile();
   });
   renderListItems();
 
