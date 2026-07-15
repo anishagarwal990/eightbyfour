@@ -458,6 +458,16 @@
   }
   .control select:disabled{opacity:0.5; cursor:not-allowed;}
   .catalog-full{padding:22px 28px 60px; max-width:1320px; margin:0 auto;}
+  .quote-banner{
+    background:var(--card); border-top:1.5px solid var(--line-strong); border-bottom:1.5px solid var(--line-strong);
+    padding:34px 28px;
+  }
+  .quote-banner-inner{
+    max-width:1320px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;
+    gap:20px; flex-wrap:wrap;
+  }
+  .quote-banner h3{font-family:'Playfair Display',serif; font-weight:700; font-size:19px; margin-bottom:6px;}
+  .quote-banner p{font-size:13.5px; color:#6b6b6b; margin:0; max-width:480px;}
 
   /* ---------- Blog ---------- */
   .blog-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:20px; padding:0 28px 60px; max-width:1320px; margin:0 auto;}
@@ -659,6 +669,16 @@
     <button id="emptyReset">Reset filters</button>
   </div>
 </div>
+
+<section class="quote-banner">
+  <div class="quote-banner-inner">
+    <div>
+      <h3>Made your list while browsing?</h3>
+      <p>Add everything you need to one quotation request — items, quantities, or just upload a file.</p>
+    </div>
+    <button class="btn-primary" id="productsQuoteBtn" type="button">Request a Quote</button>
+  </div>
+</section>
 
 <section class="faq-section">
   <div class="section-head">
@@ -922,7 +942,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
     categoryTiles.appendChild(tile);
   });
 
-  document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openModal(null));
+  document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
 
   // ---------- Products page: Category / Group dropdowns ----------
   const categorySelect = document.getElementById("categorySelect");
@@ -1262,6 +1282,7 @@ const PRODUCTS = [...PLYWOOD_PRODUCTS, ...LAMINATE_PRODUCTS];
   }
 
   document.getElementById("listRequestBtn").addEventListener("click", openListModal);
+  document.getElementById("productsQuoteBtn").addEventListener("click", openListModal);
   document.getElementById("closeListModal").addEventListener("click", closeListModal);
   document.getElementById("addItemBtn").addEventListener("click", addItem);
   itemDesc.addEventListener("keydown", e=>{ if(e.key === "Enter"){ e.preventDefault(); addItem(); } });
