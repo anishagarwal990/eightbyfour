@@ -292,15 +292,8 @@
     border-bottom:1.5px solid var(--line-strong);
   }
   .hero-inner{max-width:680px; margin:0 auto;}
-  .logo-mark{display:flex; flex-direction:column; align-items:center; line-height:0.8; margin-bottom:26px;}
-  .logo-8, .logo-4{
-    font-family:'Playfair Display',serif; font-weight:400; font-size:128px; line-height:0.82;
-  }
-  .logo-row2{position:relative; display:inline-block;}
-  .logo-x{
-    position:absolute; right:100%; bottom:10px; white-space:nowrap;
-    font-family:'Playfair Display',serif; font-weight:400; font-style:normal; font-size:38px;
-  }
+  .logo-mark{display:flex; flex-direction:column; align-items:center; margin-bottom:26px;}
+  .logo-mark img{width:200px; height:auto;}
   .hero-tagline{
     font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; letter-spacing:4px;
     text-transform:uppercase; color:var(--ink); margin:0;
@@ -332,8 +325,7 @@
   .badge span{font-size:11px; color:var(--walnut); text-align:center; line-height:1.3;}
 
   @media (max-width:600px){
-    .logo-8, .logo-4{font-size:76px;}
-    .logo-x{font-size:24px; bottom:6px;}
+    .logo-mark img{width:130px;}
   }
 
   /* ---------- Category tiles ---------- */
@@ -698,8 +690,7 @@
 <section class="hero">
   <div class="hero-inner">
     <div class="logo-mark">
-      <div class="logo-8">8</div>
-      <div class="logo-row2"><span class="logo-x">x</span><span class="logo-4">4</span></div>
+      <img src="https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/eightbyfour-hero-logo.png" alt="8x4">
     </div>
     <p class="hero-tagline">Anything 8×4, You Know Where To Buy</p>
     <p class="hero-sub">Plywood, MDF, laminates, boards — anything that comes in a standard 8×4 ft sheet, sourced from established manufacturers. Browse the register, and inquire on exactly what your site needs.</p>
