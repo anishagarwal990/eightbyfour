@@ -6,7 +6,7 @@
 <title>Eightbyfour — Anything 8×4, Sorted.</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFFFFF'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-weight='900' font-size='58' text-anchor='middle' fill='%23121212'%3E8%C3%974%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -384,12 +384,7 @@
   .brand-tile .brand-tile-count{
     font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--walnut); text-transform:uppercase; letter-spacing:0.5px;
   }
-  .propperly-wordmark{
-    background:#0F0F0F; border-radius:6px; width:100%; padding:10px 8px;
-    display:flex; flex-direction:column; align-items:center; gap:3px;
-  }
-  .propperly-name{font-family:'Fredoka',sans-serif; font-weight:700; font-size:19px; color:#fff; line-height:1;}
-  .propperly-tagline{font-family:'Fredoka',sans-serif; font-weight:500; font-size:8.5px; color:#fff; letter-spacing:0.2px;}
+  .brand-tile img[alt="Propperly logo"]{background:#0F0F0F; border-radius:6px; padding:6px 10px; box-sizing:content-box;}
 
   /* ---------- How it works ---------- */
   .how-section{padding:44px 28px; max-width:1100px; margin:0 auto;}
@@ -1453,7 +1448,7 @@
     { brand: "Greenply", category: "Plywood", group: "Greenply", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/greenply.svg" },
     { brand: "Mikasa", category: "Plywood", group: "Mikasa", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/mikasa.png" },
     { brand: "Wigwam Excel", category: "Plywood", group: "Wigwam Excel", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/wigwam-excel.png" },
-    { brand: "Propperly", category: "Laminates", group: "", wordmark: true },
+    { brand: "Propperly", category: "Laminates", group: "", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
   ];
 
   function goToBrand(category, group){
@@ -1476,10 +1471,7 @@
     const tile = document.createElement("button");
     tile.type = "button";
     tile.className = "brand-tile";
-    const media = bt.wordmark
-      ? `<div class="propperly-wordmark"><div class="propperly-name">Prop-perly</div><div class="propperly-tagline">Property Curated Properly</div></div>`
-      : `<img src="${bt.logo}" alt="${bt.brand} logo" loading="lazy">`;
-    tile.innerHTML = `${media}<div class="brand-tile-count">${count} SKUs</div>`;
+    tile.innerHTML = `<img src="${bt.logo}" alt="${bt.brand} logo" loading="lazy"><div class="brand-tile-count">${count} SKUs</div>`;
     tile.addEventListener("click", ()=> goToBrand(bt.category, bt.group));
     brandTiles.appendChild(tile);
   });
