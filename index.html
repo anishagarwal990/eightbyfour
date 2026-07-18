@@ -485,7 +485,19 @@
   .page[hidden]{display:none;}
 
   /* ---------- Product controls (dropdown browsing) ---------- */
-  .products-head{padding:40px 28px 0; max-width:1320px; margin:0 auto;}
+  .products-head{
+    padding:40px 28px 0; max-width:1320px; margin:0 auto;
+    display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px;
+  }
+  .back-to-categories{
+    background:none; border:none; cursor:pointer; padding:6px 0;
+    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; letter-spacing:1px;
+    color:var(--burgundy); text-transform:uppercase;
+  }
+  .back-to-categories:hover{color:var(--burgundy-dark); text-decoration:underline;}
+  .back-to-categories[hidden]{display:none;}
+  .cat-tiles-wrap{padding:22px 28px 50px; max-width:1320px; margin:0 auto;}
+  .cat-tiles-wrap[hidden]{display:none;}
   .product-controls{
     display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end;
     padding:22px 28px; max-width:1320px; margin:0 auto; border-bottom:1.5px solid var(--line-strong);
@@ -794,9 +806,18 @@
     <div class="section-eyebrow">Catalog</div>
     <h3>Browse Products</h3>
   </div>
+  <button class="back-to-categories" id="backToCategories" type="button" hidden>← All Categories</button>
 </div>
 
-<div class="product-controls">
+<div class="cat-tiles-wrap" id="productCatTilesWrap">
+  <div class="cat-tiles" id="productCatTiles"></div>
+  <div class="cat-expanding-wrap">
+    <div class="cat-expanding-label">Expanding Soon</div>
+    <div class="cat-expanding" id="productCatExpanding"></div>
+  </div>
+</div>
+
+<div class="product-controls" id="productControls" hidden>
   <div class="control">
     <label for="categorySelect">Category</label>
     <select id="categorySelect"></select>
@@ -815,7 +836,7 @@
   </div>
 </div>
 
-<div class="catalog-full">
+<div class="catalog-full" id="catalogFull" hidden>
   <div class="grid" id="productGrid"><p style="color:var(--walnut); font-style:italic; grid-column:1/-1;">Loading catalogue…</p></div>
   <div class="empty-state" id="emptyState" hidden>
     <h3>No SKUs match this filter set</h3>
@@ -1239,24 +1260,32 @@
   }
   window.addEventListener("hashchange", ()=> showPage(location.hash.replace("#","") || "home"));
 
-  // ---------- Category tiles (Home) ----------
+  // ---------- Category tiles (Home + Products) ----------
+  function renderCategoryTiles(tilesEl, expandingEl, onSelect){
+    ALL_CATEGORIES.forEach(c=>{
+      const count = PRODUCTS.filter(p=>p.category===c).length;
+      if(count > 0){
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "cat-tile has-stock";
+        tile.innerHTML = `<div class="tile-name">${c}</div><div class="tile-count">${count} SKUs</div>`;
+        tile.addEventListener("click", ()=> onSelect(c));
+        tilesEl.appendChild(tile);
+      } else {
+        const tag = document.createElement("span");
+        tag.textContent = c;
+        expandingEl.appendChild(tag);
+      }
+    });
+  }
   const categoryTiles = document.getElementById("categoryTiles");
   const categoryExpanding = document.getElementById("categoryExpanding");
-  ALL_CATEGORIES.forEach(c=>{
-    const count = PRODUCTS.filter(p=>p.category===c).length;
-    if(count > 0){
-      const tile = document.createElement("button");
-      tile.type = "button";
-      tile.className = "cat-tile has-stock";
-      tile.innerHTML = `<div class="tile-name">${c}</div><div class="tile-count">${count} SKUs</div>`;
-      tile.addEventListener("click", ()=> goToCategory(c));
-      categoryTiles.appendChild(tile);
-    } else {
-      const tag = document.createElement("span");
-      tag.textContent = c;
-      categoryExpanding.appendChild(tag);
-    }
-  });
+  renderCategoryTiles(categoryTiles, categoryExpanding, goToCategory);
+
+  const productCatTilesWrap = document.getElementById("productCatTilesWrap");
+  const productCatTiles = document.getElementById("productCatTiles");
+  const productCatExpanding = document.getElementById("productCatExpanding");
+  renderCategoryTiles(productCatTiles, productCatExpanding, goToCategory);
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
 
@@ -1339,13 +1368,26 @@
     applyFilters();
   }
   document.getElementById("emptyReset").addEventListener("click", resetFilters);
+  document.getElementById("backToCategories").addEventListener("click", resetFilters);
 
   // ---------- Render ----------
   const grid = document.getElementById("productGrid");
   const emptyState = document.getElementById("emptyState");
   const resultTag = document.getElementById("resultTag");
+  const productControls = document.getElementById("productControls");
+  const catalogFull = document.getElementById("catalogFull");
+  const backToCategoriesBtn = document.getElementById("backToCategories");
+
+  function updateProductsView(){
+    const showListing = Boolean(state.category || state.search);
+    productCatTilesWrap.hidden = showListing;
+    productControls.hidden = !showListing;
+    catalogFull.hidden = !showListing;
+    backToCategoriesBtn.hidden = !showListing;
+  }
 
   function applyFilters(){
+    updateProductsView();
     let list = PRODUCTS.filter(p=>{
       if(state.category && p.category !== state.category) return false;
       if(state.group && p[groupKey(p.category)] !== state.group) return false;
