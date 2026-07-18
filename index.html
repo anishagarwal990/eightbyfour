@@ -1201,6 +1201,22 @@
       : makeSwatch(p);
   });
 
+  // ---------- Swatch placeholder (adhesive — photos coming later) ----------
+  function makeAdhesiveSwatch(item){
+    return `<svg viewBox="0 0 200 90"><rect width="200" height="90" fill="#EFEAE2"/>
+      <g transform="translate(88,18)" fill="none" stroke="#B9AE9C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M9 0 h6 v8 l5 6 v28 a3 3 0 0 1 -3 3 h-10 a3 3 0 0 1 -3 -3 v-28 l5 -6 z"/>
+        <path d="M6 22 h12" stroke-width="1.6"/>
+      </g>
+      <text x="100" y="70" font-family="'Cormorant Garamond',serif" font-weight="600" font-size="11" letter-spacing="1.5" fill="#9C9184" text-anchor="middle">${(item.brand||"").toUpperCase()}</text>
+    </svg>`;
+  }
+  PRODUCTS.filter(p => p.category === "Adhesive").forEach(p => {
+    p.swatch = p.mainImg
+      ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
+      : makeAdhesiveSwatch(p);
+  });
+
   // ---------- Moodboard (parallax infinite wall) ----------
   function shuffle(arr){
     const a = arr.slice();
@@ -1637,15 +1653,15 @@
     grid.innerHTML = list.map(p => p.category === "Adhesive" ? `
       <article class="product-card adhesive-card" data-id="${p.id}">
         <div class="tag-hole"></div>
+        <div class="swatch${p.mainImg ? " has-photo" : ""}">${p.swatch}</div>
         <div class="p-name">${p.name}</div>
         <div class="p-brand">${p.brand} · ${p.category}</div>
-        <table class="price-table">
-          <thead><tr><th>Size</th><th>DLP incl. GST 18%</th></tr></thead>
-          <tbody>
-            ${(p.priceTable || []).map(pt => `<tr><td>${pt.size}</td><td>₹${Number(pt.price).toLocaleString("en-IN")}</td></tr>`).join("")}
-          </tbody>
-        </table>
+        <div class="p-thickness-row">
+          ${(p.priceTable || []).map(pt=>`<span class="thick-chip">${pt.size}</span>`).join("")}
+        </div>
+        <div class="p-desc">Available in ${(p.priceTable || []).length} pack size${(p.priceTable||[]).length===1?"":"s"}.</div>
         <div class="p-footer">
+          <div class="p-price">Price on request</div>
           <button class="inquire-btn" data-id="${p.id}">Inquire</button>
         </div>
       </article>
