@@ -507,6 +507,11 @@
   .back-to-categories[hidden]{display:none;}
   .cat-tiles-wrap{padding:22px 28px 50px; max-width:1320px; margin:0 auto;}
   .cat-tiles-wrap[hidden]{display:none;}
+  .group-tiles-label{
+    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--walnut); margin-bottom:14px;
+  }
+  .group-tiles-label[hidden]{display:none;}
   .product-controls{
     display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end;
     padding:22px 28px; max-width:1320px; margin:0 auto; border-bottom:1.5px solid var(--line-strong);
@@ -835,6 +840,7 @@
 </div>
 
 <div class="cat-tiles-wrap" id="productGroupTilesWrap" hidden>
+  <div class="group-tiles-label" id="groupTilesLabel" hidden></div>
   <div class="cat-tiles" id="productGroupTiles"></div>
 </div>
 
@@ -1400,6 +1406,7 @@
   // ---------- Products page: Group/brand tiles ----------
   const productGroupTilesWrap = document.getElementById("productGroupTilesWrap");
   const productGroupTiles = document.getElementById("productGroupTiles");
+  const groupTilesLabel = document.getElementById("groupTilesLabel");
 
   function selectGroup(g){
     state.group = g;
@@ -1411,6 +1418,14 @@
     productGroupTiles.innerHTML = "";
     const key = groupKey(category);
     const totalCount = PRODUCTS.filter(p=>p.category===category).length;
+
+    const brands = [...new Set(PRODUCTS.filter(p=>p.category===category).map(p=>p.brand && p.brand.trim()).filter(Boolean))];
+    if(key !== "brand" && brands.length === 1){
+      groupTilesLabel.textContent = `${brands[0]} — choose a collection`;
+      groupTilesLabel.hidden = false;
+    } else {
+      groupTilesLabel.hidden = true;
+    }
 
     const allTile = document.createElement("button");
     allTile.type = "button";
