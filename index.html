@@ -122,6 +122,15 @@
     font-size:10.5px; font-family:'IBM Plex Sans',sans-serif; color:var(--walnut);
   }
   .p-desc{font-size:12px; color:#6b6b6b; line-height:1.4;}
+  .price-table{width:100%; border-collapse:collapse; font-size:12px;}
+  .price-table th{
+    text-align:left; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:11px;
+    letter-spacing:0.5px; text-transform:uppercase; color:var(--walnut); padding:4px 0;
+    border-bottom:1px solid var(--line-strong);
+  }
+  .price-table th:last-child, .price-table td:last-child{text-align:right;}
+  .price-table td{padding:4px 0; border-bottom:1px dashed var(--line); color:var(--ink);}
+  .price-table tr:last-child td{border-bottom:none;}
   .p-footer{display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:6px;}
   .p-price{font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:0.3px; color:var(--walnut); font-style:italic;}
   .inquire-btn{
@@ -1114,7 +1123,7 @@
 <script>
 (async function(){
   // Categories exactly as listed in the source inventory sheet (row 2).
-  const ALL_CATEGORIES = ["Plywood","Particle Board","MDF","Laminates","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
+  const ALL_CATEGORIES = ["Plywood","Particle Board","MDF","Laminates","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
   // Manufacturers exactly as listed under the Plywood section (row 13-26), plus laminate suppliers.
   const ALL_BRANDS = ["Century","Greenply","Mikasa","Green Panel","Duro","Siamply","Wigwam Excel","Tribeca","Sylvan","Archidply","Austin","Youply","Saburi","Hunsur","Surface"];
   const STD_THICKNESS = ["25mm","19mm","16mm","12mm","9mm","6mm","4mm"];
@@ -1144,6 +1153,7 @@
       tone: row.tone,
       mainImg: row.main_img_url,
       edgeImg: row.edge_img_url,
+      priceTable: row.price_table || [],
       galleryImages: row.gallery_img_urls || [],
     };
   }
@@ -1624,7 +1634,22 @@
     }
     grid.style.display = "grid";
     emptyState.hidden = true;
-    grid.innerHTML = list.map(p => p.category === "Laminates" ? `
+    grid.innerHTML = list.map(p => p.category === "Adhesive" ? `
+      <article class="product-card adhesive-card" data-id="${p.id}">
+        <div class="tag-hole"></div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-brand">${p.brand} · ${p.category}</div>
+        <table class="price-table">
+          <thead><tr><th>Size</th><th>DLP incl. GST 18%</th></tr></thead>
+          <tbody>
+            ${(p.priceTable || []).map(pt => `<tr><td>${pt.size}</td><td>₹${Number(pt.price).toLocaleString("en-IN")}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <div class="p-footer">
+          <button class="inquire-btn" data-id="${p.id}">Inquire</button>
+        </div>
+      </article>
+    ` : p.category === "Laminates" ? `
       <article class="product-card laminate-card" data-id="${p.id}">
         <div class="tag-hole"></div>
         <div class="lam-swatch"><img src="${p.mainImg}" alt="${p.name} laminate swatch" loading="lazy"></div>
@@ -1690,6 +1715,12 @@
       slipProduct.innerHTML = `<div class="slip-product-img"><img src="${product.mainImg}" alt="${product.name}"></div><b>${product.name}</b>${product.brand} · ${finishLabel} · ${product.size} · Price on request`;
       thicknessField.hidden = true;
       sampleField.hidden = false;
+    } else if(product && product.category === "Adhesive"){
+      slipRef.textContent = "SKU-" + String(product.id).padStart(4,"0");
+      const sizes = (product.priceTable || []).map(pt => pt.size).join(", ");
+      slipProduct.innerHTML = `<b>${product.brand} — ${product.name}</b>${product.category} · Available in: ${sizes}`;
+      thicknessField.hidden = true;
+      sampleField.hidden = true;
     } else if(product){
       slipRef.textContent = "SKU-" + String(product.id).padStart(4,"0");
       slipProduct.innerHTML = `<b>${product.brand} — ${product.name}</b>${product.category} · ${product.size} · Price on request`;
