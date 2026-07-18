@@ -270,10 +270,10 @@
   .logo-8, .logo-4{
     font-family:'Playfair Display',serif; font-weight:400; font-size:128px; line-height:0.82;
   }
-  .logo-row2{display:flex; align-items:baseline;}
+  .logo-row2{position:relative; display:inline-block;}
   .logo-x{
+    position:absolute; right:100%; bottom:10px; white-space:nowrap;
     font-family:'Playfair Display',serif; font-weight:400; font-style:normal; font-size:38px;
-    transform:translateY(-12px); margin-right:2px;
   }
   .hero-tagline{
     font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; letter-spacing:4px;
@@ -307,7 +307,7 @@
 
   @media (max-width:600px){
     .logo-8, .logo-4{font-size:76px;}
-    .logo-x{font-size:24px; transform:translateY(-8px);}
+    .logo-x{font-size:24px; bottom:6px;}
   }
 
   /* ---------- Category tiles ---------- */
