@@ -502,6 +502,7 @@
     display:flex; gap:18px; flex-wrap:wrap; align-items:flex-end;
     padding:22px 28px; max-width:1320px; margin:0 auto; border-bottom:1.5px solid var(--line-strong);
   }
+  .product-controls[hidden]{display:none;}
   .control{display:flex; flex-direction:column; gap:6px; min-width:220px;}
   .control label{
     font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12.5px; letter-spacing:2px;
@@ -817,6 +818,10 @@
   </div>
 </div>
 
+<div class="cat-tiles-wrap" id="productGroupTilesWrap" hidden>
+  <div class="cat-tiles" id="productGroupTiles"></div>
+</div>
+
 <div class="product-controls" id="productControls" hidden>
   <div class="control">
     <label for="categorySelect">Category</label>
@@ -1130,7 +1135,7 @@
     PRODUCTS = PRODUCT_ROWS.map(mapProductRow);
   }
 
-  const state = { search:"", category:"", group:"", sort:"relevance" };
+  const state = { search:"", category:"", group:null, sort:"relevance" };
   function groupKey(category){ return category === "Laminates" ? "collection" : "brand"; }
 
   // ---------- Swatch generation (layered plywood cross-section) ----------
@@ -1332,7 +1337,7 @@
   function goToCategory(c){
     categorySelect.value = c;
     state.category = c;
-    state.group = "";
+    state.group = null;
     populateGroups(c);
     applyFilters();
     showPage("products");
@@ -1340,7 +1345,7 @@
 
   categorySelect.addEventListener("change", e=>{
     state.category = e.target.value;
-    state.group = "";
+    state.group = null;
     populateGroups(state.category);
     applyFilters();
   });
@@ -1360,7 +1365,7 @@
   });
 
   function resetFilters(){
-    state.search=""; state.category=""; state.group=""; state.sort = "relevance";
+    state.search=""; state.category=""; state.group=null; state.sort = "relevance";
     document.getElementById("searchInput").value = "";
     document.getElementById("sortSelect").value = "relevance";
     categorySelect.value = "";
@@ -1368,7 +1373,47 @@
     applyFilters();
   }
   document.getElementById("emptyReset").addEventListener("click", resetFilters);
-  document.getElementById("backToCategories").addEventListener("click", resetFilters);
+
+  function goBackOneLevel(){
+    if(state.search){ resetFilters(); return; }
+    if(state.group !== null){ state.group = null; applyFilters(); return; }
+    resetFilters();
+  }
+  document.getElementById("backToCategories").addEventListener("click", goBackOneLevel);
+
+  // ---------- Products page: Group/brand tiles ----------
+  const productGroupTilesWrap = document.getElementById("productGroupTilesWrap");
+  const productGroupTiles = document.getElementById("productGroupTiles");
+
+  function selectGroup(g){
+    state.group = g;
+    groupSelect.value = g;
+    applyFilters();
+  }
+
+  function renderGroupTiles(category){
+    productGroupTiles.innerHTML = "";
+    const key = groupKey(category);
+    const totalCount = PRODUCTS.filter(p=>p.category===category).length;
+
+    const allTile = document.createElement("button");
+    allTile.type = "button";
+    allTile.className = "cat-tile has-stock";
+    allTile.innerHTML = `<div class="tile-name">All ${category}</div><div class="tile-count">${totalCount} SKUs</div>`;
+    allTile.addEventListener("click", ()=> selectGroup(""));
+    productGroupTiles.appendChild(allTile);
+
+    const groups = [...new Set(PRODUCTS.filter(p=>p.category===category).map(p=>p[key]).filter(Boolean))].sort();
+    groups.forEach(g=>{
+      const count = PRODUCTS.filter(p=>p.category===category && p[key]===g).length;
+      const tile = document.createElement("button");
+      tile.type = "button";
+      tile.className = "cat-tile has-stock";
+      tile.innerHTML = `<div class="tile-name">${g}</div><div class="tile-count">${count} SKUs</div>`;
+      tile.addEventListener("click", ()=> selectGroup(g));
+      productGroupTiles.appendChild(tile);
+    });
+  }
 
   // ---------- Render ----------
   const grid = document.getElementById("productGrid");
@@ -1379,11 +1424,22 @@
   const backToCategoriesBtn = document.getElementById("backToCategories");
 
   function updateProductsView(){
-    const showListing = Boolean(state.category || state.search);
-    productCatTilesWrap.hidden = showListing;
+    const searchActive = Boolean(state.search);
+    const categoryChosen = Boolean(state.category);
+    const groupChosen = state.group !== null;
+
+    const showCategoryTiles = !searchActive && !categoryChosen;
+    const showGroupTiles = !searchActive && categoryChosen && !groupChosen;
+    const showListing = searchActive || (categoryChosen && groupChosen);
+
+    productCatTilesWrap.hidden = !showCategoryTiles;
+    productGroupTilesWrap.hidden = !showGroupTiles;
     productControls.hidden = !showListing;
     catalogFull.hidden = !showListing;
-    backToCategoriesBtn.hidden = !showListing;
+    backToCategoriesBtn.hidden = showCategoryTiles;
+    backToCategoriesBtn.textContent = (!searchActive && groupChosen) ? `← ${state.category}` : "← All Categories";
+
+    if(showGroupTiles) renderGroupTiles(state.category);
   }
 
   function applyFilters(){
