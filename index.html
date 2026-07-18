@@ -369,6 +369,21 @@
     font-size:11.5px; font-family:'IBM Plex Sans',sans-serif; color:#9a9a9a;
   }
 
+  /* ---------- Brand tiles ---------- */
+  .brands-section{padding:10px 28px 10px; max-width:1320px; margin:0 auto;}
+  .brand-tiles{display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px; margin-bottom:10px;}
+  .brand-tile{
+    border:1.3px solid var(--line-strong); border-radius:4px; background:var(--card);
+    padding:18px 14px; cursor:pointer; transition:border-color .15s, transform .15s;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; min-height:100px;
+  }
+  .brand-tile:hover{border-color:var(--ink); transform:translateY(-2px);}
+  @media (prefers-reduced-motion: reduce){ .brand-tile:hover{transform:none;} }
+  .brand-tile img{max-width:100%; max-height:42px; object-fit:contain;}
+  .brand-tile .brand-tile-count{
+    font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--walnut); text-transform:uppercase; letter-spacing:0.5px;
+  }
+
   /* ---------- How it works ---------- */
   .how-section{padding:44px 28px; max-width:1100px; margin:0 auto;}
   .how-steps{display:flex; gap:18px; flex-wrap:wrap; justify-content:space-between; position:relative;}
@@ -709,6 +724,14 @@
     <div class="cat-expanding-label">Expanding Soon</div>
     <div class="cat-expanding" id="categoryExpanding"></div>
   </div>
+</section>
+
+<section class="brands-section">
+  <div class="section-head">
+    <div class="section-eyebrow">Browse by Brand</div>
+    <h3>Manufacturers We Carry</h3>
+  </div>
+  <div class="brand-tiles" id="brandTiles"></div>
 </section>
 
 <section class="how-section">
@@ -1414,6 +1437,39 @@
       productGroupTiles.appendChild(tile);
     });
   }
+
+  // ---------- Brand tiles (Home) ----------
+  const BRAND_LOGOS = {
+    "Century": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png",
+    "Austin": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/austin.png",
+    "Green Panel": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/green-panel.png",
+    "Greenply": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/greenply.svg",
+    "Mikasa": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/mikasa.png",
+    "Wigwam Excel": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/wigwam-excel.png",
+  };
+
+  function goToBrand(category, brand){
+    categorySelect.value = category;
+    state.category = category;
+    populateGroups(category);
+    state.group = brand;
+    groupSelect.value = brand;
+    applyFilters();
+    showPage("products");
+  }
+
+  const brandTiles = document.getElementById("brandTiles");
+  Object.keys(BRAND_LOGOS).forEach(brand=>{
+    const match = PRODUCTS.find(p=>p.brand===brand);
+    if(!match) return;
+    const count = PRODUCTS.filter(p=>p.brand===brand).length;
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "brand-tile";
+    tile.innerHTML = `<img src="${BRAND_LOGOS[brand]}" alt="${brand} logo" loading="lazy"><div class="brand-tile-count">${count} SKUs</div>`;
+    tile.addEventListener("click", ()=> goToBrand(match.category, brand));
+    brandTiles.appendChild(tile);
+  });
 
   // ---------- Render ----------
   const grid = document.getElementById("productGrid");
