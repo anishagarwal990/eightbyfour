@@ -1851,9 +1851,15 @@
     lightboxIndex = 0;
     renderLightboxImage();
     lightboxName.textContent = product.name;
-    lightboxMeta.textContent = product.category === "Laminates"
-      ? `${product.brand} · ${product.sdCode} · ${(product.finishes && product.finishes.join(", ")) || product.finish || ""}`
-      : `${product.brand} · ${product.grade} · ${product.size}`;
+    if(product.category === "Laminates"){
+      lightboxMeta.textContent = `${product.brand} · ${product.sdCode} · ${(product.finishes && product.finishes.join(", ")) || product.finish || ""}`;
+    } else if(product.category === "Adhesive"){
+      const sizeCount = (product.priceTable || []).length;
+      lightboxMeta.textContent = `${product.brand} · ${sizeCount} pack size${sizeCount === 1 ? "" : "s"} available`;
+    } else {
+      lightboxMeta.textContent = `${product.brand} · ${product.grade} · ${product.size}`;
+    }
+    lightboxInquire.textContent = product.category === "Adhesive" ? "Inquire About This Product" : "Inquire About This Sheet";
     lightboxOverlay.hidden = false;
   }
   function closeLightbox(){ lightboxOverlay.hidden = true; lightboxProduct = null; lightboxImages = []; }
