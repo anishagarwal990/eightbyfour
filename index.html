@@ -376,6 +376,17 @@
     .ribbon-section{overflow-x:auto;}
   }
 
+  /* ---------- SEO location strip ---------- */
+  .seo-strip{border-top:1px solid var(--line-strong); padding:26px 28px; max-width:1320px; margin:0 auto;}
+  .seo-strip-label{
+    font-family:'Canela Text',serif; font-weight:500; font-size:11px; letter-spacing:2.5px;
+    text-transform:uppercase; color:var(--walnut); margin-bottom:12px;
+  }
+  .seo-strip-list{font-size:12.5px; line-height:2; color:#9a9a9a;}
+  .seo-strip-list a{color:#9a9a9a; text-decoration:none;}
+  .seo-strip-list a:hover, .seo-strip-list a:focus-visible{color:var(--burgundy);}
+  .seo-strip-sep{margin:0 8px; color:var(--line-strong);}
+
   /* ---------- Product Universe ---------- */
   .universe-section{padding:10px 28px 44px; max-width:1320px; margin:0 auto;}
   .universe-subtitle{margin-top:8px; font-size:14px; color:#6b6b6b; max-width:56ch;}
@@ -1179,6 +1190,11 @@
   </div>
 </div>
 
+<section class="seo-strip" aria-label="Products available across Hyderabad">
+  <div class="seo-strip-label">Available Across Hyderabad</div>
+  <p class="seo-strip-list" id="seoStripList"></p>
+</section>
+
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -1333,10 +1349,19 @@
     }
   }
 
+  function shuffleArray(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   function renderRibbon(){
     const rowLeft = document.getElementById("ribbonRowLeft");
     const rowRight = document.getElementById("ribbonRowRight");
     if(!rowLeft || !rowRight) return;
+    shuffleArray(RIBBON_ITEMS);
     const pillsHtml = RIBBON_ITEMS.map((item, i) =>
       `<a href="#products" class="ribbon-pill" data-universe-index="${i}">${item.name}</a>`
     ).join("");
@@ -1374,8 +1399,24 @@
     });
   }
 
+  function renderSeoStrip(){
+    const list = document.getElementById("seoStripList");
+    if(!list) return;
+    list.innerHTML = RIBBON_ITEMS.map((item, i) =>
+      `<a href="#products" data-seo-index="${i}">${item.name} in Hyderabad</a>`
+    ).join(`<span class="seo-strip-sep">·</span>`);
+    list.addEventListener("click", e=>{
+      const link = e.target.closest("a[data-seo-index]");
+      if(!link) return;
+      e.preventDefault();
+      const item = RIBBON_ITEMS[Number(link.dataset.seoIndex)];
+      if(item) handleUniverseClick(item);
+    });
+  }
+
   renderRibbon();
   renderUniverse();
+  renderSeoStrip();
 
   const { data: PRODUCT_ROWS, error: productsError } = await supabase
     .from("products")
