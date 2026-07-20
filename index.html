@@ -1210,7 +1210,7 @@
 <script>
 (async function(){
   // Categories exactly as listed in the source inventory sheet (row 2).
-  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Corian","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
+  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Corian - Acrylic Solid Surface","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
   // Manufacturers exactly as listed under the Plywood section (row 13-26), plus laminate suppliers.
   const ALL_BRANDS = ["Century","Greenply","Mikasa","Green Panel","Duro","Siamply","Wigwam Excel","Tribeca","Sylvan","Archidply","Austin","Youply","Saburi","Hunsur","Surface"];
   const STD_THICKNESS = ["25mm","19mm","16mm","12mm","9mm","6mm","4mm"];
@@ -1265,7 +1265,7 @@
     { name: "Flush Doors" },
     { name: "Laminates", category: "Laminates" }, { name: "Decorative Laminates", category: "Laminates" },
     { name: "Compact Laminates" },
-    { name: "Corian", category: "Corian" },
+    { name: "Corian", category: "Corian - Acrylic Solid Surface" },
     { name: "Wall Panels" }, { name: "Charcoal Panels" }, { name: "WPC Boards" }, { name: "WPC Doors" },
     { name: "Finger Joint Rubberwood" }, { name: "Agrowood" },
     { name: "Veneers" }, { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "European Dyed Veneer" },
@@ -1290,8 +1290,8 @@
     ]},
     { group: "Surface Materials", items: [
       { name: "Decorative Laminates", category: "Laminates" }, { name: "Compact Laminates" },
-      { name: "Acrylic Laminates" }, { name: "Corian", category: "Corian" },
-      { name: "Acrylic Solid Surface", category: "Corian" }, { name: "Wall Panels" }, { name: "Charcoal Panels" },
+      { name: "Acrylic Laminates" }, { name: "Corian", category: "Corian - Acrylic Solid Surface" },
+      { name: "Acrylic Solid Surface", category: "Corian - Acrylic Solid Surface" }, { name: "Wall Panels" }, { name: "Charcoal Panels" },
     ]},
     { group: "Veneers", items: [
       { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "Light Oak Veneer" },
@@ -1406,7 +1406,7 @@
     }
     return `<svg viewBox="0 0 200 90"><defs><filter id="plyGrain" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.02" numOctaves="1" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feComposite operator="over" in2="SourceGraphic"/></filter></defs>${stripes}</svg>`;
   }
-  PRODUCTS.filter(p => p.category === "Plywood" || p.category === "Birch Plywood" || p.category === "Corian").forEach(p => {
+  PRODUCTS.filter(p => p.category === "Plywood" || p.category === "Birch Plywood" || p.category === "Corian - Acrylic Solid Surface").forEach(p => {
     p.swatch = p.mainImg
       ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
       : makeSwatch(p);
@@ -1568,7 +1568,7 @@
     "Laminates": "From matte finishes to high-gloss and woodgrain textures, explore Propperly's laminate range across multiple collections — 1.0mm HPL sheets in the standard 8×4 ft size, with matching edge bands available. Suited to cabinet doors, wardrobes, and countertops.",
     "Adhesive": "Stock up on Fevicol-branded adhesives and sealants for every stage of a woodworking or interior project — from synthetic resin adhesives to silicone sealants, in pack sizes to match any job, big or small.",
     "Birch Plywood": "Imported directly from Russia and the Baltic region, our Birch Plywood is made from thin, uniform layers of birch veneer with a void-free core — light, fine-grained, and known for superior screw and nail holding. Suited to furniture, cabinetry, laser cutting, and engineered flooring. Available in standard 8×4 ft sheets, 4mm–18mm thickness, graded to GOST standards.",
-    "Corian": "A seamless, homogeneous acrylic solid surface for countertops, vanities, and wall cladding — non-porous, easy to clean, and workable with standard woodworking tools. Browse shades across two brands, Durasein and Tiara, in standard 8×2.5 ft sheets and 6mm/12mm thickness.",
+    "Corian - Acrylic Solid Surface": "A seamless, homogeneous acrylic solid surface for countertops, vanities, and wall cladding — non-porous, easy to clean, and workable with standard woodworking tools. Browse shades across two brands, Durasein and Tiara, in standard 8×2.5 ft sheets and 6mm/12mm thickness.",
   };
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
