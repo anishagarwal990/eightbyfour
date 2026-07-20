@@ -355,7 +355,7 @@
 
   /* ---------- Product ribbon ---------- */
   .ribbon-section{
-    background:var(--paper); border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong);
+    background:var(--card); border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong);
     padding:16px 0; overflow:hidden;
   }
   .ribbon-row{display:flex; gap:10px; width:max-content;}
@@ -365,12 +365,12 @@
   @keyframes ribbon-left{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
   @keyframes ribbon-right{ from{transform:translateX(-50%);} to{transform:translateX(0);} }
   .ribbon-pill{
-    flex:0 0 auto; padding:9px 20px; border:1.3px solid var(--line-strong); border-radius:30px;
-    background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;
+    flex:0 0 auto; padding:9px 14px; border:none; border-radius:0;
+    background:transparent; color:#8a8a8a; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;
     font-weight:500; letter-spacing:0.2px; white-space:nowrap; cursor:pointer; text-decoration:none; display:inline-block;
-    transition:background .25s ease, color .25s ease, border-color .25s ease;
+    transition:color .25s ease;
   }
-  .ribbon-pill:hover, .ribbon-pill:focus-visible{background:var(--burgundy); border-color:var(--burgundy); color:#fff;}
+  .ribbon-pill:hover, .ribbon-pill:focus-visible{color:var(--burgundy);}
   @media (prefers-reduced-motion: reduce){
     .ribbon-row{animation:none !important;}
     .ribbon-section{overflow-x:auto;}
