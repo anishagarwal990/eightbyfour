@@ -353,6 +353,51 @@
   }
   .badge span{font-size:11px; color:var(--walnut); text-align:center; line-height:1.3;}
 
+  /* ---------- Product ribbon ---------- */
+  .ribbon-section{
+    background:var(--paper); border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong);
+    padding:16px 0; overflow:hidden;
+  }
+  .ribbon-row{display:flex; gap:10px; width:max-content;}
+  .ribbon-row.row-left{animation:ribbon-left 90s linear infinite;}
+  .ribbon-row.row-right{animation:ribbon-right 100s linear infinite; margin-top:10px;}
+  .ribbon-section:hover .ribbon-row{animation-play-state:paused;}
+  @keyframes ribbon-left{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
+  @keyframes ribbon-right{ from{transform:translateX(-50%);} to{transform:translateX(0);} }
+  .ribbon-pill{
+    flex:0 0 auto; padding:9px 20px; border:1.3px solid var(--line-strong); border-radius:30px;
+    background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;
+    font-weight:500; letter-spacing:0.2px; white-space:nowrap; cursor:pointer; text-decoration:none; display:inline-block;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .ribbon-pill:hover, .ribbon-pill:focus-visible{background:var(--burgundy); border-color:var(--burgundy); color:#fff;}
+  @media (prefers-reduced-motion: reduce){
+    .ribbon-row{animation:none !important;}
+    .ribbon-section{overflow-x:auto;}
+  }
+
+  /* ---------- Product Universe ---------- */
+  .universe-section{padding:10px 28px 44px; max-width:1320px; margin:0 auto;}
+  .universe-subtitle{margin-top:8px; font-size:14px; color:#6b6b6b; max-width:56ch;}
+  .universe-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:32px 24px; margin-top:28px;
+  }
+  .universe-group h4{
+    font-family:'Canela Text',serif; font-weight:700; font-size:15px; margin-bottom:14px;
+    padding-bottom:8px; border-bottom:1px dashed var(--line-strong);
+  }
+  .universe-group ul{list-style:none; display:flex; flex-direction:column; gap:9px;}
+  .universe-group a, .universe-group button{
+    background:none; border:none; padding:0; text-align:left; cursor:pointer;
+    font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#5a5a5a; text-decoration:none;
+    transition:color .15s;
+  }
+  .universe-group a:hover, .universe-group button:hover,
+  .universe-group a:focus-visible, .universe-group button:focus-visible{color:var(--burgundy);}
+  @media (max-width:600px){
+    .universe-grid{grid-template-columns:1fr 1fr; gap:26px 16px;}
+  }
+
   @media (max-width:600px){
     .logo-mark img{width:130px;}
   }
@@ -724,6 +769,11 @@
   <div class="result-tag" id="resultTag"></div>
 </header>
 
+<section class="ribbon-section" aria-label="Browse by product">
+  <div class="ribbon-row row-left" id="ribbonRowLeft"></div>
+  <div class="ribbon-row row-right" id="ribbonRowRight"></div>
+</section>
+
 <section class="page" id="page-home">
 
 <section class="hero">
@@ -764,6 +814,15 @@
     <div class="cat-expanding-label">Expanding Soon</div>
     <div class="cat-expanding" id="categoryExpanding"></div>
   </div>
+</section>
+
+<section class="universe-section" aria-labelledby="universeHeading">
+  <div class="section-head">
+    <div class="section-eyebrow">The Full Range</div>
+    <h3 id="universeHeading">Product Universe</h3>
+    <p class="universe-subtitle">Everything required to build, furnish and finish exceptional interiors.</p>
+  </div>
+  <div class="universe-grid" id="universeGrid"></div>
 </section>
 
 <section class="how-section">
@@ -1195,6 +1254,129 @@
   }
 
   let PRODUCTS = [];
+
+  // ---------- Product ribbon + Product Universe (static, data-driven; rendered before the
+  // network fetch below so the text is present immediately, not gated behind an async load) ----------
+  const RIBBON_ITEMS = [
+    { name: "Commercial Plywood", category: "Plywood" },
+    { name: "Marine Plywood", category: "Plywood" },
+    { name: "Birch Ply", category: "Birch Plywood" },
+    { name: "Interior MDF" }, { name: "Exterior MDF" }, { name: "HDHMR" }, { name: "Blockboard" },
+    { name: "Flush Doors" },
+    { name: "Laminates", category: "Laminates" }, { name: "Decorative Laminates", category: "Laminates" },
+    { name: "Compact Laminates" },
+    { name: "Corian", category: "Corian" },
+    { name: "Wall Panels" }, { name: "Charcoal Panels" }, { name: "WPC Boards" }, { name: "WPC Doors" },
+    { name: "Finger Joint Rubberwood" }, { name: "Agrowood" },
+    { name: "Veneers" }, { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "European Dyed Veneer" },
+    { name: "Dyed Veneer" }, { name: "Embossed Veneer" }, { name: "Marquetry Veneer" },
+    { name: "Fevicol", category: "Adhesive", brand: "Fevicol" }, { name: "Wood Adhesives", category: "Adhesive" },
+    { name: "Construction Adhesives" }, { name: "Silicone" }, { name: "Sealants" },
+    { name: "Bison Panel" }, { name: "Cement Board" },
+    { name: "Nails" }, { name: "Screws" }, { name: "Patta Screws" },
+    { name: "Hinges" }, { name: "Soft Close Hinges" }, { name: "Box Hinges" }, { name: "Channels" },
+    { name: "Drawer Systems" }, { name: "Kitchen Accessories" }, { name: "Wardrobe Accessories" },
+    { name: "Louvers" }, { name: "SS Legs" }, { name: "Aldrops" }, { name: "Latches" },
+    { name: "Edge Banding" }, { name: "PVC Edge Band" },
+  ];
+
+  const PRODUCT_UNIVERSE = [
+    { group: "Wood Panels", items: [
+      { name: "Commercial Plywood", category: "Plywood" }, { name: "Marine Plywood", category: "Plywood" },
+      { name: "Birch Ply", category: "Birch Plywood" }, { name: "Flexible Plywood" }, { name: "Blockboard" },
+      { name: "Flush Doors" }, { name: "Interior MDF" }, { name: "Exterior MDF" }, { name: "HDHMR" },
+      { name: "Finger Joint Rubberwood" }, { name: "Agrowood" }, { name: "WPC Boards" }, { name: "WPC Doors" },
+      { name: "Bison Panel" }, { name: "Cement Board" },
+    ]},
+    { group: "Surface Materials", items: [
+      { name: "Decorative Laminates", category: "Laminates" }, { name: "Compact Laminates" },
+      { name: "Acrylic Laminates" }, { name: "Corian", category: "Corian" },
+      { name: "Acrylic Solid Surface", category: "Corian" }, { name: "Wall Panels" }, { name: "Charcoal Panels" },
+    ]},
+    { group: "Veneers", items: [
+      { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "Light Oak Veneer" },
+      { name: "European Dyed Veneer" }, { name: "Dyed Veneer" }, { name: "Embossed Veneer" },
+      { name: "Marquetry Veneer" }, { name: "Teak Veneer" },
+    ]},
+    { group: "Hardware", items: [
+      { name: "Hinges" }, { name: "Soft Close Hinges" }, { name: "Box Hinges" }, { name: "Channels" },
+      { name: "Drawer Systems" }, { name: "Handles" }, { name: "Knobs" }, { name: "Kitchen Accessories" },
+      { name: "Wardrobe Accessories" }, { name: "Sliding Systems" }, { name: "Louvers" }, { name: "SS Legs" },
+      { name: "Shelf Supports" }, { name: "Door Closers" },
+    ]},
+    { group: "Fasteners", items: [
+      { name: "Nails" }, { name: "Wood Screws" }, { name: "Patta Screws" }, { name: "Anchor Fasteners" },
+      { name: "Drywall Screws" },
+    ]},
+    { group: "Adhesives & Chemicals", items: [
+      { name: "Fevicol", category: "Adhesive", brand: "Fevicol" }, { name: "Wood Adhesives", category: "Adhesive" },
+      { name: "Construction Adhesives" }, { name: "Silicone" }, { name: "Sealants" }, { name: "Wood Fillers" },
+      { name: "PU Adhesives" },
+    ]},
+    { group: "Architectural Accessories", items: [
+      { name: "Edge Banding" }, { name: "PVC Edge Band" }, { name: "Glass Hardware" },
+      { name: "Aluminium Profiles" }, { name: "Decorative Mouldings" }, { name: "Door Accessories" },
+    ]},
+  ];
+
+  function universeItemHasStock(item){
+    if(!item.category) return false;
+    return PRODUCTS.some(p => p.category === item.category && (!item.brand || (p.brand || "").trim() === item.brand));
+  }
+
+  function handleUniverseClick(item){
+    if(universeItemHasStock(item)){
+      if(item.brand) goToBrand(item.category, item.brand);
+      else goToCategory(item.category);
+    } else {
+      openInterestInquiry(item.name);
+    }
+  }
+
+  function renderRibbon(){
+    const rowLeft = document.getElementById("ribbonRowLeft");
+    const rowRight = document.getElementById("ribbonRowRight");
+    if(!rowLeft || !rowRight) return;
+    const pillsHtml = RIBBON_ITEMS.map((item, i) =>
+      `<a href="#products" class="ribbon-pill" data-universe-index="${i}">${item.name}</a>`
+    ).join("");
+    // Duplicated once for a seamless 50%-translate loop.
+    rowLeft.innerHTML = pillsHtml + pillsHtml;
+    rowRight.innerHTML = pillsHtml + pillsHtml;
+    [rowLeft, rowRight].forEach(row=>{
+      row.addEventListener("click", e=>{
+        const pill = e.target.closest(".ribbon-pill");
+        if(!pill) return;
+        e.preventDefault();
+        const item = RIBBON_ITEMS[Number(pill.dataset.universeIndex)];
+        if(item) handleUniverseClick(item);
+      });
+    });
+  }
+
+  function renderUniverse(){
+    const grid = document.getElementById("universeGrid");
+    if(!grid) return;
+    grid.innerHTML = PRODUCT_UNIVERSE.map((g, gi) => `
+      <div class="universe-group">
+        <h4>${g.group}</h4>
+        <ul>
+          ${g.items.map((item, ii) => `<li><a href="#products" data-group="${gi}" data-item="${ii}">${item.name}</a></li>`).join("")}
+        </ul>
+      </div>
+    `).join("");
+    grid.addEventListener("click", e=>{
+      const link = e.target.closest("a[data-group]");
+      if(!link) return;
+      e.preventDefault();
+      const item = PRODUCT_UNIVERSE[Number(link.dataset.group)].items[Number(link.dataset.item)];
+      if(item) handleUniverseClick(item);
+    });
+  }
+
+  renderRibbon();
+  renderUniverse();
+
   const { data: PRODUCT_ROWS, error: productsError } = await supabase
     .from("products")
     .select("*")
@@ -1762,9 +1944,11 @@
   const sampleField = document.getElementById("sampleField");
   const fSample = document.getElementById("fSample");
   let currentProduct = null;
+  let interestLabel = null;
 
   function openModal(product, selectedFinish){
     currentProduct = product || null;
+    interestLabel = null;
     formView.hidden = false;
     confirmView.hidden = true;
     inquiryForm.reset();
@@ -1795,7 +1979,22 @@
     modalOverlay.hidden = false;
     document.getElementById("fName").focus();
   }
-  function closeModal(){ modalOverlay.hidden = true; currentProduct = null; }
+  function closeModal(){ modalOverlay.hidden = true; currentProduct = null; interestLabel = null; }
+
+  function openInterestInquiry(itemName){
+    currentProduct = null;
+    interestLabel = itemName;
+    formView.hidden = false;
+    confirmView.hidden = true;
+    inquiryForm.reset();
+    slipRef.textContent = "INTEREST";
+    slipProduct.innerHTML = `<b>${itemName}</b>Not yet listed on the site — tell us your requirement and we'll follow up with sourcing and pricing.`;
+    thicknessField.hidden = true;
+    sampleField.hidden = true;
+    modalOverlay.hidden = false;
+    document.getElementById("fMessage").value = `I'm interested in: ${itemName}`;
+    document.getElementById("fName").focus();
+  }
 
   grid.addEventListener("click", e=>{
     const chip = e.target.closest(".finish-chip");
@@ -1964,6 +2163,8 @@
         lines.push(`Product: ${currentProduct.brand} — ${currentProduct.name}`);
         if(!thicknessField.hidden) lines.push(`Thickness: ${fThickness.value}`);
       }
+    } else if(interestLabel){
+      lines.push(`Interested in: ${interestLabel} (not yet listed on the site)`);
     } else {
       lines.push("General inquiry — no specific product selected.");
     }
