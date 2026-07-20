@@ -28,6 +28,7 @@ create table if not exists public.products (
 alter table public.products add column if not exists app_img_url text;
 alter table public.products add column if not exists gallery_img_urls text[];
 alter table public.products add column if not exists price_table jsonb;
+alter table public.products add column if not exists description text;
 
 create index if not exists products_category_idx on public.products (category);
 create index if not exists products_brand_idx on public.products (brand);

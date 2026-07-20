@@ -109,14 +109,14 @@
   }
   .swatch svg{display:block; width:100%; height:100%;}
   .swatch img{display:block; width:100%; height:100%; object-fit:cover;}
-  .swatch.has-photo{cursor:pointer;}
-  .swatch.has-photo::after{
-    content:"View Full Sheet ↗"; position:absolute; left:0; right:0; bottom:0; padding:6px 8px;
+  .swatch.has-info{cursor:pointer;}
+  .swatch.has-info::after{
+    content:attr(data-hover-label); position:absolute; left:0; right:0; bottom:0; padding:6px 8px;
     background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff;
     font-family:'Canela Text',serif; font-weight:500; font-size:10px; letter-spacing:1.5px;
     text-transform:uppercase; text-align:center; opacity:0; transition:opacity .15s;
   }
-  .swatch.has-photo:hover::after, .swatch.has-photo:focus-visible::after{opacity:1;}
+  .swatch.has-info:hover::after, .swatch.has-info:focus-visible::after{opacity:1;}
   .grade-stamp{
     position:absolute; top:14px; right:14px;
     border:1px solid var(--ink); color:var(--ink); border-radius:2px;
@@ -203,6 +203,9 @@
     background:var(--paper-dim); border-radius:3px; overflow:hidden; position:relative; touch-action:pan-y;
   }
   .lightbox-img-wrap img{max-width:100%; max-height:64vh; object-fit:contain; display:block; user-select:none;}
+  .lightbox-swatch-fallback{width:100%; max-width:260px; padding:20px;}
+  .lightbox-swatch-fallback svg{display:block; width:100%; height:auto;}
+  .lightbox-swatch-fallback[hidden]{display:none;}
   .lightbox-nav{
     position:absolute; top:50%; transform:translateY(-50%); z-index:2;
     width:40px; height:40px; min-width:44px; min-height:44px; border-radius:50%; border:none;
@@ -221,6 +224,11 @@
   }
   .lightbox-dot.active{background:var(--burgundy);}
   .lightbox-caption{margin-top:16px; text-align:center;}
+  .lightbox-description{
+    margin-top:16px; padding-top:16px; border-top:1px dashed var(--line-strong);
+    font-size:13px; line-height:1.65; color:#5a5a5a; text-align:left; white-space:pre-line;
+  }
+  .lightbox-description[hidden]{display:none;}
   .lightbox-name{font-family:'Canela Text',serif; font-weight:700; font-size:19px;}
   .lightbox-meta{
     font-family:'Canela Text',serif; font-weight:500; letter-spacing:2px; text-transform:uppercase;
@@ -982,6 +990,7 @@
     <div class="lightbox-img-wrap" id="lightboxImgWrap">
       <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="Previous image" hidden>‹</button>
       <img id="lightboxImg" src="" alt="">
+      <div class="lightbox-swatch-fallback" id="lightboxSwatchFallback" hidden></div>
       <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="Next image" hidden>›</button>
     </div>
     <div class="lightbox-dots" id="lightboxDots" hidden></div>
@@ -989,6 +998,7 @@
       <div class="lightbox-name" id="lightboxName"></div>
       <div class="lightbox-meta" id="lightboxMeta"></div>
     </div>
+    <div class="lightbox-description" id="lightboxDescription" hidden></div>
     <div class="lightbox-actions">
       <button class="btn-primary" id="lightboxInquire" type="button">Inquire About This Sheet</button>
     </div>
@@ -1172,6 +1182,7 @@
       mainImg: row.main_img_url,
       edgeImg: row.edge_img_url,
       priceTable: row.price_table || [],
+      description: row.description,
       galleryImages: row.gallery_img_urls || [],
     };
   }
@@ -1683,7 +1694,7 @@
     grid.innerHTML = list.map(p => p.category === "Adhesive" ? `
       <article class="product-card adhesive-card" data-id="${p.id}">
         <div class="tag-hole"></div>
-        <div class="swatch${p.mainImg ? " has-photo" : ""}">${p.swatch}</div>
+        <div class="swatch${(p.mainImg || p.description) ? " has-info" : ""}" data-hover-label="${p.mainImg ? "View Full Sheet ↗" : "View Details ↗"}">${p.swatch}</div>
         <div class="p-name">${p.name}</div>
         <div class="p-brand">${p.brand} · ${p.category}</div>
         <div class="p-thickness-row">
@@ -1721,7 +1732,7 @@
     ` : `
       <article class="product-card" data-id="${p.id}">
         <div class="tag-hole"></div>
-        <div class="swatch${p.mainImg ? " has-photo" : ""}">${p.swatch}</div>
+        <div class="swatch${(p.mainImg || p.description) ? " has-info" : ""}" data-hover-label="${p.mainImg ? "View Full Sheet ↗" : "View Details ↗"}">${p.swatch}</div>
         <div class="grade-stamp">${p.grade}</div>
         <div class="p-name">${p.brand} — ${p.name}</div>
         <div class="p-brand">${p.category} · ${p.size}</div>
@@ -1815,7 +1826,7 @@
       if(product) openLightbox(product);
       return;
     }
-    const plySwatch = e.target.closest(".swatch.has-photo");
+    const plySwatch = e.target.closest(".swatch.has-info");
     if(plySwatch){
       const card = plySwatch.closest(".product-card");
       const id = Number(card && card.dataset.id);
@@ -1828,11 +1839,13 @@
   const lightboxOverlay = document.getElementById("lightboxOverlay");
   const lightboxImgWrap = document.getElementById("lightboxImgWrap");
   const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxSwatchFallback = document.getElementById("lightboxSwatchFallback");
   const lightboxPrev = document.getElementById("lightboxPrev");
   const lightboxNext = document.getElementById("lightboxNext");
   const lightboxDots = document.getElementById("lightboxDots");
   const lightboxName = document.getElementById("lightboxName");
   const lightboxMeta = document.getElementById("lightboxMeta");
+  const lightboxDescription = document.getElementById("lightboxDescription");
   const lightboxInquire = document.getElementById("lightboxInquire");
   let lightboxProduct = null;
   let lightboxImages = [];
@@ -1846,8 +1859,16 @@
   }
 
   function renderLightboxImage(){
-    lightboxImg.src = lightboxImages[lightboxIndex];
-    lightboxImg.alt = lightboxProduct ? lightboxProduct.name : "";
+    if(lightboxImages.length === 0){
+      lightboxImg.hidden = true;
+      lightboxSwatchFallback.hidden = false;
+      lightboxSwatchFallback.innerHTML = (lightboxProduct && lightboxProduct.swatch) || "";
+    } else {
+      lightboxImg.hidden = false;
+      lightboxSwatchFallback.hidden = true;
+      lightboxImg.src = lightboxImages[lightboxIndex];
+      lightboxImg.alt = lightboxProduct ? lightboxProduct.name : "";
+    }
     const multi = lightboxImages.length > 1;
     lightboxPrev.hidden = !multi;
     lightboxNext.hidden = !multi;
@@ -1880,6 +1901,12 @@
       lightboxMeta.textContent = `${product.brand} · ${product.grade} · ${product.size}`;
     }
     lightboxInquire.textContent = product.category === "Adhesive" ? "Inquire About This Product" : "Inquire About This Sheet";
+    if(product.description){
+      lightboxDescription.textContent = product.description;
+      lightboxDescription.hidden = false;
+    } else {
+      lightboxDescription.hidden = true;
+    }
     lightboxOverlay.hidden = false;
   }
   function closeLightbox(){ lightboxOverlay.hidden = true; lightboxProduct = null; lightboxImages = []; }
