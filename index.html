@@ -519,6 +519,10 @@
     padding:40px 28px 0; max-width:1320px; margin:0 auto;
     display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:14px;
   }
+  .category-intro-copy{
+    max-width:760px; margin:14px auto 0; padding:0 28px; font-size:14px; line-height:1.6; color:#5a5a5a;
+  }
+  .category-intro-copy[hidden]{display:none;}
   .back-to-categories{
     background:none; border:none; cursor:pointer; padding:6px 0;
     font-family:'Canela Text',serif; font-weight:500; font-size:14px; letter-spacing:1px;
@@ -852,6 +856,8 @@
   </div>
   <button class="back-to-categories" id="backToCategories" type="button" hidden>← All Categories</button>
 </div>
+
+<p class="category-intro-copy" id="categoryIntroCopy" hidden></p>
 
 <div class="cat-tiles-wrap" id="productCatTilesWrap">
   <div class="cat-tiles" id="productCatTiles"></div>
@@ -1363,6 +1369,13 @@
   const productCatExpanding = document.getElementById("productCatExpanding");
   renderCategoryTiles(productCatTiles, productCatExpanding, goToCategory);
 
+  const categoryIntroCopy = document.getElementById("categoryIntroCopy");
+  const CATEGORY_INTRO_COPY = {
+    "Plywood": "Looking for the right plywood for your project? Browse grades from MR to BWP across trusted manufacturers — Century, Austin, Green Panel, Greenply, Mikasa, and Wigwam Excel — all in standard 8×4 ft sheets with the full 4mm–25mm thickness range. Inquire on exactly what your site needs and we'll confirm stock and pricing.",
+    "Laminates": "From matte finishes to high-gloss and woodgrain textures, explore Propperly's laminate range across multiple collections — 1.0mm HPL sheets in the standard 8×4 ft size, with matching edge bands available. Suited to cabinet doors, wardrobes, and countertops.",
+    "Adhesive": "Stock up on Fevicol-branded adhesives and sealants for every stage of a woodworking or interior project — from synthetic resin adhesives to silicone sealants, in pack sizes to match any job, big or small.",
+  };
+
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
 
   // ---------- Products page: Category / Brand / Collection dropdowns ----------
@@ -1630,6 +1643,10 @@
     else if(state.collection !== null) backToCategoriesBtn.textContent = `← ${state.brand || state.category}`;
     else if(state.brand !== null) backToCategoriesBtn.textContent = `← ${state.category}`;
     else backToCategoriesBtn.textContent = "← All Categories";
+
+    const introText = !searchActive && categoryChosen ? CATEGORY_INTRO_COPY[state.category] : null;
+    categoryIntroCopy.textContent = introText || "";
+    categoryIntroCopy.hidden = !introText;
 
     if(showBrandTiles) renderBrandTiles(state.category);
     if(showCollectionTiles) renderCollectionTiles(state.category, state.brand);
