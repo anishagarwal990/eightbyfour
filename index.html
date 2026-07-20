@@ -1917,7 +1917,7 @@
         <div class="tag-hole"></div>
         <div class="swatch${(p.mainImg || p.description) ? " has-info" : ""}" data-hover-label="${p.mainImg ? "View Full Sheet ↗" : "View Details ↗"}">${p.swatch}</div>
         <div class="grade-stamp">${p.grade}</div>
-        <div class="p-name">${p.brand} — ${p.name}</div>
+        <div class="p-name">${p.brand} — ${p.name}${p.sdCode ? ` (${p.sdCode})` : ""}</div>
         <div class="p-brand">${p.category} · ${p.size}</div>
         <div class="p-thickness-row">
           ${p.thicknesses.map(t=>`<span class="thick-chip">${t}</span>`).join("")}
@@ -2098,7 +2098,7 @@
       const sizeCount = (product.priceTable || []).length;
       lightboxMeta.textContent = `${product.brand} · ${sizeCount} pack size${sizeCount === 1 ? "" : "s"} available`;
     } else {
-      lightboxMeta.textContent = `${product.brand} · ${product.grade} · ${product.size}`;
+      lightboxMeta.textContent = `${product.brand}${product.sdCode ? ` · ${product.sdCode}` : ""} · ${product.grade} · ${product.size}`;
     }
     lightboxInquire.textContent = product.category === "Adhesive" ? "Inquire About This Product" : "Inquire About This Sheet";
     if(product.description){
