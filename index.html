@@ -6,9 +6,21 @@
 <title>Eightbyfour — Anything 8×4, Sorted.</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFFFFF'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-weight='900' font-size='58' text-anchor='middle' fill='%23121212'%3E8%C3%974%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
+  @font-face{font-family:'Canela Text'; font-weight:100; font-style:normal; src:url('fonts/CanelaText-Thin-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:100; font-style:italic; src:url('fonts/CanelaText-ThinItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:300; font-style:normal; src:url('fonts/CanelaText-Light-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:300; font-style:italic; src:url('fonts/CanelaText-LightItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:400; font-style:normal; src:url('fonts/CanelaText-Regular-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:400; font-style:italic; src:url('fonts/CanelaText-RegularItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:500; font-style:normal; src:url('fonts/CanelaText-Medium-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:500; font-style:italic; src:url('fonts/CanelaText-MediumItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:700; font-style:normal; src:url('fonts/CanelaText-Bold-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:700; font-style:italic; src:url('fonts/CanelaText-BoldItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:900; font-style:normal; src:url('fonts/CanelaText-Black-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:900; font-style:italic; src:url('fonts/CanelaText-BlackItalic-Trial.woff') format('woff');}
   :root{
     --ink:#121212;
     --paper:#FFFFFF;
@@ -32,8 +44,8 @@
     -webkit-font-smoothing:antialiased;
   }
   h1,h2,h3{margin:0;}
-  .serif{font-family:'Playfair Display',serif;}
-  .tracked-caps{font-family:'Cormorant Garamond',serif; text-transform:uppercase; letter-spacing:2.5px;}
+  .serif{font-family:'Canela Text',serif;}
+  .tracked-caps{font-family:'Canela Text',serif; text-transform:uppercase; letter-spacing:2.5px;}
   button, input, select, textarea{font-family:inherit;}
   :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 
@@ -48,18 +60,18 @@
   }
   .brand{display:flex; align-items:baseline; gap:10px;}
   .logo-mini{
-    font-family:'Playfair Display',serif; font-weight:900; font-size:26px;
+    font-family:'Canela Text',serif; font-weight:900; font-size:26px;
     letter-spacing:-0.5px; color:var(--ink); line-height:1;
   }
   .logo-mini .x{font-weight:400; font-style:italic; font-size:16px; margin:0 1px;}
   .brand-text h1{
-    font-family:'Playfair Display',serif; font-weight:700;
+    font-family:'Canela Text',serif; font-weight:700;
     font-size:19px; letter-spacing:0.2px;
     line-height:1.1;
   }
   .brand-text p{
     margin:2px 0 0; font-size:10.5px; letter-spacing:2px; text-transform:uppercase;
-    color:var(--walnut); font-family:'Cormorant Garamond',serif; font-weight:500;
+    color:var(--walnut); font-family:'Canela Text',serif; font-weight:500;
   }
   .search-wrap{flex:1; min-width:180px; max-width:420px; position:relative;}
   .search-wrap input{
@@ -101,19 +113,19 @@
   .swatch.has-photo::after{
     content:"View Full Sheet ↗"; position:absolute; left:0; right:0; bottom:0; padding:6px 8px;
     background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff;
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:10px; letter-spacing:1.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:10px; letter-spacing:1.5px;
     text-transform:uppercase; text-align:center; opacity:0; transition:opacity .15s;
   }
   .swatch.has-photo:hover::after, .swatch.has-photo:focus-visible::after{opacity:1;}
   .grade-stamp{
     position:absolute; top:14px; right:14px;
     border:1px solid var(--ink); color:var(--ink); border-radius:2px;
-    padding:2px 8px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:11px;
+    padding:2px 8px; font-family:'Canela Text',serif; font-weight:500; font-size:11px;
     letter-spacing:1.5px; text-transform:uppercase; background:var(--paper);
   }
-  .p-name{font-family:'Playfair Display',serif; font-weight:600; font-size:16px; line-height:1.3; padding-right:54px;}
+  .p-name{font-family:'Canela Text',serif; font-weight:500; font-size:16px; line-height:1.3; padding-right:54px;}
   .p-brand{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12px; letter-spacing:1.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12px; letter-spacing:1.5px;
     text-transform:uppercase; color:var(--walnut);
   }
   .p-thickness-row{display:flex; flex-wrap:wrap; gap:5px; border-top:1px dashed var(--line); padding-top:8px;}
@@ -124,7 +136,7 @@
   .p-desc{font-size:12px; color:#6b6b6b; line-height:1.4;}
   .price-table{width:100%; border-collapse:collapse; font-size:12px;}
   .price-table th{
-    text-align:left; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:11px;
+    text-align:left; font-family:'Canela Text',serif; font-weight:500; font-size:11px;
     letter-spacing:0.5px; text-transform:uppercase; color:var(--walnut); padding:4px 0;
     border-bottom:1px solid var(--line-strong);
   }
@@ -132,7 +144,7 @@
   .price-table td{padding:4px 0; border-bottom:1px dashed var(--line); color:var(--ink);}
   .price-table tr:last-child td{border-bottom:none;}
   .p-footer{display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:6px;}
-  .p-price{font-family:'Cormorant Garamond',serif; font-size:13px; letter-spacing:0.3px; color:var(--walnut); font-style:italic;}
+  .p-price{font-family:'Canela Text',serif; font-size:13px; letter-spacing:0.3px; color:var(--walnut); font-style:italic;}
   .inquire-btn{
     background:var(--stamp); color:var(--paper); border:none; border-radius:3px;
     padding:9px 14px; font-size:12.5px; font-weight:600; letter-spacing:0.3px;
@@ -149,12 +161,12 @@
   .lam-swatch::after{
     content:"View Full Sheet ↗"; position:absolute; left:0; right:0; bottom:0; padding:10px 8px;
     background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff;
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:11.5px; letter-spacing:2px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:11.5px; letter-spacing:2px;
     text-transform:uppercase; text-align:center; opacity:0; transition:opacity .15s;
   }
   .lam-swatch:hover::after, .lam-swatch:focus-visible::after{opacity:1;}
   .lam-mood{
-    font-family:'Playfair Display',serif; font-style:italic; font-weight:600; font-size:13px;
+    font-family:'Canela Text',serif; font-style:italic; font-weight:500; font-size:13px;
     color:var(--walnut); text-align:center; margin-top:2px;
   }
   .lam-edge-row{display:flex; align-items:center; gap:8px; border-top:1px dashed var(--line); padding-top:8px;}
@@ -209,9 +221,9 @@
   }
   .lightbox-dot.active{background:var(--burgundy);}
   .lightbox-caption{margin-top:16px; text-align:center;}
-  .lightbox-name{font-family:'Playfair Display',serif; font-weight:700; font-size:19px;}
+  .lightbox-name{font-family:'Canela Text',serif; font-weight:700; font-size:19px;}
   .lightbox-meta{
-    font-family:'Cormorant Garamond',serif; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+    font-family:'Canela Text',serif; font-weight:500; letter-spacing:2px; text-transform:uppercase;
     font-size:12px; color:var(--walnut); margin-top:5px;
   }
   .lightbox-actions{margin-top:18px; text-align:center;}
@@ -220,7 +232,7 @@
     text-align:center; padding:60px 20px; color:var(--walnut);
     border:1.5px dashed var(--line-strong); border-radius:6px; margin-top:14px;
   }
-  .empty-state h3{font-family:'Playfair Display',serif; font-weight:700; font-size:18px; margin-bottom:8px;}
+  .empty-state h3{font-family:'Canela Text',serif; font-weight:700; font-size:18px; margin-bottom:8px;}
   .empty-state button{
     margin-top:14px; background:var(--ink); color:var(--paper); border:none;
     padding:9px 16px; border-radius:3px; cursor:pointer; font-size:12.5px;
@@ -246,7 +258,7 @@
   .slip-inner{padding:20px 24px 26px;}
   .slip-head{
     display:flex; justify-content:space-between; align-items:baseline;
-    font-family:'Playfair Display',serif; font-weight:700; font-size:17px; letter-spacing:0.2px;
+    font-family:'Canela Text',serif; font-weight:700; font-size:17px; letter-spacing:0.2px;
     border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:14px;
   }
   .slip-head span{font-family:'IBM Plex Sans',sans-serif; font-size:11px; font-weight:400; color:var(--walnut);}
@@ -259,8 +271,8 @@
     background:var(--card); border:1px dashed var(--line-strong); border-radius:3px;
     padding:10px 12px; margin-bottom:16px; font-size:12.5px;
   }
-  .slip-product b{display:block; font-family:'Playfair Display',serif; font-weight:600; font-size:14.5px; margin-bottom:3px;}
-  #inquiryForm label, #listInquiryForm label{display:block; font-size:12.5px; text-transform:uppercase; letter-spacing:1.5px; color:var(--walnut); margin:12px 0 5px; font-family:'Cormorant Garamond',serif; font-weight:600;}
+  .slip-product b{display:block; font-family:'Canela Text',serif; font-weight:500; font-size:14.5px; margin-bottom:3px;}
+  #inquiryForm label, #listInquiryForm label{display:block; font-size:12.5px; text-transform:uppercase; letter-spacing:1.5px; color:var(--walnut); margin:12px 0 5px; font-family:'Canela Text',serif; font-weight:500;}
   #inquiryForm input, #inquiryForm select, #inquiryForm textarea,
   #listInquiryForm input, #listInquiryForm select, #listInquiryForm textarea{
     width:100%; padding:9px 10px; border:1.3px solid var(--ink); border-radius:3px;
@@ -276,7 +288,7 @@
   .confirmation{text-align:center; padding:10px 0 4px;}
   .stamp-logged{
     display:inline-block; border:1.5px solid var(--ink); color:var(--ink);
-    font-family:'Playfair Display',serif; font-weight:700; font-style:italic; font-size:19px; letter-spacing:0.5px;
+    font-family:'Canela Text',serif; font-weight:700; font-style:italic; font-size:19px; letter-spacing:0.5px;
     padding:8px 22px; border-radius:2px; margin-bottom:14px;
   }
   .confirmation p{font-size:13px; color:var(--ink); line-height:1.5; margin:6px 0;}
@@ -304,7 +316,7 @@
   .logo-mark{display:flex; flex-direction:column; align-items:center; margin-bottom:26px;}
   .logo-mark img{width:200px; height:auto;}
   .hero-tagline{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:15px; letter-spacing:4px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:15px; letter-spacing:4px;
     text-transform:uppercase; color:var(--ink); margin:0;
   }
   .hero p.hero-sub{
@@ -329,7 +341,7 @@
   .badge-mark{
     width:38px; height:38px; border:1.5px solid var(--ink); border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Playfair Display',serif; font-weight:700; font-size:13px;
+    font-family:'Canela Text',serif; font-weight:700; font-size:13px;
   }
   .badge span{font-size:11px; color:var(--walnut); text-align:center; line-height:1.3;}
 
@@ -342,10 +354,10 @@
   .categories-section.cat-section-secondary{padding-top:10px;}
   .section-head{margin-bottom:20px;}
   .section-eyebrow{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12.5px; letter-spacing:3px; text-transform:uppercase;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12.5px; letter-spacing:3px; text-transform:uppercase;
     color:var(--walnut); margin-bottom:6px;
   }
-  .section-head h3{font-family:'Playfair Display',serif; font-weight:700; font-size:24px; letter-spacing:0.2px;}
+  .section-head h3{font-family:'Canela Text',serif; font-weight:700; font-size:24px; letter-spacing:0.2px;}
   .cat-tiles{display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; margin-bottom:10px;}
   .cat-tile{
     border:1.3px solid var(--line-strong); border-radius:4px; background:var(--card);
@@ -353,7 +365,7 @@
   }
   .cat-tile:hover{border-color:var(--ink); transform:translateY(-2px);}
   @media (prefers-reduced-motion: reduce){ .cat-tile:hover{transform:none;} }
-  .cat-tile .tile-name{font-family:'Playfair Display',serif; font-weight:700; font-size:15px; margin-bottom:6px;}
+  .cat-tile .tile-name{font-family:'Canela Text',serif; font-weight:700; font-size:15px; margin-bottom:6px;}
   .cat-tile .tile-count{
     font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--walnut); text-transform:uppercase;
   }
@@ -362,7 +374,7 @@
 
   .cat-expanding-wrap{margin-bottom:34px;}
   .cat-expanding-label{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:11.5px; letter-spacing:2.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:11.5px; letter-spacing:2.5px;
     text-transform:uppercase; color:#9a9a9a; margin-bottom:10px;
   }
   .cat-expanding{display:flex; flex-wrap:wrap; gap:8px;}
@@ -394,21 +406,21 @@
   .step-num{
     width:34px; height:34px; border-radius:50%; border:2px solid var(--ink);
     display:flex; align-items:center; justify-content:center;
-    font-family:'Playfair Display',serif; font-weight:700; font-size:14px; margin-bottom:12px;
+    font-family:'Canela Text',serif; font-weight:700; font-size:14px; margin-bottom:12px;
   }
-  .how-step h4{font-family:'Playfair Display',serif; font-weight:700; font-style:italic; font-size:16px; margin-bottom:6px;}
+  .how-step h4{font-family:'Canela Text',serif; font-weight:700; font-style:italic; font-size:16px; margin-bottom:6px;}
   .how-step p{font-size:12.5px; color:#6b6b6b; line-height:1.5; margin:0;}
 
   /* ---------- FAQ ---------- */
   .faq-section{padding:10px 28px 56px; max-width:820px; margin:0 auto;}
   .faq-item{border-bottom:1px solid var(--line-strong);}
   .faq-item summary{
-    list-style:none; cursor:pointer; padding:16px 4px; font-family:'Playfair Display',serif; font-weight:600; font-size:15.5px;
+    list-style:none; cursor:pointer; padding:16px 4px; font-family:'Canela Text',serif; font-weight:500; font-size:15.5px;
     display:flex; justify-content:space-between; align-items:center; gap:12px;
   }
   .faq-item summary::-webkit-details-marker{display:none;}
   .faq-item summary::after{
-    content:"+"; font-family:'Playfair Display',serif; font-weight:700; font-size:18px; flex-shrink:0; color:var(--walnut);
+    content:"+"; font-family:'Canela Text',serif; font-weight:700; font-size:18px; flex-shrink:0; color:var(--walnut);
   }
   .faq-item[open] summary::after{content:"–";}
   .faq-item p{margin:0 4px 16px; font-size:13px; color:#5a5a5a; line-height:1.6;}
@@ -440,7 +452,7 @@
   .list-add-field.qty-field{flex:0 0 68px;}
   .list-add-field label{
     font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--walnut);
-    font-family:'Cormorant Garamond',serif; font-weight:600;
+    font-family:'Canela Text',serif; font-weight:500;
   }
   .list-add-field input{
     padding:9px 10px; border:1.3px solid var(--ink); border-radius:3px;
@@ -465,14 +477,14 @@
   .list-divider{border:none; border-top:1px dashed var(--line-strong); margin:18px 0 4px;}
   .list-or-divider{
     display:flex; align-items:center; gap:12px; margin:16px 0; color:#9a9a9a;
-    font-size:11px; text-transform:uppercase; letter-spacing:2px; font-family:'Cormorant Garamond',serif; font-weight:600;
+    font-size:11px; text-transform:uppercase; letter-spacing:2px; font-family:'Canela Text',serif; font-weight:500;
   }
   .list-or-divider::before, .list-or-divider::after{content:""; flex:1; border-top:1px dashed var(--line-strong);}
   .list-upload-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
   .list-upload-info{display:flex; flex-direction:column; gap:3px;}
   .list-upload-info label{
     font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--walnut);
-    font-family:'Cormorant Garamond',serif; font-weight:600;
+    font-family:'Canela Text',serif; font-weight:500;
   }
   .list-upload-hint{font-size:11.5px; color:#9a9a9a;}
   .btn-upload{
@@ -509,7 +521,7 @@
   }
   .back-to-categories{
     background:none; border:none; cursor:pointer; padding:6px 0;
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; letter-spacing:1px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:14px; letter-spacing:1px;
     color:var(--burgundy); text-transform:uppercase;
   }
   .back-to-categories:hover{color:var(--burgundy-dark); text-decoration:underline;}
@@ -517,7 +529,7 @@
   .cat-tiles-wrap{padding:22px 28px 50px; max-width:1320px; margin:0 auto;}
   .cat-tiles-wrap[hidden]{display:none;}
   .group-tiles-label{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:13px; letter-spacing:2px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:13px; letter-spacing:2px;
     text-transform:uppercase; color:var(--walnut); margin-bottom:14px;
   }
   .group-tiles-label[hidden]{display:none;}
@@ -529,7 +541,7 @@
   .control{display:flex; flex-direction:column; gap:6px; min-width:220px;}
   .control[hidden]{display:none;}
   .control label{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12.5px; letter-spacing:2px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12.5px; letter-spacing:2px;
     text-transform:uppercase; color:var(--walnut);
   }
   .control select{
@@ -546,17 +558,17 @@
     max-width:1320px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;
     gap:20px; flex-wrap:wrap;
   }
-  .quote-banner h3{font-family:'Playfair Display',serif; font-weight:700; font-size:19px; margin-bottom:6px;}
+  .quote-banner h3{font-family:'Canela Text',serif; font-weight:700; font-size:19px; margin-bottom:6px;}
   .quote-banner p{font-size:13.5px; color:#6b6b6b; margin:0; max-width:480px;}
 
   /* ---------- Blog ---------- */
   .blog-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:20px; padding:0 28px 60px; max-width:1320px; margin:0 auto;}
   .blog-card{border:1.3px solid var(--line-strong); border-radius:5px; padding:20px; background:var(--card);}
   .blog-card .post-date{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12px; letter-spacing:1.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12px; letter-spacing:1.5px;
     text-transform:uppercase; color:var(--walnut); margin-bottom:8px;
   }
-  .blog-card h4{font-family:'Playfair Display',serif; font-weight:700; font-size:17px; margin-bottom:8px; line-height:1.3;}
+  .blog-card h4{font-family:'Canela Text',serif; font-weight:700; font-size:17px; margin-bottom:8px; line-height:1.3;}
   .blog-card p{font-size:13px; color:#6b6b6b; line-height:1.55; margin:0;}
 
   .blog-feature{max-width:820px; margin:0 auto 20px; padding:0 28px;}
@@ -564,10 +576,10 @@
     border:1.3px solid var(--line-strong); border-radius:6px; padding:32px; background:var(--card);
   }
   .blog-feature .post-date{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12px; letter-spacing:2px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12px; letter-spacing:2px;
     text-transform:uppercase; color:var(--accent-dark); margin-bottom:10px;
   }
-  .blog-feature h4{font-family:'Playfair Display',serif; font-weight:700; font-size:23px; margin-bottom:16px; line-height:1.3;}
+  .blog-feature h4{font-family:'Canela Text',serif; font-weight:700; font-size:23px; margin-bottom:16px; line-height:1.3;}
   .blog-feature p{font-size:14px; color:#5a5a5a; line-height:1.7; margin:0 0 14px;}
   .blog-feature p:last-child{margin-bottom:0;}
   .blog-more-note{
@@ -579,22 +591,22 @@
   .about-content{max-width:760px; margin:0 auto; padding:0 28px 60px;}
   .about-content p{font-size:14.5px; color:#5a5a5a; line-height:1.7; margin:0 0 16px;}
   .about-content h4{
-    font-family:'Playfair Display',serif; font-weight:700; font-size:19px; letter-spacing:0.2px;
+    font-family:'Canela Text',serif; font-weight:700; font-size:19px; letter-spacing:0.2px;
     margin:34px 0 14px; padding-top:24px; border-top:1px dashed var(--line-strong);
   }
   .about-content h4:first-of-type{margin-top:26px;}
   .about-stats{display:flex; gap:34px; flex-wrap:wrap; margin:30px 0 10px; padding-top:26px; border-top:1px dashed var(--line-strong);}
   .about-numeral{display:flex; align-items:baseline; gap:16px; margin:8px 0 28px;}
   .about-numeral-num{
-    font-family:'Playfair Display',serif; font-weight:900; font-size:88px; line-height:0.8; color:var(--ink);
+    font-family:'Canela Text',serif; font-weight:900; font-size:88px; line-height:0.8; color:var(--ink);
   }
   .about-numeral-label{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:14px; letter-spacing:2.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:14px; letter-spacing:2.5px;
     text-transform:uppercase; color:var(--walnut); max-width:140px; line-height:1.4;
   }
   .about-pullquote{
     margin:22px 0 28px; padding:4px 0 4px 22px; border-left:3px solid var(--accent);
-    font-family:'Playfair Display',serif; font-style:italic; font-weight:600; font-size:21px;
+    font-family:'Canela Text',serif; font-style:italic; font-weight:500; font-size:21px;
     line-height:1.45; color:var(--ink);
   }
   @media (max-width:600px){ .about-numeral-num{font-size:64px;} }
@@ -620,7 +632,7 @@
   .mb-card-media img{width:100%; height:100%; object-fit:cover; display:block;}
   .mb-card-media svg{display:block; width:100%; height:100%;}
   .mb-card-label{
-    padding:8px 10px; font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12px;
+    padding:8px 10px; font-family:'Canela Text',serif; font-weight:500; font-size:12px;
     letter-spacing:0.8px; color:var(--walnut); line-height:1.35;
   }
   .mb-combo .mb-card-media{aspect-ratio:auto; height:150px; display:flex;}
@@ -637,7 +649,7 @@
     max-width:1320px; margin:0 auto; padding:34px 28px 60px; text-align:center;
     display:flex; flex-direction:column; align-items:center; gap:12px;
   }
-  .moodboard-cta p{font-family:'Playfair Display',serif; font-weight:600; font-size:16px; margin:0;}
+  .moodboard-cta p{font-family:'Canela Text',serif; font-weight:500; font-size:16px; margin:0;}
 
   /* ---------- Footer ---------- */
   .site-footer{border-top:2px solid var(--ink); background:var(--card); padding:44px 28px 28px;}
@@ -648,7 +660,7 @@
   .footer-brand .logo-mini{font-size:22px;}
   .footer-tagline{
     margin:8px 0 0; font-size:10.5px; letter-spacing:2px; text-transform:uppercase;
-    color:var(--walnut); font-family:'Cormorant Garamond',serif; font-weight:500;
+    color:var(--walnut); font-family:'Canela Text',serif; font-weight:500;
   }
   .footer-legacy{margin-top:14px; font-size:13px; color:#6b6b6b; line-height:1.55;}
   .footer-whatsapp{
@@ -658,7 +670,7 @@
   }
   .footer-whatsapp:hover{color:var(--accent);}
   .footer-col h5{
-    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:12.5px; letter-spacing:2.5px;
+    font-family:'Canela Text',serif; font-weight:500; font-size:12.5px; letter-spacing:2.5px;
     text-transform:uppercase; color:var(--walnut); margin-bottom:12px;
   }
   .footer-links{display:flex; flex-direction:column; gap:9px;}
@@ -1208,7 +1220,7 @@
         <path d="M9 0 h6 v8 l5 6 v28 a3 3 0 0 1 -3 3 h-10 a3 3 0 0 1 -3 -3 v-28 l5 -6 z"/>
         <path d="M6 22 h12" stroke-width="1.6"/>
       </g>
-      <text x="100" y="70" font-family="'Cormorant Garamond',serif" font-weight="600" font-size="11" letter-spacing="1.5" fill="#9C9184" text-anchor="middle">${(item.brand||"").toUpperCase()}</text>
+      <text x="100" y="70" font-family="'Canela Text',serif" font-weight="600" font-size="11" letter-spacing="1.5" fill="#9C9184" text-anchor="middle">${(item.brand||"").toUpperCase()}</text>
     </svg>`;
   }
   PRODUCTS.filter(p => p.category === "Adhesive").forEach(p => {
