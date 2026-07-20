@@ -1141,7 +1141,7 @@
 <script>
 (async function(){
   // Categories exactly as listed in the source inventory sheet (row 2).
-  const ALL_CATEGORIES = ["Plywood","Particle Board","MDF","Laminates","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
+  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
   // Manufacturers exactly as listed under the Plywood section (row 13-26), plus laminate suppliers.
   const ALL_BRANDS = ["Century","Greenply","Mikasa","Green Panel","Duro","Siamply","Wigwam Excel","Tribeca","Sylvan","Archidply","Austin","Youply","Saburi","Hunsur","Surface"];
   const STD_THICKNESS = ["25mm","19mm","16mm","12mm","9mm","6mm","4mm"];
@@ -1213,7 +1213,7 @@
     }
     return `<svg viewBox="0 0 200 90"><defs><filter id="plyGrain" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.02" numOctaves="1" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feComposite operator="over" in2="SourceGraphic"/></filter></defs>${stripes}</svg>`;
   }
-  PRODUCTS.filter(p => p.category === "Plywood").forEach(p => {
+  PRODUCTS.filter(p => p.category === "Plywood" || p.category === "Birch Plywood").forEach(p => {
     p.swatch = p.mainImg
       ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
       : makeSwatch(p);
@@ -1374,6 +1374,7 @@
     "Plywood": "Looking for the right plywood for your project? Browse grades from MR to BWP across trusted manufacturers — Century, Austin, Green Panel, Greenply, Mikasa, and Wigwam Excel — all in standard 8×4 ft sheets with the full 4mm–25mm thickness range. Inquire on exactly what your site needs and we'll confirm stock and pricing.",
     "Laminates": "From matte finishes to high-gloss and woodgrain textures, explore Propperly's laminate range across multiple collections — 1.0mm HPL sheets in the standard 8×4 ft size, with matching edge bands available. Suited to cabinet doors, wardrobes, and countertops.",
     "Adhesive": "Stock up on Fevicol-branded adhesives and sealants for every stage of a woodworking or interior project — from synthetic resin adhesives to silicone sealants, in pack sizes to match any job, big or small.",
+    "Birch Plywood": "Imported directly from Russia and the Baltic region, our Birch Plywood is made from thin, uniform layers of birch veneer with a void-free core — light, fine-grained, and known for superior screw and nail holding. Suited to furniture, cabinetry, laser cutting, and engineered flooring. Available in 3mm–24mm thicknesses across five standard sheet sizes, graded to GOST standards.",
   };
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
@@ -1727,7 +1728,9 @@
         <div class="p-thickness-row">
           ${p.thicknesses.map(t=>`<span class="thick-chip">${t}</span>`).join("")}
         </div>
-        <div class="p-desc">Standard 8×4 ft sheets, full 4mm–25mm thickness range.</div>
+        <div class="p-desc">${p.category === "Plywood"
+          ? "Standard 8×4 ft sheets, full 4mm–25mm thickness range."
+          : `Full ${p.thicknesses[0]}–${p.thicknesses[p.thicknesses.length - 1]} thickness range.`}</div>
         <div class="p-footer">
           <div class="p-price">Price on request</div>
           <button class="inquire-btn" data-id="${p.id}">Inquire</button>
