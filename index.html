@@ -3,24 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Eightbyfour — Anything 8×4, Sorted.</title>
+<title>Eightbyfour — Plywood, MDF, Laminates &amp; 8×4 Sheet Materials | B2B Supplier in Hyderabad</title>
+<meta name="description" content="Buy plywood, MDF, HDHMR, laminates, veneers and hardware in standard 8×4 sheets from established manufacturers — Century, Greenply, Mikasa and more. Trade pricing, bulk orders, 40 years of material expertise in Hyderabad.">
+<link rel="canonical" href="https://www.eightbyfour.in/">
+<!-- Open Graph (WhatsApp/social link previews) -->
+<meta property="og:title" content="Eightbyfour — Anything 8×4, Sorted.">
+<meta property="og:description" content="Plywood, MDF, laminates, veneers and hardware in standard 8×4 sheets. Trade pricing on request. Hyderabad.">
+<meta property="og:url" content="https://www.eightbyfour.in/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.eightbyfour.in/og-image.jpg">
+<meta property="og:locale" content="en_IN">
+<meta name="twitter:card" content="summary_large_image">
+<!--
+  NOTE: domain is a placeholder (eightbyfour.in) since the real domain isn't finalized yet.
+  Once you buy the domain, find/replace "https://www.eightbyfour.in" across this file,
+  robots.txt, and sitemap.xml with the real one.
+-->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23FFFFFF'/%3E%3Ctext x='50' y='68' font-family='Georgia,serif' font-weight='900' font-size='58' text-anchor='middle' fill='%23121212'%3E8%C3%974%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-  @font-face{font-family:'Canela Text'; font-weight:100; font-style:normal; src:url('fonts/CanelaText-Thin-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:100; font-style:italic; src:url('fonts/CanelaText-ThinItalic-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:300; font-style:normal; src:url('fonts/CanelaText-Light-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:300; font-style:italic; src:url('fonts/CanelaText-LightItalic-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:400; font-style:normal; src:url('fonts/CanelaText-Regular-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:400; font-style:italic; src:url('fonts/CanelaText-RegularItalic-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:500; font-style:normal; src:url('fonts/CanelaText-Medium-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:500; font-style:italic; src:url('fonts/CanelaText-MediumItalic-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:700; font-style:normal; src:url('fonts/CanelaText-Bold-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:700; font-style:italic; src:url('fonts/CanelaText-BoldItalic-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:900; font-style:normal; src:url('fonts/CanelaText-Black-Trial.woff') format('woff');}
-  @font-face{font-family:'Canela Text'; font-weight:900; font-style:italic; src:url('fonts/CanelaText-BlackItalic-Trial.woff') format('woff');}
+  @font-face{font-family:'Canela Text'; font-weight:100; font-style:normal; src:url('fonts/CanelaText-Thin-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:100; font-style:italic; src:url('fonts/CanelaText-ThinItalic-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:300; font-style:normal; src:url('fonts/CanelaText-Light-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:300; font-style:italic; src:url('fonts/CanelaText-LightItalic-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:400; font-style:normal; src:url('fonts/CanelaText-Regular-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:400; font-style:italic; src:url('fonts/CanelaText-RegularItalic-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:500; font-style:normal; src:url('fonts/CanelaText-Medium-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:500; font-style:italic; src:url('fonts/CanelaText-MediumItalic-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:700; font-style:normal; src:url('fonts/CanelaText-Bold-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:700; font-style:italic; src:url('fonts/CanelaText-BoldItalic-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:900; font-style:normal; src:url('fonts/CanelaText-Black-Trial.woff') format('woff'); font-display:swap;}
+  @font-face{font-family:'Canela Text'; font-weight:900; font-style:italic; src:url('fonts/CanelaText-BlackItalic-Trial.woff') format('woff'); font-display:swap;}
   :root{
     --ink:#121212;
     --paper:#FFFFFF;
@@ -165,6 +180,18 @@
     text-transform:uppercase; text-align:center; opacity:0; transition:opacity .15s;
   }
   .lam-swatch:hover::after, .lam-swatch:focus-visible::after{opacity:1;}
+  .stone-swatch{
+    position:relative; width:100%; aspect-ratio: 4 / 3; border-radius:3px; overflow:hidden;
+    border:1px solid var(--line-strong); background:var(--card); cursor:pointer;
+  }
+  .stone-swatch img{width:100%; height:100%; object-fit:contain; display:block;}
+  .stone-swatch::after{
+    content:"View Full Sheet ↗"; position:absolute; left:0; right:0; bottom:0; padding:10px 8px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.6)); color:#fff;
+    font-family:'Canela Text',serif; font-weight:500; font-size:11.5px; letter-spacing:2px;
+    text-transform:uppercase; text-align:center; opacity:0; transition:opacity .15s;
+  }
+  .stone-swatch:hover::after, .stone-swatch:focus-visible::after{opacity:1;}
   .lam-mood{
     font-family:'Canela Text',serif; font-style:italic; font-weight:500; font-size:13px;
     color:var(--walnut); text-align:center; margin-top:2px;
@@ -235,6 +262,65 @@
     font-size:12px; color:var(--walnut); margin-top:5px;
   }
   .lightbox-actions{margin-top:18px; text-align:center;}
+
+  /* ---------- Likes + comments (Veneers) ---------- */
+  .like-badge{
+    position:absolute; top:8px; right:8px; background:rgba(15,15,15,0.72); color:#fff;
+    font-family:'Canela Text',serif; font-weight:500; font-size:11.5px; letter-spacing:0.5px;
+    border-radius:12px; padding:3px 9px;
+  }
+  .lightbox-engagement{margin-top:20px; padding-top:18px; border-top:1px dashed var(--line-strong); text-align:left;}
+  .like-btn{
+    display:inline-flex; align-items:center; gap:7px; background:var(--paper); color:var(--ink);
+    border:1.3px solid var(--ink); border-radius:20px; padding:8px 16px; font-size:13px; font-weight:600;
+    cursor:pointer; margin-bottom:16px;
+  }
+  .like-btn .heart{font-size:15px; line-height:1;}
+  .like-btn:hover{border-color:var(--burgundy); color:var(--burgundy);}
+  .like-btn.liked{background:var(--burgundy); border-color:var(--burgundy); color:#fff;}
+  .like-btn.liked:hover{color:#fff;}
+  .like-btn:disabled{opacity:0.6; cursor:default;}
+  .identity-fields{
+    display:flex; gap:8px; flex-wrap:wrap; margin:-4px 0 16px;
+  }
+  .identity-fields[hidden]{display:none;}
+  .identity-fields input{
+    flex:1 1 140px; padding:8px 10px; border:1.3px solid var(--ink); border-radius:3px;
+    background:var(--card); font-size:14px; color:var(--ink);
+  }
+  .identity-confirm-btn{
+    background:var(--ink); color:var(--paper); border:none; padding:8px 16px; border-radius:3px;
+    font-size:12.5px; font-weight:600; letter-spacing:0.3px; text-transform:uppercase; cursor:pointer;
+  }
+  .identity-confirm-btn:hover{background:var(--accent-dark);}
+  .comments-title{
+    font-family:'Canela Text',serif; font-weight:700; font-size:15px; margin-bottom:10px;
+  }
+  .comments-list{display:flex; flex-direction:column; gap:10px; margin-bottom:16px; max-height:220px; overflow-y:auto;}
+  .comment-item{
+    background:var(--card); border:1px solid var(--line); border-radius:4px; padding:9px 11px;
+  }
+  .comment-item .c-head{
+    display:flex; justify-content:space-between; gap:8px;
+    font-family:'Canela Text',serif; font-weight:600; font-size:12.5px; color:var(--walnut); margin-bottom:3px;
+  }
+  .comment-item .c-date{font-family:'IBM Plex Sans',sans-serif; font-weight:400; color:#9a9a9a; font-size:11px;}
+  .comment-item .c-text{font-size:13px; line-height:1.5; color:var(--ink);}
+  .comments-empty{font-size:12.5px; color:#9a9a9a; margin-bottom:16px; font-style:italic;}
+  .comment-form{border-top:1px dashed var(--line-strong); padding-top:14px;}
+  .comment-form textarea{
+    width:100%; padding:9px 10px; border:1.3px solid var(--ink); border-radius:3px;
+    background:var(--card); font-size:14px; color:var(--ink); resize:vertical; min-height:56px; margin-bottom:10px;
+  }
+  .comment-submit-btn{
+    background:var(--ink); color:var(--paper); border:none; padding:9px 18px; border-radius:3px;
+    font-size:12.5px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; cursor:pointer;
+  }
+  .comment-submit-btn:hover{background:var(--accent-dark);}
+  .comment-submit-btn:disabled{opacity:0.6; cursor:default;}
+  .comment-status{margin-top:10px; font-size:12.5px; color:var(--walnut);}
+  .comment-status[hidden]{display:none;}
+  .comment-status.is-error{color:#B23B3B;}
 
   .empty-state{
     text-align:center; padding:60px 20px; color:var(--walnut);
@@ -461,7 +547,6 @@
   .brand-tile .brand-tile-count{
     font-family:'IBM Plex Sans',sans-serif; font-size:11px; color:var(--walnut); text-transform:uppercase; letter-spacing:0.5px;
   }
-  .brand-tile img[alt="Propperly logo"]{background:#0F0F0F; border-radius:6px; padding:6px 10px; box-sizing:content-box;}
 
   /* ---------- How it works ---------- */
   .how-section{padding:44px 28px; max-width:1100px; margin:0 auto;}
@@ -755,6 +840,73 @@
     .footer-bottom{flex-direction:column; gap:6px;}
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  "name": "Eightbyfour",
+  "alternateName": "Sundeep Plywoods & Hardware",
+  "description": "Plywood, MDF, laminate, veneer, hardware and 8×4 sheet material supplier with 40 years in the trade.",
+  "url": "https://www.eightbyfour.in/",
+  "telephone": "+91-9703739918",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Hyderabad",
+    "addressRegion": "Telangana",
+    "addressCountry": "IN"
+  },
+  "areaServed": "Hyderabad",
+  "priceRange": "$$"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does MR grade mean?",
+      "acceptedAnswer": {"@type": "Answer", "text": "MR stands for Moisture Resistant. It suits normal interior use — cabinets, wardrobes, and furniture in dry areas — but isn't built for standing water or continuous humidity."}
+    },
+    {
+      "@type": "Question",
+      "name": "What does BWP grade mean?",
+      "acceptedAnswer": {"@type": "Answer", "text": "BWP stands for Boiling Water Proof, the highest bonding standard for plywood. It's tested by boiling and is typically used in kitchens, bathrooms, and other high-moisture areas."}
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between BWP and BWR?",
+      "acceptedAnswer": {"@type": "Answer", "text": "BWR (Boil Water Resistant) sits between MR and BWP — it tolerates occasional moisture exposure but isn't rated for the constant water contact that BWP handles."}
+    },
+    {
+      "@type": "Question",
+      "name": "What does FR grade mean?",
+      "acceptedAnswer": {"@type": "Answer", "text": "FR stands for Fire Retardant — treated to slow the spread of flame. It's common in commercial interiors, public buildings, and areas with stricter fire-safety requirements."}
+    },
+    {
+      "@type": "Question",
+      "name": "What's the standard plywood sheet size?",
+      "acceptedAnswer": {"@type": "Answer", "text": "8×4 ft (96×48 in) is the industry-standard sheet size, stocked as the default by most manufacturers. Other sizes are typically available on request."}
+    },
+    {
+      "@type": "Question",
+      "name": "Which thickness should I choose?",
+      "acceptedAnswer": {"@type": "Answer", "text": "As a general guide: thinner sheets (4–6mm) suit backs and shutters, mid-range (9–12mm) suits general cabinetry, and 18–19mm+ suits load-bearing panels like shelving. Confirm exact requirements with your fabricator, or ask us via Inquire."}
+    },
+    {
+      "@type": "Question",
+      "name": "What is HPL (High Pressure Laminate)?",
+      "acceptedAnswer": {"@type": "Answer", "text": "HPL is a decorative sheet made of resin-impregnated layers fused under high pressure and heat, then bonded onto plywood, MDF, or particle board. It's the standard surface finish for cabinet doors, wardrobes, and countertops."}
+    },
+    {
+      "@type": "Question",
+      "name": "What's a matching edge band for?",
+      "acceptedAnswer": {"@type": "Answer", "text": "An edge band is a thin strip applied to the exposed edge of a panel to hide the raw core material and give it a finished look. Ordering it color-matched to the laminate sheet keeps the visible edge and face consistent."}
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -973,6 +1125,7 @@
       <option value="relevance">Register order</option>
       <option value="brand-asc">Manufacturer: A–Z</option>
       <option value="name-asc">Product line: A–Z</option>
+      <option value="likes-desc">Most Liked</option>
     </select>
   </div>
 </div>
@@ -1071,6 +1224,23 @@
     <div class="lightbox-description" id="lightboxDescription" hidden></div>
     <div class="lightbox-actions">
       <button class="btn-primary" id="lightboxInquire" type="button">Inquire About This Sheet</button>
+    </div>
+    <div class="lightbox-engagement" id="lightboxEngagement" hidden>
+      <button class="like-btn" id="likeBtn" type="button">
+        <span class="heart">♡</span> <span id="likeCountLabel">Like</span>
+      </button>
+      <div class="identity-fields" id="identityFields" hidden>
+        <input type="text" id="identityName" placeholder="Your name" autocomplete="name">
+        <input type="tel" id="identityPhone" placeholder="Phone number" autocomplete="tel">
+        <button type="button" class="identity-confirm-btn" id="identityConfirmBtn">Confirm</button>
+      </div>
+      <div class="comments-title">Comments (<span id="commentsCount">0</span>)</div>
+      <div class="comments-list" id="commentsList"></div>
+      <form class="comment-form" id="commentForm">
+        <textarea id="commentText" placeholder="Share your thoughts on this veneer…" maxlength="600"></textarea>
+        <button class="comment-submit-btn" id="commentSubmitBtn" type="submit">Post Comment</button>
+        <div class="comment-status" id="commentStatus" hidden></div>
+      </form>
     </div>
   </div>
 </div>
@@ -1226,7 +1396,7 @@
 <script>
 (async function(){
   // Categories exactly as listed in the source inventory sheet (row 2).
-  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Corian - Acrylic Solid Surface","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
+  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Corian - Acrylic Solid Surface","Veneers","Stone Panels","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
   // Manufacturers exactly as listed under the Plywood section (row 13-26), plus laminate suppliers.
   const ALL_BRANDS = ["Century","Greenply","Mikasa","Green Panel","Duro","Siamply","Wigwam Excel","Tribeca","Sylvan","Archidply","Austin","Youply","Saburi","Hunsur","Surface"];
   const STD_THICKNESS = ["25mm","19mm","16mm","12mm","9mm","6mm","4mm"];
@@ -1284,8 +1454,9 @@
     { name: "Corian", category: "Corian - Acrylic Solid Surface" },
     { name: "Wall Panels" }, { name: "Charcoal Panels" }, { name: "WPC Boards" }, { name: "WPC Doors" },
     { name: "Finger Joint Rubberwood" }, { name: "Agrowood" },
-    { name: "Veneers" }, { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "European Dyed Veneer" },
-    { name: "Dyed Veneer" }, { name: "Embossed Veneer" }, { name: "Marquetry Veneer" },
+    { name: "Veneers", category: "Veneers" }, { name: "Oak Veneer" }, { name: "Burma Teak Veneer", category: "Veneers" }, { name: "European Dyed Veneer" },
+    { name: "Dyed Veneer" }, { name: "Embossed Veneer", category: "Veneers" }, { name: "Marquetry Veneer" },
+    { name: "Stone Panels", category: "Stone Panels" }, { name: "Marble Panels", category: "Stone Panels" }, { name: "Slate Panels", category: "Stone Panels" },
     { name: "Fevicol", category: "Adhesive", brand: "Fevicol" }, { name: "Wood Adhesives", category: "Adhesive" },
     { name: "Construction Adhesives" }, { name: "Silicone" }, { name: "Sealants" },
     { name: "Bison Panel" }, { name: "Cement Board" },
@@ -1310,9 +1481,13 @@
       { name: "Acrylic Solid Surface", category: "Corian - Acrylic Solid Surface" }, { name: "Wall Panels" }, { name: "Charcoal Panels" },
     ]},
     { group: "Veneers", items: [
-      { name: "Oak Veneer" }, { name: "Burma Teak Veneer" }, { name: "Light Oak Veneer" },
-      { name: "European Dyed Veneer" }, { name: "Dyed Veneer" }, { name: "Embossed Veneer" },
+      { name: "Oak Veneer" }, { name: "Burma Teak Veneer", category: "Veneers" }, { name: "Light Oak Veneer" },
+      { name: "European Dyed Veneer" }, { name: "Dyed Veneer" }, { name: "Embossed Veneer", category: "Veneers" },
       { name: "Marquetry Veneer" }, { name: "Teak Veneer" },
+    ]},
+    { group: "Stone Panels", items: [
+      { name: "Marble Panels", category: "Stone Panels" }, { name: "Slate Panels", category: "Stone Panels" },
+      { name: "Sandstone Panels", category: "Stone Panels" }, { name: "Translucent Stone Panels", category: "Stone Panels" },
     ]},
     { group: "Hardware", items: [
       { name: "Hinges" }, { name: "Soft Close Hinges" }, { name: "Box Hinges" }, { name: "Channels" },
@@ -1428,6 +1603,15 @@
     PRODUCTS = PRODUCT_ROWS.map(mapProductRow);
   }
 
+  // ---------- Likes (aggregate counts only; no name/phone ever hits the client) ----------
+  const { data: LIKE_ROWS, error: likeCountsError } = await supabase.rpc("get_like_counts");
+  if(likeCountsError){
+    console.error("Failed to load like counts:", likeCountsError.message);
+  } else {
+    const likeMap = new Map(LIKE_ROWS.map(r => [r.product_id, Number(r.like_count)]));
+    PRODUCTS.forEach(p => { p.likeCount = likeMap.get(p.id) || 0; });
+  }
+
   const state = { search:"", category:"", brand:null, collection:null, sort:"relevance" };
   function categoryHasCollections(category){
     return PRODUCTS.some(p => p.category === category && p.collection);
@@ -1447,7 +1631,7 @@
     }
     return `<svg viewBox="0 0 200 90"><defs><filter id="plyGrain" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9 0.02" numOctaves="1" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0"/><feComposite operator="over" in2="SourceGraphic"/></filter></defs>${stripes}</svg>`;
   }
-  PRODUCTS.filter(p => p.category === "Plywood" || p.category === "Birch Plywood" || p.category === "Corian - Acrylic Solid Surface").forEach(p => {
+  PRODUCTS.filter(p => p.category === "Plywood" || p.category === "Birch Plywood" || p.category === "Corian - Acrylic Solid Surface" || p.category === "Veneers").forEach(p => {
     p.swatch = p.mainImg
       ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
       : makeSwatch(p);
@@ -1610,6 +1794,8 @@
     "Adhesive": "Stock up on Fevicol-branded adhesives and sealants for every stage of a woodworking or interior project — from synthetic resin adhesives to silicone sealants, in pack sizes to match any job, big or small.",
     "Birch Plywood": "Imported directly from Russia and the Baltic region, our Birch Plywood is made from thin, uniform layers of birch veneer with a void-free core — light, fine-grained, and known for superior screw and nail holding. Suited to furniture, cabinetry, laser cutting, and engineered flooring. Available in standard 8×4 ft sheets, 4mm–18mm thickness, graded to GOST standards.",
     "Corian - Acrylic Solid Surface": "A seamless, homogeneous acrylic solid surface for countertops, vanities, and wall cladding — non-porous, easy to clean, and workable with standard woodworking tools. Browse shades across two brands, Durasein and Tiara, in standard 8×2.5 ft sheets and 6mm/12mm thickness.",
+    "Veneers": "Natural wood veneer sheets from Propperly, browsable by collection — from textured Embossed Veneer to Burma Teak, Designer, Hybrid, Natural Smoke, Engineered, Exotic, Texture, and Natural ranges. Suited to feature walls, cabinet fronts, and doors.",
+    "Stone Panels": "Thin stone and slate veneer panels and cladding from Propperly — Marble, Slate, Sandstone, Translucent backlit stone, and textured Pannel/Metallic/Concrete finishes. Suited to feature walls, reception counters, and exterior cladding.",
   };
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
@@ -1821,6 +2007,8 @@
     { brand: "Mikasa", category: "Plywood", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/mikasa.png" },
     { brand: "Wigwam Excel", category: "Plywood", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/wigwam-excel.png" },
     { brand: "Propperly", category: "Laminates", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
+    { brand: "Propperly", category: "Veneers", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
+    { brand: "Propperly", category: "Stone Panels", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
   ];
 
   function goToBrand(category, brand){
@@ -1902,6 +2090,7 @@
     });
     if(state.sort === "brand-asc") list.sort((a,b)=> a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name));
     else if(state.sort === "name-asc") list.sort((a,b)=>a.name.localeCompare(b.name));
+    else if(state.sort === "likes-desc") list.sort((a,b)=> (b.likeCount||0) - (a.likeCount||0));
 
     renderGrid(list);
     resultTag.textContent = `SHOWING ${list.length} OF ${PRODUCTS.length} SKUs`;
@@ -1953,19 +2142,46 @@
           <button class="inquire-btn" data-id="${p.id}">Inquire</button>
         </div>
       </article>
+    ` : p.category === "Veneers" ? `
+      <article class="product-card veneer-card" data-id="${p.id}">
+        <div class="tag-hole"></div>
+        <div class="lam-swatch">
+          <img src="${p.mainImg}" alt="${p.name}" loading="lazy">
+          ${p.likeCount > 0 ? `<div class="like-badge">♥ ${p.likeCount}</div>` : ""}
+        </div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-brand">${p.brand}${p.collection ? ` · ${p.collection}` : ""}</div>
+        <div class="p-desc">Natural wood veneer sheet.</div>
+        <div class="p-footer">
+          <div class="p-price">Price on request</div>
+          <button class="inquire-btn" data-id="${p.id}">Inquire</button>
+        </div>
+      </article>
+    ` : p.category === "Stone Panels" ? `
+      <article class="product-card stone-card" data-id="${p.id}">
+        <div class="tag-hole"></div>
+        <div class="stone-swatch"><img src="${p.mainImg}" alt="${p.name}" loading="lazy"></div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-brand">${p.brand}${p.collection ? ` · ${p.collection}` : ""}</div>
+        <div class="p-desc">Thin stone veneer panel.</div>
+        <div class="p-footer">
+          <div class="p-price">Price on request</div>
+          <button class="inquire-btn" data-id="${p.id}">Inquire</button>
+        </div>
+      </article>
     ` : `
       <article class="product-card" data-id="${p.id}">
         <div class="tag-hole"></div>
         <div class="swatch${(p.mainImg || p.description) ? " has-info" : ""}" data-hover-label="${p.mainImg ? "View Full Sheet ↗" : "View Details ↗"}">${p.swatch}</div>
-        <div class="grade-stamp">${p.grade}</div>
+        ${p.grade ? `<div class="grade-stamp">${p.grade}</div>` : ""}
         <div class="p-name">${p.brand} — ${p.name}${p.sdCode ? ` (${p.sdCode})` : ""}</div>
-        <div class="p-brand">${p.category} · ${p.size}</div>
+        <div class="p-brand">${p.category}${p.size ? ` · ${p.size}` : ""}</div>
         <div class="p-thickness-row">
           ${p.thicknesses.map(t=>`<span class="thick-chip">${t}</span>`).join("")}
         </div>
-        <div class="p-desc">${p.category === "Plywood"
+        ${p.thicknesses.length ? `<div class="p-desc">${p.category === "Plywood"
           ? "Standard 8×4 ft sheets, full 4mm–25mm thickness range."
-          : `Full ${p.thicknesses[0]}–${p.thicknesses[p.thicknesses.length - 1]} thickness range.`}</div>
+          : `Full ${p.thicknesses[0]}–${p.thicknesses[p.thicknesses.length - 1]} thickness range.`}</div>` : ""}
         <div class="p-footer">
           <div class="p-price">Price on request</div>
           <button class="inquire-btn" data-id="${p.id}">Inquire</button>
@@ -2008,9 +2224,9 @@
       sampleField.hidden = true;
     } else if(product){
       slipRef.textContent = "SKU-" + String(product.id).padStart(4,"0");
-      slipProduct.innerHTML = `<b>${product.brand} — ${product.name}</b>${product.category} · ${product.size} · Price on request`;
+      slipProduct.innerHTML = `<b>${product.brand} — ${product.name}</b>${[product.category, product.size, "Price on request"].filter(Boolean).join(" · ")}`;
       fThickness.innerHTML = product.thicknesses.map(t=>`<option value="${t}">${t}</option>`).join("");
-      thicknessField.hidden = false;
+      thicknessField.hidden = product.thicknesses.length === 0;
       sampleField.hidden = true;
     } else {
       slipRef.textContent = "GENERAL";
@@ -2061,7 +2277,15 @@
     }
     const swatch = e.target.closest(".lam-swatch");
     if(swatch){
-      const card = swatch.closest(".laminate-card");
+      const card = swatch.closest(".laminate-card, .veneer-card");
+      const id = Number(card && card.dataset.id);
+      const product = PRODUCTS.find(p=>p.id === id);
+      if(product) openLightbox(product);
+      return;
+    }
+    const stoneSwatch = e.target.closest(".stone-swatch");
+    if(stoneSwatch){
+      const card = stoneSwatch.closest(".stone-card");
       const id = Number(card && card.dataset.id);
       const product = PRODUCTS.find(p=>p.id === id);
       if(product) openLightbox(product);
@@ -2139,7 +2363,7 @@
       const sizeCount = (product.priceTable || []).length;
       lightboxMeta.textContent = `${product.brand} · ${sizeCount} pack size${sizeCount === 1 ? "" : "s"} available`;
     } else {
-      lightboxMeta.textContent = `${product.brand}${product.sdCode ? ` · ${product.sdCode}` : ""} · ${product.grade} · ${product.size}`;
+      lightboxMeta.textContent = [product.brand, product.sdCode, product.grade, product.size].filter(Boolean).join(" · ");
     }
     lightboxInquire.textContent = product.category === "Adhesive" ? "Inquire About This Product" : "Inquire About This Sheet";
     if(product.description){
@@ -2148,6 +2372,7 @@
     } else {
       lightboxDescription.hidden = true;
     }
+    renderEngagement(product);
     lightboxOverlay.hidden = false;
   }
   function closeLightbox(){ lightboxOverlay.hidden = true; lightboxProduct = null; lightboxImages = []; }
@@ -2172,6 +2397,159 @@
     const p = lightboxProduct;
     closeLightbox();
     if(p) openModal(p);
+  });
+
+  // ---------- Likes + comments (Veneers only) ----------
+  const lightboxEngagement = document.getElementById("lightboxEngagement");
+  const likeBtn = document.getElementById("likeBtn");
+  const likeCountLabel = document.getElementById("likeCountLabel");
+  const identityFields = document.getElementById("identityFields");
+  const identityName = document.getElementById("identityName");
+  const identityPhone = document.getElementById("identityPhone");
+  const identityConfirmBtn = document.getElementById("identityConfirmBtn");
+  const commentsCount = document.getElementById("commentsCount");
+  const commentsList = document.getElementById("commentsList");
+  const commentForm = document.getElementById("commentForm");
+  const commentText = document.getElementById("commentText");
+  const commentSubmitBtn = document.getElementById("commentSubmitBtn");
+  const commentStatus = document.getElementById("commentStatus");
+  let pendingAction = null; // "like" | "comment"
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+  }
+  function getIdentity(){
+    try{ return JSON.parse(localStorage.getItem("ebfour_identity") || "null"); }catch(e){ return null; }
+  }
+  function setIdentity(name, phone){
+    try{ localStorage.setItem("ebfour_identity", JSON.stringify({name, phone})); }catch(e){}
+  }
+  function hasLiked(productId){
+    try{ return localStorage.getItem(`ebfour_liked_${productId}`) === "1"; }catch(e){ return false; }
+  }
+  function markLiked(productId){
+    try{ localStorage.setItem(`ebfour_liked_${productId}`, "1"); }catch(e){}
+  }
+
+  function renderLikeButton(product){
+    const liked = hasLiked(product.id);
+    likeBtn.classList.toggle("liked", liked);
+    likeBtn.querySelector(".heart").textContent = liked ? "♥" : "♡";
+    const count = product.likeCount || 0;
+    likeCountLabel.textContent = count > 0 ? `${count} Like${count === 1 ? "" : "s"}` : "Like";
+  }
+
+  async function loadComments(productId){
+    commentsList.innerHTML = `<div class="comments-empty">Loading comments…</div>`;
+    const { data, error } = await supabase
+      .from("product_comments")
+      .select("name, comment, created_at")
+      .eq("product_id", productId)
+      .eq("status", "approved")
+      .order("created_at", { ascending: false });
+    if(error){
+      commentsList.innerHTML = `<div class="comments-empty">Couldn't load comments right now.</div>`;
+      return;
+    }
+    commentsCount.textContent = String(data.length);
+    if(data.length === 0){
+      commentsList.innerHTML = `<div class="comments-empty">No comments yet — be the first to share your thoughts.</div>`;
+      return;
+    }
+    commentsList.innerHTML = data.map(c => `
+      <div class="comment-item">
+        <div class="c-head"><span>${escapeHtml(c.name)}</span><span class="c-date">${new Date(c.created_at).toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"})}</span></div>
+        <div class="c-text">${escapeHtml(c.comment)}</div>
+      </div>
+    `).join("");
+  }
+
+  function requireIdentity(action){
+    pendingAction = action;
+    identityFields.hidden = false;
+    identityName.focus();
+  }
+
+  function renderEngagement(product){
+    if(product.category !== "Veneers"){
+      lightboxEngagement.hidden = true;
+      return;
+    }
+    lightboxEngagement.hidden = false;
+    pendingAction = null;
+    identityFields.hidden = true;
+    commentStatus.hidden = true;
+    commentText.value = "";
+    const identity = getIdentity();
+    identityName.value = identity ? identity.name : "";
+    identityPhone.value = identity ? identity.phone : "";
+    renderLikeButton(product);
+    loadComments(product.id);
+  }
+
+  async function doLike(){
+    const product = lightboxProduct;
+    const identity = getIdentity();
+    if(!product || !identity) return;
+    likeBtn.disabled = true;
+    const { data, error } = await supabase.rpc("submit_like", {
+      p_product_id: product.id, p_name: identity.name, p_phone: identity.phone,
+    });
+    likeBtn.disabled = false;
+    if(error){
+      alert(error.message || "Couldn't submit your like. Please try again.");
+      return;
+    }
+    product.likeCount = Number(data.like_count);
+    markLiked(product.id);
+    renderLikeButton(product);
+  }
+
+  async function doComment(){
+    const product = lightboxProduct;
+    const identity = getIdentity();
+    const text = commentText.value.trim();
+    if(!product || !identity || !text) return;
+    commentSubmitBtn.disabled = true;
+    const { error } = await supabase.from("product_comments").insert({
+      product_id: product.id, name: identity.name, phone: identity.phone, comment: text,
+    });
+    commentSubmitBtn.disabled = false;
+    commentStatus.hidden = false;
+    if(error){
+      commentStatus.className = "comment-status is-error";
+      commentStatus.textContent = "Couldn't post your comment. Please try again.";
+      return;
+    }
+    commentText.value = "";
+    commentStatus.className = "comment-status";
+    commentStatus.textContent = "Thanks! Your comment will appear after a quick review.";
+  }
+
+  likeBtn.addEventListener("click", ()=>{
+    if(!lightboxProduct || hasLiked(lightboxProduct.id)) return;
+    if(!getIdentity()){ requireIdentity("like"); return; }
+    doLike();
+  });
+
+  commentForm.addEventListener("submit", e=>{
+    e.preventDefault();
+    if(!lightboxProduct || !commentText.value.trim()){ commentText.focus(); return; }
+    if(!getIdentity()){ requireIdentity("comment"); return; }
+    doComment();
+  });
+
+  identityConfirmBtn.addEventListener("click", ()=>{
+    const name = identityName.value.trim();
+    const phone = identityPhone.value.trim();
+    if(!name){ identityName.focus(); return; }
+    if(phone.length < 7){ identityPhone.focus(); return; }
+    setIdentity(name, phone);
+    identityFields.hidden = true;
+    const action = pendingAction;
+    pendingAction = null;
+    if(action === "like") doLike();
+    else if(action === "comment") doComment();
   });
 
   document.getElementById("closeModal").addEventListener("click", closeModal);
