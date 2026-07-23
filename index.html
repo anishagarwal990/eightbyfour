@@ -1447,7 +1447,7 @@
     { name: "Commercial Plywood", category: "Plywood" },
     { name: "Marine Plywood", category: "Plywood" },
     { name: "Birch Ply", category: "Birch Plywood" },
-    { name: "Interior MDF" }, { name: "Exterior MDF" }, { name: "HDHMR" }, { name: "Blockboard" },
+    { name: "Interior MDF", category: "MDF" }, { name: "Exterior MDF", category: "MDF" }, { name: "HDHMR", category: "MDF" }, { name: "Blockboard" },
     { name: "Flush Doors" },
     { name: "Laminates", category: "Laminates" }, { name: "Decorative Laminates", category: "Laminates" },
     { name: "Compact Laminates" },
@@ -1471,7 +1471,7 @@
     { group: "Wood Panels", items: [
       { name: "Commercial Plywood", category: "Plywood" }, { name: "Marine Plywood", category: "Plywood" },
       { name: "Birch Ply", category: "Birch Plywood" }, { name: "Flexible Plywood" }, { name: "Blockboard" },
-      { name: "Flush Doors" }, { name: "Interior MDF" }, { name: "Exterior MDF" }, { name: "HDHMR" },
+      { name: "Flush Doors" }, { name: "Interior MDF", category: "MDF" }, { name: "Exterior MDF", category: "MDF" }, { name: "HDHMR", category: "MDF" },
       { name: "Finger Joint Rubberwood" }, { name: "Agrowood" }, { name: "WPC Boards" }, { name: "WPC Doors" },
       { name: "Bison Panel" }, { name: "Cement Board" },
     ]},
@@ -1653,6 +1653,18 @@
       : makeAdhesiveSwatch(p);
   });
 
+  // ---------- Swatch placeholder (MDF/HDF — uniform fibreboard, no visible grain) ----------
+  function makeMdfSwatch(item){
+    return `<svg viewBox="0 0 200 90"><defs><filter id="mdfGrain" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"/><feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/><feComposite operator="over" in2="SourceGraphic"/></filter></defs>
+      <rect width="200" height="90" fill="#C9A26D" filter="url(#mdfGrain)"/>
+    </svg>`;
+  }
+  PRODUCTS.filter(p => p.category === "MDF").forEach(p => {
+    p.swatch = p.mainImg
+      ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
+      : makeMdfSwatch(p);
+  });
+
   // ---------- Moodboard (parallax infinite wall) ----------
   function shuffle(arr){
     const a = arr.slice();
@@ -1796,6 +1808,7 @@
     "Corian - Acrylic Solid Surface": "A seamless, homogeneous acrylic solid surface for countertops, vanities, and wall cladding — non-porous, easy to clean, and workable with standard woodworking tools. Browse shades across two brands, Durasein and Tiara, in standard 8×2.5 ft sheets and 6mm/12mm thickness.",
     "Veneers": "Natural wood veneer sheets from Propperly, browsable by collection — from textured Embossed Veneer to Burma Teak, Designer, Hybrid, Natural Smoke, Engineered, Exotic, Texture, and Natural ranges. Suited to feature walls, cabinet fronts, and doors.",
     "Stone Panels": "Thin stone and slate veneer panels and cladding from Propperly — Marble, Slate, Sandstone, Translucent backlit stone, and textured Pannel/Metallic/Concrete finishes. Suited to feature walls, reception counters, and exterior cladding.",
+    "MDF": "Medium and high density fibreboard from Green Panel and Century — interior and exterior (MR) grades, plus BWP/HMR-rated HDF boards for moisture-prone areas. Standard 8×4 ft sheets across a wide thickness range, plain or pre-laminated.",
   };
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
@@ -2009,6 +2022,8 @@
     { brand: "Propperly", category: "Laminates", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
     { brand: "Propperly", category: "Veneers", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
     { brand: "Propperly", category: "Stone Panels", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
+    { brand: "Green Panel", category: "MDF", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/green-panel.png" },
+    { brand: "Century", category: "MDF", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png" },
   ];
 
   function goToBrand(category, brand){
