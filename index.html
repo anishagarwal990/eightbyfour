@@ -516,6 +516,7 @@
   }
   .cat-tile.has-stock .tile-count{color:var(--ink); font-weight:600;}
   .cat-tile.no-stock{opacity:0.62;}
+  .cat-tile .tile-logo{display:block; max-width:100%; height:32px; object-fit:contain; margin-bottom:10px;}
 
   .cat-expanding-wrap{margin-bottom:34px;}
   .cat-expanding-label{
@@ -1958,10 +1959,13 @@
     const brands = [...new Set(PRODUCTS.filter(p=>p.category===category).map(brandOf).filter(Boolean))].sort();
     brands.forEach(b=>{
       const count = PRODUCTS.filter(p=>p.category===category && brandOf(p)===b).length;
+      const logoEntry = BRAND_TILES.find(bt => bt.brand === b && bt.category === category);
       const tile = document.createElement("button");
       tile.type = "button";
       tile.className = "cat-tile has-stock";
-      tile.innerHTML = `<div class="tile-name">${b}</div><div class="tile-count">${count} SKUs</div>`;
+      tile.innerHTML = logoEntry
+        ? `<img class="tile-logo" src="${logoEntry.logo}" alt="${b} logo" loading="lazy"><div class="tile-count">${count} SKUs</div>`
+        : `<div class="tile-name">${b}</div><div class="tile-count">${count} SKUs</div>`;
       tile.addEventListener("click", ()=> selectBrand(b));
       productGroupTiles.appendChild(tile);
     });
