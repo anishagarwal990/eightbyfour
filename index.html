@@ -1393,7 +1393,7 @@
 <script>
 (async function(){
   // Categories exactly as listed in the source inventory sheet (row 2).
-  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF","Laminates","Corian - Acrylic Solid Surface","Veneers","Stone Panels","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
+  const ALL_CATEGORIES = ["Plywood","Birch Plywood","Particle Board","MDF and HDHMR","Laminates","Corian - Acrylic Solid Surface","Veneers","Stone Panels","Adhesive","Hardware","Electricals","Plumbing","WPC","Flexi Ply","Flush Door"];
   // Manufacturers exactly as listed under the Plywood section (row 13-26), plus laminate suppliers.
   const ALL_BRANDS = ["Century","Greenply","Mikasa","Green Panel","Duro","Siamply","Wigwam Excel","Tribeca","Sylvan","Archidply","Austin","Youply","Saburi","Hunsur","Surface"];
   const STD_THICKNESS = ["25mm","19mm","16mm","12mm","9mm","6mm","4mm"];
@@ -1444,7 +1444,7 @@
     { name: "Commercial Plywood", category: "Plywood" },
     { name: "Marine Plywood", category: "Plywood" },
     { name: "Birch Ply", category: "Birch Plywood" },
-    { name: "Interior MDF", category: "MDF" }, { name: "Exterior MDF", category: "MDF" }, { name: "HDHMR", category: "MDF" }, { name: "Blockboard" },
+    { name: "Interior MDF", category: "MDF and HDHMR" }, { name: "Exterior MDF", category: "MDF and HDHMR" }, { name: "HDHMR", category: "MDF and HDHMR" }, { name: "Blockboard" },
     { name: "Flush Doors" },
     { name: "Laminates", category: "Laminates" }, { name: "Decorative Laminates", category: "Laminates" },
     { name: "Compact Laminates" },
@@ -1468,7 +1468,7 @@
     { group: "Wood Panels", items: [
       { name: "Commercial Plywood", category: "Plywood" }, { name: "Marine Plywood", category: "Plywood" },
       { name: "Birch Ply", category: "Birch Plywood" }, { name: "Flexible Plywood" }, { name: "Blockboard" },
-      { name: "Flush Doors" }, { name: "Interior MDF", category: "MDF" }, { name: "Exterior MDF", category: "MDF" }, { name: "HDHMR", category: "MDF" },
+      { name: "Flush Doors" }, { name: "Interior MDF", category: "MDF and HDHMR" }, { name: "Exterior MDF", category: "MDF and HDHMR" }, { name: "HDHMR", category: "MDF and HDHMR" },
       { name: "Finger Joint Rubberwood" }, { name: "Agrowood" }, { name: "WPC Boards" }, { name: "WPC Doors" },
       { name: "Bison Panel" }, { name: "Cement Board" },
     ]},
@@ -1656,7 +1656,7 @@
       <rect width="200" height="90" fill="#C9A26D" filter="url(#mdfGrain)"/>
     </svg>`;
   }
-  PRODUCTS.filter(p => p.category === "MDF").forEach(p => {
+  PRODUCTS.filter(p => p.category === "MDF and HDHMR").forEach(p => {
     p.swatch = p.mainImg
       ? `<img src="${p.mainImg}" alt="${p.name}" loading="lazy">`
       : makeMdfSwatch(p);
@@ -1805,7 +1805,7 @@
     "Corian - Acrylic Solid Surface": "A seamless, homogeneous acrylic solid surface for countertops, vanities, and wall cladding — non-porous, easy to clean, and workable with standard woodworking tools. Browse shades across two brands, Durasein and Tiara, in standard 8×2.5 ft sheets and 6mm/12mm thickness.",
     "Veneers": "Natural wood veneer sheets from Propperly, browsable by collection — from textured Embossed Veneer to Burma Teak, Designer, Hybrid, Natural Smoke, Engineered, Exotic, Texture, and Natural ranges. Suited to feature walls, cabinet fronts, and doors.",
     "Stone Panels": "Thin stone and slate veneer panels and cladding from Propperly — Marble, Slate, Sandstone, Translucent backlit stone, and textured Pannel/Metallic/Concrete finishes. Suited to feature walls, reception counters, and exterior cladding.",
-    "MDF": "Medium and high density fibreboard from Green Panel and Century — interior and exterior (MR) grades, plus BWP/HMR-rated HDF boards for moisture-prone areas. Standard 8×4 ft sheets across a wide thickness range, plain or pre-laminated.",
+    "MDF and HDHMR": "Medium and high density fibreboard from Green Panel and Century — interior and exterior (MR) grades, plus BWP/HMR-rated HDHMR boards for moisture-prone areas. Century's range uses a timber fibre core; Green Panel's uses a eucalyptus fibre core. Standard 8×4 ft sheets across a wide thickness range, plain or pre-laminated.",
   };
 
   document.getElementById("generalInquiryBtn").addEventListener("click", ()=> openListModal());
@@ -2022,8 +2022,8 @@
     { brand: "Propperly", category: "Laminates", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
     { brand: "Propperly", category: "Veneers", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
     { brand: "Propperly", category: "Stone Panels", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png" },
-    { brand: "Green Panel", category: "MDF", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/green-panel.png" },
-    { brand: "Century", category: "MDF", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png" },
+    { brand: "Green Panel", category: "MDF and HDHMR", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/green-panel.png" },
+    { brand: "Century", category: "MDF and HDHMR", logo: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png" },
   ];
 
   function goToBrand(category, brand){
