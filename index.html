@@ -2038,16 +2038,27 @@
     showPage("products");
   }
 
+  function goToBrandAcrossCategories(brand){
+    state.category = "";
+    state.brand = null;
+    state.collection = null;
+    state.search = brand.toLowerCase();
+    categorySelect.value = "";
+    document.getElementById("searchInput").value = brand;
+    applyFilters();
+    showPage("products");
+  }
+
   const brandTiles = document.getElementById("brandTiles");
-  BRAND_TILES.forEach(bt=>{
-    const hasStock = PRODUCTS.some(p=>p.category===bt.category);
-    if(!hasStock) return;
-    const count = PRODUCTS.filter(p=>p.category===bt.category && brandOf(p)===bt.brand).length;
+  const uniqueBrandTiles = [...new Map(BRAND_TILES.map(bt => [bt.brand, bt])).values()];
+  uniqueBrandTiles.forEach(bt=>{
+    const count = PRODUCTS.filter(p=>brandOf(p)===bt.brand).length;
+    if(count === 0) return;
     const tile = document.createElement("button");
     tile.type = "button";
     tile.className = "brand-tile";
     tile.innerHTML = `<img src="${bt.logo}" alt="${bt.brand} logo" loading="lazy"><div class="brand-tile-count">${count} SKUs</div>`;
-    tile.addEventListener("click", ()=> goToBrand(bt.category, bt.brand));
+    tile.addEventListener("click", ()=> goToBrandAcrossCategories(bt.brand));
     brandTiles.appendChild(tile);
   });
 
