@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #121212;
+  --paper: #ffffff;
+  --paper-dim: #ececec;
+  --card: #f6f6f6;
+  --walnut: #6e1f2e;
+  --stamp: #0f0f0f;
+  --accent: #6e1f2e;
+  --accent-dark: #4f1520;
+  --burgundy: #6e1f2e;
+  --burgundy-dark: #4f1520;
+  --line: rgba(0, 0, 0, 0.15);
+  --line-strong: rgba(0, 0, 0, 0.35);
+
+  --fs-hero: clamp(40px, 6vw, 72px);
+  --fs-h1: clamp(28px, 4vw, 40px);
+  --fs-h2: clamp(22px, 3vw, 28px);
+  --fs-body: 15px;
+  --lh-tight: 1.08;
+  --lh-normal: 1.55;
+
+  --shadow-sm: 0 1px 2px rgba(18, 18, 18, 0.06), 0 1px 1px rgba(18, 18, 18, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(18, 18, 18, 0.16), 0 2px 8px -2px rgba(18, 18, 18, 0.08);
+  --shadow-lg: 0 20px 48px -12px rgba(18, 18, 18, 0.22), 0 8px 16px -4px rgba(18, 18, 18, 0.1);
+
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-base: 280ms;
+  --dur-slow: 480ms;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+
+  --sku-ribbon-h: 40px;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-paper-dim: var(--paper-dim);
+  --color-card: var(--card);
+  --color-walnut: var(--walnut);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-burgundy: var(--burgundy);
+  --color-burgundy-dark: var(--burgundy-dark);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-serif: var(--font-canela);
+  --font-sans: var(--font-plex);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-plex), "IBM Plex Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+.serif {
+  font-family: var(--font-canela), serif;
+}
+
+.tracked-caps {
+  font-family: var(--font-canela), serif;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.reveal.is-visible {
+  animation: fade-rise var(--dur-slow) var(--ease-out-soft) forwards;
+}
+
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.reveal-stagger.is-visible > * {
+  animation: fade-rise var(--dur-slow) var(--ease-out-soft) forwards;
+}
+
+.reveal-stagger.is-visible > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.reveal-stagger.is-visible > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+.reveal-stagger.is-visible > *:nth-child(3) {
+  animation-delay: 140ms;
+}
+.reveal-stagger.is-visible > *:nth-child(4) {
+  animation-delay: 210ms;
+}
+.reveal-stagger.is-visible > *:nth-child(n + 5) {
+  animation-delay: 280ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- Filter re-render crossfade (keyed remount retriggers this) ---------- */
+@keyframes filter-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.filter-fade {
+  animation: filter-fade-in var(--dur-base) var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter-fade {
+    animation: none;
+  }
+}
+
+/* ---------- Modal entrance ---------- */
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop {
+  animation: backdrop-in var(--dur-fast) var(--ease-out-soft);
+}
+
+.modal-panel {
+  animation: modal-panel-in var(--dur-base) var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .modal-panel {
+    animation: none;
+  }
+}
+
+/* ---------- SKU showcase ribbon (top-of-page marquee) ---------- */
+@keyframes sku-ribbon-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.sku-ribbon-track {
+  animation: sku-ribbon-scroll 42s linear infinite;
+}
+
+.sku-ribbon-track:hover,
+.sku-ribbon-track:focus-within {
+  animation-play-state: paused;
+}
+
+.sku-ribbon-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
+
+/* Touch devices: no hover to pause on, so drop the animation and let the
+   track scroll natively — avoids fighting a manual drag with a running transform. */
+@media (hover: none) {
+  .sku-ribbon-track {
+    animation: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sku-ribbon-track {
+    animation: none;
+    overflow-x: auto;
+  }
+}

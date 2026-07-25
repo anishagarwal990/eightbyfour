@@ -1,0 +1,48 @@
+import Link from "next/link";
+import Image from "next/image";
+import type { ProductRow } from "@/lib/supabase/types";
+import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
+
+export function ProductCard({ product }: { product: ProductRow }) {
+  return (
+    <Link href={`/products/${product.slug}`} className={cardClasses("block")} style={CARD_BASE_STYLE}>
+      <div className="relative aspect-[4/3] w-full overflow-hidden" style={{ background: "var(--paper-dim)" }}>
+        {product.main_img_url ? (
+          <Image
+            src={product.main_img_url}
+            alt={`${product.brand} ${product.name}`}
+            fill
+            sizes="(max-width: 640px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-[1.06]"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center serif text-sm" style={{ color: "var(--line-strong)" }}>
+            {product.brand}
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+          {product.brand}
+        </p>
+        <h3 className="serif mt-1 text-base leading-snug">{product.name}</h3>
+        {product.sd_code ? (
+          <p className="mt-0.5 text-xs" style={{ color: "var(--burgundy)" }}>
+            Code: {product.sd_code}
+          </p>
+        ) : null}
+        {product.size ? (
+          <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
+            {product.size}
+          </p>
+        ) : null}
+        <p
+          className="mt-2 translate-y-1 text-xs font-medium opacity-0 transition-[transform,opacity] duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-y-0 group-hover:opacity-100"
+          style={{ color: "var(--burgundy)" }}
+        >
+          View details →
+        </p>
+      </div>
+    </Link>
+  );
+}

@@ -30,8 +30,46 @@ alter table public.products add column if not exists gallery_img_urls text[];
 alter table public.products add column if not exists price_table jsonb;
 alter table public.products add column if not exists description text;
 
+-- ---------- SEO / spec fields (Next.js product pages) ----------
+alter table public.products add column if not exists slug text;
+alter table public.products add column if not exists core text;
+alter table public.products add column if not exists density text;
+alter table public.products add column if not exists warranty text;
+alter table public.products add column if not exists certifications text[];
+alter table public.products add column if not exists applications text[];
+alter table public.products add column if not exists catalogue_url text;
+alter table public.products add column if not exists tech_sheet_url text;
+alter table public.products add column if not exists installation_guide_url text;
+
 create index if not exists products_category_idx on public.products (category);
 create index if not exists products_brand_idx on public.products (brand);
+create unique index if not exists products_slug_idx on public.products (slug);
+
+-- ---------- brands ----------
+create table if not exists public.brands (
+  id bigint generated always as identity primary key,
+  slug text not null unique,
+  name text not null,
+  logo_url text,
+  overview text,
+  website_url text,
+  created_at timestamptz not null default now()
+);
+
+alter table public.brands enable row level security;
+
+drop policy if exists "brands_public_read" on public.brands;
+create policy "brands_public_read"
+  on public.brands for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists "brands_admin_write" on public.brands;
+create policy "brands_admin_write"
+  on public.brands for all
+  to authenticated
+  using (true)
+  with check (true);
 
 alter table public.products enable row level security;
 
@@ -66,6 +104,8 @@ create table if not exists public.inquiries (
   status text not null default 'new',
   created_at timestamptz not null default now()
 );
+
+alter table public.inquiries add column if not exists uploaded_file_url text;
 
 create index if not exists inquiries_created_at_idx on public.inquiries (created_at desc);
 create index if not exists inquiries_status_idx on public.inquiries (status);
@@ -217,3 +257,22 @@ create policy "product_images_admin_write"
   on storage.objects for insert
   to authenticated
   with check (bucket_id = 'product-images');
+
+-- Customer-uploaded requirement lists / BOQs attached to quote inquiries.
+-- Public bucket, unguessable ref-prefixed paths — same trust model as
+-- product-images, but written by anon customers rather than admins.
+insert into storage.buckets (id, name, public)
+values ('inquiry-uploads', 'inquiry-uploads', true)
+on conflict (id) do nothing;
+
+drop policy if exists "inquiry_uploads_public_read" on storage.objects;
+create policy "inquiry_uploads_public_read"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'inquiry-uploads');
+
+drop policy if exists "inquiry_uploads_public_write" on storage.objects;
+create policy "inquiry_uploads_public_write"
+  on storage.objects for insert
+  to anon, authenticated
+  with check (bucket_id = 'inquiry-uploads');
