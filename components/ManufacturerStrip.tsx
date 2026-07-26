@@ -27,6 +27,7 @@ const SOURCE_ONLY_BRANDS = [
   { name: "Vivanta Solid Surfaces", file: "vivanta.jpeg" },
   { name: "LX Hausys", file: "lx-hausys.jpeg" },
   { name: "Staron", file: "staron.png" },
+  { name: "PTA Fastener", file: "pta-fastener.jpeg" },
 ];
 
 const logoClasses =

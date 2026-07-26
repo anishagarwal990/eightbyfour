@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MoreBrandsTile } from "@/components/MoreBrandsTile";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export const metadata: Metadata = buildMetadata({
@@ -53,6 +54,7 @@ export default async function BrandsIndexPage() {
             </p>
           </Link>
         ))}
+        <MoreBrandsTile />
       </section>
     </main>
   );
