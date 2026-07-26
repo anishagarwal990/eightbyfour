@@ -15,7 +15,7 @@ interface ListItem {
 }
 
 interface QuoteModalContextValue {
-  openModal: (prefillDesc?: string) => void;
+  openModal: (prefillDesc?: string, note?: string) => void;
 }
 
 const QuoteModalContext = createContext<QuoteModalContextValue | null>(null);
@@ -41,6 +41,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
   const [submitting, setSubmitting] = useState(false);
   const [ref, setRef] = useState<string | null>(null);
   const [waUrl, setWaUrl] = useState<string | null>(null);
+  const [modalNote, setModalNote] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -56,10 +57,11 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     };
   }, [open]);
 
-  function openModal(prefillDesc?: string) {
+  function openModal(prefillDesc?: string, note?: string) {
     if (prefillDesc) {
       setItems((prev) => (prev.some((i) => i.desc === prefillDesc) ? prev : [...prev, { desc: prefillDesc, qty: "1" }]));
     }
+    setModalNote(note ?? null);
     setOpen(true);
   }
 
@@ -76,6 +78,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setSubmitNote(null);
     setRef(null);
     setWaUrl(null);
+    setModalNote(null);
   }
 
   function addItem() {
@@ -214,6 +217,12 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                     ×
                   </button>
                 </div>
+
+                {modalNote ? (
+                  <p className="rounded-sm border px-3 py-2 text-sm" style={{ borderColor: "var(--line)", background: "var(--paper-dim)", color: "var(--ink)" }}>
+                    {modalNote}
+                  </p>
+                ) : null}
 
                 <div>
                   <p className="text-xs tracked-caps">Items needed</p>
