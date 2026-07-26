@@ -71,7 +71,7 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
       <p className="tracked-caps px-7 text-center text-sm" style={{ color: "var(--accent)" }}>
         Manufacturers We Source From
       </p>
-      <AutoScrollRow className="brand-ribbon-mask mt-8" trackClassName="flex items-center gap-16 px-7" speed={24}>
+      <AutoScrollRow className="brand-ribbon-mask mt-8" trackClassName="flex items-center gap-16 px-7" speed={45}>
         {renderItems("a")}
         {renderItems("b")}
       </AutoScrollRow>

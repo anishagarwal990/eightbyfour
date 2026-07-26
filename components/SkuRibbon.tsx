@@ -44,7 +44,7 @@ export function SkuRibbon({ counts }: { counts: Record<string, number> }) {
       }}
       aria-label="Browse by category"
     >
-      <AutoScrollRow className="sku-ribbon-mask h-full" trackClassName="flex h-full items-center gap-6 px-4" speed={20}>
+      <AutoScrollRow className="sku-ribbon-mask h-full" trackClassName="flex h-full items-center gap-6 px-4" speed={45}>
         {items.map((c, i) => (
           <CategoryItem key={`${c.slug}-${i}`} category={c} />
         ))}
