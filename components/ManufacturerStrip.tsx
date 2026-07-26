@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useQuoteModal } from "@/context/QuoteModalContext";
+import { AutoScrollRow } from "@/components/AutoScrollRow";
 
 interface RealBrand {
   slug: string;
@@ -89,12 +90,10 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
       <p className="tracked-caps px-7 text-center text-sm" style={{ color: "var(--accent)" }}>
         Manufacturers We Source From
       </p>
-      <div className="brand-ribbon-mask mt-8 overflow-hidden">
-        <div className="brand-ribbon-track flex w-max items-center gap-16 px-7">
-          {renderItems("a")}
-          {renderItems("b")}
-        </div>
-      </div>
+      <AutoScrollRow className="brand-ribbon-mask mt-8" trackClassName="flex items-center gap-16 px-7" speed={24}>
+        {renderItems("a")}
+        {renderItems("b")}
+      </AutoScrollRow>
     </section>
   );
 }

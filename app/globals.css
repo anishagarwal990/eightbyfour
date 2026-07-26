@@ -210,23 +210,23 @@ textarea {
   }
 }
 
-/* ---------- SKU showcase ribbon (top-of-page marquee) ---------- */
-@keyframes sku-ribbon-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+/* ---------- Auto-scrolling ribbons (JS-driven — see AutoScrollRow.tsx) ---------- */
+/* Also grab-draggable with the mouse and swipeable on touch, not just decorative. */
+.ribbon-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  cursor: grab;
 }
 
-.sku-ribbon-track {
-  animation: sku-ribbon-scroll 42s linear infinite;
+.ribbon-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-.sku-ribbon-track:hover,
-.sku-ribbon-track:focus-within {
-  animation-play-state: paused;
+.ribbon-scroll:active {
+  cursor: grabbing;
 }
 
 .sku-ribbon-mask {
@@ -234,60 +234,9 @@ textarea {
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
 }
 
-/* Touch devices: no hover to pause on, so drop the animation and let the
-   track scroll natively — avoids fighting a manual drag with a running transform. */
-@media (hover: none) {
-  .sku-ribbon-track {
-    animation: none;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sku-ribbon-track {
-    animation: none;
-    overflow-x: auto;
-  }
-}
-
-/* ---------- Manufacturer logo ribbon (home page marquee) ---------- */
-@keyframes brand-ribbon-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.brand-ribbon-track {
-  animation: brand-ribbon-scroll 36s linear infinite;
-}
-
-.brand-ribbon-track:hover,
-.brand-ribbon-track:focus-within {
-  animation-play-state: paused;
-}
-
 .brand-ribbon-mask {
   -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
-}
-
-@media (hover: none) {
-  .brand-ribbon-track {
-    animation: none;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-ribbon-track {
-    animation: none;
-    overflow-x: auto;
-  }
 }
 
 /* ---------- Hero flanking image columns (vertical marquee of mixed product photos) ---------- */

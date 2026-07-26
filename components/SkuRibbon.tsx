@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
+import { AutoScrollRow } from "@/components/AutoScrollRow";
 
 interface RibbonCategory {
   slug: string;
@@ -43,13 +44,11 @@ export function SkuRibbon({ counts }: { counts: Record<string, number> }) {
       }}
       aria-label="Browse by category"
     >
-      <div className="sku-ribbon-mask h-full overflow-hidden">
-        <div className="sku-ribbon-track flex h-full w-max items-center gap-6 px-4">
-          {items.map((c, i) => (
-            <CategoryItem key={`${c.slug}-${i}`} category={c} />
-          ))}
-        </div>
-      </div>
+      <AutoScrollRow className="sku-ribbon-mask h-full" trackClassName="flex h-full items-center gap-6 px-4" speed={20}>
+        {items.map((c, i) => (
+          <CategoryItem key={`${c.slug}-${i}`} category={c} />
+        ))}
+      </AutoScrollRow>
     </div>
   );
 }
