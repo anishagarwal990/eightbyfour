@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MoreBrandsTile } from "@/components/MoreBrandsTile";
+import { MoreBrandsTile, SourceOnlyBrandTiles } from "@/components/MoreBrandsTile";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export const metadata: Metadata = buildMetadata({
@@ -54,6 +54,22 @@ export default async function BrandsIndexPage() {
             </p>
           </Link>
         ))}
+      </section>
+
+      <section className="px-7 pb-6">
+        <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+          Also Sourced On Request
+        </p>
+        <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
+          Manufacturers Without Live Stock Yet
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+          We source from these manufacturers too, but don&apos;t carry live SKUs from them yet — tell us what you need
+          and we&apos;ll get back to you in less than 15 minutes.
+        </p>
+      </section>
+      <section className="grid grid-cols-2 gap-4 px-7 pb-16 sm:grid-cols-3 lg:grid-cols-4">
+        <SourceOnlyBrandTiles />
         <MoreBrandsTile />
       </section>
     </main>

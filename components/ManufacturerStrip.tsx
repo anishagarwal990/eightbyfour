@@ -4,32 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuoteModal } from "@/context/QuoteModalContext";
 import { AutoScrollRow } from "@/components/AutoScrollRow";
+import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
 interface RealBrand {
   slug: string;
   name: string;
   logo_url: string | null;
 }
-
-// Manufacturers EightByFour sources from but doesn't yet stock as SKUs —
-// clicking opens an inquiry instead of a (nonexistent) brand catalogue page.
-const SOURCE_ONLY_BRANDS = [
-  { name: "Hafele", file: "hafele.png" },
-  { name: "Hettich", file: "hettich.png" },
-  { name: "Blum", file: "blum.png" },
-  { name: "EBCO", file: "ebco.png" },
-  { name: "Godrej", file: "godrej.webp" },
-  { name: "Action Tesa", file: "action-tesa.png" },
-  { name: "BisonPanel", file: "bisonpanel.webp" },
-  { name: "Ozone", file: "ozone.png" },
-  { name: "Dorset", file: "dorset.webp" },
-  { name: "Europa", file: "europa.webp" },
-  { name: "Saburi Ply", file: "saburi-ply.png" },
-  { name: "Vivanta Solid Surfaces", file: "vivanta.jpeg" },
-  { name: "LX Hausys", file: "lx-hausys.jpeg" },
-  { name: "Staron", file: "staron.png" },
-  { name: "PTA Fastener", file: "pta-fastener.jpeg" },
-];
 
 const logoClasses =
   "h-14 w-auto object-contain grayscale opacity-75 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100";
