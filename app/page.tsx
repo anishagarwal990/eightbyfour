@@ -35,6 +35,24 @@ const PROCUREMENT_STEPS = [
   { n: "04", text: "Delivery is scheduled against your site timeline." },
 ];
 
+const WHO_WE_SERVE = [
+  {
+    title: "Architects",
+    body: "Spec real, in-stock materials against real shade and edge-band codes — not a catalogue that may or may not be available when the site needs it.",
+    href: "/hyderabad/architect-material-sourcing",
+  },
+  {
+    title: "Interior Designers",
+    body: "One point of contact across plywood, laminates, veneers, hardware and solid surfaces — for every space you're building out.",
+    href: "/hyderabad/architect-material-sourcing",
+  },
+  {
+    title: "Contractors",
+    body: "A single supplier for every category on the BOQ, with trade pricing and delivery scheduled against your site timeline.",
+    href: "/hyderabad/contractor-procurement",
+  },
+];
+
 export default async function Home() {
   const [counts, brands] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts()]);
   const guides = [
@@ -48,7 +66,7 @@ export default async function Home() {
       {/* ---------- Hero ---------- */}
       <section className="reveal is-visible px-7 py-20 text-center">
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-          Hyderabad&apos;s Procurement Platform
+          Hyderabad&apos;s Interior Procurement &amp; Distribution Platform
         </p>
         <h1 className="serif mx-auto mt-3 max-w-3xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
           Interior &amp; construction materials, sourced — not just sold.
@@ -91,6 +109,37 @@ export default async function Home() {
             </div>
           ))}
         </Reveal>
+      </Reveal>
+
+      {/* ---------- Who We Serve ---------- */}
+      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
+        <div className="mb-8 text-center">
+          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+            Who We Serve
+          </p>
+          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
+            Built for the People Who Build Spaces
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+            EightByFour is an ecosystem for architects, designers and contractors sourcing real stock across Hyderabad
+            — one exclusive product range, one point of contact, execution collaborated on with us.
+          </p>
+        </div>
+        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {WHO_WE_SERVE.map((item) => (
+            <Link key={item.title} href={item.href} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
+              <p className="serif" style={{ fontSize: "18px" }}>
+                {item.title}
+              </p>
+              <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+                {item.body}
+              </p>
+            </Link>
+          ))}
+        </Reveal>
+        <p className="serif mt-10 text-center" style={{ fontSize: "var(--fs-h1)", color: "var(--burgundy)" }}>
+          Bring your designs to life.
+        </p>
       </Reveal>
 
       {/* ---------- Materials Catalogue ---------- */}
