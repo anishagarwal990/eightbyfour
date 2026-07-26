@@ -248,3 +248,42 @@ textarea {
     overflow-x: auto;
   }
 }
+
+/* ---------- Manufacturer logo ribbon (home page marquee) ---------- */
+@keyframes brand-ribbon-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-ribbon-track {
+  animation: brand-ribbon-scroll 36s linear infinite;
+}
+
+.brand-ribbon-track:hover,
+.brand-ribbon-track:focus-within {
+  animation-play-state: paused;
+}
+
+.brand-ribbon-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
+
+@media (hover: none) {
+  .brand-ribbon-track {
+    animation: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-ribbon-track {
+    animation: none;
+    overflow-x: auto;
+  }
+}

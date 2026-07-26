@@ -1,0 +1,94 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useQuoteModal } from "@/context/QuoteModalContext";
+
+interface RealBrand {
+  slug: string;
+  name: string;
+  logo_url: string | null;
+}
+
+// Manufacturers EightByFour sources from but doesn't yet stock as SKUs —
+// clicking opens an inquiry instead of a (nonexistent) brand catalogue page.
+const SOURCE_ONLY_BRANDS = [
+  { name: "Hafele", file: "hafele.png" },
+  { name: "Hettich", file: "hettich.png" },
+  { name: "Blum", file: "blum.png" },
+  { name: "EBCO", file: "ebco.png" },
+  { name: "Godrej", file: "godrej.webp" },
+  { name: "Action Tesa", file: "action-tesa.png" },
+  { name: "BisonPanel", file: "bisonpanel.webp" },
+  { name: "Ozone", file: "ozone.png" },
+  { name: "Dorset", file: "dorset.webp" },
+  { name: "Europa", file: "europa.webp" },
+  { name: "Saburi Ply", file: "saburi-ply.png" },
+];
+
+const logoClasses =
+  "h-7 w-auto object-contain grayscale opacity-60 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100";
+
+function LogoItem({ brand }: { brand: RealBrand }) {
+  if (brand.logo_url) {
+    return (
+      <Link href={`/brands/${brand.slug}`} className="flex shrink-0 items-center">
+        <Image
+          src={brand.logo_url}
+          alt={`${brand.name} logo`}
+          width={120}
+          height={28}
+          className={logoClasses}
+          style={{ width: "auto", height: "28px" }}
+        />
+      </Link>
+    );
+  }
+  return (
+    <Link
+      href={`/brands/${brand.slug}`}
+      className="serif shrink-0 whitespace-nowrap text-sm opacity-60 transition-opacity hover:opacity-100"
+    >
+      {brand.name}
+    </Link>
+  );
+}
+
+export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
+  const { openModal } = useQuoteModal();
+
+  function renderItems(keyPrefix: string) {
+    return (
+      <>
+        {brands.map((b) => (
+          <LogoItem key={`${keyPrefix}-${b.slug}`} brand={b} />
+        ))}
+        {SOURCE_ONLY_BRANDS.map((m) => (
+          <button
+            key={`${keyPrefix}-${m.file}`}
+            type="button"
+            onClick={() => openModal(`${m.name} products`)}
+            className="flex shrink-0 items-center"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/brand-logos/${m.file}`} alt={m.name} className={logoClasses} />
+          </button>
+        ))}
+      </>
+    );
+  }
+
+  return (
+    <section className="py-10" aria-label="Manufacturers we source from">
+      <p className="tracked-caps px-7 text-center text-xs" style={{ color: "var(--line-strong)" }}>
+        Manufacturers We Source From
+      </p>
+      <div className="brand-ribbon-mask mt-6 overflow-hidden">
+        <div className="brand-ribbon-track flex w-max items-center gap-10 px-7">
+          {renderItems("a")}
+          {renderItems("b")}
+        </div>
+      </div>
+    </section>
+  );
+}

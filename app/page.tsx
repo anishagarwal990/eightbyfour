@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import { CATEGORIES } from "@/lib/categories";
 import { getCategoryCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllContent } from "@/lib/mdx";
 import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 import { Reveal } from "@/components/Reveal";
+import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { buttonClasses } from "@/components/ui/Button";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
@@ -66,6 +66,8 @@ export default async function Home() {
           </a>
         </div>
       </section>
+
+      <ManufacturerStrip brands={brands} />
 
       {/* ---------- Why EightByFour ---------- */}
       <Reveal as="section" className="px-7 py-16">
@@ -139,35 +141,6 @@ export default async function Home() {
         </Reveal>
       </Reveal>
 
-      {/* ---------- Manufacturers ---------- */}
-      <Reveal as="section" className="px-7 py-10">
-        <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-            Manufacturers We Carry
-          </h2>
-          <Link href="/brands" className="text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
-            View all →
-          </Link>
-        </div>
-        <Reveal stagger className="grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
-          {brands.map((b) => (
-            <Link
-              key={b.slug}
-              href={`/brands/${b.slug}`}
-              className={cardClasses("flex flex-col items-center gap-2 p-4 text-center")}
-              style={CARD_BASE_STYLE}
-            >
-              {b.logo_url ? (
-                <div className="relative h-8 w-full">
-                  <Image src={b.logo_url} alt={`${b.name} logo`} fill className="object-contain" />
-                </div>
-              ) : (
-                <p className="serif text-sm">{b.name}</p>
-              )}
-            </Link>
-          ))}
-        </Reveal>
-      </Reveal>
 
       {/* ---------- Buying Guides & Comparisons ---------- */}
       {guides.length > 0 ? (
