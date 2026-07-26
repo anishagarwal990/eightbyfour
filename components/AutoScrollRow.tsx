@@ -26,6 +26,16 @@ export function AutoScrollRow({
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    // Pointer capture can be lost without a pointerup/pointercancel ever reaching
+    // this element (e.g. the cursor drifts off during a window/focus change), which
+    // would otherwise leave draggingRef stuck true and freeze the scroll forever.
+    function clearDragging() {
+      draggingRef.current = false;
+    }
+    window.addEventListener("pointerup", clearDragging);
+    window.addEventListener("pointercancel", clearDragging);
+    window.addEventListener("blur", clearDragging);
+
     let raf: number;
     let last = performance.now();
     function tick(now: number) {
@@ -39,7 +49,12 @@ export function AutoScrollRow({
       raf = requestAnimationFrame(tick);
     }
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointerup", clearDragging);
+      window.removeEventListener("pointercancel", clearDragging);
+      window.removeEventListener("blur", clearDragging);
+    };
   }, [speed]);
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
