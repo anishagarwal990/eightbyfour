@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { CATEGORIES } from "@/lib/categories";
 import { getCategoryCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
@@ -68,8 +69,15 @@ export default async function Home() {
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
           Hyderabad&apos;s Interior Procurement &amp; Distribution Platform
         </p>
-        <h1 className="serif mx-auto mt-3 max-w-3xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
-          Interior &amp; construction materials, sourced — not just sold.
+        <h1 className="mx-auto mt-5">
+          <Image
+            src="/brand-logos/eightbyfour-mark.png"
+            alt="EightByFour — Interior & construction materials, sourced, not just sold."
+            width={220}
+            height={254}
+            style={{ width: "auto", height: "160px", margin: "0 auto" }}
+            priority
+          />
         </h1>
         <p className="mx-auto mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           EightByFour simplifies procurement for contractors, architects, interior designers and builders — sourcing

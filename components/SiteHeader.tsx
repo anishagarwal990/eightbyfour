@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
@@ -55,15 +54,12 @@ export function SiteHeader() {
         background: scrolled ? "rgba(255,255,255,0.72)" : "var(--paper)",
       }}
     >
-      <Link href="/" className="flex items-center gap-2.5 leading-tight">
-        <Image src="/brand-logos/eightbyfour-mark.png" alt="" width={36} height={25} style={{ width: "auto", height: "34px" }} priority />
-        <span>
-          <span className="serif block" style={{ fontSize: "26px", fontWeight: 900, letterSpacing: "-0.5px" }}>
-            EIGHT<span style={{ color: "var(--accent)" }}>×</span>FOUR
-          </span>
-          <span className="tracked-caps block text-[10px]" style={{ color: "var(--line-strong)" }}>
-            Base to Surface
-          </span>
+      <Link href="/" className="leading-tight">
+        <span className="serif block" style={{ fontSize: "26px", fontWeight: 900, letterSpacing: "-0.5px" }}>
+          EIGHT<span style={{ color: "var(--accent)" }}>×</span>FOUR
+        </span>
+        <span className="tracked-caps block text-[10px]" style={{ color: "var(--line-strong)" }}>
+          Base to Surface
         </span>
       </Link>
       <nav className="flex flex-wrap items-center gap-5 text-sm" aria-label="Primary">
