@@ -24,10 +24,13 @@ const SOURCE_ONLY_BRANDS = [
   { name: "Dorset", file: "dorset.webp" },
   { name: "Europa", file: "europa.webp" },
   { name: "Saburi Ply", file: "saburi-ply.png" },
+  { name: "Vivanta Solid Surfaces", file: "vivanta.jpeg" },
+  { name: "LX Hausys", file: "lx-hausys.jpeg" },
+  { name: "Staron", file: "staron.png" },
 ];
 
 const logoClasses =
-  "h-7 w-auto object-contain grayscale opacity-60 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100";
+  "h-14 w-auto object-contain grayscale opacity-75 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100";
 
 function LogoItem({ brand }: { brand: RealBrand }) {
   if (brand.logo_url) {
@@ -36,10 +39,10 @@ function LogoItem({ brand }: { brand: RealBrand }) {
         <Image
           src={brand.logo_url}
           alt={`${brand.name} logo`}
-          width={120}
-          height={28}
+          width={220}
+          height={56}
           className={logoClasses}
-          style={{ width: "auto", height: "28px" }}
+          style={{ width: "auto", height: "56px" }}
         />
       </Link>
     );
@@ -47,7 +50,7 @@ function LogoItem({ brand }: { brand: RealBrand }) {
   return (
     <Link
       href={`/brands/${brand.slug}`}
-      className="serif shrink-0 whitespace-nowrap text-sm opacity-60 transition-opacity hover:opacity-100"
+      className="serif shrink-0 whitespace-nowrap text-lg opacity-75 transition-opacity hover:opacity-100"
     >
       {brand.name}
     </Link>
@@ -79,12 +82,12 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
   }
 
   return (
-    <section className="py-10" aria-label="Manufacturers we source from">
-      <p className="tracked-caps px-7 text-center text-xs" style={{ color: "var(--line-strong)" }}>
+    <section className="py-16" aria-label="Manufacturers we source from">
+      <p className="tracked-caps px-7 text-center text-sm" style={{ color: "var(--accent)" }}>
         Manufacturers We Source From
       </p>
-      <div className="brand-ribbon-mask mt-6 overflow-hidden">
-        <div className="brand-ribbon-track flex w-max items-center gap-10 px-7">
+      <div className="brand-ribbon-mask mt-8 overflow-hidden">
+        <div className="brand-ribbon-track flex w-max items-center gap-16 px-7">
           {renderItems("a")}
           {renderItems("b")}
         </div>
