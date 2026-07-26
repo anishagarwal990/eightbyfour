@@ -18,7 +18,7 @@ function SourceOnlyBrandTile({ name, file }: { name: string; file: string }) {
         <img src={`/brand-logos/${file}`} alt={`${name} logo`} className="h-full w-full object-contain" />
       </div>
       <p className="text-xs tracked-caps" style={{ color: "var(--accent)" }}>
-        Tell us what you need
+        Sourced on request
       </p>
     </button>
   );
