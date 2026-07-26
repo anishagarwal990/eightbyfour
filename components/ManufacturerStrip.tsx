@@ -71,7 +71,7 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
             key={`${keyPrefix}-${m.file}`}
             type="button"
             onClick={() =>
-              openModal(`${m.name} products`, `We don't stock ${m.name} yet — tell us what you need and we'll source it for you.`)
+              openModal(`${m.name} products`, `Tell us what you need from ${m.name} and we'll get back to you in less than 15 minutes.`)
             }
             className="flex shrink-0 items-center"
           >

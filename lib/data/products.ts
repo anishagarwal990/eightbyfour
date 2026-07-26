@@ -68,25 +68,42 @@ export async function getBrandsForCategory(dbCategory: string): Promise<string[]
   return [...new Set(data.map((r) => r.brand))].sort();
 }
 
-export interface CategoryShowcaseItem {
-  dbCategory: string;
-  thumbnail: string;
+export interface HeroPreviewImage {
+  src: string;
+  alt: string;
 }
 
-/** One representative imaged product per category — for the top showcase ribbon. Never fabricated. */
-export async function getCategoryShowcase(): Promise<CategoryShowcaseItem[]> {
+/** Real product photos, mixed across categories (not grouped), for the hero's flanking columns. */
+export async function getHeroPreviewImages(): Promise<HeroPreviewImage[]> {
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("products")
-    .select("category,main_img_url")
+    .select("category,brand,name,main_img_url")
     .not("main_img_url", "is", null)
     .order("category")
     .order("id");
   if (error) throw error;
 
-  const seen = new Map<string, string>();
-  for (const row of data as { category: string; main_img_url: string }[]) {
-    if (!seen.has(row.category)) seen.set(row.category, row.main_img_url);
+  const perCategory = new Map<string, HeroPreviewImage[]>();
+  for (const row of data as { category: string; brand: string; name: string; main_img_url: string }[]) {
+    const list = perCategory.get(row.category) ?? [];
+    if (list.length < 6) {
+      list.push({ src: row.main_img_url, alt: `${row.brand} ${row.name}` });
+      perCategory.set(row.category, list);
+    }
   }
-  return [...seen.entries()].map(([dbCategory, thumbnail]) => ({ dbCategory, thumbnail }));
+
+  // Round-robin across categories so the resulting list alternates
+  // (veneer, adhesive, plywood, veneer, ...) instead of running in
+  // same-category blocks.
+  const buckets = [...perCategory.values()];
+  const mixed: HeroPreviewImage[] = [];
+  let round = 0;
+  while (mixed.length < buckets.reduce((n, b) => n + b.length, 0)) {
+    for (const bucket of buckets) {
+      if (bucket[round]) mixed.push(bucket[round]);
+    }
+    round++;
+  }
+  return mixed;
 }

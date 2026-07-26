@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIES } from "@/lib/categories";
-import { getCategoryCounts } from "@/lib/data/products";
+import { getCategoryCounts, getHeroPreviewImages } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllContent } from "@/lib/mdx";
 import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
+import { HeroImagePreview } from "@/components/HeroImagePreview";
+import { TellUsWhatYouNeedLink } from "@/components/TellUsWhatYouNeedLink";
 import { buttonClasses } from "@/components/ui/Button";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
@@ -55,7 +57,7 @@ const WHO_WE_SERVE = [
 ];
 
 export default async function Home() {
-  const [counts, brands] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts()]);
+  const [counts, brands, heroImages] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts(), getHeroPreviewImages()]);
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
@@ -65,7 +67,9 @@ export default async function Home() {
   return (
     <main>
       {/* ---------- Hero ---------- */}
-      <section className="reveal is-visible px-7 py-20 text-center">
+      <section className="reveal is-visible relative px-7 py-20 text-center">
+        <HeroImagePreview images={heroImages} side="left" />
+        <HeroImagePreview images={heroImages} side="right" />
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
           Hyderabad&apos;s Interior Procurement &amp; Distribution Platform
         </p>
@@ -91,6 +95,7 @@ export default async function Home() {
             General Inquiry
           </a>
         </div>
+        <TellUsWhatYouNeedLink />
       </section>
 
       <ManufacturerStrip brands={brands} />
