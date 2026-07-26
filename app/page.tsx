@@ -25,7 +25,7 @@ const WHY_EIGHTBYFOUR = [
   },
   {
     title: "Direct from manufacturers",
-    body: "No distributors, no middlemen — we buy directly from manufacturers, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
+    body: "We source directly from manufacturers across our distribution network, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
   },
   {
     title: "We source beyond what's listed",
@@ -43,7 +43,7 @@ const WHY_EIGHTBYFOUR = [
 
 const PROCUREMENT_STEPS = [
   { n: "01", text: "Share your BOQ or project brief." },
-  { n: "02", text: "We check stock and trade pricing across our manufacturer network." },
+  { n: "02", text: "We check stock and quote wholesale pricing." },
   { n: "03", text: "You get a consolidated quote — not a patchwork of separate supplier quotes." },
   { n: "04", text: "Most in-stock items deliver same-day or next-day across Hyderabad." },
 ];
@@ -98,7 +98,7 @@ export default async function Home() {
         </h1>
         <p className="mx-auto mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           EightByFour is one procurement partner for everything your project needs — plywood, laminates, veneers,
-          hardware, solid surfaces and more — sourced directly from 25+ manufacturers in Hyderabad, no middlemen.
+          hardware, solid surfaces and more — sourced directly from 25+ manufacturers in Hyderabad.
           Can&apos;t find it listed? We source that too.
         </p>
         <p className="tracked-caps mx-auto mt-4 text-xs" style={{ color: "var(--burgundy)" }}>
@@ -305,7 +305,7 @@ export default async function Home() {
         </h2>
         <p className="mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           EightByFour is one procurement relationship across plywood, laminates, veneers, hardware and everything
-          else your project needs — sourced directly from trusted manufacturers in Hyderabad, no middlemen.
+          else your project needs — sourced directly from trusted manufacturers in Hyderabad.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/products" className={buttonClasses("primary")}>

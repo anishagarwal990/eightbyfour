@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ProductRow } from "@/lib/supabase/types";
+import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
 import { QuoteRequestForm } from "@/components/QuoteRequestForm";
@@ -44,9 +45,11 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
 export function ProductPageView({
   product,
   relatedProducts,
+  ratings,
 }: {
   product: ProductRow;
   relatedProducts: ProductRow[];
+  ratings?: ProductRatingSummary;
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
@@ -54,7 +57,6 @@ export function ProductPageView({
     Boolean
   ) as string[];
   const faqs = buildFaqs(product);
-  const showEngagement = product.category === "Veneers";
   const breadcrumbPaths = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
@@ -66,7 +68,7 @@ export function ProductPageView({
     <main>
       <BreadcrumbSchema items={breadcrumbPaths} />
       <FaqSchema faqs={faqs} />
-      <ProductSchema product={product} />
+      <ProductSchema product={product} ratings={ratings} />
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -218,11 +220,9 @@ export function ProductPageView({
         </div>
       </Reveal>
 
-      {showEngagement ? (
-        <Reveal as="section" className="px-7 py-8">
-          <LikeCommentWidget productId={product.id} />
-        </Reveal>
-      ) : null}
+      <Reveal as="section" className="px-7 py-8">
+        <LikeCommentWidget productId={product.id} initialRatings={ratings} />
+      </Reveal>
 
       {relatedProducts.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">

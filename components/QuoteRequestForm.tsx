@@ -136,6 +136,14 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
       <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
         Request a quote
       </p>
+      <div>
+        <p className="text-sm font-medium" style={{ color: "var(--burgundy)" }}>
+          Price: Available on Request
+        </p>
+        <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
+          Receive a personalized commercial quotation in under 15 minutes.
+        </p>
+      </div>
       <label className="text-xs tracked-caps">
         Name
         <input

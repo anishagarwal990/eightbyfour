@@ -155,9 +155,12 @@ create table if not exists public.product_comments (
   name text not null,
   phone text not null,
   comment text not null,
+  rating smallint check (rating between 1 and 5),
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
   created_at timestamptz not null default now()
 );
+
+alter table public.product_comments add column if not exists rating smallint check (rating between 1 and 5);
 
 create index if not exists product_comments_product_idx on public.product_comments (product_id);
 create index if not exists product_comments_status_idx on public.product_comments (status);
@@ -173,6 +176,7 @@ create policy "product_comments_public_insert"
     and length(trim(name)) > 0
     and length(trim(phone)) >= 7
     and length(trim(comment)) > 0
+    and rating between 1 and 5
   );
 
 drop policy if exists "product_comments_public_read_approved" on public.product_comments;

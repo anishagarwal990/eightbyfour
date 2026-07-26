@@ -8,6 +8,7 @@ import {
   getProductsByCategory,
   getRelatedProducts,
 } from "@/lib/data/products";
+import { getProductReviews } from "@/lib/data/reviews";
 import { buildMetadata } from "@/lib/seo";
 import { CategoryPageView } from "@/components/CategoryPageView";
 import { ProductPageView } from "@/components/ProductPageView";
@@ -58,8 +59,11 @@ export default async function ProductOrCategoryPage({ params }: { params: Promis
 
   const product = await getProductBySlug(slug);
   if (product) {
-    const relatedProducts = await getRelatedProducts(product);
-    return <ProductPageView product={product} relatedProducts={relatedProducts} />;
+    const [relatedProducts, ratings] = await Promise.all([
+      getRelatedProducts(product),
+      getProductReviews(product.id),
+    ]);
+    return <ProductPageView product={product} relatedProducts={relatedProducts} ratings={ratings} />;
   }
 
   notFound();
