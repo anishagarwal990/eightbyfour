@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
   { href: "/comparisons", label: "Comparisons" },
-  { href: "/hyderabad", label: "Hyderabad" },
+  { href: "/hyderabad", label: "Serving Hyderabad" },
 ];
 
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
