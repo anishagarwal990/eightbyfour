@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useQuoteModal } from "@/context/QuoteModalContext";
 import { AutoScrollRow } from "@/components/AutoScrollRow";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
@@ -41,8 +40,6 @@ function LogoItem({ brand }: { brand: RealBrand }) {
 }
 
 export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
-  const { openModal } = useQuoteModal();
-
   function renderItems(keyPrefix: string) {
     return (
       <>
@@ -50,17 +47,10 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
           <LogoItem key={`${keyPrefix}-${b.slug}`} brand={b} />
         ))}
         {SOURCE_ONLY_BRANDS.map((m) => (
-          <button
-            key={`${keyPrefix}-${m.file}`}
-            type="button"
-            onClick={() =>
-              openModal(`${m.name} products`, `Tell us what you need from ${m.name} and we'll get back to you in less than 15 minutes.`)
-            }
-            className="flex shrink-0 items-center"
-          >
+          <Link key={`${keyPrefix}-${m.slug}`} href={`/brands/${m.slug}`} className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/brand-logos/${m.file}`} alt={m.name} className={logoClasses} />
-          </button>
+          </Link>
         ))}
       </>
     );

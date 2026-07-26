@@ -10,30 +10,49 @@ import { ProductCard } from "@/components/ProductCard";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { SOURCE_ONLY_BRANDS, getSourceOnlyBrandBySlug } from "@/lib/source-only-brands";
+import { SourceOnlyBrandPageView } from "@/components/SourceOnlyBrandPageView";
 
 export async function generateStaticParams() {
   const brands = await getAllBrandsWithCounts();
-  return brands.map((b) => ({ slug: b.slug }));
+  return [...brands.map((b) => ({ slug: b.slug })), ...SOURCE_ONLY_BRANDS.map((b) => ({ slug: b.slug }))];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
-  if (!brand) return {};
-  return buildMetadata({
-    title: `${brand.name} Dealer in Hyderabad — Products, Downloads & Pricing`,
-    description:
-      brand.overview ||
-      `${brand.name} products available through EightByFour in Hyderabad — request trade pricing and delivery.`,
-    path: `/brands/${brand.slug}`,
-    image: brand.logo_url || undefined,
-  });
+  if (brand) {
+    return buildMetadata({
+      title: `${brand.name} Dealer in Hyderabad — Products, Downloads & Pricing`,
+      description:
+        brand.overview ||
+        `${brand.name} products available through EightByFour in Hyderabad — request trade pricing and delivery.`,
+      path: `/brands/${brand.slug}`,
+      image: brand.logo_url || undefined,
+    });
+  }
+
+  const sourceOnly = getSourceOnlyBrandBySlug(slug);
+  if (sourceOnly) {
+    return buildMetadata({
+      title: `${sourceOnly.name} in Hyderabad — Sourced on Request`,
+      description: `EightByFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
+      path: `/brands/${sourceOnly.slug}`,
+    });
+  }
+
+  return {};
 }
 
 export default async function BrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
-  if (!brand) notFound();
+
+  if (!brand) {
+    const sourceOnly = getSourceOnlyBrandBySlug(slug);
+    if (sourceOnly) return <SourceOnlyBrandPageView brand={sourceOnly} />;
+    notFound();
+  }
 
   const [products, categories] = await Promise.all([getProductsByBrand(brand.name), getBrandCategories(brand.name)]);
   const relatedCategoryConfigs = categories
