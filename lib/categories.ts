@@ -43,7 +43,7 @@ export const CATEGORIES: CategoryConfig[] = [
       {
         question: "Do you supply plywood in sizes other than 8×4 ft?",
         answer:
-          "8×4 ft is the standard sheet size we stock across all plywood brands. For non-standard sizes, share your BOQ with us and we'll check availability across our distributor network.",
+          "8×4 ft is the standard sheet size we stock across all plywood brands. For non-standard sizes, share your BOQ with us and we'll check availability across our manufacturer network.",
       },
     ],
     applicationSlugs: ["modular-kitchen", "wardrobes", "office-furniture", "commercial-spaces"],

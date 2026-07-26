@@ -8,7 +8,7 @@ export function OrganizationSchema() {
     url: SITE_URL,
     image: `${SITE_URL}/og-image.jpg`,
     description:
-      "EightByFour is a procurement platform for interior and construction materials operating in Hyderabad — sourcing plywood, laminates, veneers, hardware and more across trusted manufacturers and distributors.",
+      "EightByFour is a procurement platform for interior and construction materials operating in Hyderabad — sourcing plywood, laminates, veneers, hardware and more directly from trusted manufacturers.",
     areaServed: { "@type": "City", name: "Hyderabad" },
     address: {
       "@type": "PostalAddress",

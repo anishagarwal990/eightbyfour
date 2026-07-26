@@ -63,6 +63,9 @@ export function AutoScrollRow({
       suppressClickRef.current = true;
     }
     draggingRef.current = false;
+    // Safety net: a drag that ends outside the element (pointer capture can
+    // suppress the matching pointerleave) must never leave the pause stuck on.
+    pausedRef.current = false;
   }
 
   function onClickCapture(e: React.MouseEvent<HTMLDivElement>) {
@@ -77,10 +80,14 @@ export function AutoScrollRow({
     <div
       ref={ref}
       className={`ribbon-scroll ${className}`}
-      onMouseEnter={() => (pausedRef.current = true)}
-      onMouseLeave={() => {
-        pausedRef.current = false;
-        endDrag();
+      onPointerEnter={(e) => {
+        if (e.pointerType === "mouse") pausedRef.current = true;
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === "mouse") {
+          pausedRef.current = false;
+          endDrag();
+        }
       }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

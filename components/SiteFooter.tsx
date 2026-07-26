@@ -11,7 +11,7 @@ export function SiteFooter() {
           </div>
           <p className="mt-2 max-w-xs" style={{ color: "var(--line-strong)" }}>
             EightByFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
-            MDF, laminates, veneers and hardware, sourced across trusted manufacturers and distributors.
+            MDF, laminates, veneers and hardware, sourced directly from trusted manufacturers.
           </p>
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}`}

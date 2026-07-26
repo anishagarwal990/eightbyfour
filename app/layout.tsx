@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     template: "%s | EightByFour",
   },
   description:
-    "EightByFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more across trusted manufacturers and distributors in Hyderabad — for contractors, architects, interior designers and builders.",
+    "EightByFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad — for contractors, architects, interior designers and builders.",
 };
 
 export default async function RootLayout({

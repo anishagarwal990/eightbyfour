@@ -15,12 +15,17 @@ const STATS = [
   { value: "750+", label: "SKUs In Stock" },
   { value: "25+", label: "Manufacturers Sourced" },
   { value: "<15 min", label: "First Response Time" },
+  { value: "Same/Next-Day", label: "Delivery in Hyderabad" },
 ];
 
 const WHY_EIGHTBYFOUR = [
   {
     title: "One partner, not ten suppliers",
-    body: "One inquiry checks availability and pricing across our distributor and manufacturer network — not a separate call to every supplier on your BOQ.",
+    body: "One inquiry checks availability and pricing across our manufacturer network — not a separate call to every supplier on your BOQ.",
+  },
+  {
+    title: "Direct from manufacturers",
+    body: "No distributors, no middlemen — we buy directly from manufacturers, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
   },
   {
     title: "We source beyond what's listed",
@@ -38,9 +43,9 @@ const WHY_EIGHTBYFOUR = [
 
 const PROCUREMENT_STEPS = [
   { n: "01", text: "Share your BOQ or project brief." },
-  { n: "02", text: "We check stock and trade pricing across our distributor network." },
+  { n: "02", text: "We check stock and trade pricing across our manufacturer network." },
   { n: "03", text: "You get a consolidated quote — not a patchwork of separate supplier quotes." },
-  { n: "04", text: "Delivery is scheduled against your site timeline." },
+  { n: "04", text: "Most in-stock items deliver same-day or next-day across Hyderabad." },
 ];
 
 const WHO_WE_SERVE = [
@@ -93,7 +98,7 @@ export default async function Home() {
         </h1>
         <p className="mx-auto mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           EightByFour is one procurement partner for everything your project needs — plywood, laminates, veneers,
-          hardware, solid surfaces and more — sourced across 25+ manufacturers and distributors in Hyderabad.
+          hardware, solid surfaces and more — sourced directly from 25+ manufacturers in Hyderabad, no middlemen.
           Can&apos;t find it listed? We source that too.
         </p>
         <p className="tracked-caps mx-auto mt-4 text-xs" style={{ color: "var(--burgundy)" }}>
@@ -172,10 +177,10 @@ export default async function Home() {
             A Procurement Partner, Not a Catalogue
           </h2>
         </div>
-        <Reveal stagger className="mx-auto mb-12 grid max-w-3xl grid-cols-1 gap-8 text-center sm:grid-cols-3">
+        <Reveal stagger className="mx-auto mb-12 grid max-w-4xl grid-cols-2 gap-8 text-center lg:grid-cols-4">
           {STATS.map((s) => (
             <div key={s.label}>
-              <p className="serif" style={{ fontSize: "36px", color: "var(--burgundy)" }}>
+              <p className="serif" style={{ fontSize: "28px", color: "var(--burgundy)" }}>
                 {s.value}
               </p>
               <p className="mt-1 text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
@@ -184,7 +189,7 @@ export default async function Home() {
             </div>
           ))}
         </Reveal>
-        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {WHY_EIGHTBYFOUR.map((item) => (
             <div key={item.title}>
               <p className="serif" style={{ fontSize: "18px" }}>
@@ -300,7 +305,7 @@ export default async function Home() {
         </h2>
         <p className="mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           EightByFour is one procurement relationship across plywood, laminates, veneers, hardware and everything
-          else your project needs — sourced across trusted manufacturers and distributors in Hyderabad.
+          else your project needs — sourced directly from trusted manufacturers in Hyderabad, no middlemen.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link href="/products" className={buttonClasses("primary")}>

@@ -6,7 +6,7 @@ import { ContentIndexView } from "@/components/ContentIndexView";
 export const metadata: Metadata = buildMetadata({
   title: "Material Procurement in Hyderabad",
   description:
-    "EightByFour is Hyderabad's procurement platform for interior and construction materials — plywood, laminates, veneers and hardware sourced across trusted manufacturers and distributors, city-wide.",
+    "EightByFour is Hyderabad's procurement platform for interior and construction materials — plywood, laminates, veneers and hardware sourced directly from trusted manufacturers, city-wide.",
   path: "/hyderabad",
 });
 
@@ -45,7 +45,7 @@ export default function HyderabadIndexPage() {
     <ContentIndexView
       type="hyderabad"
       title="Hyderabad"
-      intro="EightByFour operates only in Hyderabad — every material we stock, and every process below, is built around this city's sites, distributors and delivery routes."
+      intro="EightByFour operates only in Hyderabad — every material we stock, and every process below, is built around this city's sites and delivery routes."
       entries={entries}
     />
   );

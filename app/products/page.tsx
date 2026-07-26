@@ -27,7 +27,7 @@ export default async function ProductsIndexPage() {
           Every category, sourced for Hyderabad projects
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
-          EightByFour procures across distributors and manufacturers so contractors, architects, interior designers
+          EightByFour procures directly from manufacturers so contractors, architects, interior designers
           and builders can source everything a project needs from one place. Pick a category to see live stock,
           available brands and a buying guide.
         </p>
