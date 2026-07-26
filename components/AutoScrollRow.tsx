@@ -16,6 +16,7 @@ export function AutoScrollRow({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
+  const hoveringRef = useRef(false);
   const startXRef = useRef(0);
   const startScrollRef = useRef(0);
   const lastXRef = useRef(0);
@@ -41,7 +42,7 @@ export function AutoScrollRow({
     function tick(now: number) {
       const dt = (now - last) / 1000;
       last = now;
-      if (!draggingRef.current && el) {
+      if (!draggingRef.current && !hoveringRef.current && el) {
         el.scrollLeft += speed * dt;
         const half = el.scrollWidth / 2;
         if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half;
@@ -87,6 +88,14 @@ export function AutoScrollRow({
     }
   }
 
+  function onPointerEnter(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse") hoveringRef.current = true;
+  }
+
+  function onPointerLeave(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse") hoveringRef.current = false;
+  }
+
   return (
     <div
       ref={ref}
@@ -95,6 +104,8 @@ export function AutoScrollRow({
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       onClickCapture={onClickCapture}
     >
       <div className={trackClassName}>{children}</div>
