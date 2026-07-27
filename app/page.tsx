@@ -254,10 +254,10 @@ export default async function Home() {
       <Reveal as="section" className="px-7 py-10">
         <div className="mb-5">
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Hyderabad, Exclusively
+            Serving Telangana &amp; Andhra Pradesh
           </p>
           <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
-            Built for This City, Not Every City
+            Rooted in Hyderabad, Serving Across AP &amp; TS
           </h2>
         </div>
         <Reveal stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
