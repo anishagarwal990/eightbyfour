@@ -35,6 +35,7 @@
   --foreground: var(--ink);
 
   --sku-ribbon-h: 40px;
+  --contact-bar-h: 30px;
 }
 
 @theme inline {
