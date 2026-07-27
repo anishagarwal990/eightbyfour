@@ -21,6 +21,7 @@ export function AutoScrollRow({
   const startScrollRef = useRef(0);
   const lastXRef = useRef(0);
   const suppressClickRef = useRef(false);
+  const pressTargetRef = useRef<Element | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -73,6 +74,9 @@ export function AutoScrollRow({
     startXRef.current = e.clientX;
     lastXRef.current = e.clientX;
     startScrollRef.current = ref.current.scrollLeft;
+    // Captured before setPointerCapture below can affect hit-testing — this is
+    // whatever was actually under the cursor at press time.
+    pressTargetRef.current = e.target as Element;
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 
@@ -96,6 +100,19 @@ export function AutoScrollRow({
       e.preventDefault();
       e.stopPropagation();
       suppressClickRef.current = false;
+      return;
+    }
+    // The ribbon keeps auto-scrolling between pointerdown and pointerup, so on a
+    // quick (non-drag) click the content under the cursor can have shifted by the
+    // time the browser fires "click" — landing on a gap or a different item than
+    // what was actually pressed, silently swallowing the navigation. Detect that
+    // mismatch and fire the click on the link that was really pressed instead.
+    const pressedLink = pressTargetRef.current?.closest?.("a") ?? null;
+    const clickedLink = (e.target as Element)?.closest?.("a") ?? null;
+    if (pressedLink && pressedLink !== clickedLink) {
+      e.preventDefault();
+      e.stopPropagation();
+      (pressedLink as HTMLElement).click();
     }
   }
 
