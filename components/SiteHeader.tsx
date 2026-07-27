@@ -49,7 +49,7 @@ export function SiteHeader() {
     <>
       <div
         className="sticky z-20 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium"
-        style={{ top: "var(--sku-ribbon-h)", background: "var(--olive)", color: "var(--paper)" }}
+        style={{ top: "var(--sku-ribbon-h)", background: "var(--burgundy)", color: "var(--paper)" }}
       >
         <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
           Call: {PHONE_DISPLAY}
