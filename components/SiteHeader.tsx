@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
+import { SaveIcon } from "@/components/icons/SaveIcon";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
 
 const NAV_LINKS = [
@@ -85,6 +86,13 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <SearchBar />
+          <Link
+            href="/saved"
+            aria-label="Saved products"
+            className="flex items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)]"
+          >
+            <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
+          </Link>
           <RequestQuoteButton />
         </div>
       </header>

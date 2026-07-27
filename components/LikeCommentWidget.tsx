@@ -3,14 +3,23 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { getIdentity, setIdentity, hasLiked, markLiked } from "@/lib/identity";
+import { isSaved, toggleSaved } from "@/lib/saved";
 import { Button } from "@/components/ui/Button";
+import { ShareIcon } from "@/components/icons/ShareIcon";
+import { SaveIcon } from "@/components/icons/SaveIcon";
+import { UploadIcon } from "@/components/icons/UploadIcon";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
+
+const PROFESSIONS = ["Architect", "Interior Designer", "Contractor", "Builder", "Homeowner", "Dealer", "Fabricator", "Other"];
+const MAX_REVIEW_IMAGES = 3;
 
 interface Comment {
   name: string;
   comment: string;
   rating: number | null;
   created_at: string;
+  profession: string | null;
+  image_urls: string[] | null;
 }
 
 export function LikeCommentWidget({
@@ -23,9 +32,14 @@ export function LikeCommentWidget({
   const supabase = createBrowserSupabaseClient();
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(() => (typeof window !== "undefined" ? hasLiked(productId) : false));
+  const [saved, setSaved] = useState(() => (typeof window !== "undefined" ? isSaved(productId) : false));
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[] | null>(initialRatings ? initialRatings.reviews : null);
   const [commentText, setCommentText] = useState("");
   const [rating, setRating] = useState(0);
+  const [profession, setProfession] = useState("");
+  const [reviewImages, setReviewImages] = useState<File[]>([]);
+  const [submittingComment, setSubmittingComment] = useState(false);
   const [pendingAction, setPendingAction] = useState<"like" | "comment" | null>(null);
   const [needsIdentity, setNeedsIdentity] = useState(false);
   const [identityName, setIdentityName] = useState("");
@@ -43,7 +57,7 @@ export function LikeCommentWidget({
     });
     supabase
       .from("product_comments")
-      .select("name, comment, rating, created_at")
+      .select("name, comment, rating, created_at, profession, image_urls")
       .eq("product_id", productId)
       .eq("status", "approved")
       .order("created_at", { ascending: false })
@@ -67,20 +81,69 @@ export function LikeCommentWidget({
     setLiked(true);
   }
 
+  function doSave() {
+    setSaved(toggleSaved(productId));
+  }
+
+  async function doShare() {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, url });
+      } catch {
+        // user cancelled — no-op
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setShareStatus("Link copied");
+    } catch {
+      setShareStatus(url);
+    }
+    setTimeout(() => setShareStatus(null), 2500);
+  }
+
   async function doComment() {
     const identity = getIdentity();
     const text = commentText.trim();
     if (!identity || !text || rating < 1) return;
-    const { error } = await supabase
-      .from("product_comments")
-      .insert({ product_id: productId, name: identity.name, phone: identity.phone, comment: text, rating });
-    if (error) {
-      setCommentStatus("Couldn't post your comment. Please try again.");
-      return;
+    setSubmittingComment(true);
+    try {
+      let imageUrls: string[] = [];
+      if (reviewImages.length > 0) {
+        const uploads = await Promise.all(
+          reviewImages.map(async (file, i) => {
+            const path = `${productId}/${Date.now()}-${i}-${file.name}`;
+            const { error: uploadError } = await supabase.storage.from("review-media").upload(path, file);
+            if (uploadError) return null;
+            return supabase.storage.from("review-media").getPublicUrl(path).data.publicUrl;
+          })
+        );
+        imageUrls = uploads.filter((u): u is string => Boolean(u));
+      }
+
+      const { error } = await supabase.from("product_comments").insert({
+        product_id: productId,
+        name: identity.name,
+        phone: identity.phone,
+        comment: text,
+        rating,
+        profession: profession || null,
+        image_urls: imageUrls.length > 0 ? imageUrls : null,
+      });
+      if (error) {
+        setCommentStatus("Couldn't post your comment. Please try again.");
+        return;
+      }
+      setCommentText("");
+      setRating(0);
+      setProfession("");
+      setReviewImages([]);
+      setCommentStatus("Thanks! Your review will appear after a quick review.");
+    } finally {
+      setSubmittingComment(false);
     }
-    setCommentText("");
-    setRating(0);
-    setCommentStatus("Thanks! Your review will appear after a quick review.");
   }
 
   function requireIdentity(action: "like" | "comment") {
@@ -99,7 +162,7 @@ export function LikeCommentWidget({
 
   return (
     <div className="rounded-sm border p-5" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
           variant="secondary"
@@ -112,12 +175,38 @@ export function LikeCommentWidget({
         >
           {liked ? "♥ Liked" : "♡ Like this product"}
         </Button>
+        <button
+          type="button"
+          onClick={doSave}
+          aria-label={saved ? "Remove from saved products" : "Save this product"}
+          aria-pressed={saved}
+          className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,border-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          style={{ borderColor: saved ? "var(--burgundy)" : "var(--line)", color: saved ? "var(--burgundy)" : "var(--ink)" }}
+        >
+          <SaveIcon filled={saved} />
+          {saved ? "Saved" : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={doShare}
+          aria-label="Share this product"
+          className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,border-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <ShareIcon />
+          Share
+        </button>
         <span className="text-sm" style={{ color: "var(--line-strong)" }}>
           {likeCount} {likeCount === 1 ? "like" : "likes"}
         </span>
         {ratedCount > 0 ? (
           <span className="text-sm" style={{ color: "var(--line-strong)" }}>
             · {averageRating.toFixed(1)} ★ ({ratedCount} {ratedCount === 1 ? "review" : "reviews"})
+          </span>
+        ) : null}
+        {shareStatus ? (
+          <span className="text-xs" style={{ color: "var(--accent)" }}>
+            {shareStatus}
           </span>
         ) : null}
       </div>
@@ -168,6 +257,22 @@ export function LikeCommentWidget({
             </button>
           ))}
         </div>
+
+        <label className="mt-2 text-xs tracked-caps">Your profession</label>
+        <select
+          value={profession}
+          onChange={(e) => setProfession(e.target.value)}
+          className="rounded-sm border bg-transparent px-3 py-2 text-sm"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <option value="">Prefer not to say</option>
+          {PROFESSIONS.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </select>
+
         <label className="mt-2 text-xs tracked-caps">Leave a review</label>
         <textarea
           value={commentText}
@@ -176,8 +281,32 @@ export function LikeCommentWidget({
           className="rounded-sm border px-3 py-2 text-sm"
           style={{ borderColor: "var(--line)" }}
         />
-        <Button type="submit" variant="secondary" className="self-start" disabled={rating < 1 || !commentText.trim()}>
-          Post review
+
+        <label
+          className="mt-1 inline-flex w-fit cursor-pointer items-center gap-1.5 text-xs"
+          style={{ color: "var(--line-strong)" }}
+        >
+          <UploadIcon className="h-4 w-4" />
+          {reviewImages.length > 0 ? `${reviewImages.length} photo(s) attached` : "Add photos (optional)"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []).slice(0, MAX_REVIEW_IMAGES);
+              setReviewImages(files);
+            }}
+          />
+        </label>
+
+        <Button
+          type="submit"
+          variant="secondary"
+          className="self-start"
+          disabled={rating < 1 || !commentText.trim() || submittingComment}
+        >
+          {submittingComment ? "Posting…" : "Post review"}
         </Button>
         {commentStatus ? (
           <p className="text-xs" style={{ color: "var(--line-strong)" }}>
@@ -201,11 +330,20 @@ export function LikeCommentWidget({
               <div className="flex justify-between text-xs" style={{ color: "var(--line-strong)" }}>
                 <span>
                   {c.name}
+                  {c.profession ? <span> · {c.profession}</span> : null}
                   {c.rating ? <span style={{ color: "var(--accent)" }}> · {"★".repeat(c.rating)}</span> : null}
                 </span>
                 <span>{new Date(c.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
               </div>
               <p className="mt-1">{c.comment}</p>
+              {c.image_urls?.length ? (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {c.image_urls.map((url) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={url} src={url} alt="Review photo" className="h-20 w-20 rounded-sm object-cover" />
+                  ))}
+                </div>
+              ) : null}
             </div>
           ))
         )}

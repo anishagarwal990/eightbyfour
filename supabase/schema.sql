@@ -161,6 +161,8 @@ create table if not exists public.product_comments (
 );
 
 alter table public.product_comments add column if not exists rating smallint check (rating between 1 and 5);
+alter table public.product_comments add column if not exists profession text;
+alter table public.product_comments add column if not exists image_urls text[];
 
 create index if not exists product_comments_product_idx on public.product_comments (product_id);
 create index if not exists product_comments_status_idx on public.product_comments (status);
@@ -280,3 +282,21 @@ create policy "inquiry_uploads_public_write"
   on storage.objects for insert
   to anon, authenticated
   with check (bucket_id = 'inquiry-uploads');
+
+-- Customer-submitted review photos, attached to product_comments.image_urls.
+-- Same public-write trust model as inquiry-uploads.
+insert into storage.buckets (id, name, public)
+values ('review-media', 'review-media', true)
+on conflict (id) do nothing;
+
+drop policy if exists "review_media_public_read" on storage.objects;
+create policy "review_media_public_read"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'review-media');
+
+drop policy if exists "review_media_public_write" on storage.objects;
+create policy "review_media_public_write"
+  on storage.objects for insert
+  to anon, authenticated
+  with check (bucket_id = 'review-media');

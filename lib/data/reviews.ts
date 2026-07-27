@@ -5,6 +5,8 @@ export interface ProductReview {
   rating: number;
   comment: string;
   created_at: string;
+  profession: string | null;
+  image_urls: string[] | null;
 }
 
 export interface ProductRatingSummary {
@@ -17,7 +19,7 @@ export async function getProductReviews(productId: number): Promise<ProductRatin
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase
     .from("product_comments")
-    .select("name, rating, comment, created_at")
+    .select("name, rating, comment, created_at, profession, image_urls")
     .eq("product_id", productId)
     .eq("status", "approved")
     .not("rating", "is", null)

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import type { ProductRow } from "@/lib/supabase/types";
+import Image from "next/image";
+import type { BrandRow, ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
@@ -46,10 +47,14 @@ export function ProductPageView({
   product,
   relatedProducts,
   ratings,
+  brand,
+  brandProducts,
 }: {
   product: ProductRow;
   relatedProducts: ProductRow[];
   ratings?: ProductRatingSummary;
+  brand?: BrandRow | null;
+  brandProducts?: ProductRow[];
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
@@ -231,6 +236,43 @@ export function ProductPageView({
           </h2>
           <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {relatedProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </Reveal>
+        </Reveal>
+      ) : null}
+
+      {brand && brandProducts && brandProducts.length > 0 ? (
+        <Reveal as="section" className="px-7 py-8">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              More from {brand.name}
+            </h2>
+            <Link href={`/brands/${brand.slug}`} className="shrink-0 text-sm underline">
+              View brand
+            </Link>
+          </div>
+          {brand.logo_url || brand.overview ? (
+            <div className="mt-3 flex items-center gap-4">
+              {brand.logo_url ? (
+                <Image
+                  src={brand.logo_url}
+                  alt={`${brand.name} logo`}
+                  width={140}
+                  height={40}
+                  className="h-8 w-auto object-contain"
+                  style={{ width: "auto", height: "32px" }}
+                />
+              ) : null}
+              {brand.overview ? (
+                <p className="text-sm" style={{ color: "var(--line-strong)" }}>
+                  {brand.overview}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+          <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {brandProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </Reveal>

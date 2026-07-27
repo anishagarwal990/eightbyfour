@@ -29,6 +29,13 @@ export async function getBrandBySlug(slug: string): Promise<BrandRow | null> {
   return data;
 }
 
+export async function getBrandByName(name: string): Promise<BrandRow | null> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase.from("brands").select("*").eq("name", name).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 export async function getBrandCategories(brandName: string): Promise<string[]> {
   const supabase = createServerSupabaseClient();
   const { data, error } = await supabase.from("products").select("category").eq("brand", brandName);

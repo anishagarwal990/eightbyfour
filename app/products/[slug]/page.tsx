@@ -5,9 +5,11 @@ import {
   getAllProductSlugs,
   getBrandsForCategory,
   getProductBySlug,
+  getProductsByBrand,
   getProductsByCategory,
   getRelatedProducts,
 } from "@/lib/data/products";
+import { getBrandByName } from "@/lib/data/brands";
 import { getProductReviews } from "@/lib/data/reviews";
 import { buildMetadata } from "@/lib/seo";
 import { CategoryPageView } from "@/components/CategoryPageView";
@@ -59,11 +61,22 @@ export default async function ProductOrCategoryPage({ params }: { params: Promis
 
   const product = await getProductBySlug(slug);
   if (product) {
-    const [relatedProducts, ratings] = await Promise.all([
+    const [relatedProducts, ratings, brand, brandProductsRaw] = await Promise.all([
       getRelatedProducts(product),
       getProductReviews(product.id),
+      getBrandByName(product.brand),
+      getProductsByBrand(product.brand),
     ]);
-    return <ProductPageView product={product} relatedProducts={relatedProducts} ratings={ratings} />;
+    const brandProducts = brandProductsRaw.filter((p) => p.id !== product.id).slice(0, 4);
+    return (
+      <ProductPageView
+        product={product}
+        relatedProducts={relatedProducts}
+        ratings={ratings}
+        brand={brand}
+        brandProducts={brandProducts}
+      />
+    );
   }
 
   notFound();
