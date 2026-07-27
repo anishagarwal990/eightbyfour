@@ -98,6 +98,20 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
         </div>
       </section>
 
+      {brand.range_image_url ? (
+        <section className="px-7 pb-6">
+          <div className="relative aspect-[21/9] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
+            <Image
+              src={brand.range_image_url}
+              alt={`${brand.name} product range`}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="object-cover"
+            />
+          </div>
+        </section>
+      ) : null}
+
       {brand.overview ? (
         <section className="px-7 pb-6">
           <p className="max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>

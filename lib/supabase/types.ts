@@ -40,6 +40,7 @@ export interface BrandRow {
   logo_url: string | null;
   overview: string | null;
   website_url: string | null;
+  range_image_url: string | null;
   created_at: string;
 }
 

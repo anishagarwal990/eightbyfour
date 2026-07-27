@@ -56,6 +56,8 @@ create table if not exists public.brands (
   created_at timestamptz not null default now()
 );
 
+alter table public.brands add column if not exists range_image_url text;
+
 alter table public.brands enable row level security;
 
 drop policy if exists "brands_public_read" on public.brands;
