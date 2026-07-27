@@ -240,32 +240,3 @@ textarea {
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
 }
 
-/* ---------- Hero flanking image columns (vertical marquee of mixed product photos) ---------- */
-@keyframes hero-column-scroll {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-50%);
-  }
-}
-
-.hero-column-track {
-  animation: hero-column-scroll 26s linear infinite;
-}
-
-.hero-column-track-reverse {
-  animation-direction: reverse;
-  animation-duration: 32s;
-}
-
-.hero-column-mask {
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 32px, black calc(100% - 32px), transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, black 32px, black calc(100% - 32px), transparent 100%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-column-track {
-    animation: none;
-  }
-}

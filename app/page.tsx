@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
-import { getCategoryCounts, getHeroPreviewImages } from "@/lib/data/products";
+import { getCategoryCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllContent } from "@/lib/mdx";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
-import { HeroImagePreview } from "@/components/HeroImagePreview";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { buttonClasses } from "@/components/ui/Button";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
@@ -77,7 +76,7 @@ const WHO_WE_SERVE = [
 ];
 
 export default async function Home() {
-  const [counts, brands, heroImages] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts(), getHeroPreviewImages()]);
+  const [counts, brands] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts()]);
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
@@ -88,8 +87,6 @@ export default async function Home() {
     <main>
       {/* ---------- Hero ---------- */}
       <section className="reveal is-visible relative px-7 py-20 text-center">
-        <HeroImagePreview images={heroImages} side="left" />
-        <HeroImagePreview images={heroImages} side="right" />
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
           Hyderabad&apos;s Procurement Platform for Interior &amp; Construction Materials
         </p>

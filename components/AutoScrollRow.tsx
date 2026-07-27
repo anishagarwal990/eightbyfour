@@ -45,7 +45,16 @@ export function AutoScrollRow({
       if (!draggingRef.current && !hoveringRef.current && el) {
         el.scrollLeft += speed * dt;
         const half = el.scrollWidth / 2;
-        if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half;
+        const maxScroll = el.scrollWidth - el.clientWidth;
+        if (half > 0 && el.scrollLeft >= half) {
+          // Content (two copies) is wide enough to loop at the seam — the normal case.
+          el.scrollLeft -= half;
+        } else if (half > maxScroll && el.scrollLeft >= maxScroll) {
+          // Content is too narrow for the viewport to ever reach the seam — the browser
+          // clamps scrollLeft at maxScroll before we get there, which otherwise freezes
+          // the ribbon forever instead of looping. Snap back to the start instead.
+          el.scrollLeft = 0;
+        }
       }
       raf = requestAnimationFrame(tick);
     }
@@ -74,7 +83,9 @@ export function AutoScrollRow({
   }
 
   function endDrag() {
-    if (draggingRef.current && Math.abs(lastXRef.current - startXRef.current) > 5) {
+    // A real click still jitters a few px between pointerdown and pointerup — only
+    // treat it as a drag (and swallow the click) once movement is clearly deliberate.
+    if (draggingRef.current && Math.abs(lastXRef.current - startXRef.current) > 12) {
       suppressClickRef.current = true;
     }
     draggingRef.current = false;
