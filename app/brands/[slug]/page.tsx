@@ -100,7 +100,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
 
       {brand.range_image_url ? (
         <section className="px-7 pb-6">
-          <div className="relative aspect-[21/9] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
+          <div className="relative aspect-[1184/620] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
             <Image
               src={brand.range_image_url}
               alt={`${brand.name} product range`}
