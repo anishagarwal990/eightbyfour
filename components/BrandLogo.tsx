@@ -5,11 +5,13 @@ import { BRAND_LOGOS } from "@/lib/brandLogos";
 export function BrandLogo({
   brand,
   height = 16,
+  className = "",
   textClassName = "tracked-caps text-xs",
   textStyle,
 }: {
   brand: string;
   height?: number;
+  className?: string;
   textClassName?: string;
   textStyle?: React.CSSProperties;
 }) {
@@ -23,6 +25,11 @@ export function BrandLogo({
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={logoUrl} alt={`${brand} logo`} className="w-auto object-contain object-left" style={{ height }} />
+    <img
+      src={logoUrl}
+      alt={`${brand} logo`}
+      className={`w-auto object-contain object-left ${className}`}
+      style={{ height }}
+    />
   );
 }

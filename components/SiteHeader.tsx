@@ -194,11 +194,8 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
                 href={`/brands/${brand.slug}`}
                 className="group/brand flex flex-col items-start gap-1.5 rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
               >
-                <div
-                  className="flex h-9 w-full items-center rounded-sm border px-2"
-                  style={{ borderColor: "var(--line)", background: "var(--paper)" }}
-                >
-                  <BrandLogo brand={brand.name} height={28} />
+                <div className="flex h-7 items-center">
+                  <BrandLogo brand={brand.name} height={26} className="mix-blend-multiply" />
                 </div>
                 <span className="text-[11px]" style={{ color: "var(--line-strong)" }}>
                   {brand.productCount} SKUs
@@ -209,17 +206,14 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
               <Link
                 key={brand.slug}
                 href={`/brands/${brand.slug}`}
-                className="flex rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
+                className="flex items-center rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
               >
-                <div
-                  className="flex h-9 w-full items-center rounded-sm border px-2"
-                  style={{ borderColor: "var(--line)", background: "var(--paper)" }}
-                >
+                <div className="flex h-7 items-center">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/brand-logos/${brand.file}`}
                     alt={`${brand.name} logo`}
-                    className="h-7 w-auto max-w-full object-contain"
+                    className="h-[26px] w-auto max-w-full object-contain mix-blend-multiply"
                   />
                 </div>
               </Link>
