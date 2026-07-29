@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function ProductCard({ product }: { product: ProductRow }) {
   return (
@@ -22,9 +23,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
         )}
       </div>
       <div className="p-3">
-        <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-          {product.brand}
-        </p>
+        <BrandLogo brand={product.brand} height={16} />
         <h3 className="serif mt-1 text-base leading-snug">{product.name}</h3>
         {product.sd_code ? (
           <p className="mt-0.5 text-xs" style={{ color: "var(--burgundy)" }}>

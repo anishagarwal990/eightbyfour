@@ -7,15 +7,223 @@ import { SearchBar } from "@/components/SearchBar";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { SaveIcon } from "@/components/icons/SaveIcon";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
+import { CATEGORIES } from "@/lib/categories";
+import { BrandLogo } from "@/components/BrandLogo";
+import type { BrandMenuEntry } from "@/lib/data/brands";
+import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
 const NAV_LINKS = [
-  { href: "/products", label: "Products" },
-  { href: "/brands", label: "Brands" },
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
   { href: "/comparisons", label: "Comparisons" },
   { href: "/hyderabad", label: "Serving Hyderabad" },
 ];
+
+const PRODUCTS_MENU_COLUMNS = [
+  { title: "Boards & Panels", slugs: ["plywood", "birch-plywood", "boil-boards", "mdf-and-hdhmr"] },
+  { title: "Surfaces & Finishes", slugs: ["laminates", "veneers", "stone-panels"] },
+  { title: "Solid Surface & Adhesives", slugs: ["corian-acrylic-solid-surface", "adhesive"] },
+].map((col) => ({
+  title: col.title,
+  categories: col.slugs.map((slug) => CATEGORIES.find((c) => c.slug === slug)!).filter(Boolean),
+}));
+
+function ProductsMegaMenu({
+  active,
+  counts,
+  brands,
+}: {
+  active: boolean;
+  counts: Record<string, number>;
+  brands: BrandMenuEntry[];
+}) {
+  const totalProducts = Object.values(counts).reduce((sum, n) => sum + n, 0);
+
+  return (
+    <div className="group relative">
+      <Link
+        href="/products"
+        className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
+      >
+        Products
+        <span
+          aria-hidden="true"
+          className={`absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+            active ? "scale-x-100" : "scale-x-0 group-hover/link:scale-x-100"
+          }`}
+          style={{ background: "var(--burgundy)" }}
+        />
+      </Link>
+      <div
+        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[900px] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
+      >
+        <div
+          className="grid grid-cols-[1fr_1fr_1fr_0.9fr] gap-7 rounded-sm border p-6 shadow-[var(--shadow-lg)]"
+          style={{ background: "var(--paper)", borderColor: "var(--line)" }}
+        >
+          {PRODUCTS_MENU_COLUMNS.map((col) => (
+            <div key={col.title}>
+              <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
+                {col.title}
+              </p>
+              <ul className="mt-3 flex flex-col gap-3">
+                {col.categories.map((cat) => (
+                  <li key={cat.slug}>
+                    <Link
+                      href={`/products/${cat.slug}`}
+                      className="group/item -mx-2 block rounded-sm px-2 py-1 transition-colors hover:bg-[var(--paper-dim)]"
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium transition-colors group-hover/item:text-[var(--burgundy)]">
+                          {cat.name}
+                        </span>
+                        <span className="tracked-caps text-[11px]" style={{ color: "var(--line-strong)" }}>
+                          {counts[cat.dbCategory] || 0}
+                        </span>
+                      </span>
+                      <span
+                        className="mt-0.5 block text-xs leading-snug"
+                        style={{ color: "var(--line-strong)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+                      >
+                        {cat.heroTagline}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <div className="flex flex-col rounded-sm p-5" style={{ background: "var(--burgundy)", color: "var(--paper)" }}>
+            <p className="serif" style={{ fontSize: "20px" }}>
+              Full Materials Catalogue
+            </p>
+            <p className="mt-2 text-xs leading-relaxed opacity-90">
+              {totalProducts}+ SKUs across {CATEGORIES.length} categories, sourced directly from manufacturers for
+              Hyderabad projects.
+            </p>
+            <dl className="mt-4 flex flex-col gap-2 text-xs">
+              <div className="flex justify-between border-t border-white/20 pt-2">
+                <dt className="opacity-80">Categories</dt>
+                <dd className="font-medium">{CATEGORIES.length}</dd>
+              </div>
+              <div className="flex justify-between border-t border-white/20 pt-2">
+                <dt className="opacity-80">Total SKUs</dt>
+                <dd className="font-medium">{totalProducts}+</dd>
+              </div>
+            </dl>
+            <Link
+              href="/products"
+              className="mt-auto inline-block rounded-sm px-3 py-2 text-center text-xs font-medium"
+              style={{ background: "var(--paper)", color: "var(--burgundy)", marginTop: "16px" }}
+            >
+              Browse all products →
+            </Link>
+          </div>
+        </div>
+
+        <div
+          className="mt-3 rounded-sm border p-6 shadow-[var(--shadow-lg)]"
+          style={{ background: "var(--paper)", borderColor: "var(--line)" }}
+        >
+          <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
+            Shop by Brand
+          </p>
+          <div className="mt-3 grid grid-cols-4 gap-x-6 gap-y-5">
+            {brands.map((brand) => (
+              <div key={brand.slug}>
+                <Link href={`/brands/${brand.slug}`} className="group/brand block">
+                  <BrandLogo brand={brand.name} height={16} />
+                  <span
+                    className="mt-1 block text-xs transition-colors group-hover/brand:text-[var(--burgundy)]"
+                    style={{ color: "var(--line-strong)" }}
+                  >
+                    {brand.productCount} products
+                  </span>
+                </Link>
+                <ul className="mt-1.5 flex flex-col gap-1">
+                  {brand.sampleProducts.map((p) => (
+                    <li key={p.slug}>
+                      <Link
+                        href={`/products/${p.slug}`}
+                        className="block truncate text-xs transition-colors hover:text-[var(--burgundy)]"
+                      >
+                        {p.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenuEntry[] }) {
+  return (
+    <div className="group relative">
+      <Link
+        href="/brands"
+        className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
+      >
+        Brands
+        <span
+          aria-hidden="true"
+          className={`absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+            active ? "scale-x-100" : "scale-x-0 group-hover/link:scale-x-100"
+          }`}
+          style={{ background: "var(--burgundy)" }}
+        />
+      </Link>
+      <div
+        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[620px] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
+      >
+        <div
+          className="rounded-sm border p-6 shadow-[var(--shadow-lg)]"
+          style={{ background: "var(--paper)", borderColor: "var(--line)" }}
+        >
+          <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
+            All Brands
+          </p>
+          <div className="mt-3 grid grid-cols-4 gap-x-5 gap-y-4">
+            {brands.map((brand) => (
+              <Link
+                key={brand.slug}
+                href={`/brands/${brand.slug}`}
+                className="group/brand flex flex-col items-start gap-1 rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
+              >
+                <BrandLogo brand={brand.name} height={18} />
+                <span className="text-[11px]" style={{ color: "var(--line-strong)" }}>
+                  {brand.productCount} SKUs
+                </span>
+              </Link>
+            ))}
+            {SOURCE_ONLY_BRANDS.map((brand) => (
+              <Link
+                key={brand.slug}
+                href={`/brands/${brand.slug}`}
+                className="flex items-center rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={`/brand-logos/${brand.file}`} alt={`${brand.name} logo`} className="h-[18px] w-auto object-contain" />
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="/brands"
+            className="mt-5 block rounded-sm border px-4 py-2.5 text-center text-sm font-medium transition-colors hover:text-[var(--burgundy)]"
+            style={{ background: "var(--paper)", borderColor: "var(--line)" }}
+          >
+            View all brands →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
@@ -32,7 +240,13 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({
+  categoryCounts,
+  brandsMenu,
+}: {
+  categoryCounts: Record<string, number>;
+  brandsMenu: BrandMenuEntry[];
+}) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
@@ -80,6 +294,8 @@ export function SiteHeader() {
           </span>
         </Link>
         <nav className="flex flex-wrap items-center gap-5 text-sm" aria-label="Primary">
+          <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
+          <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
           {NAV_LINKS.map((link) => (
             <NavLink key={link.href} href={link.href} label={link.label} active={pathname?.startsWith(link.href) ?? false} />
           ))}

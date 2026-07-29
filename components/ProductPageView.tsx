@@ -8,6 +8,7 @@ import { QuoteRequestForm } from "@/components/QuoteRequestForm";
 import { ProductGallery } from "@/components/ProductGallery";
 import { LikeCommentWidget } from "@/components/LikeCommentWidget";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BrandLogo } from "@/components/BrandLogo";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
@@ -87,10 +88,8 @@ export function ProductPageView({
         <ProductGallery images={images} alt={`${product.brand} ${product.name}`} />
 
         <div>
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            {product.brand}
-          </p>
-          <h1 className="serif mt-1" style={{ fontSize: "var(--fs-h1)" }}>
+          <BrandLogo brand={product.brand} height={22} />
+          <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
             {product.name}
           </h1>
           <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
