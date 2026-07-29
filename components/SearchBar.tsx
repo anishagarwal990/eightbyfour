@@ -70,8 +70,8 @@ export function SearchBar() {
             setOpen(false);
           }
         }}
-        className="w-full rounded-full border px-4 py-1.5 text-sm"
-        style={{ borderColor: "var(--line)" }}
+        className="w-full rounded-full border px-4 py-1.5 text-sm transition-colors placeholder:text-[rgba(110,31,46,0.55)] focus:outline-none focus:border-[var(--burgundy)]"
+        style={{ borderColor: "rgba(110,31,46,0.35)", background: "rgba(110,31,46,0.04)", color: "var(--burgundy)" }}
       />
       {open && query.trim() && results.length > 0 ? (
         <ul
