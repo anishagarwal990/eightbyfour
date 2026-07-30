@@ -5,25 +5,21 @@ export const FLOW_STEPS = [
     icon: "upload",
     title: "BOQ uploaded",
     detail: "Plywood, laminate, hardware & adhesive — one list, not five calls.",
-    time: "0 min",
   },
   {
     icon: "quotes",
     title: "Manufacturer quotes come back",
     detail: "Stock and pricing checked across our network, not just one supplier.",
-    time: "9 min",
   },
   {
     icon: "compare",
     title: "Compared side by side",
     detail: "Brand, spec, price and delivery on one screen — not a pile of PDFs.",
-    time: "9 min",
   },
   {
     icon: "check",
     title: "You choose, with the full picture",
     detail: "The best price-to-delivery match, not a guess.",
-    time: "12 min",
   },
 ] as const;
 
@@ -93,12 +89,7 @@ export function ProcurementFlowPreview() {
             <StepIcon name={step.icon} />
           </span>
           <div className="flex-1 rounded-sm border px-3.5 py-2.5" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-medium">{step.title}</p>
-              <span className="tracked-caps shrink-0 text-[10px]" style={{ color: "var(--accent)" }}>
-                {step.time}
-              </span>
-            </div>
+            <p className="text-sm font-medium">{step.title}</p>
             <p className="mt-0.5 text-xs" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
               {step.detail}
             </p>
@@ -131,10 +122,7 @@ export function ProcurementWorkflowSteps() {
           >
             <StepIcon name={step.icon} />
           </span>
-          <p className="tracked-caps mt-3 text-[10px]" style={{ color: "var(--accent)" }}>
-            {step.time}
-          </p>
-          <p className="serif mt-1" style={{ fontSize: "18px" }}>
+          <p className="serif mt-3" style={{ fontSize: "18px" }}>
             {step.title}
           </p>
           <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
