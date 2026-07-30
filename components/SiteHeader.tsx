@@ -33,6 +33,7 @@ const MENU_LOGO_HEIGHT_OVERRIDES: Record<string, number> = {
   hettich: 42,
   godrej: 42,
   ozone: 42,
+  "vivre-panels": 15,
 };
 
 const PRODUCTS_MENU_COLUMNS = [
