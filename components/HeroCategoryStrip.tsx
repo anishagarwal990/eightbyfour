@@ -9,15 +9,18 @@ export function HeroCategoryStrip({ images, side }: { images: string[]; side: "l
       }`}
       aria-hidden="true"
     >
-      <div className="relative h-[340px] w-[130px] overflow-hidden rounded-sm shadow-[var(--shadow-md)]">
+      <div
+        className="relative h-[220px] w-[180px] overflow-hidden rounded-sm shadow-[var(--shadow-md)]"
+        style={{ background: "var(--paper-dim)" }}
+      >
         {images.map((src, i) => (
           <Image
             key={src}
             src={src}
             alt=""
             fill
-            sizes="130px"
-            className="hero-crossfade-img object-cover"
+            sizes="180px"
+            className="hero-crossfade-img object-contain"
             style={{ animationDelay: `${i * (8 / images.length)}s` }}
           />
         ))}
