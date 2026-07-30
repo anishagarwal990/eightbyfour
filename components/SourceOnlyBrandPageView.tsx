@@ -27,7 +27,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
         </div>
         <div>
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            {brand.name} · Sourced on Request
+            {brand.name} · Ask for Availability & Quote
           </p>
           <h1 className="serif mt-1" style={{ fontSize: "var(--fs-h1)" }}>
             {brand.name} in Hyderabad

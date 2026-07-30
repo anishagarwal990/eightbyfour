@@ -68,8 +68,8 @@ export default async function HyderabadIndexPage() {
           <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
             <HyderabadLinkList title="Popular Searches" entries={POPULAR_SEARCHES} />
             <HyderabadLinkList title="Shop by Category" entries={CATEGORY_LINKS} />
-            <HyderabadLinkList title="Brands We Stock" entries={stockedBrandLinks(brands)} />
-            <HyderabadLinkList title="Brands We Source on Request" entries={SOURCE_ONLY_BRAND_LINKS} />
+            <HyderabadLinkList title="Brands We Work With" entries={stockedBrandLinks(brands)} />
+            <HyderabadLinkList title="More Brands — Ask Us" entries={SOURCE_ONLY_BRAND_LINKS} />
           </div>
         </div>
       </section>

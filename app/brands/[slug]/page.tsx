@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const sourceOnly = getSourceOnlyBrandBySlug(slug);
   if (sourceOnly) {
     return buildMetadata({
-      title: `${sourceOnly.name} in Hyderabad — Sourced on Request`,
+      title: `${sourceOnly.name} in Hyderabad — Ask for Availability & Quote`,
       description: `EightByFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
       path: `/brands/${sourceOnly.slug}`,
     });
