@@ -17,6 +17,13 @@ export const SOURCE_ONLY_BRANDS = [
   { name: "LX Hausys", slug: "lx-hausys", file: "lx-hausys.jpeg" },
   { name: "Staron", slug: "staron", file: "staron.png" },
   { name: "PTA Fastener", slug: "pta-fastener", file: "pta-fastener.jpeg" },
+  { name: "Archidply", slug: "archidply", file: "archidply.webp" },
+  { name: "Durian", slug: "durian", file: "durian.webp" },
+  { name: "Abro", slug: "abro", file: "abro.webp" },
+  { name: "Greenlam", slug: "greenlam", file: "greenlam.webp" },
+  { name: "Merino", slug: "merino", file: "merino.webp" },
+  { name: "Virgo", slug: "virgo", file: "virgo.jpg" },
+  { name: "Durlax", slug: "durlax", file: "durlax.png" },
 ];
 
 export function getSourceOnlyBrandBySlug(slug: string) {
