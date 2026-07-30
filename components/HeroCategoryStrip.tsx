@@ -9,10 +9,7 @@ export function HeroCategoryStrip({ images, side }: { images: string[]; side: "l
       }`}
       aria-hidden="true"
     >
-      <div
-        className="relative h-[220px] w-[180px] overflow-hidden rounded-sm shadow-[var(--shadow-md)]"
-        style={{ background: "var(--paper-dim)" }}
-      >
+      <div className="relative h-[220px] w-[180px] overflow-hidden rounded-sm shadow-[var(--shadow-md)]">
         {images.map((src, i) => (
           <Image
             key={src}
