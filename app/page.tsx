@@ -107,27 +107,31 @@ export default async function Home() {
   return (
     <main>
       {/* ---------- Hero ---------- */}
-      <section className="reveal is-visible relative px-7 py-20 text-center">
-        <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-          Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
-        </p>
-        <h1 className="mx-auto mt-2 max-w-md text-sm" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          Interior &amp; Construction Material Procurement in Hyderabad
-        </h1>
-        <h2 className="serif mx-auto mt-7 max-w-xl sm:max-w-4xl lg:max-w-5xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
-          Stop Chasing Suppliers.
-          <br className="hidden sm:block" /> Start Comparing Smartly.
-        </h2>
-        <p className="mx-auto mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          Upload your BOQ once. We check pricing and stock across 25+ brands and send back one
-          organized set of quotes — compare brands, specs and pricing on one screen instead of chasing suppliers
-          for ten different answers.
-        </p>
-        <p className="tracked-caps mx-auto mt-4 text-xs" style={{ color: "var(--burgundy)" }}>
-          First response in under 15 minutes, during business hours.
-        </p>
-        <HeroCTAs />
-        <ProcurementFlowPreview />
+      <section className="reveal is-visible relative px-7 py-20">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
+          <div>
+            <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
+              Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
+            </p>
+            <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+              Interior &amp; Construction Material Procurement in Hyderabad
+            </h1>
+            <h2 className="serif mx-auto mt-7 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
+              Stop Chasing Suppliers.
+              <br className="hidden sm:block" /> Start Comparing Smartly.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+              Upload your BOQ once. We check pricing and stock across 25+ brands and send back one
+              organized set of quotes — compare brands, specs and pricing on one screen instead of chasing suppliers
+              for ten different answers.
+            </p>
+            <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
+              First response in under 15 minutes, during business hours.
+            </p>
+            <HeroCTAs align="left" />
+          </div>
+          <ProcurementFlowPreview />
+        </div>
       </section>
 
       <ManufacturerStrip brands={brands} />
