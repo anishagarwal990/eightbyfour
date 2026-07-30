@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { getAllContent, type ContentEntry } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
+import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { ContentIndexView } from "@/components/ContentIndexView";
+import { HyderabadLinkList } from "@/components/HyderabadLinkList";
+import { POPULAR_SEARCHES, CATEGORY_LINKS, SOURCE_ONLY_BRAND_LINKS, stockedBrandLinks } from "@/lib/hyderabadLinks";
 
 export const metadata: Metadata = buildMetadata({
   title: "Material Procurement in Hyderabad",
@@ -39,14 +42,37 @@ const PERSONA_ENTRIES: ContentEntry[] = [
   },
 ];
 
-export default function HyderabadIndexPage() {
+export default async function HyderabadIndexPage() {
   const entries = [...PERSONA_ENTRIES, ...getAllContent("hyderabad")];
+  const brands = await getAllBrandsWithCounts();
+
   return (
     <ContentIndexView
       type="hyderabad"
       title="Hyderabad"
       intro="EightByFour operates only in Hyderabad — every material we stock, and every process below, is built around this city's sites and delivery routes."
       entries={entries}
-    />
+    >
+      <section className="px-7 pb-16" style={{ background: "var(--paper-dim)" }}>
+        <div className="py-10">
+          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+            Serving Hyderabad
+          </p>
+          <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
+            Shop Hyderabad by Material &amp; Brand
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+            Every link below goes to a real, in-stock catalogue page or brand page. Can&apos;t find what you&apos;re
+            looking for? Request a quote and we&apos;ll source it — we cover far more than what&apos;s listed here.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <HyderabadLinkList title="Popular Searches" entries={POPULAR_SEARCHES} />
+            <HyderabadLinkList title="Shop by Category" entries={CATEGORY_LINKS} />
+            <HyderabadLinkList title="Brands We Stock" entries={stockedBrandLinks(brands)} />
+            <HyderabadLinkList title="Brands We Source on Request" entries={SOURCE_ONLY_BRAND_LINKS} />
+          </div>
+        </div>
+      </section>
+    </ContentIndexView>
   );
 }

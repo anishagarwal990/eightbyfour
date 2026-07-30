@@ -8,11 +8,14 @@ export function ContentIndexView({
   title,
   intro,
   entries,
+  children,
 }: {
   type: ContentType;
   title: string;
   intro: string;
   entries: ContentEntry[];
+  /** Extra sections rendered after the entries grid, still inside the page's <main>. */
+  children?: React.ReactNode;
 }) {
   return (
     <main>
@@ -37,6 +40,7 @@ export function ContentIndexView({
           </Link>
         ))}
       </section>
+      {children}
     </main>
   );
 }

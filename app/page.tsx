@@ -109,12 +109,12 @@ export default async function Home() {
       {/* ---------- Hero ---------- */}
       <section className="reveal is-visible relative px-7 py-20 text-center">
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-          Plywood &middot; Laminates &middot; Veneers &middot; Hardware &middot; Solid Surface
+          Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
         </p>
-        <h1 className="serif mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--line-strong)" }}>
+        <h1 className="mx-auto mt-2 max-w-md text-sm" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
           Interior &amp; Construction Material Procurement in Hyderabad
         </h1>
-        <h2 className="serif mx-auto mt-3 max-w-3xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
+        <h2 className="serif mx-auto mt-7 max-w-xl sm:max-w-4xl lg:max-w-5xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
           Stop Chasing Suppliers.
           <br className="hidden sm:block" /> Start Comparing Smartly.
         </h2>
