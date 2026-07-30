@@ -19,6 +19,15 @@ const NAV_LINKS = [
   { href: "/hyderabad", label: "Serving Hyderabad" },
 ];
 
+// A few source-only logo files are a small icon+wordmark centered in a
+// mostly-white square canvas — at the standard menu height they render as
+// nearly invisible. Bump just those so they're legible next to the rest.
+const MENU_LOGO_HEIGHT_OVERRIDES: Record<string, number> = {
+  hettich: 42,
+  godrej: 42,
+  ozone: 42,
+};
+
 const PRODUCTS_MENU_COLUMNS = [
   { title: "Boards & Panels", slugs: ["plywood", "birch-plywood", "boil-boards", "mdf-and-hdhmr"] },
   { title: "Surfaces & Finishes", slugs: ["laminates", "veneers", "stone-panels"] },
@@ -208,14 +217,13 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
                 href={`/brands/${brand.slug}`}
                 className="flex items-center rounded-sm px-2 py-1.5 -mx-2 transition-colors hover:bg-[var(--paper-dim)]"
               >
-                <div className="flex h-7 items-center">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/brand-logos/${brand.file}`}
-                    alt={`${brand.name} logo`}
-                    className="h-[26px] w-auto max-w-full object-contain mix-blend-multiply"
-                  />
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/brand-logos/${brand.file}`}
+                  alt={`${brand.name} logo`}
+                  className="w-auto max-w-full object-contain mix-blend-multiply"
+                  style={{ height: MENU_LOGO_HEIGHT_OVERRIDES[brand.slug] ?? 26 }}
+                />
               </Link>
             ))}
           </div>
