@@ -4,7 +4,6 @@ import { CATEGORIES } from "@/lib/categories";
 import { getCategoryCounts } from "@/lib/data/products";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export const metadata: Metadata = buildMetadata({
   title: "Materials Catalogue — Plywood, Laminates, Veneers & More in Hyderabad",
@@ -34,15 +33,23 @@ export default async function ProductsIndexPage() {
       </section>
       <section className="grid grid-cols-1 gap-4 px-7 pb-16 sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((cat) => (
-          <Link key={cat.slug} href={`/products/${cat.slug}`} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <Link
+            key={cat.slug}
+            href={`/products/${cat.slug}`}
+            className="group relative block rounded-lg p-4 transition-[transform,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
+            style={{ background: "var(--card)" }}
+          >
+            <span
+              className="absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-xs"
+              style={{ background: "var(--paper)", color: "var(--burgundy)" }}
+            >
+              {counts[cat.dbCategory] || 0}
+            </span>
+            <h2 className="serif pr-8" style={{ fontSize: "17px" }}>
               {cat.name}
             </h2>
-            <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
+            <p className="mt-1.5 text-xs" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
               {cat.heroTagline}
-            </p>
-            <p className="mt-3 text-xs tracked-caps" style={{ color: "var(--accent)" }}>
-              {counts[cat.dbCategory] || 0} products
             </p>
           </Link>
         ))}

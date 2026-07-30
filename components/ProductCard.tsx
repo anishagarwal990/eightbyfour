@@ -1,13 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
-import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { BrandLogo } from "@/components/BrandLogo";
 
 export function ProductCard({ product }: { product: ProductRow }) {
   return (
-    <Link href={`/products/${product.slug}`} className={cardClasses("block")} style={CARD_BASE_STYLE}>
-      <div className="relative aspect-[4/3] w-full overflow-hidden" style={{ background: "var(--paper-dim)" }}>
+    <Link
+      href={`/products/${product.slug}`}
+      className="group relative block overflow-hidden rounded-md transition-[transform,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]"
+      style={{ background: "var(--card)" }}
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden" style={{ background: "var(--card)" }}>
         {product.main_img_url ? (
           <Image
             src={product.main_img_url}
@@ -26,7 +29,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
         <BrandLogo brand={product.brand} height={16} />
         <h3 className="serif mt-1 text-base leading-snug">{product.name}</h3>
         {product.sd_code ? (
-          <p className="mt-0.5 text-xs" style={{ color: "var(--burgundy)" }}>
+          <p className="mt-0.5 text-xs font-medium" style={{ color: "var(--burgundy)" }}>
             Code: {product.sd_code}
           </p>
         ) : null}
