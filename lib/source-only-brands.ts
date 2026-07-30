@@ -24,6 +24,9 @@ export const SOURCE_ONLY_BRANDS = [
   { name: "Merino", slug: "merino", file: "merino.webp" },
   { name: "Virgo", slug: "virgo", file: "virgo.jpg" },
   { name: "Durlax", slug: "durlax", file: "durlax.png" },
+  { name: "Glo Panels", slug: "glo-panels", file: "glo-panels.jpeg" },
+  { name: "Skydecor", slug: "skydecor", file: "skydecor.png" },
+  { name: "Vivre Panels", slug: "vivre-panels", file: "vivre.png" },
 ];
 
 export function getSourceOnlyBrandBySlug(slug: string) {
