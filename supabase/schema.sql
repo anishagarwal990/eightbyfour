@@ -302,3 +302,49 @@ create policy "review_media_public_write"
   on storage.objects for insert
   to anon, authenticated
   with check (bucket_id = 'review-media');
+
+-- ---------- testimonials ----------
+-- Site-wide testimonial wall (not tied to a product). Publishes immediately
+-- on insert — no moderation queue — so the public-insert policy pins
+-- status to 'approved' at write time, same trust model as a LinkedIn
+-- recommendation post.
+create table if not exists public.testimonials (
+  id bigint generated always as identity primary key,
+  name text not null,
+  role text,
+  comment text not null,
+  rating smallint not null check (rating between 1 and 5),
+  status text not null default 'approved' check (status in ('approved','hidden')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists testimonials_status_idx on public.testimonials (status, created_at desc);
+
+alter table public.testimonials enable row level security;
+
+drop policy if exists "testimonials_public_insert" on public.testimonials;
+create policy "testimonials_public_insert"
+  on public.testimonials for insert
+  to anon, authenticated
+  with check (
+    status = 'approved'
+    and length(trim(name)) > 0
+    and length(trim(name)) <= 80
+    and length(trim(comment)) > 0
+    and length(trim(comment)) <= 1000
+    and (role is null or length(trim(role)) <= 80)
+    and rating between 1 and 5
+  );
+
+drop policy if exists "testimonials_public_read_approved" on public.testimonials;
+create policy "testimonials_public_read_approved"
+  on public.testimonials for select
+  to anon, authenticated
+  using (status = 'approved');
+
+drop policy if exists "testimonials_admin_update" on public.testimonials;
+create policy "testimonials_admin_update"
+  on public.testimonials for update
+  to authenticated
+  using (true)
+  with check (true);

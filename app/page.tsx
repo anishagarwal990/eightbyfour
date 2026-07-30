@@ -1,13 +1,22 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { CATEGORIES } from "@/lib/categories";
-import { getCategoryCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllContent } from "@/lib/mdx";
+import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
-import { buttonClasses } from "@/components/ui/Button";
+import { ProcurementFlowPreview, ProcurementWorkflowSteps } from "@/components/ProcurementFlow";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
+import { Testimonials } from "@/components/Testimonials";
+import { getTestimonials } from "@/lib/data/testimonials";
+
+export const metadata: Metadata = buildMetadata({
+  title: "EightByFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
+  description:
+    "Upload your BOQ once and compare organized quotes across 25+ brands — plywood, laminates, veneers, hardware and solid surfaces. Stop chasing suppliers, start comparing smartly.",
+  path: "/",
+});
 
 // Real, current numbers only — update alongside the data they describe.
 const STATS = [
@@ -15,6 +24,24 @@ const STATS = [
   { value: "25+", label: "Manufacturers Sourced" },
   { value: "<15 min", label: "First Response Time" },
   { value: "Same/Next-Day", label: "Delivery in Hyderabad" },
+];
+
+const OLD_WAY = [
+  "Call Supplier A, describe the BOQ",
+  "Call Supplier B, repeat yourself",
+  "Wait — sometimes days — for a reply",
+  "Follow up again, and again",
+  "Receive quotes in different formats",
+  "Try comparing everything by hand",
+  "Still unsure if you're paying the right price",
+];
+
+const NEW_WAY = [
+  "Upload your BOQ once",
+  "Our network checks stock & pricing",
+  "Quotes come back organized, one format",
+  "Compare brand, spec and price on one screen",
+  "Choose with confidence — not guesswork",
 ];
 
 const WHY_EIGHTBYFOUR = [
@@ -28,23 +55,16 @@ const WHY_EIGHTBYFOUR = [
   },
   {
     title: "We source beyond what's listed",
-    body: "751 real SKUs are live on this site today. If what you need isn't one of them, tell us — we source well beyond our own listed catalogue.",
+    body: "750+ real SKUs are live on this site today. If what you need isn't one of them, tell us — we source well beyond our own listed catalogue.",
   },
   {
-    title: "Hyderabad, exclusively",
+    title: "Currently serving Hyderabad",
     body: "Every brand, delivery route and process is built around this city's sites and timelines — not a generic pan-India catalogue.",
   },
   {
     title: "One consolidated quote",
     body: "A BOQ spanning plywood, laminate, hardware and adhesive comes back as a single quote — not five separate vendor calls.",
   },
-];
-
-const PROCUREMENT_STEPS = [
-  { n: "01", text: "Share your BOQ or project brief." },
-  { n: "02", text: "We check stock and quote wholesale pricing." },
-  { n: "03", text: "You get a consolidated quote — not a patchwork of separate supplier quotes." },
-  { n: "04", text: "Most in-stock items deliver same-day or next-day across Hyderabad." },
 ];
 
 const WHO_WE_SERVE = [
@@ -76,91 +96,81 @@ const WHO_WE_SERVE = [
 ];
 
 export default async function Home() {
-  const [counts, brands] = await Promise.all([getCategoryCounts(), getAllBrandsWithCounts()]);
+  const brands = await getAllBrandsWithCounts();
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
   ].slice(0, 4);
   const hyderabadPages = getAllContent("hyderabad").slice(0, 4);
+  const testimonials = await getTestimonials();
 
   return (
     <main>
       {/* ---------- Hero ---------- */}
       <section className="reveal is-visible relative px-7 py-20 text-center">
         <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-          Hyderabad&apos;s Procurement Platform for Interior &amp; Construction Materials
+          Plywood &middot; Laminates &middot; Veneers &middot; Hardware &middot; Solid Surface
         </p>
-        <h1 className="serif mx-auto mt-3 max-w-3xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
-          You don&apos;t need ten suppliers.
+        <h1 className="serif mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--line-strong)" }}>
+          Interior &amp; Construction Material Procurement in Hyderabad
         </h1>
+        <h2 className="serif mx-auto mt-3 max-w-3xl" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
+          Stop Chasing Suppliers.
+          <br className="hidden sm:block" /> Start Comparing Smartly.
+        </h2>
         <p className="mx-auto mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          EightByFour is one procurement partner for everything your project needs — plywood, laminates, veneers,
-          hardware, solid surfaces and more — sourced directly from 25+ manufacturers in Hyderabad.
-          Can&apos;t find it listed? We source that too.
+          Upload your BOQ once. We check pricing and stock across 25+ brands and send back one
+          organized set of quotes — compare brands, specs and pricing on one screen instead of chasing suppliers
+          for ten different answers.
         </p>
         <p className="tracked-caps mx-auto mt-4 text-xs" style={{ color: "var(--burgundy)" }}>
           First response in under 15 minutes, during business hours.
         </p>
         <HeroCTAs />
-        <Link href="/products" className="mt-3 inline-block text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
-          Or browse our live catalogue →
-        </Link>
+        <ProcurementFlowPreview />
       </section>
 
       <ManufacturerStrip brands={brands} />
 
-      {/* ---------- Materials We Source ---------- */}
-      <Reveal as="section" className="px-7 py-16">
-        <div className="mb-8 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Everything You Need, One Place
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Materials We Source
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-            751 real SKUs live across these categories today — plus hardware, doors, ACP, PVC boards, louvers, edge
-            banding and more, sourced on request. If it goes into a space, we can probably source it.
-          </p>
-        </div>
-        <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {CATEGORIES.map((cat) => (
-            <Link key={cat.slug} href={`/products/${cat.slug}`} className={cardClasses("block p-4")} style={CARD_BASE_STYLE}>
-              <p className="serif" style={{ fontSize: "16px" }}>
-                {cat.name}
-              </p>
-              <p className="mt-1 text-xs tracked-caps" style={{ color: "var(--accent)" }}>
-                {counts[cat.dbCategory] || 0} products
-              </p>
-            </Link>
-          ))}
-        </Reveal>
-      </Reveal>
-
-      {/* ---------- Who We Serve ---------- */}
+      {/* ---------- The Old Way vs The EightByFour Way ---------- */}
       <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Who We Serve
+            Why This Matters
           </p>
           <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Built for Everyone Building a Space
+            You Shouldn&apos;t Have to Chase Ten Suppliers to Buy Plywood
           </h2>
-          <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-            Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
-          </p>
         </div>
-        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {WHO_WE_SERVE.map((item) => (
-            <Link key={item.title} href={item.href} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
-              <p className="serif" style={{ fontSize: "18px" }}>
-                {item.title}
-              </p>
-              <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-                {item.body}
-              </p>
-            </Link>
-          ))}
+        <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2">
+          <div className="rounded-sm border p-6" style={{ borderColor: "var(--line)", background: "var(--paper)" }}>
+            <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
+              The Old Way
+            </p>
+            <ul className="mt-4 flex flex-col gap-3">
+              {OLD_WAY.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm" style={{ color: "var(--line-strong)" }}>
+                  <span aria-hidden="true">&times;</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-sm border p-6" style={{ borderColor: "var(--burgundy)", background: "var(--paper)" }}>
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              The EightByFour Way
+            </p>
+            <ul className="mt-4 flex flex-col gap-3">
+              {NEW_WAY.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm">
+                  <span aria-hidden="true" style={{ color: "var(--burgundy)" }}>
+                    &#10003;
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </Reveal>
       </Reveal>
 
@@ -200,26 +210,42 @@ export default async function Home() {
         </Reveal>
       </Reveal>
 
-      {/* ---------- Procurement Process ---------- */}
+      {/* ---------- How It Works ---------- */}
       <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
-        <div className="mb-8 text-center">
+        <div className="mb-12 text-center">
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             How It Works
           </p>
           <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Procurement Process
+            One BOQ In, One Comparable Quote Out
           </h2>
         </div>
-        <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {PROCUREMENT_STEPS.map((step) => (
-            <div key={step.n}>
-              <p className="serif" style={{ fontSize: "32px", color: "var(--burgundy)" }}>
-                {step.n}
+        <ProcurementWorkflowSteps />
+      </Reveal>
+
+      {/* ---------- Who We Serve ---------- */}
+      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
+        <div className="mb-8 text-center">
+          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+            Who We Serve
+          </p>
+          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
+            Built for Everyone Building a Space
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+            Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
+          </p>
+        </div>
+        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          {WHO_WE_SERVE.map((item) => (
+            <Link key={item.title} href={item.href} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
+              <p className="serif" style={{ fontSize: "18px" }}>
+                {item.title}
               </p>
-              <p className="mt-2 text-sm" style={{ lineHeight: "var(--lh-normal)" }}>
-                {step.text}
+              <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+                {item.body}
               </p>
-            </div>
+            </Link>
           ))}
         </Reveal>
       </Reveal>
@@ -271,44 +297,21 @@ export default async function Home() {
         </Reveal>
       </Reveal>
 
-      {/* ---------- Testimonials (space reserved — no real quotes yet) ---------- */}
-      <Reveal as="section" className="px-7 py-16">
-        <div className="mb-8 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            From Our Projects
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Testimonials
-          </h2>
-        </div>
-        <div
-          className="mx-auto max-w-xl rounded-sm border border-dashed p-8 text-center"
-          style={{ borderColor: "var(--line)" }}
-        >
-          <p className="serif" style={{ fontSize: "18px" }}>
-            We&apos;re just getting started.
-          </p>
-          <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-            Real stories from contractors, architects and homeowners we&apos;ve procured for will go here as we book
-            and complete more Hyderabad projects.
-          </p>
-        </div>
+      {/* ---------- Testimonials ---------- */}
+      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
+        <Testimonials initialTestimonials={testimonials} />
       </Reveal>
 
       {/* ---------- Closing CTA ---------- */}
       <Reveal as="section" className="px-7 py-14 text-center">
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          Ready to Stop Coordinating Suppliers?
+          Ready to Stop Chasing Suppliers?
         </h2>
         <p className="mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          EightByFour is one procurement relationship across plywood, laminates, veneers, hardware and everything
-          else your project needs — sourced directly from trusted manufacturers in Hyderabad.
+          Upload your BOQ and get back one organized, comparable quote across plywood, laminates, veneers, hardware
+          and everything else your project needs — sourced directly from trusted brands, delivered across Hyderabad.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/products" className={buttonClasses("primary")}>
-            Browse Catalogue
-          </Link>
-        </div>
+        <HeroCTAs />
       </Reveal>
     </main>
   );

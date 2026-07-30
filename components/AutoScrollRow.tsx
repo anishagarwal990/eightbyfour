@@ -43,6 +43,12 @@ export function AutoScrollRow({
     function tick(now: number) {
       const dt = (now - last) / 1000;
       last = now;
+      // Self-heal: pointerleave can be missed (tab-switch mid-hover, DOM covered by an
+      // overlay, node re-rendered under the cursor) which would otherwise leave
+      // hoveringRef stuck true and freeze the ribbon forever. :hover is authoritative.
+      if (hoveringRef.current && el && !el.matches(":hover")) {
+        hoveringRef.current = false;
+      }
       if (!draggingRef.current && !hoveringRef.current && el) {
         el.scrollLeft += speed * dt;
         const half = el.scrollWidth / 2;
