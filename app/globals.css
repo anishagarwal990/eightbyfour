@@ -211,6 +211,39 @@ textarea {
   }
 }
 
+/* ---------- Hero side-strip category photo crossfade (see HeroCategoryStrip.tsx) ---------- */
+@keyframes hero-crossfade {
+  0%,
+  42% {
+    opacity: 1;
+  }
+  50%,
+  92% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.hero-crossfade-img {
+  animation: hero-crossfade 8s ease-in-out infinite;
+}
+
+.hero-crossfade-img:first-child {
+  opacity: 1;
+}
+
+.hero-crossfade-img:not(:first-child) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-crossfade-img {
+    animation: none;
+  }
+}
+
 /* ---------- Auto-scrolling ribbons (JS-driven — see AutoScrollRow.tsx) ---------- */
 /* Also grab-draggable with the mouse and swipeable on touch, not just decorative. */
 .ribbon-scroll {

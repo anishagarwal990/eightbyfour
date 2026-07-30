@@ -7,6 +7,7 @@ import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { ProcurementFlowPreview, ProcurementWorkflowSteps } from "@/components/ProcurementFlow";
+import { HeroCategoryStrip } from "@/components/HeroCategoryStrip";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
@@ -17,6 +18,16 @@ export const metadata: Metadata = buildMetadata({
     "Upload your BOQ once and compare organized quotes across 25+ brands — plywood, laminates, veneers, hardware and solid surfaces. Stop chasing suppliers, start comparing smartly.",
   path: "/",
 });
+
+// Real product photos for the hero side strips — one crossfade pair per side.
+const HERO_LEFT_IMAGES = [
+  "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/products/1-main.jpg", // Plywood — Architect Ply
+  "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/products/1113-main.webp", // MDF and HDHMR — Interior MDF
+];
+const HERO_RIGHT_IMAGES = [
+  "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/products/101-main.jpg", // Laminates — Panama Ash
+  "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/products/553-main.jpg", // Veneers — Embossed Veneer 01
+];
 
 // Real, current numbers only — update alongside the data they describe.
 const STATS = [
@@ -108,6 +119,8 @@ export default async function Home() {
     <main>
       {/* ---------- Hero ---------- */}
       <section className="reveal is-visible relative px-7 py-20">
+        <HeroCategoryStrip images={HERO_LEFT_IMAGES} side="left" />
+        <HeroCategoryStrip images={HERO_RIGHT_IMAGES} side="right" />
         <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
           <div>
             <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
