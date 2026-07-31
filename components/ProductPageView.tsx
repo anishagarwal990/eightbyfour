@@ -102,7 +102,7 @@ export function ProductPageView({
           ) : null}
           {product.description ? (
             <div className="mt-4">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Product Description
               </h2>
               <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -116,7 +116,7 @@ export function ProductPageView({
           </div>
 
           <div className="mt-6">
-            <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+            <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
               Technical Specifications
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
@@ -165,16 +165,23 @@ export function ProductPageView({
 
           {product.applications?.length ? (
             <div className="mt-6">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Applications
               </h2>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {product.applications.map((app) => (
-                  <li key={app} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
+                  <li
+                    key={app}
+                    className="rounded-full border px-3.5 py-1.5 text-sm font-medium"
+                    style={{ borderColor: "var(--burgundy)", background: "rgba(110,31,46,0.06)", color: "var(--burgundy-dark)" }}
+                  >
                     {app}
                   </li>
                 ))}
               </ul>
+              <p className="mt-2 text-xs" style={{ color: "var(--line-strong)" }}>
+                ...and many more applications, depending on your project.
+              </p>
             </div>
           ) : null}
         </div>
