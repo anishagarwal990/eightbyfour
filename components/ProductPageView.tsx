@@ -115,6 +115,11 @@ export function ProductPageView({
                       See our full guide to Merino's finish range →
                     </Link>
                   ) : null}
+                  {product.brand === "Greenlam" ? (
+                    <Link href="/guides/greenlam-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                      See our full guide to Greenlam's finish range →
+                    </Link>
+                  ) : null}
                   <Link href="/guides/laminate-care-and-maintenance" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
                     Laminate care &amp; maintenance guide →
                   </Link>

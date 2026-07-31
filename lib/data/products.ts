@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { ProductRow } from "@/lib/supabase/types";
+import { CATEGORIES } from "@/lib/categories";
 
 export async function getProductsByCategory(dbCategory: string): Promise<ProductRow[]> {
   const supabase = createServerSupabaseClient();
@@ -54,11 +55,19 @@ export async function getProductsByBrand(brandName: string): Promise<ProductRow[
 
 export async function getCategoryCounts(): Promise<Record<string, number>> {
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.from("products").select("category");
-  if (error) throw error;
-  const counts: Record<string, number> = {};
-  for (const row of data) counts[row.category] = (counts[row.category] || 0) + 1;
-  return counts;
+  // Per-category head counts, not one unbounded `.select("category")` - that
+  // silently truncates at PostgREST's default 1000-row cap once the table
+  // passes that size, undercounting (or zeroing) every category whose rows
+  // don't make the cut.
+  const dbCategories = CATEGORIES.map((c) => c.dbCategory);
+  const results = await Promise.all(
+    dbCategories.map(async (cat) => {
+      const { count, error } = await supabase.from("products").select("*", { count: "exact", head: true }).eq("category", cat);
+      if (error) throw error;
+      return [cat, count || 0] as const;
+    })
+  );
+  return Object.fromEntries(results);
 }
 
 export interface CategoryBrand {
