@@ -88,7 +88,7 @@ export function ProductPageView({
         <ProductGallery images={images} alt={`${product.brand} ${product.name}`} />
 
         <div>
-          <BrandLogo brand={product.brand} height={22} />
+          <BrandLogo brand={product.brand} height={40} />
           <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
             {product.name}
           </h1>
@@ -101,9 +101,14 @@ export function ProductPageView({
             </p>
           ) : null}
           {product.description ? (
-            <p className="mt-4" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
-              {product.description}
-            </p>
+            <div className="mt-4">
+              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+                Product Description
+              </h2>
+              <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
+                {product.description}
+              </p>
+            </div>
           ) : null}
 
           <div className="mt-5">
@@ -136,7 +141,7 @@ export function ProductPageView({
             </dl>
             {[
               ["Thicknesses", product.thicknesses],
-              ["Also available in", product.finishes],
+              ["Also available in finishes", product.finishes],
               ["Certifications", product.certifications],
             ]
               .filter(([, values]) => Array.isArray(values) && values.length > 0)
@@ -157,23 +162,23 @@ export function ProductPageView({
                 </div>
               ))}
           </div>
+
+          {product.applications?.length ? (
+            <div className="mt-6">
+              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+                Applications
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {product.applications.map((app) => (
+                  <li key={app} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
+                    {app}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       </section>
-
-      {product.applications?.length ? (
-        <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-            Applications
-          </h2>
-          <ul className="mt-3 flex flex-wrap gap-2">
-            {product.applications.map((app) => (
-              <li key={app} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
-                {app}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      ) : null}
 
       {product.catalogue_url || product.tech_sheet_url || product.installation_guide_url ? (
         <Reveal as="section" className="px-7 py-8">
