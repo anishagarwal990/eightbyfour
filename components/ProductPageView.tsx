@@ -108,14 +108,17 @@ export function ProductPageView({
               <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
                 {product.description}
               </p>
-              {product.brand === "Merino" && product.category === "Laminates" ? (
-                <Link
-                  href="/guides/merino-laminate-finishes-guide"
-                  className="mt-2 inline-block text-sm underline"
-                  style={{ color: "var(--burgundy)" }}
-                >
-                  See our full guide to Merino's finish range →
-                </Link>
+              {product.category === "Laminates" ? (
+                <div className="mt-2 flex flex-col gap-1">
+                  {product.brand === "Merino" ? (
+                    <Link href="/guides/merino-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                      See our full guide to Merino's finish range →
+                    </Link>
+                  ) : null}
+                  <Link href="/guides/laminate-care-and-maintenance" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                    Laminate care &amp; maintenance guide →
+                  </Link>
+                </div>
               ) : null}
             </div>
           ) : null}
