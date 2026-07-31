@@ -140,15 +140,16 @@ export function ProductPageView({
                 ))}
             </dl>
             {[
-              ["Thicknesses", product.thicknesses],
-              ["Also available in finishes", product.finishes],
-              ["Certifications", product.certifications],
+              ["Thicknesses", product.thicknesses, false],
+              ["Also available in finishes", product.finishes, false],
+              ["Applications", product.applications, true],
+              ["Certifications", product.certifications, false],
             ]
-              .filter(([, values]) => Array.isArray(values) && values.length > 0)
-              .map(([label, values]) => (
+              .filter(([, values]) => Array.isArray(values) && (values as string[]).length > 0)
+              .map(([label, values, showMore]) => (
                 <div key={label as string} className="flex flex-col gap-1.5 border-b py-3 text-sm" style={{ borderColor: "var(--line)" }}>
-                  <span style={{ color: "var(--line-strong)" }}>{label}</span>
-                  <span className="flex flex-wrap gap-2">
+                  <span style={{ color: "var(--line-strong)" }}>{label as string}</span>
+                  <span className="flex flex-wrap items-center gap-2">
                     {(values as string[]).map((v) => (
                       <span
                         key={v}
@@ -158,32 +159,15 @@ export function ProductPageView({
                         {v}
                       </span>
                     ))}
+                    {showMore ? (
+                      <span className="text-xs" style={{ color: "var(--line-strong)" }}>
+                        + more, ask us
+                      </span>
+                    ) : null}
                   </span>
                 </div>
               ))}
           </div>
-
-          {product.applications?.length ? (
-            <div className="mt-6">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
-                Applications
-              </h2>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {product.applications.map((app) => (
-                  <li
-                    key={app}
-                    className="rounded-full border px-3.5 py-1.5 text-sm font-medium"
-                    style={{ borderColor: "var(--burgundy)", background: "rgba(110,31,46,0.06)", color: "var(--burgundy-dark)" }}
-                  >
-                    {app}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-2 text-xs" style={{ color: "var(--line-strong)" }}>
-                ...and many more applications, depending on your project.
-              </p>
-            </div>
-          ) : null}
         </div>
       </section>
 
