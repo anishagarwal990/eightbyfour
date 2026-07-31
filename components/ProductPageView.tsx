@@ -108,6 +108,15 @@ export function ProductPageView({
               <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
                 {product.description}
               </p>
+              {product.brand === "Merino" && product.category === "Laminates" ? (
+                <Link
+                  href="/guides/merino-laminate-finishes-guide"
+                  className="mt-2 inline-block text-sm underline"
+                  style={{ color: "var(--burgundy)" }}
+                >
+                  See our full guide to Merino's finish range →
+                </Link>
+              ) : null}
             </div>
           ) : null}
 
