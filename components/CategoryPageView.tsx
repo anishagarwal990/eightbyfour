@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CategoryConfig } from "@/lib/categories";
 import { CATEGORIES } from "@/lib/categories";
 import type { ProductRow } from "@/lib/supabase/types";
+import type { CategoryBrand } from "@/lib/data/products";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Reveal } from "@/components/Reveal";
@@ -15,7 +16,7 @@ export function CategoryPageView({
 }: {
   category: CategoryConfig;
   products: ProductRow[];
-  brands: string[];
+  brands: CategoryBrand[];
 }) {
   const related = CATEGORIES.filter((c) => category.relatedCategorySlugs.includes(c.slug));
 
@@ -52,11 +53,22 @@ export function CategoryPageView({
             Brands Available
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
-            {brands.map((b) => (
-              <span key={b} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
-                {b}
-              </span>
-            ))}
+            {brands.map((b) =>
+              b.slug ? (
+                <Link
+                  key={b.name}
+                  href={`/brands/${b.slug}`}
+                  className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
+                  style={{ borderColor: "var(--line)" }}
+                >
+                  {b.name}
+                </Link>
+              ) : (
+                <span key={b.name} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
+                  {b.name}
+                </span>
+              )
+            )}
           </div>
         </Reveal>
       ) : null}

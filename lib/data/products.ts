@@ -61,10 +61,21 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   return counts;
 }
 
-export async function getBrandsForCategory(dbCategory: string): Promise<string[]> {
+export interface CategoryBrand {
+  name: string;
+  slug: string | null;
+}
+
+export async function getBrandsForCategory(dbCategory: string): Promise<CategoryBrand[]> {
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.from("products").select("brand").eq("category", dbCategory);
-  if (error) throw error;
-  return [...new Set(data.map((r) => r.brand))].sort();
+  const [{ data: products, error: pErr }, { data: brandRows, error: bErr }] = await Promise.all([
+    supabase.from("products").select("brand").eq("category", dbCategory),
+    supabase.from("brands").select("name, slug"),
+  ]);
+  if (pErr) throw pErr;
+  if (bErr) throw bErr;
+  const slugByName = new Map(brandRows.map((b) => [b.name, b.slug]));
+  const names = [...new Set(products.map((r) => r.brand))].sort();
+  return names.map((name) => ({ name, slug: slugByName.get(name) ?? null }));
 }
 
