@@ -64,7 +64,7 @@ async function uploadImage(category, imageFile, code, finishLabel) {
   const localPath = join(SHADES_DIR, category, imageFile);
   const buffer = readFileSync(localPath);
   const ext = extname(imageFile);
-  const storagePath = `${STORAGE_PREFIX}/${slugify(category)}/${slugify(code)}-${slugify(finishLabel)}${ext}`;
+  const storagePath = `${STORAGE_PREFIX}/${slugify(code)}-${slugify(finishLabel)}${ext}`;
   const { error } = await supabase.storage.from(BUCKET).upload(storagePath, buffer, {
     contentType: contentTypeFor(imageFile),
     upsert: true,
@@ -115,38 +115,54 @@ async function main() {
   if (brandErr) throw brandErr;
   console.log("Greenlam brand seeded.", logoUrl ? "(logo uploaded)" : "(no logo found)");
 
-  // Group rows into one product per design (category + code + name) - the
-  // same code can be a different design across categories (e.g. "101" is a
-  // different product in HPL vs Digital-Custom), finishes become variants.
+  // Group rows into one product per design (code + name), regardless of
+  // which Greenlam sub-catalog (HPL, HD Gloss, Four X Ten, ...) it was
+  // scraped from - Greenlam reuses the same code+name for the same decor
+  // across substrates/finishes, so e.g. "163 Bay" from HPL, HD Gloss and
+  // Four X Ten is one product with three finishes, not three products.
+  // Keyed case-insensitively since the source site itself is inconsistent
+  // about name casing for a handful of codes (e.g. "Crest Oak" vs "Crest
+  // oak", both code 5329).
   const groups = new Map();
   for (const r of rows) {
-    const key = `${r.category}||${r.code}||${r.name}`;
+    const key = `${r.code.toLowerCase().trim()}||${r.name.toLowerCase().trim()}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
 
   console.log(`Uploading images and building ${groups.size} product rows from ${rows.length} manifest rows...`);
 
-  // Keyed by slug (not by the raw group key) because Greenlam's own site is
-  // inconsistent about name casing for a handful of codes (e.g. "Crest Oak"
-  // vs "Crest oak" - both under code 5329 in HPL), which otherwise produces
-  // two rows that collapse to the same slug and break the upsert.
+  // Keyed by slug as a defensive backstop (the case-insensitive grouping key
+  // above already merges casing variants), not because collisions are still
+  // expected here.
   const productsBySlug = new Map();
   let uploaded = 0;
+  let skippedDuplicateFinish = 0;
   let failed = 0;
   for (const [, variants] of groups) {
-    variants.sort((a, b) => (a.finish_code || "").localeCompare(b.finish_code || ""));
     const code = variants[0].code;
     const name = variants[0].name;
-    const collection = variants[0].category; // HPL / Door Special / Digital-Custom / etc.
+    const collection = variants[0].category; // first sub-catalog this design was scraped from
+
+    const sorted = [...variants].sort((a, b) => (a.finish_code || "").localeCompare(b.finish_code || ""));
 
     const imageUrls = [];
     const finishes = [];
+    const seenFinishes = new Set();
     let mainImgUrl = null;
     let defaultFinish = null;
 
-    for (const v of variants) {
+    for (const v of sorted) {
       const finishLabel = v.finish_code || v.finish || "Standard";
+      const finishKey = finishLabel.toLowerCase();
+      if (seenFinishes.has(finishKey)) {
+        // Same design + finish scraped from more than one Greenlam sub-catalog
+        // (e.g. "163 Bay" listed under both HPL and Four X Ten) - same photo,
+        // don't attach it twice.
+        skippedDuplicateFinish++;
+        continue;
+      }
+      seenFinishes.add(finishKey);
       try {
         const url = await uploadImage(v.category, v.image_file, code, finishLabel);
         imageUrls.push(url);
@@ -163,11 +179,9 @@ async function main() {
     }
     if (!mainImgUrl) continue; // every variant failed to upload - skip the product
 
-    const slug = `greenlam-${slugify(collection)}-${slugify(code)}-${slugify(name)}`;
+    const slug = `greenlam-${slugify(code)}-${slugify(name)}`;
     const existing = productsBySlug.get(slug);
     if (existing) {
-      // Same design, different casing on the source site - merge finishes/images
-      // instead of producing a second row that collides on the same slug.
       for (let i = 0; i < finishes.length; i++) {
         if (!existing.finishes.includes(finishes[i])) {
           existing.finishes.push(finishes[i]);
@@ -192,7 +206,7 @@ async function main() {
   }
   const products = [...productsBySlug.values()];
 
-  console.log(`Images uploaded: ${uploaded}, failed: ${failed}`);
+  console.log(`Images uploaded: ${uploaded}, duplicate finishes skipped: ${skippedDuplicateFinish}, failed: ${failed}`);
 
   // The `id` column has no default/sequence configured, so supply it
   // ourselves: reuse the existing id for a slug already inserted (keeps

@@ -4,7 +4,7 @@ import type { BrandRow, ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
-import { QuoteRequestForm } from "@/components/QuoteRequestForm";
+import { ProductQuoteSection } from "@/components/ProductQuoteSection";
 import { ProductGallery } from "@/components/ProductGallery";
 import { LikeCommentWidget } from "@/components/LikeCommentWidget";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -107,60 +107,58 @@ export function ProductPageView({
           ) : null}
 
           <div className="mt-5">
-            <QuoteRequestForm product={product} />
+            <ProductQuoteSection product={product} />
+          </div>
+
+          <div className="mt-6">
+            <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)" }}>
+              Technical Specifications
+            </h2>
+            <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
+              {[
+                ["Brand", product.brand],
+                ["Shade Code", product.sd_code],
+                ["Edge Band Code", product.eb_code],
+                ["Size", product.size],
+                ["Grade", product.grade],
+                ["Core", product.core],
+                ["Density", product.density],
+                ["Finish", !product.finishes?.length ? product.finish : undefined],
+                ["Warranty", product.warranty],
+              ]
+                .filter(([, v]) => v)
+                .map(([label, value]) => (
+                  <div key={label} className="flex justify-between border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
+                    <dt style={{ color: "var(--line-strong)" }}>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+            </dl>
+            {[
+              ["Thicknesses", product.thicknesses],
+              ["Also available in", product.finishes],
+              ["Certifications", product.certifications],
+            ]
+              .filter(([, values]) => Array.isArray(values) && values.length > 0)
+              .map(([label, values]) => (
+                <div key={label as string} className="flex flex-col gap-1.5 border-b py-3 text-sm" style={{ borderColor: "var(--line)" }}>
+                  <span style={{ color: "var(--line-strong)" }}>{label}</span>
+                  <span className="flex flex-wrap gap-2">
+                    {(values as string[]).map((v) => (
+                      <span
+                        key={v}
+                        className="rounded-full border px-3 py-1 text-xs"
+                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              ))}
           </div>
         </div>
       </section>
-
-      <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          Technical Specifications
-        </h2>
-        <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
-          {[
-            ["Brand", product.brand],
-            ["Shade Code", product.sd_code],
-            ["Edge Band Code", product.eb_code],
-            ["Size", product.size],
-            ["Grade", product.grade],
-            ["Core", product.core],
-            ["Density", product.density],
-            ["Finish", !product.finishes?.length ? product.finish : undefined],
-            ["Warranty", product.warranty],
-          ]
-            .filter(([, v]) => v)
-            .map(([label, value]) => (
-              <div key={label} className="flex justify-between border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
-                <dt style={{ color: "var(--line-strong)" }}>{label}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-        </dl>
-        {[
-          ["Thicknesses", product.thicknesses],
-          ["Finish", product.finishes],
-          ["Certifications", product.certifications],
-        ]
-          .filter(([, values]) => Array.isArray(values) && values.length > 0)
-          .map(([label, values]) => (
-            <div key={label as string} className="flex flex-col gap-1.5 border-b py-3 text-sm sm:flex-row sm:items-start sm:gap-8" style={{ borderColor: "var(--line)" }}>
-              <span className="shrink-0 sm:w-32" style={{ color: "var(--line-strong)" }}>
-                {label}
-              </span>
-              <span className="flex flex-wrap gap-2">
-                {(values as string[]).map((v) => (
-                  <span
-                    key={v}
-                    className="rounded-full border px-3 py-1 text-xs"
-                    style={{ borderColor: "var(--line)", background: "var(--paper)" }}
-                  >
-                    {v}
-                  </span>
-                ))}
-              </span>
-            </div>
-          ))}
-      </Reveal>
 
       {product.applications?.length ? (
         <Reveal as="section" className="px-7 py-8">
