@@ -11,15 +11,15 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 });
 
 // GreenPanel Hyderabad+Vijayawada+Rayalaseema rate card, "Price (In SFT) W/O
-// GST" column, already excl-GST. Discounted 38% off the card rate: final =
-// card_price * 0.62. Range spans the 4mm-19mm thickness rows (25mm excluded).
+// GST" column. Despite the column label, these still carry GST, so final =
+// (card_price * 0.62 discount) / 1.18. Range spans 4mm-19mm (25mm excluded).
 const PRICING = {
-  "green-panel-club-ply": { min: 64, max: 172 },
-  "green-panel-gold-bwp-bwp": { min: 58, max: 144 },
-  "green-panel-gold-mr-mr": { min: 44, max: 125 },
-  "green-panel-bwp-bwp": { min: 56, max: 140 },
-  "green-panel-firex-ply": { min: 62, max: 154 },
-  "green-panel-mr-mr": { min: 43, max: 121 },
+  "green-panel-club-ply": { min: 54, max: 146 },
+  "green-panel-gold-bwp-bwp": { min: 49, max: 122 },
+  "green-panel-gold-mr-mr": { min: 37, max: 106 },
+  "green-panel-bwp-bwp": { min: 47, max: 119 },
+  "green-panel-firex-ply": { min: 53, max: 131 },
+  "green-panel-mr-mr": { min: 36, max: 103 },
 };
 
 async function main() {
