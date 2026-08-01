@@ -36,11 +36,6 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
             Price: Available on Request
           </p>
         )}
-        {price?.cashbackPct ? (
-          <p className="mt-0.5 text-xs font-medium" style={{ color: "var(--accent)" }}>
-            Instant cashback up to {price.cashbackPct}%
-          </p>
-        ) : null}
         <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
           Receive a personalized commercial quotation in under 15 minutes.
         </p>

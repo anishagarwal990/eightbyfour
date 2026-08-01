@@ -26,6 +26,16 @@ export function ProductCard({ product }: { product: ProductRow }) {
             {product.brand}
           </div>
         )}
+        {product.warranty ? (
+          <div className="absolute right-2 top-2">
+            <span
+              className="rounded-full px-2 py-0.5 text-right text-[10px] font-medium leading-tight"
+              style={{ background: "rgba(255,255,255,0.9)", color: "var(--burgundy)" }}
+            >
+              {product.warranty}
+            </span>
+          </div>
+        ) : null}
       </div>
       <div className="p-3">
         <BrandLogo brand={product.brand} height={16} />

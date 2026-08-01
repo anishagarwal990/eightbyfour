@@ -14,6 +14,7 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
 import { resolvePrice } from "@/lib/pricing";
+import { OfferBox } from "@/components/OfferBox";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
   CATEGORIES.map((c) => [c.dbCategory, c.slug])
@@ -60,6 +61,7 @@ export function ProductPageView({
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
+  const price = resolvePrice(product);
   const images = [product.main_img_url, product.edge_img_url, product.app_img_url, ...(product.gallery_img_urls || [])].filter(
     Boolean
   ) as string[];
@@ -185,10 +187,15 @@ export function ProductPageView({
                   </span>
                 </div>
               ))}
-            {resolvePrice(product) ? (
+            {price ? (
               <p className="mt-3 text-xs" style={{ color: "var(--line-strong)" }}>
                 Prices shown are excl. GST.
               </p>
+            ) : null}
+            {price?.cashbackPct ? (
+              <div className="mt-3">
+                <OfferBox cashbackPct={price.cashbackPct} />
+              </div>
             ) : null}
           </div>
         </div>
