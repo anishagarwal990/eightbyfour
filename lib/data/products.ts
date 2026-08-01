@@ -4,14 +4,24 @@ import { CATEGORIES } from "@/lib/categories";
 
 export async function getProductsByCategory(dbCategory: string): Promise<ProductRow[]> {
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("category", dbCategory)
-    .order("brand")
-    .order("name");
-  if (error) throw error;
-  return data;
+  // PostgREST caps a single select at 1000 rows - Laminates alone runs past
+  // that, so page through with .range() or rows past the cap (newest brands,
+  // highest ids) silently vanish from the category grid.
+  const PAGE = 1000;
+  const all: ProductRow[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("category", dbCategory)
+      .order("brand")
+      .order("name")
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return all;
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductRow | null> {

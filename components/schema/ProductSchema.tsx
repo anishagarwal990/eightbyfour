@@ -4,6 +4,34 @@ import type { ProductRatingSummary } from "@/lib/data/reviews";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
 
+function buildOffers(product: ProductRow) {
+  const table = product.price_table;
+  if (!table || typeof table !== "object") return undefined;
+  const t = table as { starting_price?: unknown; min_price?: unknown; max_price?: unknown };
+  const url = `${SITE_URL}/products/${product.slug}`;
+  const base = {
+    priceCurrency: "INR",
+    availability: "https://schema.org/InStock",
+    url,
+  };
+  if (typeof t.min_price === "number" && typeof t.max_price === "number") {
+    return {
+      "@type": "AggregateOffer",
+      ...base,
+      lowPrice: t.min_price,
+      highPrice: t.max_price,
+    };
+  }
+  if (typeof t.starting_price === "number") {
+    return {
+      "@type": "Offer",
+      ...base,
+      price: t.starting_price,
+    };
+  }
+  return undefined;
+}
+
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
   const hasRatings = !!ratings && ratings.count > 0;
 
@@ -18,6 +46,7 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
     areaServed: { "@type": "City", name: "Hyderabad" },
+    offers: buildOffers(product),
     aggregateRating: hasRatings
       ? {
           "@type": "AggregateRating",
