@@ -13,6 +13,7 @@ import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
+import { resolvePrice } from "@/lib/pricing";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
   CATEGORIES.map((c) => [c.dbCategory, c.slug])
@@ -184,6 +185,11 @@ export function ProductPageView({
                   </span>
                 </div>
               ))}
+            {resolvePrice(product) ? (
+              <p className="mt-3 text-xs" style={{ color: "var(--line-strong)" }}>
+                Prices shown are excl. GST.
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

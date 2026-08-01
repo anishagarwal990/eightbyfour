@@ -10,22 +10,14 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
-// Sourced from Century's incl-GST rate card (4mm-19mm range per product line).
-// excl-GST = incl / 1.18, rounded to the nearest rupee.
+// Rate card given directly excl-GST (6mm-18mm range): 95.5, 117.5, 142, 167, 180.
 const PRICING = {
-  "century-architect-ply-ply": { min: 71, max: 179 },
-  "century-club-prime-ply": { min: 56, max: 142 },
-  "century-bond-shield-ply": { min: 51, max: 117 },
-  "century-sainik-710-ply": { min: 40, max: 103 },
-  "century-sainik-mr-mr": { min: 33, max: 89 },
-  // Premium Plus (Lower Emission) HDF: rate card is MRP incl. GST with a 38%
-  // trade discount, so excl-GST = (incl * 0.62) / 1.18. 3mm-25mm range.
-  "century-premium-plus-lower-emission-premium-hdf": { min: 15, max: 121 },
+  "russian-birch-ply-baltic-birch-plywood-bb-bb": { min: 96, max: 180 },
 };
 
 async function main() {
   for (const [slug, { min, max }] of Object.entries(PRICING)) {
-    const price_table = { min_price: min, max_price: max, unit: "sqft", currency: "INR", gst: "excl", cashback_pct: 5 };
+    const price_table = { min_price: min, max_price: max, unit: "sqft", currency: "INR", gst: "excl" };
     const { error, count } = await supabase
       .from("products")
       .update({ price_table }, { count: "exact" })
@@ -37,6 +29,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Century Ply pricing update failed:", err);
+  console.error("Birch Ply pricing update failed:", err);
   process.exitCode = 1;
 });

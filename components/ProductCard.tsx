@@ -2,8 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { BrandLogo } from "@/components/BrandLogo";
+import { resolvePrice, unitLabel } from "@/lib/pricing";
 
 export function ProductCard({ product }: { product: ProductRow }) {
+  const price = resolvePrice(product);
   return (
     <Link
       href={`/products/${product.slug}`}
@@ -36,6 +38,19 @@ export function ProductCard({ product }: { product: ProductRow }) {
         {product.size ? (
           <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
             {product.size}
+          </p>
+        ) : null}
+        {price ? (
+          <p className="mt-1 text-xs font-medium" style={{ color: "var(--burgundy)" }}>
+            {price.kind === "range" ? (
+              <>
+                From ₹{price.min} – ₹{price.max}/{unitLabel(price.unit)}
+              </>
+            ) : (
+              <>
+                From ₹{price.amount}/{unitLabel(price.unit)}
+              </>
+            )}
           </p>
         ) : null}
         <p
