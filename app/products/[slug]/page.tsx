@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
+import { categoryPageUrl } from "@/lib/categoryPagination";
 import {
   getAllProductSlugs,
   getBrandsForCategory,
+  getCategoryFilterCounts,
   getProductBySlug,
   getProductsByBrand,
-  getProductsByCategory,
+  getProductsByCategoryPage,
   getRelatedProducts,
 } from "@/lib/data/products";
 import { getBrandByName } from "@/lib/data/brands";
@@ -21,24 +23,41 @@ export async function generateStaticParams() {
   return [...categorySlugs, ...productSlugs];
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+type CategorySearchParams = { collection?: string };
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<CategorySearchParams>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const category = getCategoryBySlug(slug);
   if (category) {
+    const { collection } = await searchParams;
+    const filterSuffix = collection ? ` — ${collection}` : "";
     return buildMetadata({
-      title: `${category.name} Supplier in Hyderabad — Buy ${category.name} Online`,
+      title: `${category.name}${filterSuffix} Supplier in Hyderabad — Buy ${category.name} Online`,
       description: `${category.heroTagline} Live stock, brand options and a buying guide for ${category.name.toLowerCase()} in Hyderabad.`,
-      path: `/products/${category.slug}`,
+      path: categoryPageUrl(category.slug, 1, collection ?? null),
     });
   }
 
   const product = await getProductBySlug(slug);
   if (product) {
+    // Many catalogue items share a brand + shade name (e.g. four different
+    // "Greenlam Black" laminates in SUD/ARN/HDG/ECO finishes with different
+    // shade codes) — without a disambiguator, those pages produce identical
+    // <title> and meta description text, which is a duplicate-content SEO
+    // issue. Append the shade code (or finish, when there's no code) so every
+    // product gets a unique title/description even when the display name repeats.
+    const disambiguator = product.sd_code ? ` (${product.sd_code})` : product.finish ? ` — ${product.finish}` : "";
     return buildMetadata({
-      title: `${product.brand} ${product.name} — ${product.category} in Hyderabad`,
+      title: `${product.brand} ${product.name}${disambiguator} — ${product.category} in Hyderabad`,
       description:
         product.description ||
-        `${product.brand} ${product.name}, available in Hyderabad through EightByFour. Request trade pricing and delivery.`,
+        `${product.brand} ${product.name}${disambiguator}, available in Hyderabad through EightByFour. Request trade pricing and delivery.`,
       path: `/products/${product.slug}`,
       image: product.main_img_url || undefined,
     });
@@ -47,16 +66,34 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {};
 }
 
-export default async function ProductOrCategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProductOrCategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<CategorySearchParams>;
+}) {
   const { slug } = await params;
 
   const category = getCategoryBySlug(slug);
   if (category) {
-    const [products, brands] = await Promise.all([
-      getProductsByCategory(category.dbCategory),
+    const { collection } = await searchParams;
+    const [{ products, totalPages }, brands, filterCounts] = await Promise.all([
+      getProductsByCategoryPage(category.dbCategory, { page: 1, collection: collection ?? null }),
       getBrandsForCategory(category.dbCategory),
+      getCategoryFilterCounts(category.dbCategory),
     ]);
-    return <CategoryPageView category={category} products={products} brands={brands} />;
+    return (
+      <CategoryPageView
+        category={category}
+        products={products}
+        brands={brands}
+        filterCounts={filterCounts}
+        page={1}
+        totalPages={totalPages}
+        collection={collection ?? null}
+      />
+    );
   }
 
   const product = await getProductBySlug(slug);

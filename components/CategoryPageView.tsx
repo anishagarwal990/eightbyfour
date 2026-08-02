@@ -2,8 +2,10 @@ import Link from "next/link";
 import type { CategoryConfig } from "@/lib/categories";
 import { CATEGORIES } from "@/lib/categories";
 import type { ProductRow } from "@/lib/supabase/types";
-import type { CategoryBrand } from "@/lib/data/products";
+import type { CategoryBrand, CategoryFilterCounts } from "@/lib/data/products";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
+import { CategoryFilterBar } from "@/components/CategoryFilterBar";
+import { CategoryPagination, CategoryPaginationLinks } from "@/components/CategoryPagination";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
@@ -13,10 +15,18 @@ export function CategoryPageView({
   category,
   products,
   brands,
+  filterCounts,
+  page,
+  totalPages,
+  collection,
 }: {
   category: CategoryConfig;
   products: ProductRow[];
   brands: CategoryBrand[];
+  filterCounts: CategoryFilterCounts;
+  page: number;
+  totalPages: number;
+  collection: string | null;
 }) {
   const related = CATEGORIES.filter((c) => category.relatedCategorySlugs.includes(c.slug));
 
@@ -30,6 +40,7 @@ export function CategoryPageView({
         ]}
       />
       <FaqSchema faqs={category.faqs} />
+      <CategoryPaginationLinks slug={category.slug} page={page} totalPages={totalPages} collection={collection} />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: category.name }]} />
 
       <section className="px-7 py-8">
@@ -78,7 +89,13 @@ export function CategoryPageView({
           {category.name} Products
         </h2>
         <div className="mt-4">
-          <CategoryProductGrid products={products} />
+          <CategoryFilterBar slug={category.slug} filterCounts={filterCounts} active={collection} />
+          {products.length > 0 ? (
+            <CategoryProductGrid products={products} />
+          ) : (
+            <p style={{ color: "var(--line-strong)" }}>No products found for this filter.</p>
+          )}
+          <CategoryPagination slug={category.slug} page={page} totalPages={totalPages} collection={collection} />
         </div>
       </Reveal>
 
