@@ -30,6 +30,10 @@ export interface ProductRow {
   catalogue_url: string | null;
   tech_sheet_url: string | null;
   installation_guide_url: string | null;
+  features: string[] | null;
+  how_to_apply: string[] | null;
+  spec_table: { label: string; value: string }[] | null;
+  custom_faqs: { question: string; answer: string }[] | null;
   created_at: string;
 }
 

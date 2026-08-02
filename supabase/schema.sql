@@ -41,6 +41,13 @@ alter table public.products add column if not exists catalogue_url text;
 alter table public.products add column if not exists tech_sheet_url text;
 alter table public.products add column if not exists installation_guide_url text;
 
+-- Richer per-product marketing/technical content (e.g. adhesive product
+-- pages sourced from a brand's full product sheet, not just a summary).
+alter table public.products add column if not exists features text[];
+alter table public.products add column if not exists how_to_apply text[];
+alter table public.products add column if not exists spec_table jsonb;
+alter table public.products add column if not exists custom_faqs jsonb;
+
 create index if not exists products_category_idx on public.products (category);
 create index if not exists products_brand_idx on public.products (brand);
 create unique index if not exists products_slug_idx on public.products (slug);

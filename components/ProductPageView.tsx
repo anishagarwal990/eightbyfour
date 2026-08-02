@@ -30,6 +30,7 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
       question: `Is ${product.brand} ${product.name} available in Hyderabad?`,
       answer: `Yes — EightByFour stocks ${product.brand} ${product.name} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
     },
+    ...(product.custom_faqs || []),
   ];
   if (product.thicknesses?.length) {
     faqs.push({
@@ -131,8 +132,52 @@ export function ProductPageView({
             </div>
           ) : null}
 
+          {product.features?.length ? (
+            <div className="mt-4">
+              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
+                Key Features
+              </h2>
+              <ul className="mt-2 flex flex-col gap-1.5 text-sm" style={{ lineHeight: "var(--lh-normal)" }}>
+                {product.features.map((feature) => (
+                  <li key={feature} className="flex gap-2">
+                    <span aria-hidden style={{ color: "var(--burgundy)" }}>
+                      •
+                    </span>
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
           <div className="mt-5">
             <ProductQuoteSection product={product} />
+          </div>
+
+          <div className="mt-6">
+            {[
+              [product.category === "Adhesive" ? "Pack Sizes" : "Thicknesses", product.thicknesses],
+              ["Also available in finishes", product.finishes],
+              ["Applications", product.applications],
+              ["Certifications", product.certifications],
+            ]
+              .filter(([, values]) => Array.isArray(values) && (values as string[]).length > 0)
+              .map(([label, values]) => (
+                <div key={label as string} className="flex flex-col gap-1.5 border-b py-3 text-sm" style={{ borderColor: "var(--line)" }}>
+                  <span style={{ color: "var(--line-strong)" }}>{label as string}</span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    {(values as string[]).map((v) => (
+                      <span
+                        key={v}
+                        className="rounded-full border px-3 py-1 text-xs"
+                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              ))}
           </div>
 
           <div className="mt-6">
@@ -158,35 +203,13 @@ export function ProductPageView({
                     <dd>{value}</dd>
                   </div>
                 ))}
-            </dl>
-            {[
-              ["Thicknesses", product.thicknesses, false],
-              ["Also available in finishes", product.finishes, false],
-              ["Applications", product.applications, true],
-              ["Certifications", product.certifications, false],
-            ]
-              .filter(([, values]) => Array.isArray(values) && (values as string[]).length > 0)
-              .map(([label, values, showMore]) => (
-                <div key={label as string} className="flex flex-col gap-1.5 border-b py-3 text-sm" style={{ borderColor: "var(--line)" }}>
-                  <span style={{ color: "var(--line-strong)" }}>{label as string}</span>
-                  <span className="flex flex-wrap items-center gap-2">
-                    {(values as string[]).map((v) => (
-                      <span
-                        key={v}
-                        className="rounded-full border px-3 py-1 text-xs"
-                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
-                      >
-                        {v}
-                      </span>
-                    ))}
-                    {showMore ? (
-                      <span className="text-xs" style={{ color: "var(--line-strong)" }}>
-                        + more, ask us
-                      </span>
-                    ) : null}
-                  </span>
+              {(product.spec_table || []).map((row) => (
+                <div key={row.label} className="flex justify-between border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
+                  <dt style={{ color: "var(--line-strong)" }}>{row.label}</dt>
+                  <dd>{row.value}</dd>
                 </div>
               ))}
+            </dl>
             {price ? (
               <p className="mt-3 text-xs" style={{ color: "var(--line-strong)" }}>
                 Prices shown are excl. GST.
@@ -200,6 +223,24 @@ export function ProductPageView({
           </div>
         </div>
       </section>
+
+      {product.how_to_apply?.length ? (
+        <Reveal as="section" className="px-7 py-8">
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            How to Apply
+          </h2>
+          <ol className="mt-3 flex flex-col gap-3 text-sm">
+            {product.how_to_apply.map((step, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="serif shrink-0" style={{ color: "var(--burgundy)" }}>
+                  {i + 1}.
+                </span>
+                <span style={{ lineHeight: "var(--lh-normal)" }}>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      ) : null}
 
       {product.catalogue_url || product.tech_sheet_url || product.installation_guide_url ? (
         <Reveal as="section" className="px-7 py-8">
