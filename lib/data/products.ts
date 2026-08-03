@@ -177,6 +177,20 @@ export async function getProductsByBrandPage(
   return { products: data, total, page, pageSize, totalPages };
 }
 
+export async function searchProducts(query: string): Promise<ProductRow[]> {
+  const supabase = createServerSupabaseClient();
+  const term = `%${query}%`;
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .or(`name.ilike.${term},brand.ilike.${term},collection.ilike.${term}`)
+    .order("brand")
+    .order("name")
+    .limit(500);
+  if (error) throw error;
+  return data;
+}
+
 export async function getCategoryCounts(): Promise<Record<string, number>> {
   const supabase = createServerSupabaseClient();
   // Per-category head counts, not one unbounded `.select("category")` - that

@@ -33,7 +33,7 @@ export function SearchBar() {
     setIndex(data);
   }
 
-  const results = query.trim() && fuse ? fuse.search(query, { limit: 8 }).map((r) => r.item) : [];
+  const results = query.trim() && fuse ? fuse.search(query, { limit: 50 }).map((r) => r.item) : [];
 
   function goTo(url: string) {
     setOpen(false);
@@ -56,16 +56,17 @@ export function SearchBar() {
           setActiveIndex(0);
         }}
         onKeyDown={(e) => {
-          if (!results.length) return;
-          if (e.key === "ArrowDown") {
+          if (e.key === "ArrowDown" && results.length) {
             e.preventDefault();
             setActiveIndex((i) => Math.min(i + 1, results.length - 1));
-          } else if (e.key === "ArrowUp") {
+          } else if (e.key === "ArrowUp" && results.length) {
             e.preventDefault();
             setActiveIndex((i) => Math.max(i - 1, 0));
           } else if (e.key === "Enter") {
             e.preventDefault();
-            goTo(results[activeIndex].url);
+            // Enter always goes to the full results page — jumping straight
+            // to one fuzzy match hid everything else that also matched.
+            if (query.trim()) goTo(`/search?q=${encodeURIComponent(query.trim())}`);
           } else if (e.key === "Escape") {
             setOpen(false);
           }

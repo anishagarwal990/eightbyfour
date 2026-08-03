@@ -12,15 +12,28 @@ export interface SearchEntry {
 
 const CONTENT_TYPES: ContentType[] = ["applications", "guides", "comparisons", "hyderabad"];
 
-export async function buildSearchIndex(): Promise<SearchEntry[]> {
+async function getAllProductsForSearch() {
   const supabase = createServerSupabaseClient();
+  // Page past PostgREST's 1000-row cap — unbounded select silently drops
+  // half the catalogue (2,004 products) from search.
+  const PAGE = 1000;
+  const all: { brand: string; name: string; slug: string; category: string }[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("brand,name,slug,category")
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    all.push(...data);
+    if (data.length < PAGE) break;
+  }
+  return all;
+}
 
-  const [{ data: products }, brands] = await Promise.all([
-    supabase.from("products").select("brand,name,slug,category"),
-    getAllBrandsWithCounts(),
-  ]);
+export async function buildSearchIndex(): Promise<SearchEntry[]> {
+  const [products, brands] = await Promise.all([getAllProductsForSearch(), getAllBrandsWithCounts()]);
 
-  const productEntries: SearchEntry[] = (products || []).map((p) => ({
+  const productEntries: SearchEntry[] = products.map((p) => ({
     title: `${p.brand} ${p.name}`,
     subtitle: p.category,
     url: `/products/${p.slug}`,
