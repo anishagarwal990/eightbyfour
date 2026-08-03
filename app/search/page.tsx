@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { searchProducts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
@@ -7,6 +8,11 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
 
 const CONTENT_TYPES: ContentType[] = ["applications", "guides", "comparisons", "hyderabad"];
+
+// Internal search results — thin/duplicate content at unbounded query
+// variants, no unique value over the real category/brand landing pages.
+// Keep it out of the index; robots.ts also disallows /search.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const { q } = await searchParams;
