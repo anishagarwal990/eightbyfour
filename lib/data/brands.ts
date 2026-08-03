@@ -7,19 +7,25 @@ export interface BrandWithCount extends BrandRow {
 
 export async function getAllBrandsWithCounts(): Promise<BrandWithCount[]> {
   const supabase = createServerSupabaseClient();
-  const [{ data: brands, error: bErr }, { data: products, error: pErr }] = await Promise.all([
-    supabase.from("brands").select("*").order("name"),
-    supabase.from("products").select("brand"),
-  ]);
+  const { data: brands, error: bErr } = await supabase.from("brands").select("*").order("name");
   if (bErr) throw bErr;
-  if (pErr) throw pErr;
 
-  const counts = new Map<string, number>();
-  for (const p of products) counts.set(p.brand, (counts.get(p.brand) || 0) + 1);
+  // Per-brand exact head counts, not one unbounded `.select("brand")` across
+  // the whole products table — that silently truncates at PostgREST's
+  // default 1000-row cap (2,004 products total here), undercounting any
+  // brand whose rows don't make the cut. Same bug class as getCategoryCounts.
+  const counted = await Promise.all(
+    brands.map(async (b): Promise<BrandWithCount> => {
+      const { count, error } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("brand", b.name);
+      if (error) throw error;
+      return { ...b, productCount: count || 0 };
+    })
+  );
 
-  return brands
-    .map((b) => ({ ...b, productCount: counts.get(b.name) || 0 }))
-    .filter((b) => b.productCount > 0);
+  return counted.filter((b) => b.productCount > 0);
 }
 
 export async function getBrandBySlug(slug: string): Promise<BrandRow | null> {

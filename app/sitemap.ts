@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/categories";
 import { categoryPagePath } from "@/lib/categoryPagination";
+import { brandPagePath } from "@/lib/brandPagination";
 import { CATEGORY_PAGE_SIZE, getAllProductSlugs, getCategoryFilterCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs } from "@/lib/mdx";
@@ -32,10 +33,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const brandRoutes = brands.map((b) => ({
-    url: `${SITE_URL}/brands/${b.slug}`,
-    lastModified: new Date(),
-  }));
+  // Every paginated page of every brand, same rationale as categoryRoutes.
+  const brandRoutes = brands.flatMap((b) => {
+    const totalPages = Math.max(1, Math.ceil(b.productCount / CATEGORY_PAGE_SIZE));
+    return Array.from({ length: totalPages }, (_, idx) => ({
+      url: `${SITE_URL}${brandPagePath(b.slug, idx + 1)}`,
+      lastModified: new Date(),
+    }));
+  });
 
   const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
     getAllSlugs(type).map((slug) => ({

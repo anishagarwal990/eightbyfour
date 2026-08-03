@@ -143,6 +143,40 @@ export async function getProductsByBrand(brandName: string): Promise<ProductRow[
   return data;
 }
 
+export async function getProductsByBrandPage(
+  brandName: string,
+  opts: { page: number; pageSize?: number }
+): Promise<PaginatedProducts> {
+  const supabase = createServerSupabaseClient();
+  const pageSize = opts.pageSize ?? CATEGORY_PAGE_SIZE;
+  const page = Math.max(1, opts.page);
+
+  // Count first — see getProductsByCategoryPage for why: PostgREST throws on
+  // an out-of-range .range() rather than returning empty.
+  const { count, error: countError } = await supabase
+    .from("products")
+    .select("*", { count: "exact", head: true })
+    .eq("brand", brandName);
+  if (countError) throw countError;
+  const total = count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  if (total === 0 || page > totalPages) {
+    return { products: [], total, page, pageSize, totalPages };
+  }
+
+  const from = (page - 1) * pageSize;
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("brand", brandName)
+    .order("category")
+    .order("name")
+    .range(from, from + pageSize - 1);
+  if (error) throw error;
+  return { products: data, total, page, pageSize, totalPages };
+}
+
 export async function getCategoryCounts(): Promise<Record<string, number>> {
   const supabase = createServerSupabaseClient();
   // Per-category head counts, not one unbounded `.select("category")` - that
