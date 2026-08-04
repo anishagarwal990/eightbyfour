@@ -25,10 +25,21 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
   if (images.length === 0) {
     return (
       <div
-        className="flex aspect-video items-center justify-center serif"
+        className="flex aspect-square w-full flex-col items-center justify-center gap-2"
         style={{ background: "var(--paper-dim)" }}
       >
-        {alt}
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ color: "var(--line-strong)" }} aria-hidden="true">
+          <path
+            d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-13Z"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <path d="m4 16 4.5-4.5a1.5 1.5 0 0 1 2.12 0L15 15.9M14 14l1.38-1.38a1.5 1.5 0 0 1 2.12 0L20 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <circle cx="9" cy="9" r="1.25" fill="currentColor" />
+        </svg>
+        <p className="px-4 text-center text-xs" style={{ color: "var(--line-strong)" }}>
+          Photo coming soon
+        </p>
       </div>
     );
   }
