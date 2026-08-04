@@ -99,37 +99,3 @@ export function ProcurementFlowPreview() {
     </Reveal>
   );
 }
-
-/** Full-width horizontal stepper used in the dedicated "How It Works" section. */
-export function ProcurementWorkflowSteps() {
-  return (
-    <Reveal stagger className="mx-auto grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-      {FLOW_STEPS.map((step, i) => (
-        <div key={step.title} className="relative text-center lg:text-left">
-          {i < FLOW_STEPS.length - 1 ? (
-            <span
-              className="absolute top-6 left-[calc(50%+28px)] hidden h-px w-[calc(100%-56px)] lg:block"
-              style={{ background: "var(--line)" }}
-            />
-          ) : null}
-          <span
-            className="relative z-10 mx-auto flex h-12 w-12 items-center justify-center rounded-full border lg:mx-0"
-            style={
-              i === FLOW_STEPS.length - 1
-                ? { borderColor: "var(--burgundy)", background: "var(--burgundy)", color: "#fff" }
-                : { borderColor: "var(--line)", background: "var(--paper)", color: "var(--burgundy)" }
-            }
-          >
-            <StepIcon name={step.icon} />
-          </span>
-          <p className="serif mt-3" style={{ fontSize: "18px" }}>
-            {step.title}
-          </p>
-          <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-            {step.detail}
-          </p>
-        </div>
-      ))}
-    </Reveal>
-  );
-}

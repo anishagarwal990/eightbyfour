@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
-import { ProcurementFlowPreview, ProcurementWorkflowSteps } from "@/components/ProcurementFlow";
+import { ProcurementFlowPreview } from "@/components/ProcurementFlow";
 import { HeroCategoryStrip } from "@/components/HeroCategoryStrip";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
@@ -56,10 +56,6 @@ const NEW_WAY = [
 ];
 
 const WHY_EIGHTBYFOUR = [
-  {
-    title: "One partner, not ten suppliers",
-    body: "One inquiry checks availability and pricing across our manufacturer network — not a separate call to every supplier on your BOQ.",
-  },
   {
     title: "Direct from manufacturers",
     body: "We source directly from manufacturers across our distribution network, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
@@ -213,7 +209,7 @@ export default async function Home() {
             </div>
           ))}
         </Reveal>
-        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_EIGHTBYFOUR.map((item) => (
             <div key={item.title}>
               <p className="serif" style={{ fontSize: "18px" }}>
@@ -225,19 +221,6 @@ export default async function Home() {
             </div>
           ))}
         </Reveal>
-      </Reveal>
-
-      {/* ---------- How It Works ---------- */}
-      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
-        <div className="mb-12 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            How It Works
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            One BOQ In, One Comparable Quote Out
-          </h2>
-        </div>
-        <ProcurementWorkflowSteps />
       </Reveal>
 
       {/* ---------- Who We Serve ---------- */}
@@ -324,9 +307,8 @@ export default async function Home() {
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           Ready to Stop Chasing Suppliers?
         </h2>
-        <p className="mx-auto mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          Upload your BOQ and get back one organized, comparable quote across plywood, laminates, veneers, hardware
-          and everything else your project needs — sourced directly from trusted brands, delivered across Hyderabad.
+        <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+          One organized quote, back in under 15 minutes.
         </p>
         <HeroCTAs />
       </Reveal>
