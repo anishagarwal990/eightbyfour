@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
+import { getCategoryCounts, getCategorySampleImages } from "@/lib/data/products";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
@@ -8,6 +9,7 @@ import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { ProcurementFlowPreview } from "@/components/ProcurementFlow";
 import { HeroCategoryStrip } from "@/components/HeroCategoryStrip";
+import { HomeCategoryGrid } from "@/components/HomeCategoryGrid";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
@@ -104,6 +106,7 @@ const WHO_WE_SERVE = [
 
 export default async function Home() {
   const brands = await getAllBrandsWithCounts();
+  const [categoryCounts, categoryImages] = await Promise.all([getCategoryCounts(), getCategorySampleImages()]);
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
@@ -130,9 +133,7 @@ export default async function Home() {
               <br className="hidden sm:block" /> Start Comparing Smartly.
             </h2>
             <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Upload your BOQ once. We check pricing and stock across 25+ brands and send back one
-              organized set of quotes — compare brands, specs and pricing on one screen instead of chasing suppliers
-              for ten different answers.
+              Upload your BOQ once. Get one organized quote back — not ten different answers.
             </p>
             <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
               First response in under 15 minutes, during business hours.
@@ -142,6 +143,25 @@ export default async function Home() {
           <ProcurementFlowPreview />
         </div>
       </section>
+
+      {/* ---------- Category Grid ---------- */}
+      <HomeCategoryGrid counts={categoryCounts} images={categoryImages} />
+
+      {/* ---------- Trust Stats ---------- */}
+      <Reveal as="section" className="px-7 pb-16">
+        <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-2 gap-8 text-center lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.label}>
+              <p className="serif" style={{ fontSize: "28px", color: "var(--burgundy)" }}>
+                {s.value}
+              </p>
+              <p className="mt-1 text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </Reveal>
+      </Reveal>
 
       <ManufacturerStrip brands={brands} />
 
@@ -197,21 +217,9 @@ export default async function Home() {
             A Procurement Partner, Not a Catalogue
           </h2>
         </div>
-        <Reveal stagger className="mx-auto mb-12 grid max-w-4xl grid-cols-2 gap-8 text-center lg:grid-cols-4">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="serif" style={{ fontSize: "28px", color: "var(--burgundy)" }}>
-                {s.value}
-              </p>
-              <p className="mt-1 text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </Reveal>
         <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title}>
+            <div key={item.title} className={cardClasses("p-5")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
@@ -238,9 +246,6 @@ export default async function Home() {
             <Link key={item.title} href={item.href} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
-              </p>
-              <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-                {item.body}
               </p>
             </Link>
           ))}
