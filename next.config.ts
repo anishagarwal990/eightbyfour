@@ -2,13 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Next.js Image Optimization is enabled (previously `unoptimized: true`,
-    // which forced every <Image> — including the Supabase-hosted product
-    // photos that make up most of the site's LCP elements — to skip resizing,
-    // AVIF/WebP conversion and responsive srcset generation entirely. That is
-    // the single biggest Core Web Vitals regression on this site; removing it
-    // lets Next.js serve right-sized, modern-format images from cache.
-    formats: ["image/avif", "image/webp"],
+    // Vercel's free-tier image optimization quota (1000 src/month) got
+    // exhausted, so /_next/image started returning 402 for every request —
+    // breaking every <Image> on the site. unoptimized:true bypasses the
+    // Vercel optimizer entirely; images load straight from Supabase.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
