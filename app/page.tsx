@@ -215,9 +215,6 @@ export default async function Home() {
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
-              <p className="mt-2 text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-                {item.body}
-              </p>
             </div>
           ))}
         </Reveal>
@@ -266,9 +263,6 @@ export default async function Home() {
               <Link key={`${g.section}-${g.slug}`} href={`/${g.section}/${g.slug}`} className={cardClasses("block p-4")} style={CARD_BASE_STYLE}>
                 <p className="serif" style={{ fontSize: "16px" }}>
                   {g.frontmatter.title}
-                </p>
-                <p className="mt-1 text-sm" style={{ color: "var(--line-strong)" }}>
-                  {g.frontmatter.description}
                 </p>
               </Link>
             ))}
