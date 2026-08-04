@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ContentEntry, ContentType } from "@/lib/mdx";
+import { CONTENT_TYPE_PATH } from "@/lib/mdx";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export function ContentIndexView({
@@ -19,6 +21,7 @@ export function ContentIndexView({
 }) {
   return (
     <main>
+      <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: title, path: CONTENT_TYPE_PATH[type] }]} />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: title }]} />
       <section className="px-7 py-10">
         <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>

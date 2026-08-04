@@ -229,6 +229,8 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
                 <img
                   src={`/brand-logos/${brand.file}`}
                   alt={`${brand.name} logo`}
+                  loading="lazy"
+                  decoding="async"
                   className="w-auto max-w-full object-contain mix-blend-multiply"
                   style={{ height: MENU_LOGO_HEIGHT_OVERRIDES[brand.slug] ?? 26 }}
                 />

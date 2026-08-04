@@ -49,7 +49,7 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
         {SOURCE_ONLY_BRANDS.map((m) => (
           <Link key={`${keyPrefix}-${m.slug}`} href={`/brands/${m.slug}`} className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/brand-logos/${m.file}`} alt={m.name} className={logoClasses} />
+            <img src={`/brand-logos/${m.file}`} alt={m.name} loading="lazy" decoding="async" className={logoClasses} />
           </Link>
         ))}
       </>

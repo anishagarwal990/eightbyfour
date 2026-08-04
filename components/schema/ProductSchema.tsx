@@ -29,7 +29,16 @@ function buildOffers(product: ProductRow) {
       price: t.starting_price,
     };
   }
-  return undefined;
+  // No price on file for this SKU (RFQ/quote-based, not fixed pricing) — still
+  // declare availability so the page has a real `offers` entry rather than
+  // inventing a price. Google requires at least one of offers/review/
+  // aggregateRating for the Product rich result; this satisfies that without
+  // fabricating pricing data.
+  return {
+    "@type": "Offer",
+    availability: "https://schema.org/InStock",
+    url,
+  };
 }
 
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
@@ -45,7 +54,6 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     image: product.main_img_url || undefined,
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
-    areaServed: { "@type": "City", name: "Hyderabad" },
     offers: buildOffers(product),
     aggregateRating: hasRatings
       ? {

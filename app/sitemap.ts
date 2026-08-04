@@ -1,17 +1,18 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/categories";
-import { categoryPagePath } from "@/lib/categoryPagination";
+import { categoryPagePath, categoryPageUrl } from "@/lib/categoryPagination";
 import { brandPagePath } from "@/lib/brandPagination";
 import { CATEGORY_PAGE_SIZE, getAllProductSlugs, getCategoryFilterCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs } from "@/lib/mdx";
+import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [productSlugs, brands, categoryTotals] = await Promise.all([
+  const [productSlugs, brands, categoryFilterCounts] = await Promise.all([
     getAllProductSlugs(),
     getAllBrandsWithCounts(),
-    Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory).then((f) => f.total))),
+    Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory))),
   ]);
 
   const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad"].map(
@@ -21,11 +22,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Every paginated page of every category, not just page 1 — that's what
   // makes the full catalogue crawlable/indexable beyond the first 60 products.
   const categoryRoutes = CATEGORIES.flatMap((c, i) => {
-    const totalPages = Math.max(1, Math.ceil(categoryTotals[i] / CATEGORY_PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(categoryFilterCounts[i].total / CATEGORY_PAGE_SIZE));
     return Array.from({ length: totalPages }, (_, idx) => ({
       url: `${SITE_URL}${categoryPagePath(c.slug, idx + 1)}`,
       lastModified: new Date(),
     }));
+  });
+
+  // Collection-filtered variant of every category page (e.g.
+  // /products/laminates?collection=HPL) — these are real, indexable,
+  // linked-from pages (CategoryFilterBar chips) that were previously left
+  // out of the sitemap entirely.
+  const categoryCollectionRoutes = CATEGORIES.flatMap((c, i) => {
+    const filterCounts = categoryFilterCounts[i];
+    const collectionNames = [...filterCounts.collections.map((coll) => coll.name), ...(filterCounts.otherCount > 0 ? ["other"] : [])];
+    return collectionNames.flatMap((name) => {
+      const count = name === "other" ? filterCounts.otherCount : filterCounts.collections.find((coll) => coll.name === name)!.count;
+      const totalPages = Math.max(1, Math.ceil(count / CATEGORY_PAGE_SIZE));
+      return Array.from({ length: totalPages }, (_, idx) => ({
+        url: `${SITE_URL}${categoryPageUrl(c.slug, idx + 1, name)}`,
+        lastModified: new Date(),
+      }));
+    });
   });
 
   const productRoutes = productSlugs.map((slug) => ({
@@ -42,6 +60,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
   });
 
+  // Source-only brands (sourced on request, not stocked as SKUs) get a real,
+  // indexable /brands/[slug] page — app/brands/[slug]/page.tsx — but have no
+  // row in `products`, so they never appeared in `brands` above. Skip any
+  // that also exist as a real stocked brand (e.g. Greenlam) to avoid a
+  // duplicate URL already covered by brandRoutes.
+  const stockedSlugs = new Set(brands.map((b) => b.slug));
+  const sourceOnlyBrandRoutes = SOURCE_ONLY_BRANDS.filter((b) => !stockedSlugs.has(b.slug)).map((b) => ({
+    url: `${SITE_URL}/brands/${b.slug}`,
+    lastModified: new Date(),
+  }));
+
   const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
     getAllSlugs(type).map((slug) => ({
       url: `${SITE_URL}/${type}/${slug}`,
@@ -55,5 +84,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...brandRoutes, ...contentRoutes, ...personaRoutes];
+  return [
+    ...staticRoutes,
+    ...categoryRoutes,
+    ...categoryCollectionRoutes,
+    ...productRoutes,
+    ...brandRoutes,
+    ...sourceOnlyBrandRoutes,
+    ...contentRoutes,
+    ...personaRoutes,
+  ];
 }

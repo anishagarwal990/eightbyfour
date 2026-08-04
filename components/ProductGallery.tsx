@@ -76,7 +76,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               className="relative h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 transition-[border-color,transform] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5"
               style={{ borderColor: active === i ? "var(--burgundy)" : "var(--line)", background: "var(--paper-dim)" }}
             >
-              <Image src={src} alt="" fill sizes="64px" className="object-cover" />
+              <Image src={src} alt={`${alt} — thumbnail ${i + 1}`} fill sizes="64px" className="object-cover" />
             </button>
           ))}
         </div>

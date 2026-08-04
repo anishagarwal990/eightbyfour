@@ -4,6 +4,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { getCategoryCounts } from "@/lib/data/products";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 
 export const metadata: Metadata = buildMetadata({
   title: "Materials Catalogue — Plywood, Laminates, Veneers & More in Hyderabad",
@@ -17,6 +18,7 @@ export default async function ProductsIndexPage() {
 
   return (
     <main>
+      <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]} />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
       <section className="px-7 py-10">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>

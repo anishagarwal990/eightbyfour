@@ -10,7 +10,7 @@ function SourceOnlyBrandTile({ name, slug, file }: { name: string; slug: string;
     <Link href={`/brands/${slug}`} className={cardClasses("flex flex-col items-center gap-3 p-5 text-center")} style={CARD_BASE_STYLE}>
       <div className="relative h-12 w-full">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/brand-logos/${file}`} alt={`${name} logo`} className="h-full w-full object-contain" />
+        <img src={`/brand-logos/${file}`} alt={`${name} logo`} loading="lazy" decoding="async" className="h-full w-full object-contain" />
       </div>
     </Link>
   );

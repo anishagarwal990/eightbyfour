@@ -340,7 +340,7 @@ export function LikeCommentWidget({
                 <div className="mt-2 flex flex-wrap gap-2">
                   {c.image_urls.map((url) => (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img key={url} src={url} alt="Review photo" className="h-20 w-20 rounded-sm object-cover" />
+                    <img key={url} src={url} alt="Review photo" loading="lazy" decoding="async" className="h-20 w-20 rounded-sm object-cover" />
                   ))}
                 </div>
               ) : null}

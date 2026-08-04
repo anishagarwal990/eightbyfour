@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { MoreBrandsTile, SourceOnlyBrandTiles } from "@/components/MoreBrandsTile";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
@@ -19,6 +20,7 @@ export default async function BrandsIndexPage() {
 
   return (
     <main>
+      <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: "Brands", path: "/brands" }]} />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands" }]} />
       <section className="px-7 py-10">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
@@ -42,7 +44,14 @@ export default async function BrandsIndexPage() {
           >
             {b.logo_url ? (
               <div className="relative h-12 w-full">
-                <Image src={b.logo_url} alt={`${b.name} logo`} fill className="object-contain" />
+                <Image
+                  src={b.logo_url}
+                  alt={`${b.name} logo`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  loading="lazy"
+                  className="object-contain"
+                />
               </div>
             ) : (
               <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>

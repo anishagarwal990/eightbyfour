@@ -28,6 +28,8 @@ export function BrandLogo({
     <img
       src={logoUrl}
       alt={`${brand} logo`}
+      loading="lazy"
+      decoding="async"
       className={`w-auto object-contain object-left ${className}`}
       style={{ height }}
     />
