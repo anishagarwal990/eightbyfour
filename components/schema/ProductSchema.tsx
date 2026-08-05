@@ -30,16 +30,15 @@ function buildOffers(product: ProductRow) {
       price: t.starting_price,
     };
   }
-  // No price on file for this SKU (RFQ/quote-based, not fixed pricing) — still
-  // declare availability so the page has a real `offers` entry rather than
-  // inventing a price. Google requires at least one of offers/review/
-  // aggregateRating for the Product rich result; this satisfies that without
-  // fabricating pricing data.
-  return {
-    "@type": "Offer",
-    availability: "https://schema.org/InStock",
-    url,
-  };
+  // No price on file for this SKU (RFQ/quote-based, not fixed pricing).
+  // Google's structured-data validator requires `price` on any Offer that's
+  // present — a price-less Offer fails validation, it doesn't just skip rich
+  // results. So for unpriced SKUs we omit `offers` entirely rather than
+  // emit an Offer that's guaranteed to error. These pages simply aren't
+  // Product-rich-result eligible until they have a real price or reviews —
+  // which is the correct outcome for an RFQ product with no fixed price,
+  // not a bug to work around with fabricated data.
+  return undefined;
 }
 
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
