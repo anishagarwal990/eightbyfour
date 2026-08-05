@@ -6,6 +6,7 @@ import { buildWhatsAppUrl, generateInquiryRef } from "@/lib/whatsapp";
 import { UploadIcon } from "@/components/icons/UploadIcon";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import type { ProductRow } from "@/lib/supabase/types";
+import { productDisplayName } from "@/lib/productDisplay";
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.heic,.webp";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -69,7 +70,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
 
     const lines = [`Product inquiry (Ref: ${inquiryRef})`];
     if (product.category === "Laminates") {
-      lines.push(`Product: ${product.brand} ${product.name} (${product.sd_code || ""})${finishLabel ? " · " + finishLabel : ""}`);
+      lines.push(`Product: ${productDisplayName(product)} (${product.sd_code || ""})${finishLabel ? " · " + finishLabel : ""}`);
     } else {
       lines.push(`Product: ${product.brand} — ${product.name}`);
       if (showThickness) lines.push(`Thickness: ${thickness}`);

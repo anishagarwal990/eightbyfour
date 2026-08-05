@@ -1,6 +1,7 @@
 import { SITE_URL } from "@/lib/seo";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
+import { productDisplayName } from "@/lib/productDisplay";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
 
@@ -47,7 +48,7 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
   const json = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${product.brand} ${product.name}`,
+    name: productDisplayName(product),
     sku: String(product.id),
     category: product.category,
     description: product.description || undefined,

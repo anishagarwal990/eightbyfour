@@ -14,6 +14,7 @@ import {
 import { getBrandByName } from "@/lib/data/brands";
 import { getProductReviews } from "@/lib/data/reviews";
 import { buildMetadata } from "@/lib/seo";
+import { productDisplayName } from "@/lib/productDisplay";
 import { CategoryPageView } from "@/components/CategoryPageView";
 import { ProductPageView } from "@/components/ProductPageView";
 
@@ -53,11 +54,12 @@ export async function generateMetadata({
     // issue. Append the shade code (or finish, when there's no code) so every
     // product gets a unique title/description even when the display name repeats.
     const disambiguator = product.sd_code ? ` (${product.sd_code})` : product.finish ? ` — ${product.finish}` : "";
+    const displayName = productDisplayName(product);
     return buildMetadata({
-      title: `${product.brand} ${product.name}${disambiguator} — ${product.category} in Hyderabad`,
+      title: `${displayName}${disambiguator} — ${product.category} in Hyderabad`,
       description:
         product.description ||
-        `${product.brand} ${product.name}${disambiguator}, available in Hyderabad through EightByFour. Request trade pricing and delivery.`,
+        `${displayName}${disambiguator}, available in Hyderabad through EightByFour. Request trade pricing and delivery.`,
       path: `/products/${product.slug}`,
       image: product.main_img_url || undefined,
     });

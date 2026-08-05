@@ -14,6 +14,7 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
 import { resolvePrice } from "@/lib/pricing";
+import { productDisplayName } from "@/lib/productDisplay";
 import { OfferBox } from "@/components/OfferBox";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
@@ -25,17 +26,18 @@ function categorySlugFor(dbCategory: string): string | undefined {
 }
 
 function buildFaqs(product: ProductRow): { question: string; answer: string }[] {
+  const displayName = productDisplayName(product);
   const faqs = [
     {
-      question: `Is ${product.brand} ${product.name} available in Hyderabad?`,
-      answer: `Yes — EightByFour stocks ${product.brand} ${product.name} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
+      question: `Is ${displayName} available in Hyderabad?`,
+      answer: `Yes — EightByFour stocks ${displayName} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
     },
     ...(product.custom_faqs || []),
   ];
   if (product.thicknesses?.length) {
     faqs.push({
       question: `What thicknesses does ${product.name} come in?`,
-      answer: `${product.brand} ${product.name} is available in ${product.thicknesses.join(", ")}.`,
+      answer: `${displayName} is available in ${product.thicknesses.join(", ")}.`,
     });
   }
   if (product.warranty) {
@@ -62,6 +64,7 @@ export function ProductPageView({
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
+  const displayName = productDisplayName(product);
   const price = resolvePrice(product);
   const images = [product.main_img_url, product.edge_img_url, product.app_img_url, ...(product.gallery_img_urls || [])].filter(
     Boolean
@@ -89,7 +92,7 @@ export function ProductPageView({
       />
 
       <section className="grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
-        <ProductGallery images={images} alt={`${product.brand} ${product.name}`} />
+        <ProductGallery images={images} alt={displayName} />
 
         <div>
           <BrandLogo brand={product.brand} height={40} />
@@ -126,6 +129,13 @@ export function ProductPageView({
                   ) : null}
                   <Link href="/guides/laminate-care-and-maintenance" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
                     Laminate care &amp; maintenance guide →
+                  </Link>
+                </div>
+              ) : null}
+              {product.category === "Plywood" && product.brand === "Wigwam Excel" ? (
+                <div className="mt-2 flex flex-col gap-1">
+                  <Link href="/guides/why-calibrated-plywood-matters" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                    Why calibrated plywood matters →
                   </Link>
                 </div>
               ) : null}

@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { BrandLogo } from "@/components/BrandLogo";
 import { resolvePrice, unitLabel } from "@/lib/pricing";
+import { productDisplayName } from "@/lib/productDisplay";
 
 export function ProductCard({ product }: { product: ProductRow }) {
   const price = resolvePrice(product);
@@ -16,7 +17,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
         {product.main_img_url ? (
           <Image
             src={product.main_img_url}
-            alt={`${product.brand} ${product.name}`}
+            alt={productDisplayName(product)}
             fill
             sizes="(max-width: 640px) 50vw, 25vw"
             className="object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-[1.06]"
