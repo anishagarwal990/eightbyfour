@@ -344,13 +344,13 @@ export function SiteHeader({
         style={{ top: "var(--sku-ribbon-h)", background: "var(--burgundy)", color: "var(--paper)" }}
       >
         <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
-          Call: {PHONE_DISPLAY}
+          Call us: {PHONE_DISPLAY}
         </a>
         <span aria-hidden="true" className="opacity-50">
           |
         </span>
         <a href={`mailto:${EMAIL}`} className="hover:opacity-80">
-          {EMAIL}
+          Write us: {EMAIL}
         </a>
       </div>
       <header
