@@ -8,6 +8,7 @@ import { brandPagePath } from "@/lib/brandPagination";
 import { BrandPageView, getBrandFaqs } from "@/components/BrandPageView";
 import { SOURCE_ONLY_BRANDS, getSourceOnlyBrandBySlug } from "@/lib/source-only-brands";
 import { SourceOnlyBrandPageView } from "@/components/SourceOnlyBrandPageView";
+import { getSourceOnlyBrandContent } from "@/lib/source-only-brand-content";
 
 export async function generateStaticParams() {
   const brands = await getAllBrandsWithCounts();
@@ -30,9 +31,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const sourceOnly = getSourceOnlyBrandBySlug(slug);
   if (sourceOnly) {
+    const content = getSourceOnlyBrandContent(sourceOnly.slug);
     return buildMetadata({
-      title: `${sourceOnly.name} in Hyderabad — Ask for Availability & Quote`,
-      description: `EightByFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
+      title: content
+        ? `${sourceOnly.name} in Hyderabad — ${content.tagline}`
+        : `${sourceOnly.name} in Hyderabad — Ask for Availability & Quote`,
+      description:
+        content?.intro ||
+        `EightByFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
       path: `/brands/${sourceOnly.slug}`,
     });
   }
