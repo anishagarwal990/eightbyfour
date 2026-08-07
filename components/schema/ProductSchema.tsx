@@ -20,7 +20,11 @@ function buildOffers(product: ProductRow) {
   };
   if (price?.kind === "range") {
     const table = product.price_table;
-    const offerCount = Array.isArray(table) ? table.length : undefined;
+    // Google's Merchant validator flags AggregateOffer as invalid when
+    // offerCount is absent, even though schema.org marks it optional. Use
+    // the real pack count when the price_table is an array (e.g. Fevicol);
+    // otherwise this is a single min/max range listing, so 1.
+    const offerCount = Array.isArray(table) ? table.length : 1;
     return {
       "@type": "AggregateOffer",
       ...base,
