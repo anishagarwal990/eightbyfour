@@ -239,6 +239,30 @@ export const CATEGORIES: CategoryConfig[] = [
     applicationSlugs: ["modular-kitchen", "wardrobes"],
     relatedCategorySlugs: ["laminates", "veneers"],
   },
+  {
+    slug: "nfc-boards",
+    dbCategory: "NFC Boards",
+    name: "NFC (Natural Fibre Composite) Boards",
+    heroTagline: "RelWOOD natural fibre composite boards — a moisture and termite-proof alternative to plywood and MDF.",
+    overview:
+      "Natural Fibre Composite (NFC) boards are an engineered wood-alternative made from natural fibre composite rather than timber veneers, giving them strong resistance to moisture, termites and weathering without deforestation. EightByFour stocks RelWOOD, Reliance Industries' NFC board line, across three densities and a full 8×4 ft thickness range for both interior and exterior use.",
+    buyingGuide:
+      "Pick density by application: lower-density boards (0.65 g/cm³) suit interior panelling and partitions where weight and cost matter, while the denser 1.0 g/cm³ board holds up better for exterior cladding, facades and outdoor furniture exposed to weathering. Because NFC boards are inherently moisture and termite resistant, they're a common substitute for BWP plywood or WPC on exterior-facing work.",
+    faqs: [
+      {
+        question: "How is an NFC board different from plywood or MDF?",
+        answer:
+          "NFC (natural fibre composite) boards are made from compressed natural fibre composite rather than wood veneers or fibres, giving them built-in moisture, termite and weather resistance without the boiling-water bonding or lamination that plywood and MDF rely on.",
+      },
+      {
+        question: "Can RelWOOD boards be used outdoors?",
+        answer:
+          "Yes — RelWOOD is designed for outdoor exposure, including cladding, facades, pergolas and gazebos, and is UV-resistant and weatherproof, unlike standard interior-grade plywood or MDF.",
+      },
+    ],
+    applicationSlugs: ["commercial-spaces", "retail-stores", "hotel-interiors"],
+    relatedCategorySlugs: ["plywood", "mdf-and-hdhmr", "boil-boards"],
+  },
 ];
 
 export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
