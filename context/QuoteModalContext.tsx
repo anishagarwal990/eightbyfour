@@ -15,7 +15,7 @@ interface ListItem {
 }
 
 interface QuoteModalContextValue {
-  openModal: (prefillDesc?: string, note?: string) => void;
+  openModal: (prefillDesc?: string, note?: string, title?: string) => void;
 }
 
 const QuoteModalContext = createContext<QuoteModalContextValue | null>(null);
@@ -42,6 +42,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
   const [ref, setRef] = useState<string | null>(null);
   const [waUrl, setWaUrl] = useState<string | null>(null);
   const [modalNote, setModalNote] = useState<string | null>(null);
+  const [modalTitle, setModalTitle] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -57,11 +58,12 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     };
   }, [open]);
 
-  function openModal(prefillDesc?: string, note?: string) {
+  function openModal(prefillDesc?: string, note?: string, title?: string) {
     if (prefillDesc) {
       setItems((prev) => (prev.some((i) => i.desc === prefillDesc) ? prev : [...prev, { desc: prefillDesc, qty: "1" }]));
     }
     setModalNote(note ?? null);
+    setModalTitle(title ?? null);
     setOpen(true);
   }
 
@@ -79,6 +81,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setRef(null);
     setWaUrl(null);
     setModalNote(null);
+    setModalTitle(null);
   }
 
   function addItem() {
@@ -211,7 +214,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex items-start justify-between">
                   <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-                    Request a quote
+                    {modalTitle || "Request a quote"}
                   </p>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="text-2xl leading-none">
                     ×

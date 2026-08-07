@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 export function RequestQuoteButton() {
   const { openModal } = useQuoteModal();
   return (
-    <Button type="button" variant="primary" className="shrink-0" onClick={() => openModal()}>
+    <Button type="button" variant="primary" className="shrink-0" onClick={() => openModal(undefined, undefined, "Request a Quote")}>
       Request a Quote
     </Button>
   );

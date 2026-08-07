@@ -23,6 +23,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
           { name: brand.name, path: `/brands/${brand.slug}` },
         ]}
       />
+      <div className="mx-auto max-w-5xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
 
       <section className="flex flex-wrap items-center gap-6 px-7 py-8">
@@ -153,6 +154,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
           <SourceOnlyQuoteButton name={brand.name} />
         </section>
       )}
+      </div>
     </main>
   );
 }

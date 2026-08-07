@@ -31,7 +31,9 @@ export function MoreBrandsTile() {
   return (
     <button
       type="button"
-      onClick={() => openModal(undefined, "Tell us what you're looking for and we'll get back to you in less than 15 minutes.")}
+      onClick={() =>
+        openModal(undefined, "Tell us what you're looking for and we'll get back to you in less than 15 minutes.", "Tell Us What You Need")
+      }
       className={cardClasses("flex flex-col items-center justify-center gap-2 p-5 text-center")}
       style={CARD_BASE_STYLE}
     >
