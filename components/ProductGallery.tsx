@@ -49,7 +49,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
-        className="relative block aspect-square w-full cursor-zoom-in overflow-hidden"
+        className="relative block w-full cursor-zoom-in overflow-hidden"
         style={{ background: "var(--paper-dim)" }}
         aria-label="View full-size image"
       >
@@ -57,9 +57,10 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           key={active}
           src={images[active]}
           alt={`${alt} — image ${active + 1}`}
-          fill
+          width={0}
+          height={0}
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="filter-fade object-contain"
+          className="filter-fade h-auto max-h-[80vh] w-full object-contain"
           priority
         />
       </button>
