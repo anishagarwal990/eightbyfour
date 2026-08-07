@@ -37,7 +37,7 @@ const MENU_LOGO_HEIGHT_OVERRIDES: Record<string, number> = {
 };
 
 const PRODUCTS_MENU_COLUMNS = [
-  { title: "Boards & Panels", slugs: ["plywood", "birch-plywood", "boil-boards", "mdf-and-hdhmr"] },
+  { title: "Boards & Panels", slugs: ["plywood", "birch-plywood", "boil-boards", "mdf-and-hdhmr", "nfc-boards"] },
   { title: "Surfaces & Finishes", slugs: ["laminates", "veneers", "stone-panels"] },
   { title: "Solid Surface & Adhesives", slugs: ["corian-acrylic-solid-surface", "adhesive"] },
 ].map((col) => ({
