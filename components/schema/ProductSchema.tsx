@@ -2,32 +2,39 @@ import { SITE_URL } from "@/lib/seo";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { productDisplayName } from "@/lib/productDisplay";
+import { resolvePrice } from "@/lib/pricing";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
 
+// Delegates to resolvePrice() (lib/pricing.ts) so schema pricing can never
+// drift from what's shown on the page — that function already handles the
+// three price_table shapes on file: single {starting_price}, range
+// {min_price, max_price}, and per-pack arrays (e.g. Fevicol).
 function buildOffers(product: ProductRow) {
-  const table = product.price_table;
-  if (!table || typeof table !== "object") return undefined;
-  const t = table as { starting_price?: unknown; min_price?: unknown; max_price?: unknown };
+  const price = resolvePrice(product);
   const url = `${SITE_URL}/products/${product.slug}`;
   const base = {
     priceCurrency: "INR",
     availability: "https://schema.org/InStock",
     url,
   };
-  if (typeof t.min_price === "number" && typeof t.max_price === "number") {
+  if (price?.kind === "range") {
+    const table = product.price_table;
+    const offerCount = Array.isArray(table) ? table.length : undefined;
     return {
       "@type": "AggregateOffer",
       ...base,
-      lowPrice: t.min_price,
-      highPrice: t.max_price,
+      lowPrice: price.min,
+      highPrice: price.max,
+      offerCount,
     };
   }
-  if (typeof t.starting_price === "number") {
+  if (price?.kind === "single") {
     return {
       "@type": "Offer",
       ...base,
-      price: t.starting_price,
+      price: price.amount,
+      itemCondition: "https://schema.org/NewCondition",
     };
   }
   // No price on file for this SKU (RFQ/quote-based, not fixed pricing).
@@ -43,6 +50,16 @@ function buildOffers(product: ProductRow) {
 
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
   const hasRatings = !!ratings && ratings.count > 0;
+  const offers = buildOffers(product);
+
+  // Google requires at least one of offers/review/aggregateRating on a
+  // Product. RFQ-priced SKUs (no fixed price_table) have none of the three —
+  // emitting Product markup anyway is what trips the GSC "Either offers,
+  // review, or aggregateRating should be specified" error. Skipping the
+  // block entirely for these pages is correct: they're not eligible for
+  // Product rich results until priced or reviewed, and unclaimed pages
+  // don't get flagged as errors the way invalid ones do.
+  if (!offers && !hasRatings) return null;
 
   const json = {
     "@context": "https://schema.org",
@@ -51,10 +68,10 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     sku: String(product.id),
     category: product.category,
     description: product.description || undefined,
-    image: product.main_img_url || undefined,
+    image: product.main_img_url || product.edge_img_url || product.app_img_url || undefined,
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
-    offers: buildOffers(product),
+    offers,
     aggregateRating: hasRatings
       ? {
           "@type": "AggregateRating",
