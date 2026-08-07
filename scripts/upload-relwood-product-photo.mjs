@@ -16,11 +16,6 @@ async function upload(local, remote, contentType) {
   console.log(remote, "->", data.publicUrl);
 }
 
-// Cropped from the collage in "Product images /reliance-relwood-plywood-in-jodhpur.png" —
-// the source file bundles a sheet photo + two packaging shots on one white
-// canvas, which produced huge letterboxing in the site's square product
-// gallery. Split into three individual images instead. "-v2" suffix avoids
-// serving stale cached bytes at the old 2382-main.png / gallery-1/2 URLs.
-await upload("/tmp/relwood-sheet.png", "products/2382-main-v2.png", "image/png");
-await upload("/tmp/relwood-cream-box.png", "products/2382-gallery-1-v2.png", "image/png");
-await upload("/tmp/relwood-green-box.png", "products/2382-gallery-2-v2.png", "image/png");
+await upload("/Users/anishagarwal/Downloads/eightbyfour/Product images /reliance-relwood-plywood-in-jodhpur.png", "products/2382-main.png", "image/png");
+await upload("/Users/anishagarwal/Downloads/eightbyfour/Product images /relwood product images .png", "products/2382-gallery-1.png", "image/png");
+await upload("/Users/anishagarwal/Downloads/eightbyfour/Product images /relwood-plywood-sheet.jpeg", "products/2382-gallery-2.jpeg", "image/jpeg");
