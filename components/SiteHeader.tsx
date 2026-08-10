@@ -38,7 +38,7 @@ const MENU_LOGO_HEIGHT_OVERRIDES: Record<string, number> = {
 
 const PRODUCTS_MENU_COLUMNS = [
   { title: "Boards & Panels", slugs: ["plywood", "birch-plywood", "boil-boards", "mdf-and-hdhmr", "nfc-boards"] },
-  { title: "Surfaces & Finishes", slugs: ["laminates", "veneers", "stone-panels"] },
+  { title: "Surfaces & Finishes", slugs: ["laminates", "veneers"] },
   { title: "Solid Surface & Adhesives", slugs: ["corian-acrylic-solid-surface", "adhesive"] },
 ].map((col) => ({
   title: col.title,
@@ -72,7 +72,7 @@ function ProductsMegaMenu({
         />
       </Link>
       <div
-        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[900px] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
+        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[900px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
           className="grid grid-cols-[1fr_1fr_1fr_0.9fr] gap-7 rounded-sm border p-6 shadow-[var(--shadow-lg)]"
@@ -195,7 +195,7 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
         />
       </Link>
       <div
-        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[620px] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
+        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[620px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
           className="rounded-sm border p-6 shadow-[var(--shadow-lg)]"
@@ -268,7 +268,7 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
         />
       </Link>
       <div
-        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[700px] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
+        className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[700px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
           className="grid grid-cols-3 gap-7 rounded-sm border p-6 shadow-[var(--shadow-lg)]"
@@ -305,7 +305,10 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
 
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
-    <Link href={href} className="group relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]">
+    <Link
+      href={href}
+      className={`group relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)] ${active ? "font-semibold" : ""}`}
+    >
       {label}
       <span
         aria-hidden="true"
@@ -364,10 +367,10 @@ export function SiteHeader({
         }}
       >
         <Link href="/" className="leading-tight">
-          <span className="serif block" style={{ fontSize: "26px", fontWeight: 900, letterSpacing: "-0.5px" }}>
-            EIGHT<span style={{ color: "var(--accent)" }}>×</span>FOUR
+          <span className="serif block" style={{ fontSize: "28px", fontWeight: 900, letterSpacing: "-0.3px" }}>
+            EIGHT<span style={{ color: "var(--accent)", fontWeight: 500 }}>×</span>FOUR
           </span>
-          <span className="tracked-caps block text-[10px]" style={{ color: "var(--line-strong)" }}>
+          <span className="tracked-caps mt-1 block text-[10px]" style={{ color: "var(--line-strong)" }}>
             Base to Surface
           </span>
         </Link>

@@ -9,7 +9,7 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 export const metadata: Metadata = buildMetadata({
   title: "Materials Catalogue — Plywood, Laminates, Veneers & More in Hyderabad",
   description:
-    "Browse EightByFour's full materials catalogue for Hyderabad projects: plywood, laminates, MDF & HDHMR, veneers, stone panels, acrylic solid surface and adhesives, sourced across trusted manufacturers.",
+    "Browse EightByFour's full materials catalogue for Hyderabad projects: plywood, laminates, MDF & HDHMR, veneers, acrylic solid surface and adhesives, sourced across trusted manufacturers.",
   path: "/products",
 });
 

@@ -22,14 +22,13 @@ const FAQS = [
 
 const FEATURE_CATEGORIES = [
   { dbCategory: "Veneers", slug: "veneers", name: "Veneers" },
-  { dbCategory: "Stone Panels", slug: "stone-panels", name: "Stone Panels" },
   { dbCategory: "Corian - Acrylic Solid Surface", slug: "corian-acrylic-solid-surface", name: "Acrylic Solid Surface" },
 ];
 
 export const metadata: Metadata = buildMetadata({
   title: "Architect Material Sourcing in Hyderabad — Real Stock, Not a Catalogue",
   description:
-    "Real-time stock visibility for architects and interior designers specifying veneers, stone panels and acrylic solid surface on Hyderabad projects.",
+    "Real-time stock visibility for architects and interior designers specifying veneers and acrylic solid surface on Hyderabad projects.",
   path: "/hyderabad/architect-material-sourcing",
 });
 
@@ -61,7 +60,7 @@ export default async function ArchitectMaterialSourcingPage() {
           Real stock, not a catalogue that may or may not be available.
         </h1>
         <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          The veneer batch, laminate finish or stone panel you draw into a set — confirmed against current Hyderabad
+          The veneer batch, laminate finish or acrylic surface you draw into a set — confirmed against current Hyderabad
           stock before it&apos;s locked into drawings.
         </p>
       </section>

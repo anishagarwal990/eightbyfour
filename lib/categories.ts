@@ -166,7 +166,7 @@ export const CATEGORIES: CategoryConfig[] = [
       },
     ],
     applicationSlugs: ["modular-kitchen", "retail-stores", "hotel-interiors"],
-    relatedCategorySlugs: ["stone-panels", "laminates"],
+    relatedCategorySlugs: ["laminates"],
   },
   {
     slug: "veneers",
@@ -191,30 +191,6 @@ export const CATEGORIES: CategoryConfig[] = [
     ],
     applicationSlugs: ["office-furniture", "hotel-interiors", "retail-stores"],
     relatedCategorySlugs: ["plywood", "laminates"],
-  },
-  {
-    slug: "stone-panels",
-    dbCategory: "Stone Panels",
-    name: "Stone Panels",
-    heroTagline: "Marble, slate and translucent stone panels for feature walls and premium surfaces.",
-    overview:
-      "Stone panels bring real marble, slate and translucent-stone finishes to wall cladding, feature panels and reception backdrops — at a fraction of the weight and installation complexity of solid stone slabs. EightByFour's stone panel catalogue covers a wide range of natural patterns for hospitality and premium residential projects.",
-    buyingGuide:
-      "Stone panels are lighter and faster to install than solid stone slabs, which matters for upper floors and retrofit walls where slab-loading is a constraint. Confirm panel thickness and backing against your fabricator's mounting method before finalising quantities — cladding, countertop and backlit (translucent) applications use different panel builds.",
-    faqs: [
-      {
-        question: "Are stone panels real stone?",
-        answer:
-          "Yes — stone panels use a thin veneer of real marble, slate or stone bonded to a lightweight backing, giving genuine stone appearance and texture without slab weight or thickness.",
-      },
-      {
-        question: "Can stone panels be backlit?",
-        answer:
-          "Translucent stone panels are specifically made thin enough to backlight, popular for reception walls and feature lighting — let us know if backlighting is part of your design so we quote the right panel type.",
-      },
-    ],
-    applicationSlugs: ["hotel-interiors", "retail-stores", "commercial-spaces"],
-    relatedCategorySlugs: ["corian-acrylic-solid-surface", "veneers"],
   },
   {
     slug: "adhesive",
