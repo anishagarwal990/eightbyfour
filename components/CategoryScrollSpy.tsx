@@ -159,8 +159,8 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
               ref={(el) => {
                 itemRefs.current[i] = el;
               }}
-              className="border-b py-8 last:border-b-0 sm:py-10"
-              style={{ borderColor: "var(--line)", opacity: 0.32 }}
+              className="py-8 sm:py-10"
+              style={{ opacity: 0.32 }}
             >
               <Link href={`/products/${item.slug}`} className="group flex items-baseline justify-between gap-4">
                 <span

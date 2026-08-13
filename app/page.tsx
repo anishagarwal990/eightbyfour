@@ -87,20 +87,71 @@ const WHY_EIGHTBYFOUR = [
   {
     title: "Direct from manufacturers",
     body: "We source directly from manufacturers across our distribution network, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
+    icon: "direct",
   },
   {
     title: "We source beyond what's listed",
     body: "750+ real SKUs are live on this site today. If what you need isn't one of them, tell us — we source well beyond our own listed catalogue.",
+    icon: "search",
   },
   {
     title: "Currently serving Hyderabad",
     body: "Every brand, delivery route and process is built around this city's sites and timelines — not a generic pan-India catalogue.",
+    icon: "pin",
   },
   {
     title: "One consolidated quote",
     body: "A BOQ spanning plywood, laminate, hardware and adhesive comes back as a single quote — not five separate vendor calls.",
+    icon: "quote",
   },
-];
+] as const;
+
+type WhyIconName = (typeof WHY_EIGHTBYFOUR)[number]["icon"];
+
+function WhyIcon({ name }: { name: WhyIconName }) {
+  const common = {
+    width: 22,
+    height: 22,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.5,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true as const,
+  };
+  switch (name) {
+    case "direct":
+      return (
+        <svg {...common}>
+          <rect x="2" y="9" width="6" height="6" rx="1" />
+          <rect x="16" y="9" width="6" height="6" rx="1" />
+          <path d="M8 12h8M13 9l3 3-3 3" />
+        </svg>
+      );
+    case "search":
+      return (
+        <svg {...common}>
+          <circle cx="10" cy="10" r="6" />
+          <path d="M20 20l-5.5-5.5" />
+        </svg>
+      );
+    case "pin":
+      return (
+        <svg {...common}>
+          <path d="M12 21s7-7.58 7-12a7 7 0 1 0-14 0c0 4.42 7 12 7 12Z" />
+          <circle cx="12" cy="9" r="2.5" />
+        </svg>
+      );
+    case "quote":
+      return (
+        <svg {...common}>
+          <path d="M6 3h9l3 3v15H6z" />
+          <path d="M9 11h6M9 15h6" />
+        </svg>
+      );
+  }
+}
 
 const WHO_WE_SERVE = [
   {
@@ -287,9 +338,12 @@ export default async function Home() {
             </ul>
           </div>
         </Reveal>
-        <Reveal stagger strong className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+        <Reveal stagger strong className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
           {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title} className="border-t pt-3" style={{ borderColor: "var(--line)" }}>
+            <div key={item.title} className="flex items-center gap-4 border-t pt-4" style={{ borderColor: "var(--line)" }}>
+              <span style={{ color: "var(--burgundy)" }}>
+                <WhyIcon name={item.icon} />
+              </span>
               <p className="serif" style={{ fontSize: "16px" }}>
                 {item.title}
               </p>
