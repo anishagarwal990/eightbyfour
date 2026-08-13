@@ -1,4 +1,5 @@
 import { CategoryScrollSpy } from "@/components/CategoryScrollSpy";
+import { CategoryExploreIntro } from "@/components/CategoryExploreIntro";
 import type { CategoryConfig } from "@/lib/categories";
 import type { ProductRow } from "@/lib/supabase/types";
 
@@ -12,15 +13,22 @@ interface CategorySection {
 // swaps to match whichever name is nearest viewport-center as the list
 // scrolls past it.
 export function HomeCategorySections({ sections }: { sections: CategorySection[] }) {
-  const items = sections
-    .filter(({ products }) => products[0]?.main_img_url)
-    .map(({ category, products, total }) => ({
-      slug: category.slug,
-      name: category.name,
-      tagline: category.heroTagline,
-      total,
-      image: products[0].main_img_url as string,
-    }));
+  // Categories with no live products yet (the catalogue-expansion "coming
+  // soon" entries) still get a row — CategoryScrollSpy renders those with a
+  // placeholder instead of a product photo, rather than being dropped
+  // silently from the list.
+  const items = sections.map(({ category, products, total }) => ({
+    slug: category.slug,
+    name: category.name,
+    tagline: category.heroTagline,
+    total,
+    image: products[0]?.main_img_url ?? null,
+  }));
 
-  return <CategoryScrollSpy items={items} />;
+  return (
+    <>
+      <CategoryExploreIntro items={items} />
+      <CategoryScrollSpy items={items} />
+    </>
+  );
 }

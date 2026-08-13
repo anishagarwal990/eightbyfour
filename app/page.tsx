@@ -6,6 +6,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
+import { HorizontalScrollReveal } from "@/components/HorizontalScrollReveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
@@ -16,11 +17,30 @@ import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
 
-// The catalogue's strongest categories by real stock depth — featured on the
-// homepage carousel. The rest (Birch Plywood, Boil Boards, NFC Boards — each
-// 1-2 SKUs) stay reachable via /products and their own category pages, but a
-// homepage carousel with one product in it reads as broken, not curated.
-const HOMEPAGE_CATEGORY_SLUGS = ["plywood", "laminates", "veneers", "corian-acrylic-solid-surface", "mdf-and-hdhmr", "adhesive"];
+// The catalogue's strongest categories by real stock depth, plus the
+// "coming soon" categories (zero live SKUs, no photo yet — CategoryScrollSpy
+// renders those with a placeholder instead of a product image). Birch
+// Plywood, Boil Boards and NFC Boards stay reachable via /products and their
+// own category pages but are left off this list — they have real photos, but
+// only 1-2 SKUs each, which reads as broken rather than curated in a
+// carousel; that's a different situation from a deliberate coming-soon entry.
+const HOMEPAGE_CATEGORY_SLUGS = [
+  "plywood",
+  "laminates",
+  "veneers",
+  "corian-acrylic-solid-surface",
+  "mdf-and-hdhmr",
+  "adhesive",
+  "aluminium-sections",
+  "galvanised-iron-sheets",
+  "steel-pipes",
+  "blockboards",
+  "cement-boards",
+  "louvers",
+  "wall-panels",
+  "hardware",
+  "timber",
+];
 
 export const metadata: Metadata = buildMetadata({
   title: "EightByFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
@@ -247,15 +267,15 @@ export default async function Home() {
             A Procurement Partner, Not a Catalogue
           </h2>
         </div>
-        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <HorizontalScrollReveal>
           {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title} className={cardClasses("p-5")} style={CARD_BASE_STYLE}>
+            <div key={item.title} className={cardClasses("w-[280px] shrink-0 p-5 sm:w-[320px]")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
             </div>
           ))}
-        </Reveal>
+        </HorizontalScrollReveal>
       </Reveal>
 
       {/* ---------- Who We Serve ---------- */}
@@ -271,15 +291,15 @@ export default async function Home() {
             Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
           </p>
         </div>
-        <Reveal stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <HorizontalScrollReveal>
           {WHO_WE_SERVE.map((item) => (
-            <Link key={item.title} href={item.href} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
+            <Link key={item.title} href={item.href} className={cardClasses("block w-[260px] shrink-0 p-5 sm:w-[300px]")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
             </Link>
           ))}
-        </Reveal>
+        </HorizontalScrollReveal>
       </Reveal>
 
       {/* ---------- Buying Guides & Comparisons ---------- */}
@@ -293,15 +313,20 @@ export default async function Home() {
               View all →
             </Link>
           </div>
-          <Reveal stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <HorizontalScrollReveal>
             {guides.map((g) => (
-              <Link key={`${g.section}-${g.slug}`} href={`/${g.section}/${g.slug}`} className={cardClasses("block p-4")} style={CARD_BASE_STYLE}>
+              <Link
+                key={`${g.section}-${g.slug}`}
+                href={`/${g.section}/${g.slug}`}
+                className={cardClasses("block w-[260px] shrink-0 p-4 sm:w-[300px]")}
+                style={CARD_BASE_STYLE}
+              >
                 <p className="serif" style={{ fontSize: "16px" }}>
                   {g.frontmatter.title}
                 </p>
               </Link>
             ))}
-          </Reveal>
+          </HorizontalScrollReveal>
         </Reveal>
       ) : null}
 

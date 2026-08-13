@@ -9,7 +9,30 @@ export interface ScrollSpyItem {
   name: string;
   tagline: string;
   total: number;
-  image: string;
+  /** null for "coming soon" categories with no live products yet — renders a placeholder instead of a photo. */
+  image: string | null;
+}
+
+function StepPhoto({ item, priority }: { item: ScrollSpyItem; priority?: boolean }) {
+  if (!item.image) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-center" style={{ background: "var(--paper-dim)" }}>
+        <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
+          Coming Soon
+        </p>
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={item.image}
+      alt={item.name}
+      fill
+      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 35vw, 420px"
+      className="object-cover"
+      priority={priority}
+    />
+  );
 }
 
 // How far (as a fraction of viewport height) from dead-center an item can be
@@ -19,12 +42,19 @@ export interface ScrollSpyItem {
 const DIM_BAND_VH = 0.55;
 
 /**
- * A vertically-scrolling list of categories with one pinned photo panel that
- * swaps to match whichever name is nearest viewport-center. Inverse of the
- * pinned case-study blocks: there the frame stayed fixed and content cycled
- * inside it; here the list itself scrolls and only the photo is pinned.
+ * A vertically-scrolling list with a companion photo that tracks near
+ * viewport-center — following whichever name is currently active — instead
+ * of sitting `position: sticky` at a fixed offset. A fixed offset only looks
+ * right for a short list; once the list is long enough to scroll for a
+ * while, a sticky-at-a-fixed-top photo drifts away from whatever's actually
+ * active. The photo here is `position: fixed`, with its vertical position
+ * recomputed every scroll frame and clamped to the section's own start/end
+ * so it never floats above or below the list itself.
  */
 export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const colRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   const activeIndexRef = useRef(0);
   const [slotA, setSlotA] = useState(0);
@@ -39,8 +69,14 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
 
     const update = () => {
       raf = 0;
-      const center = window.innerHeight / 2;
-      const band = window.innerHeight * DIM_BAND_VH;
+      const section = sectionRef.current;
+      const col = colRef.current;
+      const photo = photoRef.current;
+      if (!section || !col || !photo) return;
+
+      const viewport = window.innerHeight;
+      const center = viewport / 2;
+      const band = viewport * DIM_BAND_VH;
       let closestIndex = activeIndexRef.current;
       let closestDist = Infinity;
 
@@ -67,6 +103,30 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
         frontIsARef.current = !frontIsARef.current;
         setFrontIsA(frontIsARef.current);
       }
+
+      // Position the fixed photo: same width/left as its reserved grid
+      // column, vertical center pinned to viewport-center but clamped so it
+      // never leaves the section's own top/bottom bounds.
+      const colRect = col.getBoundingClientRect();
+      const sectionRect = section.getBoundingClientRect();
+      const photoHeight = colRect.width * 1.25; // aspect-[4/5]
+
+      photo.style.width = `${colRect.width}px`;
+      photo.style.height = `${photoHeight}px`;
+      photo.style.left = `${colRect.left}px`;
+
+      const minTop = sectionRect.top;
+      const maxTop = sectionRect.bottom - photoHeight;
+      const desiredTop = center - photoHeight / 2;
+      const clampedTop = maxTop >= minTop ? Math.min(Math.max(desiredTop, minTop), maxTop) : minTop;
+      photo.style.top = `${clampedTop}px`;
+
+      // Only fade in once the list has actually started occupying the top of
+      // the viewport — not just as soon as its bottom edge peeks into view,
+      // which would show the tracking photo while the previous section's own
+      // content (and photo, if it has one) is still substantially visible.
+      const inView = sectionRect.top <= 0 && sectionRect.bottom > 0;
+      photo.style.opacity = inView ? "1" : "0";
     };
 
     const onScroll = () => {
@@ -87,21 +147,10 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
   const activeIndex = frontIsA ? slotA : slotB;
 
   return (
-    <section className="px-7 py-16">
+    <section ref={sectionRef} className="relative px-7 py-16">
       <div className="mx-auto grid max-w-5xl grid-cols-[160px_1fr] gap-6 sm:grid-cols-[240px_1fr] sm:gap-10 lg:grid-cols-[420px_1fr] lg:gap-16">
-        <div className="sticky top-24 h-fit self-start">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
-            <div className="absolute inset-0 transition-opacity duration-500 [transition-timing-function:var(--ease-out-soft)]" style={{ opacity: frontIsA ? 1 : 0 }}>
-              <Image src={items[slotA].image} alt={items[slotA].name} fill sizes="(max-width: 640px) 45vw, (max-width: 1024px) 35vw, 420px" className="object-cover" />
-            </div>
-            <div className="absolute inset-0 transition-opacity duration-500 [transition-timing-function:var(--ease-out-soft)]" style={{ opacity: frontIsA ? 0 : 1 }}>
-              <Image src={items[slotB].image} alt={items[slotB].name} fill sizes="(max-width: 640px) 45vw, (max-width: 1024px) 35vw, 420px" className="object-cover" />
-            </div>
-          </div>
-          <p className="mt-3 hidden text-xs sm:block" style={{ color: "var(--line-strong)" }}>
-            {items[activeIndex].total.toLocaleString()} products &middot; {items[activeIndex].tagline}
-          </p>
-        </div>
+        {/* Invisible spacer — reserves the column's width/position for the fixed photo to measure against. */}
+        <div ref={colRef} className="invisible" aria-hidden="true" style={{ aspectRatio: "4 / 5" }} />
 
         <ul className="flex flex-col">
           {items.map((item, i) => (
@@ -130,6 +179,17 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div ref={photoRef} className="pointer-events-none fixed z-10 opacity-0" style={{ transform: "rotate(-2.5deg)" }}>
+        <div className="relative h-full w-full overflow-hidden rounded-sm shadow-[var(--shadow-lg)]" style={{ background: "var(--paper-dim)" }}>
+          <div className="absolute inset-0 transition-opacity duration-500 [transition-timing-function:var(--ease-out-soft)]" style={{ opacity: frontIsA ? 1 : 0 }}>
+            <StepPhoto item={items[slotA]} priority={slotA === 0} />
+          </div>
+          <div className="absolute inset-0 transition-opacity duration-500 [transition-timing-function:var(--ease-out-soft)]" style={{ opacity: frontIsA ? 0 : 1 }}>
+            <StepPhoto item={items[slotB]} />
+          </div>
+        </div>
       </div>
     </section>
   );
