@@ -158,28 +158,88 @@ const WHO_WE_SERVE = [
     title: "Homeowners",
     body: "Building or renovating your own home — source real materials without chasing ten different shops.",
     href: "/hyderabad/homeowner-materials",
+    icon: "house",
   },
   {
     title: "Interior Designers",
     body: "One point of contact across plywood, laminates, veneers, hardware and solid surfaces — for every client project.",
     href: "/hyderabad/architect-material-sourcing",
+    icon: "pencil",
   },
   {
     title: "Architects",
     body: "Spec real, in-stock materials against real shade and edge-band codes — not a catalogue that may or may not be available on site.",
     href: "/hyderabad/architect-material-sourcing",
+    icon: "compass",
   },
   {
     title: "Contractors",
     body: "A single supplier for every category on the BOQ, with trade pricing and delivery scheduled against your site timeline.",
     href: "/hyderabad/contractor-procurement",
+    icon: "hardhat",
   },
   {
     title: "Builders & Procurement Teams",
     body: "Procurement across multiple sites and projects, consolidated through one relationship instead of a dozen vendor accounts.",
     href: "/hyderabad/contractor-procurement",
+    icon: "stack",
   },
-];
+] as const;
+
+type WhoIconName = (typeof WHO_WE_SERVE)[number]["icon"];
+
+function WhoIcon({ name }: { name: WhoIconName }) {
+  const common = {
+    width: 22,
+    height: 22,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.5,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    "aria-hidden": true as const,
+  };
+  switch (name) {
+    case "house":
+      return (
+        <svg {...common}>
+          <path d="M3 11.5 12 4l9 7.5" />
+          <path d="M5.5 10v10h13V10" />
+          <path d="M10 20v-6h4v6" />
+        </svg>
+      );
+    case "pencil":
+      return (
+        <svg {...common}>
+          <path d="M4 20l.8-3.5L15.5 6l3.5 3.5L8.3 20.3z" />
+          <path d="M13.5 8 16 10.5" />
+        </svg>
+      );
+    case "compass":
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="6" r="1.6" />
+          <path d="M12 7.6 7 20M12 7.6l5 12.4M7.5 20h9" />
+        </svg>
+      );
+    case "hardhat":
+      return (
+        <svg {...common}>
+          <path d="M4 16a8 8 0 0 1 16 0" />
+          <path d="M2.5 16h19" />
+          <path d="M12 5v3" />
+        </svg>
+      );
+    case "stack":
+      return (
+        <svg {...common}>
+          <rect x="5" y="10" width="6" height="10" />
+          <rect x="13" y="5" width="6" height="15" />
+        </svg>
+      );
+  }
+}
 
 export default async function Home() {
   const brands = await getAllBrandsWithCounts();
@@ -274,9 +334,14 @@ export default async function Home() {
           <Reveal stagger strong className="flex flex-col">
             {WHO_WE_SERVE.map((item) => (
               <Link key={item.title} href={item.href} className="group flex items-center justify-between gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
-                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
-                  {item.title}
-                </p>
+                <span className="flex items-center gap-4">
+                  <span style={{ color: "var(--burgundy)" }}>
+                    <WhoIcon name={item.icon} />
+                  </span>
+                  <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
+                    {item.title}
+                  </p>
+                </span>
                 <span
                   className="shrink-0 text-lg transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
                   style={{ color: "var(--burgundy)" }}
