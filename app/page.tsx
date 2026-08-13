@@ -189,31 +189,65 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ---------- Trust Stats (thin strip, not a full beat) ---------- */}
+      <Reveal className="border-t px-7 py-6" style={{ borderColor: "var(--line)" }}>
+        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-10 gap-y-2 text-center">
+          {STATS.map((s) => (
+            <p key={s.label} className="text-sm" style={{ color: "var(--line-strong)" }}>
+              <span className="serif" style={{ fontSize: "18px", color: "var(--burgundy)" }}>
+                {s.value}
+              </span>{" "}
+              <span className="tracked-caps text-xs">{s.label}</span>
+            </p>
+          ))}
+        </div>
+      </Reveal>
+
       {/* ---------- How It Works ---------- */}
       <HowItWorks />
 
-      {/* ---------- Category Carousels ---------- */}
-      <HomeCategorySections sections={categorySections} />
-
-      {/* ---------- Trust Stats ---------- */}
-      <Reveal as="section" className="px-7 pb-16">
-        <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-2 gap-8 text-center lg:grid-cols-4">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p className="serif" style={{ fontSize: "28px", color: "var(--burgundy)" }}>
-                {s.value}
-              </p>
-              <p className="mt-1 text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </Reveal>
+      {/* ---------- Who We Serve (moved up — persona self-identification before anything else) ---------- */}
+      <Reveal as="section" className="px-7 py-20" style={{ background: "var(--paper-dim)" }}>
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              Who We Serve
+            </p>
+            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+              Built for Everyone Building a Space
+            </h2>
+            <p className="mt-4 max-w-xs" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+              Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
+            </p>
+          </div>
+          <Reveal stagger strong className="flex flex-col">
+            {WHO_WE_SERVE.map((item) => (
+              <Link key={item.title} href={item.href} className="group flex items-center justify-between gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
+                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
+                  {item.title}
+                </p>
+                <span
+                  className="shrink-0 text-lg transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
+                  style={{ color: "var(--burgundy)" }}
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </Link>
+            ))}
+          </Reveal>
+        </div>
       </Reveal>
+
+      {/* ---------- Category Carousels (signature scroll-spy moment) ---------- */}
+      <HomeCategorySections sections={categorySections} />
 
       <ManufacturerStrip brands={brands} />
 
-      {/* ---------- The Old Way vs The EightByFour Way ---------- */}
+      {/* ---------- Why This Matters — single consolidated trust section ---------- */}
+      {/* Old-vs-new comparison is the primary proof; the four differentiators
+          support that claim as a compact row underneath, instead of repeating
+          the same pitch under a second heading a few seconds later. */}
       <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
         <div className="mb-10 text-center">
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
@@ -253,138 +287,60 @@ export default async function Home() {
             </ul>
           </div>
         </Reveal>
-      </Reveal>
-
-      {/* ---------- Why EightByFour ---------- */}
-      <Reveal as="section" className="px-7 py-20">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              Why EightByFour
-            </p>
-            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-              A Procurement Partner, Not a Catalogue
-            </h2>
-          </div>
-          <Reveal stagger strong className="flex flex-col">
-            {WHY_EIGHTBYFOUR.map((item, i) => (
-              <div key={item.title} className="flex items-baseline gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
-                <span className="tracked-caps w-6 shrink-0 text-xs" style={{ color: "var(--line-strong)" }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p className="serif" style={{ fontSize: "22px" }}>
-                  {item.title}
-                </p>
-              </div>
-            ))}
-          </Reveal>
-        </div>
-      </Reveal>
-
-      {/* ---------- Who We Serve ---------- */}
-      <Reveal as="section" className="px-7 py-20" style={{ background: "var(--paper-dim)" }}>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              Who We Serve
-            </p>
-            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-              Built for Everyone Building a Space
-            </h2>
-            <p className="mt-4 max-w-xs" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
-            </p>
-          </div>
-          <Reveal stagger strong className="flex flex-col">
-            {WHO_WE_SERVE.map((item) => (
-              <Link key={item.title} href={item.href} className="group flex items-center justify-between gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
-                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
-                  {item.title}
-                </p>
-                <span
-                  className="shrink-0 text-lg transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
-                  style={{ color: "var(--burgundy)" }}
-                  aria-hidden="true"
-                >
-                  →
-                </span>
-              </Link>
-            ))}
-          </Reveal>
-        </div>
-      </Reveal>
-
-      {/* ---------- Buying Guides & Comparisons ---------- */}
-      {guides.length > 0 ? (
-        <Reveal as="section" className="px-7 py-20">
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-            <div>
-              <h2 className="serif max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-                Buying Guides &amp; Comparisons
-              </h2>
-              <Link href="/guides" className="mt-4 inline-block text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
-                View all →
-              </Link>
+        <Reveal stagger strong className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+          {WHY_EIGHTBYFOUR.map((item) => (
+            <div key={item.title} className="border-t pt-3" style={{ borderColor: "var(--line)" }}>
+              <p className="serif" style={{ fontSize: "16px" }}>
+                {item.title}
+              </p>
             </div>
-            <div className="flex flex-col">
-              {guides.map((g) => (
-                <Link
-                  key={`${g.section}-${g.slug}`}
-                  href={`/${g.section}/${g.slug}`}
-                  className="group flex items-center justify-between gap-6 border-b py-5 first:pt-0 last:border-b-0"
-                  style={{ borderColor: "var(--line)" }}
-                >
-                  <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "18px" }}>
-                    {g.frontmatter.title}
-                  </p>
-                  <span
-                    className="shrink-0 text-base transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
-                    style={{ color: "var(--burgundy)" }}
-                    aria-hidden="true"
-                  >
-                    →
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
+          ))}
         </Reveal>
-      ) : null}
-
-      {/* ---------- Hyderabad ---------- */}
-      <Reveal as="section" className="px-7 py-20">
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              Serving Telangana &amp; Andhra Pradesh
-            </p>
-            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-              Rooted in Hyderabad, Serving Across AP &amp; TS
-            </h2>
-          </div>
-          <Reveal stagger strong className="flex flex-col">
-            {hyderabadPages.map((h) => (
-              <Link key={h.slug} href={`/hyderabad/${h.slug}`} className="group flex items-center justify-between gap-6 border-b py-5 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
-                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "18px" }}>
-                  {h.frontmatter.title}
-                </p>
-                <span
-                  className="shrink-0 text-base transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
-                  style={{ color: "var(--burgundy)" }}
-                  aria-hidden="true"
-                >
-                  →
-                </span>
-              </Link>
-            ))}
-          </Reveal>
-        </div>
       </Reveal>
 
       {/* ---------- Testimonials ---------- */}
-      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
+      <Reveal as="section" className="px-7 py-16">
         <Testimonials initialTestimonials={testimonials} />
       </Reveal>
+
+      {/* ---------- Resources (SEO internal-linking utility — compact, off the main narrative) ---------- */}
+      {guides.length > 0 || hyderabadPages.length > 0 ? (
+        <Reveal as="section" className="border-t px-7 py-12" style={{ borderColor: "var(--line)", background: "var(--paper-dim)" }}>
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 sm:grid-cols-2">
+            {guides.length > 0 ? (
+              <div>
+                <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+                  Buying Guides &amp; Comparisons
+                </p>
+                <div className="mt-3 flex flex-col gap-2">
+                  {guides.map((g) => (
+                    <Link key={`${g.section}-${g.slug}`} href={`/${g.section}/${g.slug}`} className="text-sm hover:opacity-70">
+                      {g.frontmatter.title}
+                    </Link>
+                  ))}
+                </div>
+                <Link href="/guides" className="mt-3 inline-block text-sm" style={{ color: "var(--accent)" }}>
+                  View all →
+                </Link>
+              </div>
+            ) : null}
+            {hyderabadPages.length > 0 ? (
+              <div>
+                <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+                  Serving Telangana &amp; Andhra Pradesh
+                </p>
+                <div className="mt-3 flex flex-col gap-2">
+                  {hyderabadPages.map((h) => (
+                    <Link key={h.slug} href={`/hyderabad/${h.slug}`} className="text-sm hover:opacity-70">
+                      {h.frontmatter.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </Reveal>
+      ) : null}
 
       {/* ---------- Closing CTA ---------- */}
       <Reveal as="section" className="px-7 py-14 text-center">
