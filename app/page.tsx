@@ -6,14 +6,12 @@ import { CATEGORIES } from "@/lib/categories";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
-import { HorizontalScrollReveal } from "@/components/HorizontalScrollReveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
 import { HowItWorks } from "@/components/HowItWorks";
 import { HeroCategoryStrip } from "@/components/HeroCategoryStrip";
 import { HomeCategorySections } from "@/components/HomeCategorySections";
-import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
 
@@ -258,97 +256,129 @@ export default async function Home() {
       </Reveal>
 
       {/* ---------- Why EightByFour ---------- */}
-      <Reveal as="section" className="px-7 py-16">
-        <div className="mb-10 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Why EightByFour
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            A Procurement Partner, Not a Catalogue
-          </h2>
+      <Reveal as="section" className="px-7 py-20">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              Why EightByFour
+            </p>
+            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+              A Procurement Partner, Not a Catalogue
+            </h2>
+          </div>
+          <Reveal stagger strong className="flex flex-col">
+            {WHY_EIGHTBYFOUR.map((item, i) => (
+              <div key={item.title} className="flex items-baseline gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
+                <span className="tracked-caps w-6 shrink-0 text-xs" style={{ color: "var(--line-strong)" }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <p className="serif" style={{ fontSize: "22px" }}>
+                  {item.title}
+                </p>
+              </div>
+            ))}
+          </Reveal>
         </div>
-        <HorizontalScrollReveal>
-          {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title} className={cardClasses("w-[78vw] shrink-0 p-5 sm:w-[48vw] lg:w-[30vw]")} style={CARD_BASE_STYLE}>
-              <p className="serif" style={{ fontSize: "18px" }}>
-                {item.title}
-              </p>
-            </div>
-          ))}
-        </HorizontalScrollReveal>
       </Reveal>
 
       {/* ---------- Who We Serve ---------- */}
-      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
-        <div className="mb-8 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Who We Serve
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Built for Everyone Building a Space
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-            Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
-          </p>
+      <Reveal as="section" className="px-7 py-20" style={{ background: "var(--paper-dim)" }}>
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              Who We Serve
+            </p>
+            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+              Built for Everyone Building a Space
+            </h2>
+            <p className="mt-4 max-w-xs" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+              Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
+            </p>
+          </div>
+          <Reveal stagger strong className="flex flex-col">
+            {WHO_WE_SERVE.map((item) => (
+              <Link key={item.title} href={item.href} className="group flex items-center justify-between gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
+                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
+                  {item.title}
+                </p>
+                <span
+                  className="shrink-0 text-lg transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
+                  style={{ color: "var(--burgundy)" }}
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </Link>
+            ))}
+          </Reveal>
         </div>
-        <HorizontalScrollReveal>
-          {WHO_WE_SERVE.map((item) => (
-            <Link key={item.title} href={item.href} className={cardClasses("block w-[72vw] shrink-0 p-5 sm:w-[42vw] lg:w-[24vw]")} style={CARD_BASE_STYLE}>
-              <p className="serif" style={{ fontSize: "18px" }}>
-                {item.title}
-              </p>
-            </Link>
-          ))}
-        </HorizontalScrollReveal>
       </Reveal>
 
       {/* ---------- Buying Guides & Comparisons ---------- */}
       {guides.length > 0 ? (
-        <Reveal as="section" className="px-7 py-10">
-          <div className="mb-5 flex items-baseline justify-between">
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-              Buying Guides &amp; Comparisons
-            </h2>
-            <Link href="/guides" className="text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
-              View all →
-            </Link>
-          </div>
-          <HorizontalScrollReveal>
-            {guides.map((g) => (
-              <Link
-                key={`${g.section}-${g.slug}`}
-                href={`/${g.section}/${g.slug}`}
-                className={cardClasses("block w-[72vw] shrink-0 p-4 sm:w-[42vw] lg:w-[26vw]")}
-                style={CARD_BASE_STYLE}
-              >
-                <p className="serif" style={{ fontSize: "16px" }}>
-                  {g.frontmatter.title}
-                </p>
+        <Reveal as="section" className="px-7 py-20">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <h2 className="serif max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+                Buying Guides &amp; Comparisons
+              </h2>
+              <Link href="/guides" className="mt-4 inline-block text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
+                View all →
               </Link>
-            ))}
-          </HorizontalScrollReveal>
+            </div>
+            <div className="flex flex-col">
+              {guides.map((g) => (
+                <Link
+                  key={`${g.section}-${g.slug}`}
+                  href={`/${g.section}/${g.slug}`}
+                  className="group flex items-center justify-between gap-6 border-b py-5 first:pt-0 last:border-b-0"
+                  style={{ borderColor: "var(--line)" }}
+                >
+                  <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "18px" }}>
+                    {g.frontmatter.title}
+                  </p>
+                  <span
+                    className="shrink-0 text-base transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
+                    style={{ color: "var(--burgundy)" }}
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </Reveal>
       ) : null}
 
       {/* ---------- Hyderabad ---------- */}
-      <Reveal as="section" className="px-7 py-10">
-        <div className="mb-5">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Serving Telangana &amp; Andhra Pradesh
-          </p>
-          <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
-            Rooted in Hyderabad, Serving Across AP &amp; TS
-          </h2>
+      <Reveal as="section" className="px-7 py-20">
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+          <div>
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              Serving Telangana &amp; Andhra Pradesh
+            </p>
+            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+              Rooted in Hyderabad, Serving Across AP &amp; TS
+            </h2>
+          </div>
+          <Reveal stagger strong className="flex flex-col">
+            {hyderabadPages.map((h) => (
+              <Link key={h.slug} href={`/hyderabad/${h.slug}`} className="group flex items-center justify-between gap-6 border-b py-5 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
+                <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "18px" }}>
+                  {h.frontmatter.title}
+                </p>
+                <span
+                  className="shrink-0 text-base transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
+                  style={{ color: "var(--burgundy)" }}
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </Link>
+            ))}
+          </Reveal>
         </div>
-        <Reveal stagger className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {hyderabadPages.map((h) => (
-            <Link key={h.slug} href={`/hyderabad/${h.slug}`} className={cardClasses("block p-4")} style={CARD_BASE_STYLE}>
-              <p className="serif" style={{ fontSize: "16px" }}>
-                {h.frontmatter.title}
-              </p>
-            </Link>
-          ))}
-        </Reveal>
       </Reveal>
 
       {/* ---------- Testimonials ---------- */}
