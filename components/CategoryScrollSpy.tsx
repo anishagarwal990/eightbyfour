@@ -121,11 +121,15 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
       const clampedTop = maxTop >= minTop ? Math.min(Math.max(desiredTop, minTop), maxTop) : minTop;
       photo.style.top = `${clampedTop}px`;
 
-      // Only fade in once the list has actually started occupying the top of
-      // the viewport — not just as soon as its bottom edge peeks into view,
-      // which would show the tracking photo while the previous section's own
-      // content (and photo, if it has one) is still substantially visible.
-      const inView = sectionRect.top <= 0 && sectionRect.bottom > 0;
+      // Gate visibility on the same per-item distance already driving text
+      // opacity above — not on the section's own scroll boundary. Those two
+      // drifted out of sync once item spacing was tightened: with shorter
+      // rows, the scroll distance needed for sectionRect.top to reach 0
+      // covers several items' worth of movement, so the photo stayed hidden
+      // well past the point where later items were already active. Tying it
+      // to closestDist keeps it exactly synced to whichever item is active,
+      // regardless of row height.
+      const inView = closestDist < band;
       photo.style.opacity = inView ? "1" : "0";
     };
 
@@ -147,7 +151,7 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
   const activeIndex = frontIsA ? slotA : slotB;
 
   return (
-    <section ref={sectionRef} className="relative px-7 py-16">
+    <section ref={sectionRef} className="relative px-7 py-10">
       <div className="mx-auto grid max-w-5xl grid-cols-[160px_1fr] gap-6 sm:grid-cols-[240px_1fr] sm:gap-10 lg:grid-cols-[420px_1fr] lg:gap-16">
         {/* Invisible spacer — reserves the column's width/position for the fixed photo to measure against. */}
         <div ref={colRef} className="invisible" aria-hidden="true" style={{ aspectRatio: "4 / 5" }} />

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { ScrollSpyItem } from "@/components/CategoryScrollSpy";
 
@@ -6,15 +5,9 @@ import type { ScrollSpyItem } from "@/components/CategoryScrollSpy";
 export function CategoryExploreIntro({ items }: { items: ScrollSpyItem[] }) {
   if (items.length === 0) return null;
   const featured = items.slice(0, 3);
-  const photo = items.find((item) => item.image) ?? null;
 
   return (
-    // Generous bottom padding is deliberate — CategoryScrollSpy right after this
-    // has its own fixed photo panel that starts fading in as soon as any part of
-    // its section enters the viewport. Without real distance between this
-    // section's own bottom-pinned photo and that section's top, both photos are
-    // visible at once mid-scroll.
-    <section className="relative overflow-hidden px-7 pb-40 pt-20 sm:pb-56 sm:pt-28">
+    <section className="relative overflow-hidden px-7 pb-4 pt-16 sm:pb-6 sm:pt-20">
       <div className="mx-auto flex max-w-6xl flex-col justify-between gap-10 sm:min-h-[60vh] sm:flex-row">
         <div className="flex flex-col justify-between">
           <div>
@@ -49,15 +42,6 @@ export function CategoryExploreIntro({ items }: { items: ScrollSpyItem[] }) {
           </div>
         </div>
       </div>
-
-      {photo ? (
-        <div
-          className="absolute bottom-0 right-7 hidden aspect-[4/5] w-40 overflow-hidden rounded-sm shadow-[var(--shadow-lg)] sm:block md:w-48"
-          style={{ transform: "rotate(3deg) translateY(20%)", background: "var(--paper-dim)" }}
-        >
-          <Image src={photo.image as string} alt={photo.name} fill sizes="200px" className="object-cover" />
-        </div>
-      ) : null}
     </section>
   );
 }
