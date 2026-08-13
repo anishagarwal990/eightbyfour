@@ -117,12 +117,12 @@ export default async function Home() {
   const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
   const categorySections = await Promise.all(
     featuredCategories.map(async (category) => {
-      // Sample wider than the 5 we show, then shuffle — every homepage load
-      // surfaces a different slice of the category instead of the same 5
-      // alphabetically-first products every time.
-      const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 30 });
+      // Only the representative image (products[0]) is used on the homepage —
+      // sample a small pool and shuffle so every load picks a different one,
+      // instead of the same alphabetically-first product every time.
+      const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 10 });
       const withImages = products.filter((p) => p.main_img_url);
-      const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 5);
+      const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
       return { category, products: sample, total };
     })
   );
