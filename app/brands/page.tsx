@@ -6,7 +6,6 @@ import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { MoreBrandsTile, SourceOnlyBrandTiles } from "@/components/MoreBrandsTile";
-import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export const metadata: Metadata = buildMetadata({
   title: "Manufacturer Brands We Carry in Hyderabad",
@@ -34,14 +33,9 @@ export default async function BrandsIndexPage() {
           stock availability and trade pricing, not a single brand&apos;s catalogue.
         </p>
       </section>
-      <section className="grid grid-cols-2 gap-4 px-7 pb-16 sm:grid-cols-3 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-x-6 gap-y-10 px-7 pb-16 sm:grid-cols-3 lg:grid-cols-4">
         {brands.map((b) => (
-          <Link
-            key={b.slug}
-            href={`/brands/${b.slug}`}
-            className={cardClasses("flex flex-col items-center gap-3 p-5 text-center")}
-            style={CARD_BASE_STYLE}
-          >
+          <Link key={b.slug} href={`/brands/${b.slug}`} className="group flex flex-col items-center gap-3 text-center">
             {b.logo_url ? (
               <div className="relative h-12 w-full">
                 <Image
@@ -50,15 +44,15 @@ export default async function BrandsIndexPage() {
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   loading="lazy"
-                  className="object-contain"
+                  className="object-contain grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100"
                 />
               </div>
             ) : (
-              <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <p className="serif opacity-75 transition-opacity duration-200 group-hover:opacity-100" style={{ fontSize: "var(--fs-h2)" }}>
                 {b.name}
               </p>
             )}
-            <p className="text-xs tracked-caps" style={{ color: "var(--accent)" }}>
+            <p className="text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
               {b.productCount} SKUs
             </p>
           </Link>
