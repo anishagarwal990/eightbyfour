@@ -16,9 +16,11 @@ export interface CategoryConfig {
   relatedCategorySlugs: string[];
 }
 
-// Only categories with real product inventory in Supabase get a page — thin,
-// empty category pages hurt SEO more than they help. New categories should be
-// added here once real SKUs exist for them.
+// Categories with zero live products are allowed here deliberately (see the
+// "Coming soon" block below) — their pages are marked noindex in
+// app/products/[slug]/page.tsx until real SKUs land, so they don't hurt SEO
+// while empty. Once a category's dbCategory has real rows in Supabase, its
+// page starts indexing automatically — no code change needed there.
 export const CATEGORIES: CategoryConfig[] = [
   {
     slug: "plywood",
@@ -238,6 +240,173 @@ export const CATEGORIES: CategoryConfig[] = [
     ],
     applicationSlugs: ["commercial-spaces", "retail-stores", "hotel-interiors"],
     relatedCategorySlugs: ["plywood", "mdf-and-hdhmr", "boil-boards"],
+  },
+
+  // ---------- Coming soon: catalogue expansion, no live SKUs yet ----------
+  // Pages exist so links/nav can point somewhere real, but each is noindex'd
+  // (see generateMetadata in app/products/[slug]/page.tsx) until real
+  // products, photos and pricing are added for it.
+  {
+    slug: "aluminium-sections",
+    dbCategory: "Aluminium Sections",
+    name: "Aluminium Sections",
+    heroTagline: "Aluminium profiles and sections for modular furniture frames and partitions — catalogue coming soon.",
+    overview:
+      "Aluminium sections are extruded profiles used for door and window frames, modular furniture edging, partition systems and structural framing where a lightweight, corrosion-resistant material is preferred over steel or timber.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your section profile and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock aluminium sections?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["commercial-spaces"],
+    relatedCategorySlugs: [],
+  },
+  {
+    slug: "galvanised-iron-sheets",
+    dbCategory: "Galvanised Iron Sheets",
+    name: "Galvanised Iron Sheets",
+    heroTagline: "Zinc-coated GI sheets for roofing, cladding and structural applications — catalogue coming soon.",
+    overview:
+      "Galvanised iron (GI) sheets are steel sheets coated with a protective zinc layer, used for roofing, exterior cladding, ducting and structural work where corrosion resistance matters.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your gauge, sheet size and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock GI sheets?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["commercial-spaces"],
+    relatedCategorySlugs: [],
+  },
+  {
+    slug: "steel-pipes",
+    dbCategory: "Steel Pipes",
+    name: "Steel Pipes",
+    heroTagline: "Structural and plumbing-grade steel pipes — catalogue coming soon.",
+    overview:
+      "Steel pipes are used across structural framing, railings, plumbing and site scaffolding — specified by diameter, wall thickness and grade depending on load and application.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your diameter, grade and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock steel pipes?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["commercial-spaces"],
+    relatedCategorySlugs: [],
+  },
+  {
+    slug: "blockboards",
+    dbCategory: "Blockboard",
+    name: "Blockboards",
+    heroTagline: "Solid-core blockboard for long-span shelving and worktops — catalogue coming soon.",
+    overview:
+      "Blockboard is a solid-core engineered panel — a core of glued timber strips sandwiched between veneer faces — prized for holding screws well and resisting sag over long, unsupported spans like shelving and worktops.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your thickness and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock blockboard?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["modular-kitchen", "office-furniture"],
+    relatedCategorySlugs: ["plywood", "mdf-and-hdhmr"],
+  },
+  {
+    slug: "cement-boards",
+    dbCategory: "Cement Board",
+    name: "Cement Boards",
+    heroTagline: "Fibre-cement boards for wet-area partitions and exterior cladding — catalogue coming soon.",
+    overview:
+      "Cement boards are fibre-cement panels used for wet-area partitions, exterior cladding and tile backer applications where moisture resistance and dimensional stability matter more than a fine finish.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your thickness and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock cement board?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["commercial-spaces"],
+    relatedCategorySlugs: ["plywood", "mdf-and-hdhmr"],
+  },
+  {
+    slug: "louvers",
+    dbCategory: "Louvers",
+    name: "Louvers",
+    heroTagline: "Slatted panels for ventilated doors, partitions and facades — catalogue coming soon.",
+    overview:
+      "Louvers are slatted panels — in wood, veneer or composite — used for ventilated wardrobe doors, room partitions and facade screening where airflow and visual texture matter more than a solid surface.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your panel size and material preference with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock louver panels?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["wardrobes", "commercial-spaces"],
+    relatedCategorySlugs: ["veneers", "wall-panels"],
+  },
+  {
+    slug: "wall-panels",
+    dbCategory: "Wall Panels",
+    name: "Wall Panels",
+    heroTagline: "Decorative and acoustic wall panelling for feature walls — catalogue coming soon.",
+    overview:
+      "Wall panels are prefabricated decorative or acoustic panels — in wood, veneer, fabric-wrapped or fluted finishes — used for feature walls, reception backdrops and acoustic treatment in commercial and residential interiors.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your panel style and area requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock wall panels?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["hotel-interiors", "commercial-spaces", "retail-stores"],
+    relatedCategorySlugs: ["veneers", "louvers"],
+  },
+  {
+    slug: "hardware",
+    dbCategory: "Hardware",
+    name: "Hardware",
+    heroTagline: "Hinges, channels, locks and fittings for cabinetry and doors — catalogue coming soon.",
+    overview:
+      "Hardware covers the fittings that make cabinetry and doors actually function — hinges, drawer channels, tandem boxes, locks, handles and sliding fittings. It's the category that turns a plywood carcass into working furniture.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your fitting type and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock hardware and fittings?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["modular-kitchen", "wardrobes"],
+    relatedCategorySlugs: ["plywood", "laminates"],
+  },
+  {
+    slug: "timber",
+    dbCategory: "Timber",
+    name: "Timber",
+    heroTagline: "Sal, teak and pine solid timber for structural and furniture use — catalogue coming soon.",
+    overview:
+      "Solid timber — sal, teak and pine among the species most used in Hyderabad interiors and construction — for structural framing, door frames, furniture and applications where solid wood is specified over engineered panels.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your species and section-size requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock solid timber?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["office-furniture"],
+    relatedCategorySlugs: ["plywood", "veneers"],
   },
 ];
 

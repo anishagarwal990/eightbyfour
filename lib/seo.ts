@@ -48,6 +48,8 @@ export function buildMetadata(opts: {
   description: string;
   path: string;
   image?: string;
+  /** Category pages with zero live products — keep them out of the index until real inventory exists. */
+  noindex?: boolean;
 }): Metadata {
   const url = `${SITE_URL}${opts.path}`;
   const image = opts.image || DEFAULT_OG_IMAGE;
@@ -57,6 +59,7 @@ export function buildMetadata(opts: {
     title,
     description,
     alternates: { canonical: url },
+    ...(opts.noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       title,
       description,

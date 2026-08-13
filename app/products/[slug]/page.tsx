@@ -38,10 +38,12 @@ export async function generateMetadata({
   if (category) {
     const { collection } = await searchParams;
     const filterSuffix = collection ? ` — ${collection}` : "";
+    const { total } = await getCategoryFilterCounts(category.dbCategory);
     return buildMetadata({
       title: `${category.name}${filterSuffix} Supplier in Hyderabad — Buy ${category.name} Online`,
       description: `${category.heroTagline} Live stock, brand options and a buying guide for ${category.name.toLowerCase()} in Hyderabad.`,
       path: categoryPageUrl(category.slug, 1, collection ?? null),
+      noindex: total === 0,
     });
   }
 
