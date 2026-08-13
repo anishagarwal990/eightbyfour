@@ -8,10 +8,12 @@ interface RevealProps {
   style?: React.CSSProperties;
   /** Staggers direct children (uses .reveal-stagger) instead of animating this element as one block. */
   stagger?: boolean;
+  /** Bigger rise + scale, longer duration — for moments that should read as more deliberate than the default. */
+  strong?: boolean;
   as?: "div" | "section";
 }
 
-export function Reveal({ children, className, style, stagger, as = "div" }: RevealProps) {
+export function Reveal({ children, className, style, stagger, strong, as = "div" }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -31,7 +33,7 @@ export function Reveal({ children, className, style, stagger, as = "div" }: Reve
     return () => observer.disconnect();
   }, []);
 
-  const base = stagger ? "reveal-stagger" : "reveal";
+  const base = stagger ? (strong ? "reveal-stagger-strong" : "reveal-stagger") : strong ? "reveal-strong" : "reveal";
   const classes = [base, visible && "is-visible", className].filter(Boolean).join(" ");
 
   const Tag = as;

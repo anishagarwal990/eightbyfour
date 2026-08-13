@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
-import { getCategoryCounts, getCategorySampleImages } from "@/lib/data/products";
+import { getProductsByCategoryPage } from "@/lib/data/products";
+import { CATEGORIES } from "@/lib/categories";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
-import { ProcurementFlowPreview } from "@/components/ProcurementFlow";
+import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
+import { HowItWorks } from "@/components/HowItWorks";
 import { HeroCategoryStrip } from "@/components/HeroCategoryStrip";
-import { HomeCategoryGrid } from "@/components/HomeCategoryGrid";
+import { HomeCategorySections } from "@/components/HomeCategorySections";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
+
+// The catalogue's strongest categories by real stock depth — featured on the
+// homepage carousel. The rest (Birch Plywood, Boil Boards, NFC Boards — each
+// 1-2 SKUs) stay reachable via /products and their own category pages, but a
+// homepage carousel with one product in it reads as broken, not curated.
+const HOMEPAGE_CATEGORY_SLUGS = ["plywood", "laminates", "veneers", "corian-acrylic-solid-surface", "mdf-and-hdhmr", "adhesive"];
 
 export const metadata: Metadata = buildMetadata({
   title: "EightByFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
@@ -106,7 +114,18 @@ const WHO_WE_SERVE = [
 
 export default async function Home() {
   const brands = await getAllBrandsWithCounts();
-  const [categoryCounts, categoryImages] = await Promise.all([getCategoryCounts(), getCategorySampleImages()]);
+  const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
+  const categorySections = await Promise.all(
+    featuredCategories.map(async (category) => {
+      // Sample wider than the 5 we show, then shuffle — every homepage load
+      // surfaces a different slice of the category instead of the same 5
+      // alphabetically-first products every time.
+      const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 30 });
+      const withImages = products.filter((p) => p.main_img_url);
+      const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 5);
+      return { category, products: sample, total };
+    })
+  );
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
@@ -128,24 +147,35 @@ export default async function Home() {
             <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
               Interior &amp; Construction Material Procurement in Hyderabad
             </h1>
-            <h2 className="serif mx-auto mt-7 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)" }}>
-              Stop Chasing Suppliers.
-              <br className="hidden sm:block" /> Start Comparing Smartly.
+            <h2
+              className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
+              style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
+            >
+              Give Us Your List.
+              <br className="hidden sm:block" /> Get Your Quote.
             </h2>
             <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Upload your BOQ once. Get one organized quote back — not ten different answers.
+              Send your BOQ, product list, drawings — or just tell us what you need. We&apos;ll organize the
+              requirements, source across our network and come back with options you can compare.
             </p>
             <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
               First response in under 15 minutes, during business hours.
             </p>
-            <HeroCTAs align="left" />
+            <Link href="/products" className="mx-auto mt-4 block text-sm underline lg:mx-0" style={{ color: "var(--line-strong)" }}>
+              Prefer to browse first? See all products →
+            </Link>
           </div>
-          <ProcurementFlowPreview />
+          <div className="flex justify-center lg:justify-start">
+            <HeroQuoteBuilder />
+          </div>
         </div>
       </section>
 
-      {/* ---------- Category Grid ---------- */}
-      <HomeCategoryGrid counts={categoryCounts} images={categoryImages} />
+      {/* ---------- How It Works ---------- */}
+      <HowItWorks />
+
+      {/* ---------- Category Carousels ---------- */}
+      <HomeCategorySections sections={categorySections} />
 
       {/* ---------- Trust Stats ---------- */}
       <Reveal as="section" className="px-7 pb-16">
@@ -172,7 +202,7 @@ export default async function Home() {
             Why This Matters
           </p>
           <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            You Shouldn&apos;t Have to Chase Ten Suppliers to Buy Plywood
+            Interior Procurement Shouldn&apos;t Be This Complicated
           </h2>
         </div>
         <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2">
@@ -304,10 +334,10 @@ export default async function Home() {
       {/* ---------- Closing CTA ---------- */}
       <Reveal as="section" className="px-7 py-14 text-center">
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          Ready to Stop Chasing Suppliers?
+          Tell Us What You&apos;re Building.
         </h2>
         <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          One organized quote, back in under 15 minutes.
+          Give us your list. We&apos;ll help you figure out the rest.
         </p>
         <HeroCTAs />
       </Reveal>

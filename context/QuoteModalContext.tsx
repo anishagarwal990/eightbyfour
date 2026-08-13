@@ -9,13 +9,16 @@ import { Button, buttonClasses } from "@/components/ui/Button";
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.heic,.webp";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
-interface ListItem {
+export interface ListItem {
   desc: string;
   qty: string;
 }
 
 interface QuoteModalContextValue {
   openModal: (prefillDesc?: string, note?: string, title?: string) => void;
+  items: ListItem[];
+  addItem: (desc: string, qty?: string) => void;
+  removeItem: (i: number) => void;
 }
 
 const QuoteModalContext = createContext<QuoteModalContextValue | null>(null);
@@ -84,9 +87,14 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setModalTitle(null);
   }
 
-  function addItem() {
+  function addItem(desc: string, qty = "1") {
+    if (!desc.trim()) return;
+    setItems((prev) => [...prev, { desc: desc.trim(), qty: qty.trim() || "1" }]);
+  }
+
+  function addItemFromInputs() {
     if (!descInput.trim()) return;
-    setItems((prev) => [...prev, { desc: descInput.trim(), qty: qtyInput.trim() || "1" }]);
+    addItem(descInput, qtyInput);
     setDescInput("");
     setQtyInput("1");
   }
@@ -169,7 +177,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
   }
 
   return (
-    <QuoteModalContext.Provider value={{ openModal }}>
+    <QuoteModalContext.Provider value={{ openModal, items, addItem, removeItem }}>
       {children}
 
       {open ? (
@@ -236,7 +244,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           e.preventDefault();
-                          addItem();
+                          addItemFromInputs();
                         }
                       }}
                       placeholder="e.g. 19mm BWP plywood"
@@ -250,7 +258,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                       className="w-16 rounded-sm border px-2 py-2 text-sm"
                       style={{ borderColor: "var(--line)" }}
                     />
-                    <button type="button" onClick={addItem} className={buttonClasses("secondary", "sm", "shrink-0")}>
+                    <button type="button" onClick={addItemFromInputs} className={buttonClasses("secondary", "sm", "shrink-0")}>
                       Add
                     </button>
                   </div>

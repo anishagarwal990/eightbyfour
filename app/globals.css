@@ -14,7 +14,7 @@
   --line: rgba(0, 0, 0, 0.15);
   --line-strong: rgba(0, 0, 0, 0.35);
 
-  --fs-hero: clamp(40px, 6vw, 72px);
+  --fs-hero: clamp(44px, 5.6vw, 78px);
   --fs-h1: clamp(28px, 4vw, 40px);
   --fs-h2: clamp(22px, 3vw, 28px);
   --fs-body: 15px;
@@ -155,6 +155,61 @@ textarea {
   }
 }
 
+/* ---------- Stronger reveal — bigger rise + scale, for moments that should read as more deliberate ---------- */
+@keyframes fade-rise-strong {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reveal-strong {
+  opacity: 0;
+  transform: translateY(36px) scale(0.98);
+}
+
+.reveal-strong.is-visible {
+  animation: fade-rise-strong 650ms var(--ease-out-soft) forwards;
+}
+
+.reveal-stagger-strong > * {
+  opacity: 0;
+  transform: translateY(36px) scale(0.98);
+}
+
+.reveal-stagger-strong.is-visible > * {
+  animation: fade-rise-strong 600ms var(--ease-out-soft) forwards;
+}
+
+.reveal-stagger-strong.is-visible > *:nth-child(1) {
+  animation-delay: 80ms;
+}
+.reveal-stagger-strong.is-visible > *:nth-child(2) {
+  animation-delay: 160ms;
+}
+.reveal-stagger-strong.is-visible > *:nth-child(3) {
+  animation-delay: 240ms;
+}
+.reveal-stagger-strong.is-visible > *:nth-child(4) {
+  animation-delay: 320ms;
+}
+.reveal-stagger-strong.is-visible > *:nth-child(n + 5) {
+  animation-delay: 400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-strong,
+  .reveal-stagger-strong > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
 /* ---------- Filter re-render crossfade (keyed remount retriggers this) ---------- */
 @keyframes filter-fade-in {
   from {
@@ -271,5 +326,22 @@ textarea {
 .brand-ribbon-mask {
   -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
+
+/* ---------- User-driven horizontal product carousels (native scroll-snap, no JS) ---------- */
+.carousel-scroll {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-scroll > * {
+  scroll-snap-align: start;
 }
 

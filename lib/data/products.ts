@@ -208,26 +208,6 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   return Object.fromEntries(results);
 }
 
-// Two photos per category so the homepage tile can crossfade between them
-// (see HomeCategoryGrid) — matches the same technique as HeroCategoryStrip.
-export async function getCategorySampleImages(): Promise<Record<string, string[]>> {
-  const supabase = createServerSupabaseClient();
-  const dbCategories = CATEGORIES.map((c) => c.dbCategory);
-  const results = await Promise.all(
-    dbCategories.map(async (cat) => {
-      const { data, error } = await supabase
-        .from("products")
-        .select("main_img_url")
-        .eq("category", cat)
-        .not("main_img_url", "is", null)
-        .limit(2);
-      if (error) throw error;
-      return [cat, (data ?? []).map((row) => row.main_img_url).filter((url): url is string => Boolean(url))] as const;
-    })
-  );
-  return Object.fromEntries(results.filter(([, urls]) => urls.length > 0));
-}
-
 export interface CategoryBrand {
   name: string;
   slug: string | null;
