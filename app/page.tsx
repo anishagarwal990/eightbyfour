@@ -269,7 +269,7 @@ export default async function Home() {
         </div>
         <HorizontalScrollReveal>
           {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title} className={cardClasses("w-[280px] shrink-0 p-5 sm:w-[320px]")} style={CARD_BASE_STYLE}>
+            <div key={item.title} className={cardClasses("w-[78vw] shrink-0 p-5 sm:w-[48vw] lg:w-[30vw]")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
@@ -293,7 +293,7 @@ export default async function Home() {
         </div>
         <HorizontalScrollReveal>
           {WHO_WE_SERVE.map((item) => (
-            <Link key={item.title} href={item.href} className={cardClasses("block w-[260px] shrink-0 p-5 sm:w-[300px]")} style={CARD_BASE_STYLE}>
+            <Link key={item.title} href={item.href} className={cardClasses("block w-[72vw] shrink-0 p-5 sm:w-[42vw] lg:w-[24vw]")} style={CARD_BASE_STYLE}>
               <p className="serif" style={{ fontSize: "18px" }}>
                 {item.title}
               </p>
@@ -318,7 +318,7 @@ export default async function Home() {
               <Link
                 key={`${g.section}-${g.slug}`}
                 href={`/${g.section}/${g.slug}`}
-                className={cardClasses("block w-[260px] shrink-0 p-4 sm:w-[300px]")}
+                className={cardClasses("block w-[72vw] shrink-0 p-4 sm:w-[42vw] lg:w-[26vw]")}
                 style={CARD_BASE_STYLE}
               >
                 <p className="serif" style={{ fontSize: "16px" }}>
