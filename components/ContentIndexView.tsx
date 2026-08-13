@@ -3,7 +3,6 @@ import type { ContentEntry, ContentType } from "@/lib/mdx";
 import { CONTENT_TYPE_PATH } from "@/lib/mdx";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
-import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 
 export function ContentIndexView({
   type,
@@ -31,10 +30,10 @@ export function ContentIndexView({
           {intro}
         </p>
       </section>
-      <section className="grid grid-cols-1 gap-4 px-7 pb-16 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid grid-cols-1 gap-x-10 gap-y-10 px-7 pb-16 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map((entry) => (
-          <Link key={entry.slug} href={`/${type}/${entry.slug}`} className={cardClasses("block p-5")} style={CARD_BASE_STYLE}>
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <Link key={entry.slug} href={`/${type}/${entry.slug}`} className="group block border-t pt-5" style={{ borderColor: "var(--line)" }}>
+            <h2 className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "var(--fs-h2)" }}>
               {entry.frontmatter.title}
             </h2>
             <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>

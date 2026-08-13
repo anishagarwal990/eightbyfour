@@ -159,7 +159,7 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
               ref={(el) => {
                 itemRefs.current[i] = el;
               }}
-              className="py-8 sm:py-10"
+              className="py-5 sm:py-6"
               style={{ opacity: 0.32 }}
             >
               <Link href={`/products/${item.slug}`} className="group flex items-baseline justify-between gap-4">
