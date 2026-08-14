@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
@@ -331,70 +331,113 @@ export function SiteHeader({
 }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [chromeHidden, setChromeHidden] = useState(false);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const headerElRef = useRef<HTMLElement>(null);
+  const [chromeHeight, setChromeHeight] = useState<number | null>(null);
+  const lastScrollYRef = useRef(0);
 
   useEffect(() => {
     function handleScroll() {
-      setScrolled(window.scrollY > 8);
+      const y = window.scrollY;
+      setScrolled(y > 8);
+      const lastY = lastScrollYRef.current;
+      lastScrollYRef.current = y;
+
+      if (y <= 80) {
+        setChromeHidden(false);
+        return;
+      }
+      const delta = y - lastY;
+      if (delta > 10) {
+        setChromeHidden(true);
+      } else if (delta < -10) {
+        setChromeHidden(false);
+      }
     }
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    function measure() {
+      const h = (contactRef.current?.offsetHeight ?? 0) + (headerElRef.current?.offsetHeight ?? 0);
+      if (h > 0) setChromeHeight(h);
+    }
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
   return (
     <>
+      {/* Fixed (not sticky) so hiding it is a pure transform — it never resizes
+          the document, which would otherwise feed back into scroll position via
+          the browser's scroll-anchoring and flicker. The spacer below reserves
+          its space in the flow at a constant height so content never jumps. */}
       <div
-        className="sticky z-20 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium"
-        style={{ top: "var(--sku-ribbon-h)", background: "var(--burgundy)", color: "var(--paper)" }}
-      >
-        <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
-          Call us: {PHONE_DISPLAY}
-        </a>
-        <span aria-hidden="true" className="opacity-50">
-          |
-        </span>
-        <a href={`mailto:${EMAIL}`} className="hover:opacity-80">
-          Write us: {EMAIL}
-        </a>
-      </div>
-      <header
-        className={`sticky z-20 flex flex-wrap items-center gap-5 border-b-2 px-7 transition-[padding,background-color,border-color,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
-          scrolled ? "border-b py-2 shadow-[var(--shadow-sm)] backdrop-blur-md" : "py-3.5"
-        }`}
+        className="fixed inset-x-0 z-20 transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)]"
         style={{
-          top: "calc(var(--sku-ribbon-h) + var(--contact-bar-h))",
-          borderColor: scrolled ? "var(--line-strong)" : "var(--ink)",
-          background: scrolled ? "rgba(255,255,255,0.72)" : "var(--paper)",
+          top: "var(--sku-ribbon-h)",
+          transform: chromeHidden ? "translateY(-100%)" : "translateY(0)",
         }}
       >
-        <Link href="/" className="leading-tight transition-opacity duration-150 hover:opacity-75">
-          <span className="block">
-            <BrandWordmark size={28} />
+        <div
+          ref={contactRef}
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium"
+          style={{ background: "var(--burgundy)", color: "var(--paper)" }}
+        >
+          <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
+            Call us: {PHONE_DISPLAY}
+          </a>
+          <span aria-hidden="true" className="opacity-50">
+            |
           </span>
-          <span className="tracked-caps mt-1 block text-[10px]" style={{ color: "var(--line-strong)" }}>
-            Base to Surface
-          </span>
-        </Link>
-        <nav className="flex flex-wrap items-center gap-5 text-sm" aria-label="Primary">
-          <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
-          <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
-          {NAV_LINKS.map((link) => (
-            <NavLink key={link.href} href={link.href} label={link.label} active={pathname?.startsWith(link.href) ?? false} />
-          ))}
-          <HyderabadMegaMenu active={pathname?.startsWith("/hyderabad") ?? false} />
-        </nav>
-        <div className="ml-auto flex items-center gap-3">
-          <SearchBar />
-          <Link
-            href="/saved"
-            aria-label="Saved products"
-            className="flex items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)]"
-          >
-            <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
-          </Link>
-          <RequestQuoteButton />
+          <a href={`mailto:${EMAIL}`} className="hover:opacity-80">
+            Write us: {EMAIL}
+          </a>
         </div>
-      </header>
+        <header
+          ref={headerElRef}
+          className={`flex flex-wrap items-center gap-5 border-b-2 px-7 transition-[padding,background-color,border-color,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+            scrolled ? "border-b py-2 shadow-[var(--shadow-sm)] backdrop-blur-md" : "py-3.5"
+          }`}
+          style={{
+            borderColor: scrolled ? "var(--line-strong)" : "var(--ink)",
+            background: scrolled ? "rgba(255,255,255,0.72)" : "var(--paper)",
+          }}
+        >
+          <Link href="/" className="leading-tight transition-opacity duration-150 hover:opacity-75">
+            <span className="block">
+              <BrandWordmark size={28} />
+            </span>
+            <span className="tracked-caps mt-1 block text-[10px]" style={{ color: "var(--line-strong)" }}>
+              Base to Surface
+            </span>
+          </Link>
+          <nav className="flex flex-wrap items-center gap-5 text-sm" aria-label="Primary">
+            <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
+            <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
+            {NAV_LINKS.map((link) => (
+              <NavLink key={link.href} href={link.href} label={link.label} active={pathname?.startsWith(link.href) ?? false} />
+            ))}
+            <HyderabadMegaMenu active={pathname?.startsWith("/hyderabad") ?? false} />
+          </nav>
+          <div className="ml-auto flex items-center gap-3">
+            <SearchBar />
+            <Link
+              href="/saved"
+              aria-label="Saved products"
+              className="flex items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)]"
+            >
+              <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
+            </Link>
+            <RequestQuoteButton />
+          </div>
+        </header>
+      </div>
+      <div aria-hidden="true" style={{ height: chromeHeight ?? 0 }} />
     </>
   );
 }
