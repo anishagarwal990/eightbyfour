@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
+import { BrandWordmark } from "@/components/BrandWordmark";
 
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t px-7 py-10 text-sm" style={{ borderColor: "var(--line)" }}>
       <div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-10">
         <div>
-          <div className="serif" style={{ fontSize: "22px", fontWeight: 900 }}>
-            EIGHT<span style={{ color: "var(--accent)" }}>×</span>FOUR
-          </div>
+          <BrandWordmark size={22} />
           <p className="mt-2 max-w-xs" style={{ color: "var(--line-strong)" }}>
             EightByFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
             MDF, laminates, veneers and hardware, sourced directly from trusted manufacturers.
