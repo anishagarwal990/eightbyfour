@@ -115,7 +115,15 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
       photo.style.height = `${photoHeight}px`;
       photo.style.left = `${colRect.left}px`;
 
-      const minTop = sectionRect.top;
+      // The site header is a fixed overlay that slides down over the page on
+      // scroll-up (see SiteHeader's hide-on-scroll-down behavior) — without
+      // this floor the photo could clamp to a top above the header's visible
+      // bottom edge and get sliced by it. getBoundingClientRect().bottom
+      // already reflects the header's current translateY, whether shown,
+      // hidden, or mid-transition, so this stays correct with no coupling to
+      // SiteHeader's own state.
+      const headerBottom = document.querySelector("header")?.getBoundingClientRect().bottom ?? 0;
+      const minTop = Math.max(sectionRect.top, headerBottom);
       const maxTop = sectionRect.bottom - photoHeight;
       const desiredTop = center - photoHeight / 2;
       const clampedTop = maxTop >= minTop ? Math.min(Math.max(desiredTop, minTop), maxTop) : minTop;
