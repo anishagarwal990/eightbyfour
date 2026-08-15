@@ -18,6 +18,18 @@ const CONTENT_SECURITY_POLICY = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // Merged into the guide (was near-duplicate content targeting the same
+      // "MDF vs HDHMR" keyword/intent as the guide — see the guide's expanded
+      // spec-comparison table for what used to live on this page).
+      {
+        source: "/comparisons/mdf-vs-hdhmr",
+        destination: "/guides/mdf-vs-hdhmr",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
