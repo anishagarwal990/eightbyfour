@@ -50,9 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const productRoutes = productRows.map((row) => ({
     url: `${SITE_URL}/products/${row.slug}`,
-    // No updated_at column on `products` yet — created_at is still a real,
-    // distinct-per-product date rather than the same "now" on every URL.
-    lastModified: new Date(row.created_at),
+    lastModified: new Date(row.updated_at || row.created_at),
   }));
 
   // Every paginated page of every brand, same rationale as categoryRoutes.

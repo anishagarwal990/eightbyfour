@@ -111,7 +111,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
 
   if (ref) {
     return (
-      <div className="rounded-sm border p-5" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
+      <div className="rounded-2xl border p-5 shadow-[var(--shadow-md)]" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
         <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           Request sent
         </p>
@@ -131,7 +131,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-3 rounded-sm border p-5"
+      className="flex flex-col gap-3 rounded-2xl border p-5 shadow-[var(--shadow-md)]"
       style={{ borderColor: "var(--line)", background: "var(--card)" }}
     >
       <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
@@ -151,7 +151,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full rounded-sm border px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-lg border px-3 py-2 text-sm"
           style={{ borderColor: "var(--line)" }}
         />
       </label>
@@ -163,7 +163,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="+91"
-          className="mt-1 block w-full rounded-sm border px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-lg border px-3 py-2 text-sm"
           style={{ borderColor: "var(--line)" }}
         />
       </label>
@@ -173,7 +173,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block w-full rounded-sm border px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-lg border px-3 py-2 text-sm"
           style={{ borderColor: "var(--line)" }}
         />
       </label>
@@ -204,7 +204,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={3}
-          className="mt-1 block w-full rounded-sm border px-3 py-2 text-sm"
+          className="mt-1 block w-full rounded-lg border px-3 py-2 text-sm"
           style={{ borderColor: "var(--line)" }}
         />
       </label>
@@ -217,7 +217,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
         <div className="mt-1.5">
           {file ? (
             <div
-              className="flex items-center justify-between gap-2 rounded-sm border px-3 py-2 text-sm normal-case tracking-normal"
+              className="flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm normal-case tracking-normal"
               style={{ borderColor: "var(--line)", background: "var(--paper)" }}
             >
               <span className="flex items-center gap-2 truncate">

@@ -91,8 +91,10 @@ export function ProductPageView({
         ]}
       />
 
-      <section className="grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
-        <ProductGallery images={images} alt={displayName} />
+      <Reveal as="section" strong className="grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <ProductGallery images={images} alt={displayName} />
+        </div>
 
         <div>
           <BrandLogo brand={product.brand} height={40} />
@@ -100,7 +102,7 @@ export function ProductPageView({
             {product.name}
           </h1>
           <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
-            Available in Hyderabad · {product.size || "Standard sheet size"}
+            {product.category} in Hyderabad · {product.size || "Standard sheet size"}
           </p>
           {product.sd_code ? (
             <p className="mt-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
@@ -112,7 +114,7 @@ export function ProductPageView({
               <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Product Description
               </h2>
-              <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
+              <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", whiteSpace: "pre-line" }}>
                 {product.description}
               </p>
               {product.category === "Laminates" ? (
@@ -139,24 +141,71 @@ export function ProductPageView({
                   </Link>
                 </div>
               ) : null}
+              {product.category === "Birch Plywood" ? (
+                <div className="mt-2 flex flex-col gap-1">
+                  <Link href="/comparisons/birch-ply-vs-standard-plywood" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                    Birch Ply vs Standard Plywood — full comparison →
+                  </Link>
+                </div>
+              ) : null}
             </div>
           ) : null}
 
           {product.features?.length ? (
-            <div className="mt-4">
+            <div className="mt-5">
               <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Key Features
               </h2>
-              <ul className="mt-2 flex flex-col gap-1.5 text-sm" style={{ lineHeight: "var(--lh-normal)" }}>
-                {product.features.map((feature) => (
-                  <li key={feature} className="flex gap-2">
-                    <span aria-hidden style={{ color: "var(--burgundy)" }}>
-                      •
-                    </span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <p
+                className="serif mt-3 border-l-2 pl-4"
+                style={{ borderColor: "var(--burgundy)", fontSize: "var(--fs-h3, 1.15rem)", lineHeight: "var(--lh-tight)" }}
+              >
+                {product.features[0]}
+              </p>
+              {product.features.length > 1 ? (
+                <ul className="mt-4 flex flex-col">
+                  {product.features.slice(1).map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-center gap-2.5 border-b py-2.5 text-sm"
+                      style={{ borderColor: "var(--line)" }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0" style={{ color: "var(--burgundy)" }}>
+                        <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
+
+          {product.certifications?.length || product.warranty ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span
+                className="rounded-full px-3 py-1 text-xs font-medium"
+                style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+              >
+                ✓ In Stock — Hyderabad
+              </span>
+              {product.certifications?.map((cert) => (
+                <span
+                  key={cert}
+                  className="rounded-full px-3 py-1 text-xs font-medium"
+                  style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+                >
+                  ✓ {cert}
+                </span>
+              ))}
+              {product.warranty ? (
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-medium"
+                  style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+                >
+                  ✓ {product.warranty} Warranty
+                </span>
+              ) : null}
             </div>
           ) : null}
 
@@ -232,7 +281,7 @@ export function ProductPageView({
             ) : null}
           </div>
         </div>
-      </section>
+      </Reveal>
 
       {product.how_to_apply?.length ? (
         <Reveal as="section" className="px-7 py-8">
@@ -283,7 +332,7 @@ export function ProductPageView({
         </Reveal>
       ) : null}
 
-      <Reveal as="section" className="px-7 py-8">
+      <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
@@ -304,7 +353,7 @@ export function ProductPageView({
       </Reveal>
 
       {relatedProducts.length > 0 ? (
-        <Reveal as="section" className="px-7 py-8">
+        <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
           <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
             Related Products
           </h2>
@@ -353,7 +402,7 @@ export function ProductPageView({
         </Reveal>
       ) : null}
 
-      <Reveal as="section" className="px-7 py-8">
+      <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Bought Together
         </h2>

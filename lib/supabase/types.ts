@@ -35,6 +35,7 @@ export interface ProductRow {
   spec_table: { label: string; value: string }[] | null;
   custom_faqs: { question: string; answer: string }[] | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface BrandRow {

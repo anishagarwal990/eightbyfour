@@ -52,9 +52,20 @@ function buildOffers(product: ProductRow) {
   return undefined;
 }
 
+// Real spec fields only — never invent values the product row doesn't have.
+function buildAdditionalProperties(product: ProductRow) {
+  const props: { "@type": "PropertyValue"; name: string; value: string }[] = [];
+  if (product.grade) props.push({ "@type": "PropertyValue", name: "Grade", value: product.grade });
+  if (product.core) props.push({ "@type": "PropertyValue", name: "Core", value: product.core });
+  if (product.certifications?.length) props.push({ "@type": "PropertyValue", name: "Certifications", value: product.certifications.join(", ") });
+  if (product.applications?.length) props.push({ "@type": "PropertyValue", name: "Applications", value: product.applications.join(", ") });
+  return props.length ? props : undefined;
+}
+
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
   const hasRatings = !!ratings && ratings.count > 0;
   const offers = buildOffers(product);
+  const additionalProperty = buildAdditionalProperties(product);
 
   // Google requires at least one of offers/review/aggregateRating on a
   // Product. RFQ-priced SKUs (no fixed price_table) have none of the three —
@@ -75,6 +86,7 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     image: product.main_img_url || product.edge_img_url || product.app_img_url || undefined,
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
+    additionalProperty,
     offers,
     aggregateRating: hasRatings
       ? {

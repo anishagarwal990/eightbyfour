@@ -25,7 +25,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
   if (images.length === 0) {
     return (
       <div
-        className="flex aspect-square w-full flex-col items-center justify-center gap-2"
+        className="flex aspect-square w-full flex-col items-center justify-center gap-2 rounded-2xl"
         style={{ background: "var(--paper-dim)" }}
       >
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" style={{ color: "var(--line-strong)" }} aria-hidden="true">
@@ -49,7 +49,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
       <button
         type="button"
         onClick={() => setLightboxOpen(true)}
-        className="relative block w-full cursor-zoom-in overflow-hidden"
+        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl shadow-[var(--shadow-md)]"
         style={{ background: "var(--paper-dim)" }}
         aria-label="View full-size image"
       >
@@ -60,7 +60,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           width={0}
           height={0}
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="filter-fade h-auto max-h-[80vh] w-full object-contain"
+          className="filter-fade h-auto max-h-[80vh] w-full object-contain transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-105"
           priority
         />
       </button>
@@ -74,7 +74,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               onClick={() => setActive(i)}
               aria-label={`Show image ${i + 1}`}
               aria-current={active === i}
-              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-sm border-2 transition-[border-color,transform] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5"
+              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-[border-color,transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
               style={{ borderColor: active === i ? "var(--burgundy)" : "var(--line)", background: "var(--paper-dim)" }}
             >
               <Image src={src} alt={`${alt} — thumbnail ${i + 1}`} fill sizes="64px" className="object-cover" />

@@ -135,12 +135,12 @@ export async function getAllProductSlugs(): Promise<string[]> {
  * distinct-per-product date rather than the same "now" timestamp on every
  * URL, which is what Google explicitly discounts.
  */
-export async function getAllProductSlugsWithDates(): Promise<{ slug: string; created_at: string }[]> {
+export async function getAllProductSlugsWithDates(): Promise<{ slug: string; created_at: string; updated_at: string }[]> {
   const supabase = createServerSupabaseClient();
   const PAGE = 1000;
-  const rows: { slug: string; created_at: string }[] = [];
+  const rows: { slug: string; created_at: string; updated_at: string }[] = [];
   for (let from = 0; ; from += PAGE) {
-    const { data, error } = await supabase.from("products").select("slug, created_at").range(from, from + PAGE - 1);
+    const { data, error } = await supabase.from("products").select("slug, created_at, updated_at").range(from, from + PAGE - 1);
     if (error) throw error;
     rows.push(...data);
     if (data.length < PAGE) break;
