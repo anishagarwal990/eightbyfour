@@ -126,7 +126,12 @@ export function CategoryScrollSpy({ items }: { items: ScrollSpyItem[] }) {
       const minTop = Math.max(sectionRect.top, headerBottom);
       const maxTop = sectionRect.bottom - photoHeight;
       const desiredTop = center - photoHeight / 2;
-      const clampedTop = maxTop >= minTop ? Math.min(Math.max(desiredTop, minTop), maxTop) : minTop;
+      // When the section is shorter than the photo (near the end of the
+      // list), minTop can exceed maxTop — apply max first, then min, so the
+      // tighter maxTop constraint wins and the photo bottom-anchors to the
+      // section's real end instead of snapping to minTop and overhanging
+      // into whatever content follows the section.
+      const clampedTop = Math.min(Math.max(desiredTop, minTop), maxTop);
       photo.style.top = `${clampedTop}px`;
 
       // Gate visibility on the same per-item distance already driving text
