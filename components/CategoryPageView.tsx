@@ -10,6 +10,10 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { CollectionPageSchema } from "@/components/schema/CollectionPageSchema";
+import { CATEGORY_PAGE_SIZE } from "@/lib/data/products";
+import { categoryPageUrl } from "@/lib/categoryPagination";
+import { productDisplayName } from "@/lib/productDisplay";
 
 export function CategoryPageView({
   category,
@@ -40,6 +44,13 @@ export function CategoryPageView({
         ]}
       />
       <FaqSchema faqs={category.faqs} />
+      <CollectionPageSchema
+        name={`${category.name} Products`}
+        path={categoryPageUrl(category.slug, page, collection)}
+        totalItems={filterCounts.total}
+        pageOffset={(page - 1) * CATEGORY_PAGE_SIZE}
+        items={products.map((p) => ({ name: productDisplayName(p), slug: p.slug }))}
+      />
       <CategoryPaginationLinks slug={category.slug} page={page} totalPages={totalPages} collection={collection} />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: category.name }]} />
 

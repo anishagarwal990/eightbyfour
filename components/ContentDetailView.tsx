@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ContentEntry, ContentType } from "@/lib/mdx";
-import { CONTENT_TYPE_LABEL, CONTENT_TYPE_PATH } from "@/lib/mdx";
+import { CONTENT_TYPE_LABEL, CONTENT_TYPE_NAV_LABEL, CONTENT_TYPE_PATH } from "@/lib/mdx";
 import { CATEGORIES } from "@/lib/categories";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { MdxContent } from "@/components/MdxContent";
@@ -32,7 +32,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       <BreadcrumbSchema
         items={[
           { name: "Home", path: "/" },
-          { name: CONTENT_TYPE_LABEL[type] + "s", path: CONTENT_TYPE_PATH[type] },
+          { name: CONTENT_TYPE_NAV_LABEL[type], path: CONTENT_TYPE_PATH[type] },
           { name: frontmatter.title, path: `${CONTENT_TYPE_PATH[type]}/${entry.slug}` },
         ]}
       />
@@ -40,14 +40,14 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
-          { label: CONTENT_TYPE_LABEL[type] + "s", href: CONTENT_TYPE_PATH[type] },
+          { label: CONTENT_TYPE_NAV_LABEL[type], href: CONTENT_TYPE_PATH[type] },
           { label: frontmatter.title },
         ]}
       />
 
       <section className="px-7 py-8">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-          {CONTENT_TYPE_LABEL[type]} · Hyderabad
+          {type === "hyderabad" ? CONTENT_TYPE_LABEL[type] : `${CONTENT_TYPE_LABEL[type]} · Hyderabad`}
         </p>
         <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
           {frontmatter.title}

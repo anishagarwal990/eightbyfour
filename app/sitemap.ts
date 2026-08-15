@@ -1,16 +1,18 @@
+import { statSync } from "fs";
+import { join } from "path";
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/categories";
 import { categoryPagePath, categoryPageUrl } from "@/lib/categoryPagination";
 import { brandPagePath } from "@/lib/brandPagination";
-import { CATEGORY_PAGE_SIZE, getAllProductSlugs, getCategoryFilterCounts } from "@/lib/data/products";
+import { CATEGORY_PAGE_SIZE, getAllProductSlugsWithDates, getCategoryFilterCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
-import { getAllSlugs } from "@/lib/mdx";
+import { getAllSlugs, getContentMtime } from "@/lib/mdx";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [productSlugs, brands, categoryFilterCounts] = await Promise.all([
-    getAllProductSlugs(),
+  const [productRows, brands, categoryFilterCounts] = await Promise.all([
+    getAllProductSlugsWithDates(),
     getAllBrandsWithCounts(),
     Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory))),
   ]);
@@ -46,17 +48,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   });
 
-  const productRoutes = productSlugs.map((slug) => ({
-    url: `${SITE_URL}/products/${slug}`,
-    lastModified: new Date(),
+  const productRoutes = productRows.map((row) => ({
+    url: `${SITE_URL}/products/${row.slug}`,
+    // No updated_at column on `products` yet — created_at is still a real,
+    // distinct-per-product date rather than the same "now" on every URL.
+    lastModified: new Date(row.created_at),
   }));
 
   // Every paginated page of every brand, same rationale as categoryRoutes.
+  // Paginated pages (page 2+) are a slice of the same brand catalogue, so
+  // they share the brand row's created_at rather than getting their own.
   const brandRoutes = brands.flatMap((b) => {
     const totalPages = Math.max(1, Math.ceil(b.productCount / CATEGORY_PAGE_SIZE));
     return Array.from({ length: totalPages }, (_, idx) => ({
       url: `${SITE_URL}${brandPagePath(b.slug, idx + 1)}`,
-      lastModified: new Date(),
+      lastModified: new Date(b.created_at),
     }));
   });
 
@@ -74,14 +80,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
     getAllSlugs(type).map((slug) => ({
       url: `${SITE_URL}/${type}/${slug}`,
-      lastModified: new Date(),
+      lastModified: getContentMtime(type, slug),
     }))
   );
 
-  // Bespoke persona pages under /hyderabad that use a page.tsx template instead of MDX.
+  // Bespoke persona pages under /hyderabad that use a page.tsx template
+  // instead of MDX — use the source file's own mtime as the real signal.
   const personaRoutes = ["contractor-procurement", "architect-material-sourcing", "homeowner-materials"].map((slug) => ({
     url: `${SITE_URL}/hyderabad/${slug}`,
-    lastModified: new Date(),
+    lastModified: statSync(join(process.cwd(), "app", "hyderabad", slug, "page.tsx")).mtime,
   }));
 
   return [

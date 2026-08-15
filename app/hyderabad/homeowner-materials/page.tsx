@@ -56,7 +56,7 @@ export default async function HomeownerMaterialsPage() {
           we&apos;ll recommend the materials — you focus on how it should look and feel.
         </p>
         <div className="mt-5 flex justify-center">
-          <RequestQuoteButton />
+          <RequestQuoteButton label="Get My Quote" />
         </div>
       </section>
 

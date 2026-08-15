@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "fs";
+import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
 import matter from "gray-matter";
 
@@ -49,6 +49,11 @@ export function getContent(type: ContentType, slug: string): ContentEntry | null
   }
 }
 
+/** File mtime for sitemap.ts's lastModified — a real, per-page signal instead of build-time "now". */
+export function getContentMtime(type: ContentType, slug: string): Date {
+  return statSync(join(dirFor(type), `${slug}.mdx`)).mtime;
+}
+
 export function getAllContent(type: ContentType): ContentEntry[] {
   return getAllSlugs(type)
     .map((slug) => getContent(type, slug))
@@ -59,6 +64,16 @@ export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
   applications: "Application",
   guides: "Guide",
   comparisons: "Comparison",
+  hyderabad: "Hyderabad",
+};
+
+// Breadcrumb/nav section label for each content type's index page. Not just
+// CONTENT_TYPE_LABEL + "s" — "Hyderabad" is a place name, not a countable
+// noun, so naive pluralization renders it as "Hyderabads".
+export const CONTENT_TYPE_NAV_LABEL: Record<ContentType, string> = {
+  applications: "Applications",
+  guides: "Guides",
+  comparisons: "Comparisons",
   hyderabad: "Hyderabad",
 };
 

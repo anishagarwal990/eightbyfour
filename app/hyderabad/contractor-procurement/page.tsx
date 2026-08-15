@@ -59,7 +59,7 @@ export default async function ContractorProcurementPage() {
           quotable through one relationship. Trade pricing on request, delivery scheduled around your site sequence.
         </p>
         <div className="mt-5">
-          <RequestQuoteButton />
+          <RequestQuoteButton label="Get Trade Pricing" />
         </div>
       </section>
 

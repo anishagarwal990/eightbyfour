@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { Reveal } from "@/components/Reveal";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 
 const FAQS = [
   {
@@ -63,6 +64,9 @@ export default async function ArchitectMaterialSourcingPage() {
           The veneer batch, laminate finish or acrylic surface you draw into a set — confirmed against current Hyderabad
           stock before it&apos;s locked into drawings.
         </p>
+        <div className="mt-5 flex justify-center">
+          <RequestQuoteButton label="Request Samples & Confirm Stock" />
+        </div>
       </section>
 
       {categoryProducts.map((cat) =>
