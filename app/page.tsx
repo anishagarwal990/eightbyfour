@@ -41,7 +41,7 @@ const HOMEPAGE_CATEGORY_SLUGS = [
 ];
 
 export const metadata: Metadata = buildMetadata({
-  title: "EightByFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
+  title: "EightByFour — Interior & Construction Material Procurement in Hyderabad",
   description:
     "Upload your BOQ once and compare organized quotes across 25+ brands — plywood, laminates, veneers, hardware and solid surfaces. Stop chasing suppliers, start comparing smartly.",
   path: "/",

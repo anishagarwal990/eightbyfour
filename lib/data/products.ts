@@ -113,9 +113,19 @@ export async function getProductBySlug(slug: string): Promise<ProductRow | null>
 
 export async function getAllProductSlugs(): Promise<string[]> {
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase.from("products").select("slug");
-  if (error) throw error;
-  return data.map((r) => r.slug);
+  // PostgREST caps a single select at 1000 rows — page through with .range()
+  // the same way getProductsByCategory() does, or products past the cap
+  // (alphabetically-later brands, e.g. most of Laminates) silently vanish
+  // from every consumer of this function, including the sitemap.
+  const PAGE = 1000;
+  const slugs: string[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase.from("products").select("slug").range(from, from + PAGE - 1);
+    if (error) throw error;
+    slugs.push(...data.map((r) => r.slug));
+    if (data.length < PAGE) break;
+  }
+  return slugs;
 }
 
 export async function getRelatedProducts(product: ProductRow, limit = 4): Promise<ProductRow[]> {
