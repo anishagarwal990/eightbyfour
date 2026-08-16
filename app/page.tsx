@@ -10,17 +10,22 @@ import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
 import { HowItWorks } from "@/components/HowItWorks";
-import { HomeCategorySections } from "@/components/HomeCategorySections";
+import { CategoryPhotoGrid } from "@/components/CategoryPhotoGrid";
+import { UseCaseNav } from "@/components/UseCaseNav";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
 
+// A residential-to-commercial spread, not every application page — the
+// homepage points at these four and links to /applications for the rest.
+const HOMEPAGE_APPLICATION_SLUGS = ["modular-kitchen", "wardrobes", "commercial-spaces", "retail-stores"];
+
 // The catalogue's strongest categories by real stock depth, plus the
-// "coming soon" categories (zero live SKUs, no photo yet — CategoryScrollSpy
+// "coming soon" categories (zero live SKUs, no photo yet — CategoryPhotoGrid
 // renders those with a placeholder instead of a product image). Birch
 // Plywood, Boil Boards and NFC Boards stay reachable via /products and their
 // own category pages but are left off this list — they have real photos, but
 // only 1-2 SKUs each, which reads as broken rather than curated in a
-// carousel; that's a different situation from a deliberate coming-soon entry.
+// grid; that's a different situation from a deliberate coming-soon entry.
 const HOMEPAGE_CATEGORY_SLUGS = [
   "plywood",
   "laminates",
@@ -244,6 +249,17 @@ export default async function Home() {
       return { category, products: sample, total };
     })
   );
+  const categoryPhotoItems = categorySections.map(({ category, products, total }) => ({
+    slug: category.slug,
+    name: category.name,
+    total,
+    image: products[0]?.main_img_url ?? null,
+  }));
+
+  const allApplications = getAllContent("applications");
+  const homepageApplications = HOMEPAGE_APPLICATION_SLUGS.map((slug) => allApplications.find((a) => a.slug === slug)).filter(
+    (a): a is NonNullable<typeof a> => a !== undefined
+  );
   const guides = [
     ...getAllContent("guides").map((g) => ({ ...g, section: "guides" as const })),
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
@@ -254,7 +270,18 @@ export default async function Home() {
   return (
     <main>
       {/* ---------- Hero ---------- */}
-      <section className="reveal is-visible relative px-7 py-20">
+      {/* Pulled up behind the fixed header by --chrome-h (set in SiteHeader's
+          measure effect) so the header floats as glass over real hero content
+          instead of sitting as a flat opaque bar in its own row. Body stays
+          plain white — separation comes from the header's own blur/shadow,
+          not a tinted backdrop. */}
+      <section
+        className="reveal is-visible relative px-7 pb-20"
+        style={{
+          marginTop: "calc(-1 * var(--chrome-h, 0px))",
+          paddingTop: "calc(var(--chrome-h, 0px) + 5rem)",
+        }}
+      >
         <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
           <div>
             <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
@@ -301,6 +328,11 @@ export default async function Home() {
         </div>
       </Reveal>
 
+      <ManufacturerStrip brands={brands} />
+
+      {/* ---------- Category Grid — one consolidated "real stock" moment ---------- */}
+      <CategoryPhotoGrid items={categoryPhotoItems} />
+
       {/* ---------- How It Works ---------- */}
       <HowItWorks />
 
@@ -342,10 +374,8 @@ export default async function Home() {
         </div>
       </Reveal>
 
-      {/* ---------- Category Carousels (signature scroll-spy moment) ---------- */}
-      <HomeCategorySections sections={categorySections} />
-
-      <ManufacturerStrip brands={brands} />
+      {/* ---------- Use-Case Navigation — the "I don't know what I need" path ---------- */}
+      <UseCaseNav applications={homepageApplications} />
 
       {/* ---------- Why This Matters — single consolidated trust section ---------- */}
       {/* Old-vs-new comparison is the primary proof; the four differentiators

@@ -105,11 +105,17 @@ export function Testimonials({ initialTestimonials }: { initialTestimonials: Tes
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            What Our Customers Say
+            {testimonials.length === 0 ? "Early Days" : "What Our Customers Say"}
           </p>
           <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
-            Trusted by Homeowners, Designers &amp; Contractors
+            {testimonials.length === 0 ? "Be Among Our First Reviews" : "Trusted by Homeowners, Designers & Contractors"}
           </h2>
+          {testimonials.length === 0 ? (
+            <p className="mt-2 max-w-md text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+              We&apos;re early — this page doesn&apos;t have reviews yet. If you&apos;ve sourced through EightByFour, tell the
+              next homeowner or contractor what that was actually like.
+            </p>
+          ) : null}
         </div>
         <Button type="button" variant="secondary" onClick={() => setShowForm((v) => !v)}>
           {showForm ? "Cancel" : "Leave a testimonial"}
@@ -188,11 +194,7 @@ export function Testimonials({ initialTestimonials }: { initialTestimonials: Tes
         </p>
       ) : null}
 
-      {testimonials.length === 0 ? (
-        <p className="text-sm" style={{ color: "var(--line-strong)" }}>
-          No testimonials yet — be the first to share your experience.
-        </p>
-      ) : (
+      {testimonials.length === 0 ? null : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((t, i) => (
             <TestimonialCard key={`${t.name}-${t.created_at}-${i}`} t={t} />

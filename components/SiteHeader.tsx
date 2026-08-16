@@ -14,6 +14,7 @@ import type { BrandMenuEntry } from "@/lib/data/brands";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 import { HyderabadLinkList } from "@/components/HyderabadLinkList";
 import { POPULAR_SEARCHES, CATEGORY_LINKS } from "@/lib/hyderabadLinks";
+import { MobileMenu } from "@/components/MobileMenu";
 
 const NAV_LINKS = [
   { href: "/applications", label: "Applications" },
@@ -363,12 +364,21 @@ export function SiteHeader({
   useEffect(() => {
     function measure() {
       const h = (contactRef.current?.offsetHeight ?? 0) + (headerElRef.current?.offsetHeight ?? 0);
-      if (h > 0) setChromeHeight(h);
+      if (h > 0) {
+        setChromeHeight(h);
+        // Exposed as a CSS var so the homepage hero can pull itself up behind
+        // the fixed header by the same amount (see app/page.tsx) — kept in
+        // sync with this measurement instead of a separate guessed constant.
+        document.documentElement.style.setProperty("--chrome-h", `${h}px`);
+      }
     }
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
+
+  const isHome = pathname === "/";
+  const transparentAtRest = isHome && !scrolled;
 
   return (
     <>
@@ -385,7 +395,7 @@ export function SiteHeader({
       >
         <div
           ref={contactRef}
-          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium"
+          className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium lg:flex"
           style={{ background: "var(--burgundy)", color: "var(--paper)" }}
         >
           <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
@@ -400,12 +410,12 @@ export function SiteHeader({
         </div>
         <header
           ref={headerElRef}
-          className={`flex flex-wrap items-center gap-5 border-b-2 px-7 transition-[padding,background-color,border-color,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
-            scrolled ? "border-b py-2 shadow-[var(--shadow-sm)] backdrop-blur-md" : "py-3.5"
+          className={`flex flex-wrap items-center gap-5 border-b px-7 backdrop-blur-md transition-[padding,background-color,border-color,box-shadow,backdrop-filter] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+            scrolled ? "py-2 shadow-[var(--shadow-sm)]" : transparentAtRest ? "py-3.5 shadow-[0_1px_24px_-4px_rgba(18,18,18,0.08)]" : "border-b-2 py-3.5"
           }`}
           style={{
-            borderColor: scrolled ? "var(--line-strong)" : "var(--ink)",
-            background: scrolled ? "rgba(255,255,255,0.72)" : "var(--paper)",
+            borderColor: scrolled ? "var(--line-strong)" : transparentAtRest ? "rgba(18,18,18,0.08)" : "var(--ink)",
+            background: scrolled ? "rgba(255,255,255,0.72)" : transparentAtRest ? "rgba(255,255,255,0.55)" : "var(--paper)",
           }}
         >
           <Link href="/" className="leading-tight transition-opacity duration-150 hover:opacity-75">
@@ -416,7 +426,7 @@ export function SiteHeader({
               Base to Surface
             </span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-5 text-sm" aria-label="Primary">
+          <nav className="hidden flex-wrap items-center gap-5 text-sm lg:flex" aria-label="Primary">
             <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
             <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
             {NAV_LINKS.map((link) => (
@@ -425,15 +435,20 @@ export function SiteHeader({
             <HyderabadMegaMenu active={pathname?.startsWith("/hyderabad") ?? false} />
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <SearchBar />
+            <div className="hidden lg:block">
+              <SearchBar />
+            </div>
             <Link
               href="/saved"
               aria-label="Saved products"
-              className="flex items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)]"
+              className="hidden items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)] lg:flex"
             >
               <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
             </Link>
-            <RequestQuoteButton />
+            <div className="hidden lg:block">
+              <RequestQuoteButton />
+            </div>
+            <MobileMenu />
           </div>
         </header>
       </div>

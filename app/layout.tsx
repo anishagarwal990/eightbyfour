@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SkuRibbon } from "@/components/SkuRibbon";
+import { MobileStickyCTA } from "@/components/MobileStickyCTA";
 import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
 import { QuoteModalProvider } from "@/context/QuoteModalContext";
 import { getCategoryCounts } from "@/lib/data/products";
@@ -54,13 +55,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${plexSans.variable} ${canelaText.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col pb-14 lg:pb-0">
         <OrganizationSchema />
         <QuoteModalProvider>
           <SkuRibbon counts={counts} />
           <SiteHeader categoryCounts={counts} brandsMenu={brandsMenu} />
           {children}
           <SiteFooter />
+          <MobileStickyCTA />
         </QuoteModalProvider>
       </body>
     </html>
