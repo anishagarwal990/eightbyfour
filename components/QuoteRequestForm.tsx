@@ -11,12 +11,20 @@ import { productDisplayName } from "@/lib/productDisplay";
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.heic,.webp";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
-export function QuoteRequestForm({ product }: { product: ProductRow }) {
+export interface VariantSelection {
+  /** e.g. "Pinewood · 8×4 ft · 18mm" — shown read-only, already chosen before opening this form. */
+  summary: string;
+  thickness: string;
+  price: number;
+  unit: string;
+}
+
+export function QuoteRequestForm({ product, variantSelection }: { product: ProductRow; variantSelection?: VariantSelection }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [thickness, setThickness] = useState(product.thicknesses?.[0] || "");
+  const [thickness, setThickness] = useState(variantSelection?.thickness || product.thicknesses?.[0] || "");
   const [sampleRequested, setSampleRequested] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -25,7 +33,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
   const [waUrl, setWaUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const showThickness = (product.thicknesses?.length || 0) > 0;
+  const showThickness = !variantSelection && (product.thicknesses?.length || 0) > 0;
   const finishLabel = product.finishes?.[0] || product.finish || "";
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -73,7 +81,8 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
       lines.push(`Product: ${productDisplayName(product)} (${product.sd_code || ""})${finishLabel ? " · " + finishLabel : ""}`);
     } else {
       lines.push(`Product: ${product.brand} — ${product.name}`);
-      if (showThickness) lines.push(`Thickness: ${thickness}`);
+      if (variantSelection) lines.push(`Configuration: ${variantSelection.summary} — ₹${variantSelection.price}/${variantSelection.unit === "sqft" ? "sq.ft" : variantSelection.unit}`);
+      else if (showThickness) lines.push(`Thickness: ${thickness}`);
     }
     lines.push(`Name: ${name.trim()}`, `Phone: ${phone.trim()}`);
     if (email.trim()) lines.push(`Email: ${email.trim()}`);
@@ -92,7 +101,7 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
         phone: phone.trim(),
         email: email.trim() || null,
         message: message.trim() || null,
-        thickness: showThickness ? thickness : null,
+        thickness: variantSelection ? variantSelection.thickness : showThickness ? thickness : null,
         finish: product.category === "Laminates" ? finishLabel || null : null,
         sample_requested: sampleRequested,
         uploaded_file_name: file ? file.name : null,
@@ -139,7 +148,9 @@ export function QuoteRequestForm({ product }: { product: ProductRow }) {
       </p>
       <div>
         <p className="text-sm font-medium" style={{ color: "var(--burgundy)" }}>
-          Price: Available on Request
+          {variantSelection
+            ? `${variantSelection.summary} — ₹${variantSelection.price}/${variantSelection.unit === "sqft" ? "sq.ft" : variantSelection.unit}`
+            : "Price: Available on Request"}
         </p>
         <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
           Receive a personalized commercial quotation in under 15 minutes.

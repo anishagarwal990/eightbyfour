@@ -37,3 +37,44 @@ export function resolvePrice(product: ProductRow): PriceInfo | null {
 export function unitLabel(unit: string): string {
   return unit === "sqft" ? "sq.ft" : unit;
 }
+
+export interface VariantThickness {
+  key: string;
+  label: string;
+  price: number;
+}
+
+export interface VariantSize {
+  key: string;
+  label: string;
+  thicknesses: VariantThickness[];
+}
+
+export interface VariantCore {
+  key: string;
+  label: string;
+  sizes: VariantSize[];
+}
+
+export interface ProductVariants {
+  unit: string;
+  currency: string;
+  gst: string;
+  cores: VariantCore[];
+}
+
+export function parseVariants(value: unknown): ProductVariants | null {
+  if (!value || typeof value !== "object") return null;
+  const v = value as { cores?: unknown; unit?: unknown; currency?: unknown; gst?: unknown };
+  if (!Array.isArray(v.cores) || v.cores.length === 0) return null;
+  return value as ProductVariants;
+}
+
+/** First size/thickness available for a given core — used to seed default selection. */
+export function firstSize(core: VariantCore): VariantSize {
+  return core.sizes[0];
+}
+
+export function firstThickness(size: VariantSize): VariantThickness {
+  return size.thicknesses[0];
+}

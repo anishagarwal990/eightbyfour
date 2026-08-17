@@ -216,7 +216,7 @@ export function ProductPageView({
 
           <div className="mt-6">
             {[
-              [product.category === "Adhesive" ? "Pack Sizes" : "Thicknesses", product.thicknesses],
+              [product.category === "Adhesive" ? "Pack Sizes" : "Thicknesses", product.variants ? null : product.thicknesses],
               ["Also available in finishes", product.finishes],
               ["Applications", product.applications],
               ["Certifications", product.certifications],

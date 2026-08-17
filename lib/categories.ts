@@ -304,15 +304,20 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "blockboards",
     dbCategory: "Blockboard",
     name: "Blockboards",
-    heroTagline: "Solid-core blockboard for long-span shelving and worktops — catalogue coming soon.",
+    heroTagline: "Solid-core blockboard for long-span shelving and worktops, in pinewood and hardwood core.",
     overview:
-      "Blockboard is a solid-core engineered panel — a core of glued timber strips sandwiched between veneer faces — prized for holding screws well and resisting sag over long, unsupported spans like shelving and worktops.",
+      "Blockboard is a solid-core engineered panel — a core of glued timber strips sandwiched between Gurjan face veneer — prized for holding screws well and resisting sag over long, unsupported spans like shelving and worktops. EightByFour stocks it in two core types: pinewood, which is lighter and easier to work with, and hardwood, which is denser and stronger for the same thickness.",
     buyingGuide:
-      "We're building out this catalogue with real stock and pricing. Share your thickness and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+      "Pick pinewood core for general shelving, wardrobe shutters and worktops where weight and cost matter more than maximum strength. Step up to hardwood core for longer spans or heavier loads where sag resistance and screw-holding strength are the priority. Both are stocked in 16mm, 18mm and 25mm; pinewood also comes in a wider 10×4 ft sheet for larger spans.",
     faqs: [
       {
-        question: "Do you currently stock blockboard?",
-        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+        question: "What's the difference between pinewood and hardwood blockboard?",
+        answer:
+          "Both use a solid glued-timber core sandwiched between Gurjan face veneer. Pinewood core is lighter and more affordable; hardwood core is denser and stronger, so it holds screws better and resists sag over longer spans.",
+      },
+      {
+        question: "What thicknesses does blockboard come in?",
+        answer: "We stock both pinewood and hardwood blockboard in 16mm, 18mm and 25mm, in 8×4 ft sheets — pinewood is also available in 10×4 ft.",
       },
     ],
     applicationSlugs: ["modular-kitchen", "office-furniture"],

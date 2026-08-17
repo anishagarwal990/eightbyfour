@@ -21,6 +21,7 @@ export interface ProductRow {
   app_img_url: string | null;
   gallery_img_urls: string[] | null;
   price_table: unknown;
+  variants: unknown;
   description: string | null;
   core: string | null;
   density: string | null;
