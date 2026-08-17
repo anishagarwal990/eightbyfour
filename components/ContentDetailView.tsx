@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ContentEntry, ContentType } from "@/lib/mdx";
-import { CONTENT_TYPE_LABEL, CONTENT_TYPE_NAV_LABEL, CONTENT_TYPE_PATH } from "@/lib/mdx";
+import { CONTENT_TYPE_LABEL, CONTENT_TYPE_NAV_LABEL, CONTENT_TYPE_PATH, getContent } from "@/lib/mdx";
 import { CATEGORIES } from "@/lib/categories";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { MdxContent } from "@/components/MdxContent";
@@ -10,6 +10,47 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
+
+function resolveRelatedContent(type: ContentType, slugs: string[] | undefined): { slug: string; title: string }[] {
+  if (!slugs?.length) return [];
+  return slugs
+    .map((slug) => {
+      const content = getContent(type, slug);
+      return content ? { slug, title: content.frontmatter.title } : null;
+    })
+    .filter((c): c is { slug: string; title: string } => c !== null);
+}
+
+function RelatedContentSection({
+  heading,
+  items,
+  basePath,
+}: {
+  heading: string;
+  items: { slug: string; title: string }[];
+  basePath: string;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <Reveal as="section" className="px-7 py-8">
+      <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        {heading}
+      </h2>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {items.map((item) => (
+          <Link
+            key={item.slug}
+            href={`${basePath}/${item.slug}`}
+            className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
+            style={{ borderColor: "var(--line)" }}
+          >
+            {item.title}
+          </Link>
+        ))}
+      </div>
+    </Reveal>
+  );
+}
 
 export async function ContentDetailView({ type, entry }: { type: ContentType; entry: ContentEntry }) {
   const { frontmatter, body } = entry;
@@ -26,6 +67,13 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       .filter((b): b is NonNullable<typeof b> => Boolean(b))
       .map((b) => ({ slug: b.slug, name: b.name }));
   }
+
+  // Cross-links to other content types — the frontmatter fields already
+  // existed (relatedGuideSlugs etc.) but were never rendered, so this data
+  // was invisible on the live site regardless of what content authors set.
+  const relatedGuides = resolveRelatedContent("guides", frontmatter.relatedGuideSlugs);
+  const relatedApplications = resolveRelatedContent("applications", frontmatter.relatedApplicationSlugs);
+  const relatedComparisons = resolveRelatedContent("comparisons", frontmatter.relatedComparisonSlugs);
 
   return (
     <main>
@@ -73,6 +121,10 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       <Reveal as="section" className="max-w-3xl px-7 pb-8">
         <MdxContent source={body} />
       </Reveal>
+
+      <RelatedContentSection heading="Related Guides" items={relatedGuides} basePath="/guides" />
+      <RelatedContentSection heading="Related Applications" items={relatedApplications} basePath="/applications" />
+      <RelatedContentSection heading="Related Comparisons" items={relatedComparisons} basePath="/comparisons" />
 
       {relatedCategories.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">

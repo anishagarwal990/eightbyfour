@@ -8,6 +8,8 @@ import { BrandPagination, BrandPaginationLinks } from "@/components/BrandPaginat
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { getContent } from "@/lib/mdx";
+import { BRAND_GUIDE_SLUGS } from "@/lib/brandGuides";
 
 export interface BrandFaq {
   question: string;
@@ -42,6 +44,13 @@ export function BrandPageView({
   page: number;
   totalPages: number;
 }) {
+  const relatedGuides = (BRAND_GUIDE_SLUGS[brand.slug] || [])
+    .map((slug) => {
+      const content = getContent("guides", slug);
+      return content ? { slug, title: content.frontmatter.title } : null;
+    })
+    .filter((g): g is { slug: string; title: string } => g !== null);
+
   return (
     <main>
       <BreadcrumbSchema
@@ -98,6 +107,26 @@ export function BrandPageView({
           <p className="max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
             {brand.overview}
           </p>
+        </section>
+      ) : null}
+
+      {relatedGuides.length > 0 ? (
+        <section className="px-7 py-6">
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            Guides
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {relatedGuides.map((g) => (
+              <Link
+                key={g.slug}
+                href={`/guides/${g.slug}`}
+                className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
+                style={{ borderColor: "var(--line)" }}
+              >
+                {g.title}
+              </Link>
+            ))}
+          </div>
         </section>
       ) : null}
 
