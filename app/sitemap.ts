@@ -10,16 +10,66 @@ import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs, getContentMtime } from "@/lib/mdx";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [productRows, brands, categoryFilterCounts] = await Promise.all([
-    getAllProductSlugsWithDates(),
-    getAllBrandsWithCounts(),
-    Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory))),
-  ]);
+// Split by content type instead of one flat file — lets Search Console
+// report indexation coverage per type (products vs. brands vs. category
+// listings vs. editorial content) instead of one undifferentiated number
+// across ~2,200+ URLs. Ids are stable and meaningful, not arbitrary:
+// 0 = content (static routes, guides/comparisons/applications/hyderabad,
+//     persona pages) — the smallest, slowest-changing set
+// 1 = products — by far the largest set (~2,000+ URLs)
+// 2 = categories — category listing pages + collection-filtered variants
+// 3 = brands — brand pages + source-only (not-yet-stocked) brand pages
+export async function generateSitemaps() {
+  return [{ id: "content" }, { id: "products" }, { id: "categories" }, { id: "brands" }];
+}
 
+export default async function sitemap({ id }: { id: Promise<string> }): Promise<MetadataRoute.Sitemap> {
+  switch (await id) {
+    case "content":
+      return contentSitemap();
+    case "products":
+      return productsSitemap();
+    case "categories":
+      return categoriesSitemap();
+    case "brands":
+      return brandsSitemap();
+    default:
+      return [];
+  }
+}
+
+function contentSitemap(): MetadataRoute.Sitemap {
   const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad"].map(
     (path) => ({ url: `${SITE_URL}${path}`, lastModified: new Date() })
   );
+
+  const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
+    getAllSlugs(type).map((slug) => ({
+      url: `${SITE_URL}/${type}/${slug}`,
+      lastModified: getContentMtime(type, slug),
+    }))
+  );
+
+  // Bespoke persona pages under /hyderabad that use a page.tsx template
+  // instead of MDX — use the source file's own mtime as the real signal.
+  const personaRoutes = ["contractor-procurement", "architect-material-sourcing", "homeowner-materials"].map((slug) => ({
+    url: `${SITE_URL}/hyderabad/${slug}`,
+    lastModified: statSync(join(process.cwd(), "app", "hyderabad", slug, "page.tsx")).mtime,
+  }));
+
+  return [...staticRoutes, ...contentRoutes, ...personaRoutes];
+}
+
+async function productsSitemap(): Promise<MetadataRoute.Sitemap> {
+  const productRows = await getAllProductSlugsWithDates();
+  return productRows.map((row) => ({
+    url: `${SITE_URL}/products/${row.slug}`,
+    lastModified: new Date(row.updated_at || row.created_at),
+  }));
+}
+
+async function categoriesSitemap(): Promise<MetadataRoute.Sitemap> {
+  const categoryFilterCounts = await Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory)));
 
   // Every paginated page of every category, not just page 1 — that's what
   // makes the full catalogue crawlable/indexable beyond the first 60 products.
@@ -48,10 +98,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   });
 
-  const productRoutes = productRows.map((row) => ({
-    url: `${SITE_URL}/products/${row.slug}`,
-    lastModified: new Date(row.updated_at || row.created_at),
-  }));
+  return [...categoryRoutes, ...categoryCollectionRoutes];
+}
+
+async function brandsSitemap(): Promise<MetadataRoute.Sitemap> {
+  const brands = await getAllBrandsWithCounts();
 
   // Every paginated page of every brand, same rationale as categoryRoutes.
   // Paginated pages (page 2+) are a slice of the same brand catalogue, so
@@ -75,28 +126,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
-    getAllSlugs(type).map((slug) => ({
-      url: `${SITE_URL}/${type}/${slug}`,
-      lastModified: getContentMtime(type, slug),
-    }))
-  );
-
-  // Bespoke persona pages under /hyderabad that use a page.tsx template
-  // instead of MDX — use the source file's own mtime as the real signal.
-  const personaRoutes = ["contractor-procurement", "architect-material-sourcing", "homeowner-materials"].map((slug) => ({
-    url: `${SITE_URL}/hyderabad/${slug}`,
-    lastModified: statSync(join(process.cwd(), "app", "hyderabad", slug, "page.tsx")).mtime,
-  }));
-
-  return [
-    ...staticRoutes,
-    ...categoryRoutes,
-    ...categoryCollectionRoutes,
-    ...productRoutes,
-    ...brandRoutes,
-    ...sourceOnlyBrandRoutes,
-    ...contentRoutes,
-    ...personaRoutes,
-  ];
+  return [...brandRoutes, ...sourceOnlyBrandRoutes];
 }
