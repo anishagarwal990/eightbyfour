@@ -52,6 +52,7 @@ export function CategoryPageView({
         items={products.map((p) => ({ name: productDisplayName(p), slug: p.slug }))}
       />
       <CategoryPaginationLinks slug={category.slug} page={page} totalPages={totalPages} collection={collection} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products", href: "/products" }, { label: category.name }]} />
 
       <section className="px-7 py-8">
@@ -169,6 +170,7 @@ export function CategoryPageView({
           </div>
         </Reveal>
       ) : null}
+      </div>
     </main>
   );
 }

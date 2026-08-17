@@ -20,6 +20,7 @@ export default async function BrandsIndexPage() {
   return (
     <main>
       <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: "Brands", path: "/brands" }]} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands" }]} />
       <section className="px-7 py-10">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
@@ -60,6 +61,7 @@ export default async function BrandsIndexPage() {
         <SourceOnlyBrandTiles />
         <MoreBrandsTile />
       </section>
+      </div>
     </main>
   );
 }

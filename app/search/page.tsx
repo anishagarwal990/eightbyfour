@@ -37,6 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <main>
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
       <section className="px-7 py-8">
         <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
@@ -84,6 +85,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           </>
         )}
       </section>
+      </div>
     </main>
   );
 }

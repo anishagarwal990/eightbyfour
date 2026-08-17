@@ -21,6 +21,7 @@ export function ContentIndexView({
   return (
     <main>
       <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: title, path: CONTENT_TYPE_PATH[type] }]} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: title }]} />
       <section className="px-7 py-10">
         <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
@@ -43,6 +44,7 @@ export function ContentIndexView({
         ))}
       </section>
       {children}
+      </div>
     </main>
   );
 }

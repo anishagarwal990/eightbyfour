@@ -19,6 +19,7 @@ export default async function ProductsIndexPage() {
   return (
     <main>
       <BreadcrumbSchema items={[{ name: "Home", path: "/" }, { name: "Products", path: "/products" }]} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Products" }]} />
       <section className="px-7 py-10">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
@@ -56,6 +57,7 @@ export default async function ProductsIndexPage() {
           </Link>
         ))}
       </section>
+      </div>
     </main>
   );
 }

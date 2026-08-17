@@ -82,6 +82,7 @@ export function ProductPageView({
       <BreadcrumbSchema items={breadcrumbPaths} />
       <FaqSchema faqs={faqs} />
       <ProductSchema product={product} ratings={ratings} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -415,6 +416,7 @@ export function ProductPageView({
           </Link>
         </div>
       </Reveal>
+      </div>
     </main>
   );
 }

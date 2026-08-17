@@ -53,6 +53,7 @@ export function BrandPageView({
       />
       <FaqSchema faqs={faqs} />
       <BrandPaginationLinks slug={brand.slug} page={page} totalPages={totalPages} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
 
       <section className="flex flex-wrap items-center gap-6 px-7 py-8">
@@ -149,6 +150,7 @@ export function BrandPageView({
           ))}
         </div>
       </section>
+      </div>
     </main>
   );
 }

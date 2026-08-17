@@ -22,6 +22,7 @@ export function SavedProductsView() {
 
   return (
     <main>
+      <div className="mx-auto max-w-6xl">
       <section className="px-7 py-8">
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           Your Shortlist
@@ -55,6 +56,7 @@ export function SavedProductsView() {
           </Reveal>
         )}
       </section>
+      </div>
     </main>
   );
 }

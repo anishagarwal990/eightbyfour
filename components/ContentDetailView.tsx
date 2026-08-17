@@ -37,6 +37,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
         ]}
       />
       <FaqSchema faqs={frontmatter.faqs || []} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -132,6 +133,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
           </div>
         </Reveal>
       ) : null}
+      </div>
     </main>
   );
 }

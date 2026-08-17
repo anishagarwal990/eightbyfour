@@ -45,6 +45,7 @@ export default async function ContractorProcurementPage() {
         ]}
       />
       <FaqSchema faqs={FAQS} />
+      <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Hyderabad", href: "/hyderabad" }, { label: "Contractor Procurement" }]} />
 
       <section className="px-7 py-10">
@@ -114,6 +115,7 @@ export default async function ContractorProcurementPage() {
           ))}
         </div>
       </Reveal>
+      </div>
     </main>
   );
 }
