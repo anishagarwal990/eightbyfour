@@ -39,7 +39,7 @@ export default async function sitemap({ id }: { id: Promise<string> }): Promise<
 }
 
 function contentSitemap(): MetadataRoute.Sitemap {
-  const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad"].map(
+  const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad", "/contact"].map(
     (path) => ({ url: `${SITE_URL}${path}`, lastModified: new Date() })
   );
 

@@ -21,6 +21,9 @@ export function SiteFooter() {
           >
             ↗ Chat with us on WhatsApp
           </a>
+          <Link href="/contact" className="mt-2 block hover:opacity-70" style={{ color: "var(--accent)" }}>
+            Contact &amp; office details →
+          </Link>
         </div>
         <nav className="flex flex-col gap-1.5" aria-label="Products">
           <span className="tracked-caps text-xs">Products</span>
@@ -49,6 +52,10 @@ export function SiteFooter() {
             Procurement in Hyderabad
           </Link>
         </nav>
+      </div>
+      <div className="mx-auto mt-10 max-w-6xl border-t pt-6 text-xs" style={{ borderColor: "var(--line)", color: "var(--line-strong)" }}>
+        <p>EightByFour is a unit of DRG Group.</p>
+        <p className="mt-1">Registered Office: 7-1-21/B 106 Sita Sarovar, Begumpet, Hyderabad, 500016, TG</p>
       </div>
     </footer>
   );

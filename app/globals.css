@@ -64,6 +64,17 @@
     margin: 0;
     padding: 0;
     max-width: 100%;
+  }
+
+  /* Clips stray horizontal overflow so no component can widen the page.
+     Deliberately only on <html> (the real scrolling element) and not
+     <body>: setting overflow-x here auto-computes html's overflow-y to
+     "auto" per spec, but html is already the root scroller so that's a
+     no-op. Doing this on <body> instead would wrongly promote body into a
+     second scroll container — position:sticky descendants (e.g. SkuRibbon)
+     would then stick to body, which never actually scrolls, instead of the
+     real one, and stop sticking entirely. */
+  html {
     overflow-x: hidden;
   }
 
