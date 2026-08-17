@@ -256,19 +256,27 @@ function WhoIcon({ name }: { name: WhoIconName }) {
 }
 
 export default async function Home() {
-  const brands = await getAllBrandsWithCounts();
   const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
-  const categorySections = await Promise.all(
-    featuredCategories.map(async (category) => {
-      // Only the representative image (products[0]) is used on the homepage —
-      // sample a small pool and shuffle so every load picks a different one,
-      // instead of the same alphabetically-first product every time.
-      const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 10 });
-      const withImages = products.filter((p) => p.main_img_url);
-      const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
-      return { category, products: sample, total };
-    })
-  );
+
+  // brands, per-category product samples and testimonials are three
+  // independent data sources with no dependency on each other — fetching
+  // them as a single Promise.all instead of three sequential awaits means
+  // homepage TTFB is bounded by the slowest of the three, not their sum.
+  const [brands, categorySections, testimonials] = await Promise.all([
+    getAllBrandsWithCounts(),
+    Promise.all(
+      featuredCategories.map(async (category) => {
+        // Only the representative image (products[0]) is used on the homepage —
+        // sample a small pool and shuffle so every load picks a different one,
+        // instead of the same alphabetically-first product every time.
+        const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 10 });
+        const withImages = products.filter((p) => p.main_img_url);
+        const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
+        return { category, products: sample, total };
+      })
+    ),
+    getTestimonials(),
+  ]);
   const categoryPhotoItems = categorySections.map(({ category, products, total }) => ({
     slug: category.slug,
     name: category.name,
@@ -285,7 +293,6 @@ export default async function Home() {
     ...getAllContent("comparisons").map((g) => ({ ...g, section: "comparisons" as const })),
   ].slice(0, 4);
   const hyderabadPages = getAllContent("hyderabad").slice(0, 4);
-  const testimonials = await getTestimonials();
 
   return (
     <main>
