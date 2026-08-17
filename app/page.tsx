@@ -42,7 +42,27 @@ const HOMEPAGE_CATEGORY_SLUGS = [
   "wall-panels",
   "hardware",
   "timber",
+  "nails",
+  "screws",
 ];
+
+// "Coming soon" categories have zero live SKUs yet, so no product row/photo
+// exists in Supabase for them. These are EightByFour's own real product
+// photos (not stock) — swap each entry out for a real Supabase-backed photo
+// once that category actually has SKUs listed.
+const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
+  "aluminium-sections": "/category-fallback/aluminium-sections.jpg",
+  "galvanised-iron-sheets": "/category-fallback/galvanised-iron-sheets.jpg",
+  "steel-pipes": "/category-fallback/steel-pipes.jpg",
+  blockboards: "/category-fallback/blockboards.png",
+  "cement-boards": "/category-fallback/cement-boards.png",
+  louvers: "/category-fallback/louvers.png",
+  "wall-panels": "/category-fallback/wall-panels.jpg",
+  hardware: "/category-fallback/hardware.png",
+  timber: "/category-fallback/timber.jpg",
+  nails: "/category-fallback/nails.jpg",
+  screws: "/category-fallback/screws.jpg",
+};
 
 export const metadata: Metadata = buildMetadata({
   title: "EightByFour — Interior & Construction Material Procurement in Hyderabad",
@@ -253,7 +273,7 @@ export default async function Home() {
     slug: category.slug,
     name: category.name,
     total,
-    image: products[0]?.main_img_url ?? null,
+    image: products[0]?.main_img_url ?? CATEGORY_FALLBACK_IMAGE[category.slug] ?? null,
   }));
 
   const allApplications = getAllContent("applications");

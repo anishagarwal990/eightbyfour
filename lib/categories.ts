@@ -408,6 +408,42 @@ export const CATEGORIES: CategoryConfig[] = [
     applicationSlugs: ["office-furniture"],
     relatedCategorySlugs: ["plywood", "veneers"],
   },
+  {
+    slug: "nails",
+    dbCategory: "Nails",
+    name: "Nails",
+    heroTagline: "Wire and panel nails for carpentry and site fixing — catalogue coming soon.",
+    overview:
+      "Nails cover wire nails, panel pins and framing nails used across carpentry, false ceiling work and site fixing — sized by length and gauge depending on the material being joined.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your size and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock nails?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["modular-kitchen", "wardrobes"],
+    relatedCategorySlugs: ["hardware", "plywood"],
+  },
+  {
+    slug: "screws",
+    dbCategory: "Screws",
+    name: "Screws",
+    heroTagline: "Wood, drywall and machine screws for fittings and fixtures — catalogue coming soon.",
+    overview:
+      "Screws span wood screws, drywall screws and machine screws used for hardware fitting, panel fixing and furniture assembly — specified by length, gauge and head type against the material and load.",
+    buyingGuide:
+      "We're building out this catalogue with real stock and pricing. Share your size and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+    faqs: [
+      {
+        question: "Do you currently stock screws?",
+        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+      },
+    ],
+    applicationSlugs: ["modular-kitchen", "wardrobes"],
+    relatedCategorySlugs: ["hardware", "plywood"],
+  },
 ];
 
 export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
