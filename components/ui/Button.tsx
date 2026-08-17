@@ -15,7 +15,7 @@ const COLORS: Record<ButtonVariant, string> = {
   primary: "text-white bg-[var(--burgundy)] shadow-[var(--shadow-sm)] hover:bg-[var(--burgundy-dark)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]",
   secondary:
     "border border-[var(--line)] text-[var(--ink)] bg-transparent hover:border-[var(--burgundy)] hover:text-[var(--burgundy)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]",
-  chip: "border hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]",
+  chip: "hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]",
 };
 
 /** Shared class builder — use directly on non-<button> elements (e.g. next/link CTAs). */
@@ -25,8 +25,13 @@ export function buttonClasses(variant: ButtonVariant = "primary", size: ButtonSi
 
 export function chipStyle(active: boolean): CSSProperties {
   return active
-    ? { borderColor: "var(--burgundy)", background: "var(--burgundy)", color: "#fff" }
-    : { borderColor: "var(--line)", background: "var(--paper)", color: "var(--ink)" };
+    ? {
+        background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))",
+        color: "var(--burgundy)",
+        fontWeight: 600,
+        boxShadow: "inset 0 0 0 1.5px var(--burgundy)",
+      }
+    : { background: "var(--card)", color: "var(--ink)" };
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

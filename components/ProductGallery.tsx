@@ -60,7 +60,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           width={0}
           height={0}
           sizes="(max-width: 1024px) 100vw, 50vw"
-          className="filter-fade h-auto max-h-[80vh] w-full object-contain transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-105"
+          className="filter-fade h-auto max-h-[45vh] w-full object-contain transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-105 sm:max-h-[60vh] lg:max-h-[80vh]"
           priority
         />
       </button>

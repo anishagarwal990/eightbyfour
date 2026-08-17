@@ -25,6 +25,14 @@ function categorySlugFor(dbCategory: string): string | undefined {
   return CATEGORY_SLUG_BY_DB[dbCategory];
 }
 
+function CheckIcon() {
+  return (
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+      <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function buildFaqs(product: ProductRow): { question: string; answer: string }[] {
   const displayName = productDisplayName(product);
   const faqs = [
@@ -43,7 +51,7 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
   if (product.warranty) {
     faqs.push({
       question: `What warranty does ${product.name} carry?`,
-      answer: `${product.brand} backs ${product.name} with a ${product.warranty} warranty.`,
+      answer: `${product.brand} backs ${product.name} with a ${product.warranty}.`,
     });
   }
   return faqs;
@@ -70,6 +78,16 @@ export function ProductPageView({
     Boolean
   ) as string[];
   const faqs = buildFaqs(product);
+  // Cross-sell using the category's own editorial "related categories" so a
+  // Laminates product doesn't get told to buy more Laminates — falls back to
+  // the general Adhesives/Laminates pair for categories with none configured.
+  const crossSellCategories = categoryConfig
+    ? CATEGORIES.filter((c) => categoryConfig.relatedCategorySlugs.includes(c.slug)).slice(0, 3)
+    : [];
+  const frequentlyBoughtWith =
+    crossSellCategories.length > 0
+      ? crossSellCategories
+      : CATEGORIES.filter((c) => (c.slug === "adhesive" || c.slug === "laminates") && c.slug !== categorySlug);
   const breadcrumbPaths = [
     { name: "Home", path: "/" },
     { name: "Products", path: "/products" },
@@ -92,7 +110,12 @@ export function ProductPageView({
         ]}
       />
 
-      <Reveal as="section" strong className="grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
+      {/* Plain section, not <Reveal> — this is always above the fold on load, so
+          gating it behind an IntersectionObserver just delays the page's most
+          important content (title, price, CTA) for no benefit. The entrance
+          animation still plays via the hardcoded is-visible class, it just
+          isn't scroll-gated. */}
+      <section className="reveal-strong is-visible grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
         <div className="lg:sticky lg:top-24 lg:self-start">
           <ProductGallery images={images} alt={displayName} />
         </div>
@@ -168,12 +191,17 @@ export function ProductPageView({
                   {product.features.slice(1).map((feature) => (
                     <li
                       key={feature}
-                      className="flex items-center gap-2.5 border-b py-2.5 text-sm"
+                      className="flex items-center gap-3 border-b py-2.5 text-sm"
                       style={{ borderColor: "var(--line)" }}
                     >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0" style={{ color: "var(--burgundy)" }}>
-                        <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      <span
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
+                        style={{ background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))" }}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ color: "var(--burgundy)" }}>
+                          <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -185,26 +213,29 @@ export function ProductPageView({
           {product.certifications?.length || product.warranty ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span
-                className="rounded-full px-3 py-1 text-xs font-medium"
-                style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+                style={{ background: "var(--burgundy)", color: "var(--paper)" }}
               >
-                ✓ In Stock — Hyderabad
+                <CheckIcon />
+                In Stock — Hyderabad
               </span>
               {product.certifications?.map((cert) => (
                 <span
                   key={cert}
-                  className="rounded-full px-3 py-1 text-xs font-medium"
-                  style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  style={{ background: "var(--card)", color: "var(--ink)" }}
                 >
-                  ✓ {cert}
+                  <CheckIcon />
+                  {cert}
                 </span>
               ))}
               {product.warranty ? (
                 <span
-                  className="rounded-full px-3 py-1 text-xs font-medium"
-                  style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", color: "var(--burgundy)" }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  style={{ background: "var(--card)", color: "var(--ink)" }}
                 >
-                  ✓ {product.warranty} Warranty
+                  <CheckIcon />
+                  {product.warranty}
                 </span>
               ) : null}
             </div>
@@ -229,8 +260,8 @@ export function ProductPageView({
                     {(values as string[]).map((v) => (
                       <span
                         key={v}
-                        className="rounded-full border px-3 py-1 text-xs"
-                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                        className="rounded-full px-3 py-1 text-xs"
+                        style={{ background: "var(--card)" }}
                       >
                         {v}
                       </span>
@@ -282,7 +313,7 @@ export function ProductPageView({
             ) : null}
           </div>
         </div>
-      </Reveal>
+      </section>
 
       {product.how_to_apply?.length ? (
         <Reveal as="section" className="px-7 py-8">
@@ -350,7 +381,12 @@ export function ProductPageView({
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8">
-        <LikeCommentWidget productId={product.id} initialRatings={ratings} />
+        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          Reviews &amp; Ratings
+        </h2>
+        <div className="mt-4">
+          <LikeCommentWidget productId={product.id} initialRatings={ratings} />
+        </div>
       </Reveal>
 
       {relatedProducts.length > 0 ? (
@@ -403,19 +439,20 @@ export function ProductPageView({
         </Reveal>
       ) : null}
 
-      <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          Frequently Bought Together
-        </h2>
-        <div className="mt-3 flex flex-wrap gap-3">
-          <Link href="/products/adhesive" className="rounded-full border px-4 py-1.5 text-sm" style={{ borderColor: "var(--line)" }}>
-            Adhesives
-          </Link>
-          <Link href="/products/laminates" className="rounded-full border px-4 py-1.5 text-sm" style={{ borderColor: "var(--line)" }}>
-            Laminates &amp; Edge Banding
-          </Link>
-        </div>
-      </Reveal>
+      {frequentlyBoughtWith.length > 0 ? (
+        <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            Frequently Bought Together
+          </h2>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {frequentlyBoughtWith.map((c) => (
+              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full border px-4 py-1.5 text-sm" style={{ borderColor: "var(--line)" }}>
+                {c.name}
+              </Link>
+            ))}
+          </div>
+        </Reveal>
+      ) : null}
       </div>
     </main>
   );
