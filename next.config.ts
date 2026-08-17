@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const SUPABASE_ORIGIN = "https://svjlalgrcuwyvwpxriwd.supabase.co";
+const IMAGE_DELIVERY_ORIGIN = "https://imagedelivery.net";
 
 // Report-only for now — the app leans on inline `style` props throughout
 // (Tailwind + arbitrary values), so a style-src without 'unsafe-inline'
@@ -11,7 +12,7 @@ const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: ${SUPABASE_ORIGIN}`,
+  `img-src 'self' data: ${SUPABASE_ORIGIN} ${IMAGE_DELIVERY_ORIGIN}`,
   "font-src 'self' data:",
   `connect-src 'self' ${SUPABASE_ORIGIN} wss://${new URL(SUPABASE_ORIGIN).host}`,
   "frame-ancestors 'self'",
@@ -47,17 +48,13 @@ const nextConfig: NextConfig = {
   },
   images: {
     // Vercel's free-tier image optimization quota (1000 src/month) got
-    // exhausted, so /_next/image started returning 402 for every request —
-    // breaking every <Image> on the site. unoptimized:true bypasses the
-    // Vercel optimizer entirely; images load straight from Supabase.
-    unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "svjlalgrcuwyvwpxriwd.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-    ],
+    // exhausted, so /_next/image started returning 402 for every request.
+    // Replaced with Cloudflare Images instead of paying for Vercel's tier —
+    // see lib/cloudflareImageLoader.ts and scripts/migrate-images.mjs.
+    // remotePatterns/domains don't apply with a custom loader; the loader
+    // is fully responsible for the URLs it returns.
+    loader: "custom",
+    loaderFile: "./lib/cloudflareImageLoader.ts",
   },
 };
 
