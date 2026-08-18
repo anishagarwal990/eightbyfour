@@ -33,11 +33,10 @@ export const metadata: Metadata = {
   description:
     "EightByFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad — for contractors, architects, interior designers and builders.",
   manifest: "/manifest.webmanifest",
-  // favicon.svg dropped from this list — it's the same low-clarity abstract
-  // "8"/"4" glyph as the old icon.png, which reads as a plain blob at
-  // favicon size. icon.png/apple-icon.png/favicon.ico were regenerated from
-  // public/brand-logos/eightbyfour-mark.png, the higher-res mark with
-  // distinct "8" and "4" digits, so this now points at the clearer asset.
+  // favicon.svg dropped from this list — same reason as before (old abstract
+  // glyph reads as a blob at favicon size). icon.png/apple-icon.png/favicon.ico
+  // are the "Black on white — print" variant from the Brand Identity design doc:
+  // Georgia Bold "8 x 4" monogram, black on a warm-white rounded tile.
   icons: {
     icon: [{ url: "/icon.png", type: "image/png", sizes: "512x512" }],
     apple: "/apple-icon.png",
