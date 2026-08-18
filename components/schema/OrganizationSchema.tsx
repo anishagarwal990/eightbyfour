@@ -1,11 +1,12 @@
-import { SITE_URL } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { EMAIL, PHONE_TEL } from "@/lib/contact";
 
 export function OrganizationSchema() {
   const json = {
     "@context": "https://schema.org",
     "@type": "HomeAndConstructionBusiness",
-    name: "EightByFour",
+    name: SITE_NAME,
+    alternateName: "EightByFour",
     url: SITE_URL,
     image: `${SITE_URL}/og-image.jpg`,
     logo: `${SITE_URL}/eightbyfour-logo.png`,

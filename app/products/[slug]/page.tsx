@@ -14,7 +14,7 @@ import {
 import { getBrandByName } from "@/lib/data/brands";
 import { getProductReviews } from "@/lib/data/reviews";
 import { buildMetadata } from "@/lib/seo";
-import { productDisplayName } from "@/lib/productDisplay";
+import { bestProductImage, buildProductDescription, buildProductTitle } from "@/lib/productSeo";
 import { CategoryPageView } from "@/components/CategoryPageView";
 import { ProductPageView } from "@/components/ProductPageView";
 
@@ -49,21 +49,15 @@ export async function generateMetadata({
 
   const product = await getProductBySlug(slug);
   if (product) {
-    // Many catalogue items share a brand + shade name (e.g. four different
-    // "Greenlam Black" laminates in SUD/ARN/HDG/ECO finishes with different
-    // shade codes) — without a disambiguator, those pages produce identical
-    // <title> and meta description text, which is a duplicate-content SEO
-    // issue. Append the shade code (or finish, when there's no code) so every
-    // product gets a unique title/description even when the display name repeats.
-    const disambiguator = product.sd_code ? ` (${product.sd_code})` : product.finish ? ` — ${product.finish}` : "";
-    const displayName = productDisplayName(product);
+    // Title fronts product name + shade code (product.sd_code), which is
+    // what disambiguates the many catalogue items sharing a brand + shade
+    // name (e.g. four different "Greenlam Black" laminates in SUD/ARN/HDG/ECO
+    // finishes) — see buildProductTitle in lib/productSeo.ts.
     return buildMetadata({
-      title: `${displayName}${disambiguator} — ${product.category} in Hyderabad`,
-      description:
-        product.description ||
-        `${displayName}${disambiguator}, available in Hyderabad through EightByFour. Request trade pricing and delivery.`,
+      title: buildProductTitle(product),
+      description: buildProductDescription(product),
       path: `/products/${product.slug}`,
-      image: product.main_img_url || undefined,
+      image: bestProductImage(product)?.src,
     });
   }
 

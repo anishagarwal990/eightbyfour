@@ -1,18 +1,27 @@
 import type { Metadata } from "next";
 
 export const SITE_URL = "https://www.eightbyfour.com";
-export const SITE_NAME = "EightByFour";
+// Full brand line for og:site_name and Organization/WebSite JSON-LD — this is
+// what search results show as the site name next to the title.
+export const SITE_NAME = "Eight x Four - Bases & Surfaces";
+// Short form appended to every page's <title> — SITE_NAME is too long to
+// repeat on every SERP title without blowing the ~60-char budget.
+export const BRAND_SHORT = "Eight x Four";
 const DEFAULT_OG_IMAGE = "/og-image.jpg";
 
-// `app/layout.tsx` wraps every page title in the "%s | EightByFour" template,
+// `app/layout.tsx` wraps every page title in the "%s | Eight x Four" template,
 // so the rendered <title> is always opts.title + this suffix.
-const TITLE_TEMPLATE_SUFFIX = " | EightByFour";
+const TITLE_TEMPLATE_SUFFIX = ` | ${BRAND_SHORT}`;
 // Prefer the full title over a mid-word ellipsis: if it fits the classic
 // ~60-char SERP budget with the suffix, keep the suffix; if it's longer but
 // still reasonable on its own, drop the suffix rather than chop live copy;
 // only truncate (with an ellipsis) past this hard ceiling as a last resort,
 // since Google/Bing already truncate visually in the SERP on their own.
-const TITLE_SOFT_MAX = 60 - TITLE_TEMPLATE_SUFFIX.length;
+// This is the *total* budget (title + suffix combined) — resolveTitle adds
+// the suffix length back on top of the raw title when checking against it,
+// so don't pre-subtract it here too, or the suffix only survives on titles
+// under ~30 chars instead of the intended ~60.
+const TITLE_SOFT_MAX = 60;
 const TITLE_HARD_MAX = 78;
 // Google typically truncates meta descriptions around 155-160 characters,
 // and treats anything under roughly 110-120 as too thin to show a useful
@@ -38,7 +47,7 @@ function truncate(text: string, max: number): string {
  * Resolve a page's raw title into (a) the value for Next's `Metadata.title`
  * and (b) a plain string for OG/Twitter, which don't go through Next's
  * title-template mechanism. Three tiers, cheapest-to-worst:
- *  1. Fits the classic ~60-char SERP budget with " | EightByFour" — let
+ *  1. Fits the classic ~60-char SERP budget with the brand suffix — let
  *     `app/layout.tsx`'s title template add the suffix as normal.
  *  2. Longer than that but still a reasonable on-page title on its own —
  *     return `{ absolute }` to suppress the template (no suffix) rather

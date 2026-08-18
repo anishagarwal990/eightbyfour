@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-export function ProductGallery({ images, alt }: { images: string[]; alt: string }) {
+export interface GalleryImage {
+  src: string;
+  alt: string;
+}
+
+export function ProductGallery({ images }: { images: GalleryImage[] }) {
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -55,8 +60,8 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
       >
         <Image
           key={active}
-          src={images[active]}
-          alt={`${alt} — image ${active + 1}`}
+          src={images[active].src}
+          alt={images[active].alt}
           width={0}
           height={0}
           sizes="(max-width: 1024px) 100vw, 50vw"
@@ -67,9 +72,9 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
 
       {images.length > 1 ? (
         <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-          {images.map((src, i) => (
+          {images.map((img, i) => (
             <button
-              key={src + i}
+              key={img.src + i}
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Show image ${i + 1}`}
@@ -77,7 +82,7 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
               className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-[border-color,transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
               style={{ borderColor: active === i ? "var(--burgundy)" : "var(--line)", background: "var(--paper-dim)" }}
             >
-              <Image src={src} alt={`${alt} — thumbnail ${i + 1}`} fill sizes="64px" className="object-cover" />
+              <Image src={img.src} alt={img.alt} fill sizes="64px" className="object-cover" />
             </button>
           ))}
         </div>
@@ -114,8 +119,8 @@ export function ProductGallery({ images, alt }: { images: string[]; alt: string 
           <div className="relative h-full max-h-[85vh] w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
             <Image
               key={active}
-              src={images[active]}
-              alt={`${alt} — image ${active + 1}`}
+              src={images[active].src}
+              alt={images[active].alt}
               fill
               sizes="100vw"
               className="filter-fade object-contain"

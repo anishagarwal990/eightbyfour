@@ -15,6 +15,7 @@ import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
 import { resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
+import { productImages } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
@@ -72,11 +73,8 @@ export function ProductPageView({
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
-  const displayName = productDisplayName(product);
   const price = resolvePrice(product);
-  const images = [product.main_img_url, product.edge_img_url, product.app_img_url, ...(product.gallery_img_urls || [])].filter(
-    Boolean
-  ) as string[];
+  const images = productImages(product);
   const faqs = buildFaqs(product);
   // Cross-sell using the category's own editorial "related categories" so a
   // Laminates product doesn't get told to buy more Laminates — falls back to
@@ -117,7 +115,7 @@ export function ProductPageView({
           isn't scroll-gated. */}
       <section className="reveal-strong is-visible grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <ProductGallery images={images} alt={displayName} />
+          <ProductGallery images={images} />
         </div>
 
         <div>

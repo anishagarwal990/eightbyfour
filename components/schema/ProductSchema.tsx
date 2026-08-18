@@ -3,6 +3,7 @@ import type { ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { productDisplayName } from "@/lib/productDisplay";
 import { resolvePrice } from "@/lib/pricing";
+import { bestProductImage } from "@/lib/productSeo";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
 
@@ -83,7 +84,7 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     sku: String(product.id),
     category: product.category,
     description: product.description || undefined,
-    image: product.main_img_url || product.edge_img_url || product.app_img_url || undefined,
+    image: bestProductImage(product)?.src,
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
     additionalProperty,

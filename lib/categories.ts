@@ -454,3 +454,10 @@ export const CATEGORIES: CategoryConfig[] = [
 export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
   return CATEGORIES.find((c) => c.slug === slug);
 }
+
+// Singular form of a dbCategory value for SEO copy ("Laminates" -> "Laminate")
+// — every plural dbCategory on file is a plain "-s" plural, so a trailing-s
+// strip covers all of them without a per-category lookup table.
+export function categorySingularName(dbCategory: string): string {
+  return dbCategory.endsWith("s") ? dbCategory.slice(0, -1) : dbCategory;
+}
