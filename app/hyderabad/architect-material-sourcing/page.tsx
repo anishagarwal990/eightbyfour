@@ -6,6 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { ServiceSchema } from "@/components/schema/ServiceSchema";
 import { Reveal } from "@/components/Reveal";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 
@@ -51,6 +52,11 @@ export default async function ArchitectMaterialSourcingPage() {
         ]}
       />
       <FaqSchema faqs={FAQS} />
+      <ServiceSchema
+        name="Architect Material Sourcing in Hyderabad — Real Stock, Not a Catalogue"
+        description="Real-time stock visibility for architects and interior designers specifying veneers and acrylic solid surface on Hyderabad projects."
+        path="/hyderabad/architect-material-sourcing"
+      />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Hyderabad", href: "/hyderabad" }, { label: "Architect Material Sourcing" }]} />
 
       <section className="px-7 py-10 text-center">

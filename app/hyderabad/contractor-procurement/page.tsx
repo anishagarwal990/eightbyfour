@@ -7,6 +7,7 @@ import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { ServiceSchema } from "@/components/schema/ServiceSchema";
 import { Reveal } from "@/components/Reveal";
 import { cardClasses, CARD_BASE_STYLE } from "@/components/ui/Card";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
@@ -43,6 +44,11 @@ export default async function ContractorProcurementPage() {
           { name: "Hyderabad", path: "/hyderabad" },
           { name: "Contractor Procurement", path: "/hyderabad/contractor-procurement" },
         ]}
+      />
+      <ServiceSchema
+        name="Contractor Procurement in Hyderabad — Every Category, One Supplier"
+        description="Trade pricing and consolidated material sourcing for contractors managing multiple Hyderabad sites — plywood, laminates, MDF, veneers, hardware and adhesives, all stocked categories in one view."
+        path="/hyderabad/contractor-procurement"
       />
       <FaqSchema faqs={FAQS} />
       <div className="mx-auto max-w-6xl">

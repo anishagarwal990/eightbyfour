@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
+import { ServiceSchema } from "@/components/schema/ServiceSchema";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
 
@@ -86,6 +87,9 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
         ]}
       />
       <FaqSchema faqs={frontmatter.faqs || []} />
+      {type === "hyderabad" && (
+        <ServiceSchema name={frontmatter.title} description={frontmatter.description} path={`/hyderabad/${entry.slug}`} />
+      )}
       <div className="mx-auto max-w-6xl">
       <Breadcrumbs
         items={[

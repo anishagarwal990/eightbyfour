@@ -5,6 +5,10 @@ export function OrganizationSchema() {
   const json = {
     "@context": "https://schema.org",
     "@type": "HomeAndConstructionBusiness",
+    // Stable @id so page-specific Service blocks (see ServiceSchema.tsx, used
+    // on /hyderabad/* pages) can reference this org via `provider` instead of
+    // re-declaring the full HomeAndConstructionBusiness object each time.
+    "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
     alternateName: "EightByFour",
     url: SITE_URL,

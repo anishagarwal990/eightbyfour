@@ -6,6 +6,7 @@ import { getProductsByCategory } from "@/lib/data/products";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
+import { ServiceSchema } from "@/components/schema/ServiceSchema";
 import { Reveal } from "@/components/Reveal";
 import { cardClasses } from "@/components/ui/Card";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
@@ -41,6 +42,11 @@ export default async function HomeownerMaterialsPage() {
           { name: "Hyderabad", path: "/hyderabad" },
           { name: "Materials for Your Home", path: "/hyderabad/homeowner-materials" },
         ]}
+      />
+      <ServiceSchema
+        name="Materials for Your Home in Hyderabad — Kitchen, Wardrobe & More"
+        description="Simple, plain-language guidance on choosing materials for your Hyderabad home — by room, not by raw catalogue. Kitchen, wardrobe and TV unit essentials."
+        path="/hyderabad/homeowner-materials"
       />
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Hyderabad", href: "/hyderabad" }, { label: "Materials for Your Home" }]} />
 
