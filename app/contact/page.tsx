@@ -67,6 +67,14 @@ export default function ContactPage() {
                 </a>
               </p>
             </div>
+            <div>
+              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                Business Hours
+              </h2>
+              <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
+                Monday – Saturday, 10:00 AM – 8:30 PM
+              </p>
+            </div>
           </div>
         </Reveal>
 

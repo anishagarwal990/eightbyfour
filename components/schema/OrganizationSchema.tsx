@@ -32,6 +32,12 @@ export function OrganizationSchema() {
     geo: { "@type": "GeoCoordinates", latitude: 17.446195, longitude: 78.463016 },
     telephone: PHONE_TEL,
     email: EMAIL,
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "10:00",
+      closes: "20:30",
+    },
     parentOrganization: {
       "@type": "Organization",
       name: "DRG Group",
