@@ -29,6 +29,23 @@ const nextConfig: NextConfig = {
         destination: "/guides/mdf-vs-hdhmr",
         permanent: true,
       },
+      // Legacy product slugs from before the "Propperly" brand name typo was
+      // fixed (was "Properly", single p, everywhere — brand, scripts, image
+      // bucket paths — before it got corrected). Google still has the old
+      // single-p slugs crawled/indexed with no redirect ever having been put
+      // in place; every one has an exact current equivalent under
+      // propperly-*, so a straight prefix swap is a safe 1:1 mapping.
+      {
+        source: "/products/properly-:rest",
+        destination: "/products/propperly-:rest",
+        permanent: true,
+      },
+      // Typo of the real guide slug (missing the second "h").
+      {
+        source: "/guides/hdmmr-for-bathroom-kitchen",
+        destination: "/guides/hdhmr-for-bathroom-kitchen",
+        permanent: true,
+      },
     ];
   },
   async headers() {

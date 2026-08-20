@@ -1,6 +1,5 @@
 import { statSync } from "fs";
 import { join } from "path";
-import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/categories";
 import { categoryPagePath, categoryPageUrl } from "@/lib/categoryPagination";
@@ -9,22 +8,21 @@ import { CATEGORY_PAGE_SIZE, getAllProductSlugsWithDates, getCategoryFilterCount
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs, getContentMtime } from "@/lib/mdx";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
+import type { SitemapUrlEntry } from "@/lib/sitemapXml";
 
 // Split by content type instead of one flat file — lets Search Console
 // report indexation coverage per type (products vs. brands vs. category
 // listings vs. editorial content) instead of one undifferentiated number
-// across ~2,200+ URLs. Ids are stable and meaningful, not arbitrary:
-// 0 = content (static routes, guides/comparisons/applications/hyderabad,
-//     persona pages) — the smallest, slowest-changing set
-// 1 = products — by far the largest set (~2,000+ URLs)
-// 2 = categories — category listing pages + collection-filtered variants
-// 3 = brands — brand pages + source-only (not-yet-stocked) brand pages
-export async function generateSitemaps() {
-  return [{ id: "content" }, { id: "products" }, { id: "categories" }, { id: "brands" }];
+// across ~2,200+ URLs.
+export const SITEMAP_IDS = ["content", "products", "categories", "brands"] as const;
+export type SitemapId = (typeof SITEMAP_IDS)[number];
+
+export function isSitemapId(value: string): value is SitemapId {
+  return (SITEMAP_IDS as readonly string[]).includes(value);
 }
 
-export default async function sitemap({ id }: { id: Promise<string> }): Promise<MetadataRoute.Sitemap> {
-  switch (await id) {
+export async function getSitemapEntries(id: SitemapId): Promise<SitemapUrlEntry[]> {
+  switch (id) {
     case "content":
       return contentSitemap();
     case "products":
@@ -33,12 +31,10 @@ export default async function sitemap({ id }: { id: Promise<string> }): Promise<
       return categoriesSitemap();
     case "brands":
       return brandsSitemap();
-    default:
-      return [];
   }
 }
 
-function contentSitemap(): MetadataRoute.Sitemap {
+function contentSitemap(): SitemapUrlEntry[] {
   const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad", "/contact"].map(
     (path) => ({ url: `${SITE_URL}${path}`, lastModified: new Date() })
   );
@@ -60,7 +56,7 @@ function contentSitemap(): MetadataRoute.Sitemap {
   return [...staticRoutes, ...contentRoutes, ...personaRoutes];
 }
 
-async function productsSitemap(): Promise<MetadataRoute.Sitemap> {
+async function productsSitemap(): Promise<SitemapUrlEntry[]> {
   const productRows = await getAllProductSlugsWithDates();
   return productRows.map((row) => ({
     url: `${SITE_URL}/products/${row.slug}`,
@@ -68,7 +64,7 @@ async function productsSitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 }
 
-async function categoriesSitemap(): Promise<MetadataRoute.Sitemap> {
+async function categoriesSitemap(): Promise<SitemapUrlEntry[]> {
   const categoryFilterCounts = await Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory)));
 
   // Every paginated page of every category, not just page 1 — that's what
@@ -101,7 +97,7 @@ async function categoriesSitemap(): Promise<MetadataRoute.Sitemap> {
   return [...categoryRoutes, ...categoryCollectionRoutes];
 }
 
-async function brandsSitemap(): Promise<MetadataRoute.Sitemap> {
+async function brandsSitemap(): Promise<SitemapUrlEntry[]> {
   const brands = await getAllBrandsWithCounts();
 
   // Every paginated page of every brand, same rationale as categoryRoutes.
