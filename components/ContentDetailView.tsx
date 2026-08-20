@@ -74,6 +74,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
   const relatedGuides = resolveRelatedContent("guides", frontmatter.relatedGuideSlugs);
   const relatedApplications = resolveRelatedContent("applications", frontmatter.relatedApplicationSlugs);
   const relatedComparisons = resolveRelatedContent("comparisons", frontmatter.relatedComparisonSlugs);
+  const relatedHyderabad = resolveRelatedContent("hyderabad", frontmatter.relatedHyderabadSlugs);
 
   return (
     <main>
@@ -125,6 +126,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       <RelatedContentSection heading="Related Guides" items={relatedGuides} basePath="/guides" />
       <RelatedContentSection heading="Related Applications" items={relatedApplications} basePath="/applications" />
       <RelatedContentSection heading="Related Comparisons" items={relatedComparisons} basePath="/comparisons" />
+      <RelatedContentSection heading="More in Hyderabad" items={relatedHyderabad} basePath="/hyderabad" />
 
       {relatedCategories.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">

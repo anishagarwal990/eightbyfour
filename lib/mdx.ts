@@ -20,6 +20,7 @@ export interface ContentFrontmatter {
   relatedApplicationSlugs?: string[];
   relatedGuideSlugs?: string[];
   relatedComparisonSlugs?: string[];
+  relatedHyderabadSlugs?: string[];
   faqs?: ContentFaq[];
 }
 
