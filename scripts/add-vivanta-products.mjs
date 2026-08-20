@@ -55,7 +55,7 @@ async function ensureBrand() {
     name: BRAND,
     slug: "vivanta",
     overview:
-      "Vivanta Luxury Surfaces manufactures acrylic solid surface sheets in Korea across Luxe, Quartz, Granites and Premium colour collections — non-porous, seamlessly jointable and backed by a 10-year warranty.",
+      "Vivanta Luxury Surfaces manufactures acrylic solid surface sheets in Korea across Luxe and Premium colour collections — non-porous, seamlessly jointable and backed by a 10-year warranty.",
     website_url: "https://vivantasurfaces.com",
     logo_url: "/brand-logos/vivanta.jpeg",
   });
