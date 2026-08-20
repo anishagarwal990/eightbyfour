@@ -69,8 +69,13 @@ async function categoriesSitemap(): Promise<SitemapUrlEntry[]> {
 
   // Every paginated page of every category, not just page 1 — that's what
   // makes the full catalogue crawlable/indexable beyond the first 60 products.
+  // Categories with zero live products are noindexed by app/products/[slug]/page.tsx
+  // (buildMetadata's `noindex: total === 0`) — skip them here too, or page 1
+  // of an empty category leaks into the sitemap as a noindexed URL.
   const categoryRoutes = CATEGORIES.flatMap((c, i) => {
-    const totalPages = Math.max(1, Math.ceil(categoryFilterCounts[i].total / CATEGORY_PAGE_SIZE));
+    const total = categoryFilterCounts[i].total;
+    if (total === 0) return [];
+    const totalPages = Math.ceil(total / CATEGORY_PAGE_SIZE);
     return Array.from({ length: totalPages }, (_, idx) => ({
       url: `${SITE_URL}${categoryPagePath(c.slug, idx + 1)}`,
       lastModified: new Date(),
