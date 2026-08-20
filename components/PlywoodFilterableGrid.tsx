@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useState, type ReactElement } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ProductRow } from "@/lib/supabase/types";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
 import { certificationCodes, warrantyBucket, warrantyBucketSortKey } from "@/lib/productFilters";
@@ -97,14 +98,44 @@ function FacetGroup({
   );
 }
 
+const QUERY_KEYS: Record<FacetKey, string> = { grade: "grade", warranty: "warranty", certification: "certification" };
+
+function parseParam(searchParams: URLSearchParams, key: string): Set<string> {
+  const raw = searchParams.get(key);
+  return raw ? new Set(raw.split(",").filter(Boolean)) : new Set();
+}
+
 // Client-side filtering over the already-fetched product list — the plywood
 // category always fits on one page (26 products, well under
 // CATEGORY_PAGE_SIZE), so there's no server round-trip needed to narrow it
 // further by grade/warranty/certification the way brand collection does.
+//
+// Filter state is still synced to the URL (?grade=...&warranty=...&certification=...)
+// for shareable/bookmarkable links, via plain history.replaceState rather than
+// next/navigation's router — that avoids triggering a server round-trip (and
+// re-running generateMetadata) on every pill click, which would defeat the
+// point above. Canonical/metadata deliberately stay pinned to the bare
+// /products/plywood URL regardless of filter state: unlike the `collection`
+// facet (a handful of real, distinct values worth indexing separately), grade
+// × warranty × certification has enough combinations that treating each as
+// its own indexable page would risk exactly the doorway-page/thin-content
+// problem the SEO audit warned against — so these stay UI-only, not a new
+// crawlable surface.
 export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) {
-  const [grades, setGrades] = useState<Set<string>>(new Set());
-  const [warranties, setWarranties] = useState<Set<string>>(new Set());
-  const [certs, setCerts] = useState<Set<string>>(new Set());
+  const searchParams = useSearchParams();
+  const [grades, setGrades] = useState<Set<string>>(() => parseParam(searchParams, QUERY_KEYS.grade));
+  const [warranties, setWarranties] = useState<Set<string>>(() => parseParam(searchParams, QUERY_KEYS.warranty));
+  const [certs, setCerts] = useState<Set<string>>(() => parseParam(searchParams, QUERY_KEYS.certification));
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (grades.size) params.set(QUERY_KEYS.grade, [...grades].join(","));
+    if (warranties.size) params.set(QUERY_KEYS.warranty, [...warranties].join(","));
+    if (certs.size) params.set(QUERY_KEYS.certification, [...certs].join(","));
+    const query = params.toString();
+    const url = query ? `${window.location.pathname}?${query}` : window.location.pathname;
+    window.history.replaceState(null, "", url);
+  }, [grades, warranties, certs]);
 
   const selectedByFacet: Record<FacetKey, Set<string>> = { grade: grades, warranty: warranties, certification: certs };
   const setters: Record<FacetKey, (next: Set<string>) => void> = {
