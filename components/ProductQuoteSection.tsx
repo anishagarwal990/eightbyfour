@@ -99,7 +99,12 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               {price.kind === "range" ? (
                 <>₹{price.min}–{price.max}</>
               ) : (
-                <>₹{price.amount}</>
+                <>
+                  <span className="text-lg font-normal" style={{ color: "var(--line-strong)" }}>
+                    From{" "}
+                  </span>
+                  ₹{price.amount}
+                </>
               )}
               <span className="ml-1.5 text-sm font-normal" style={{ color: "var(--line-strong)" }}>
                 /{unitLabel(price.unit)} · excl. GST
