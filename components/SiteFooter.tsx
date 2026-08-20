@@ -24,6 +24,9 @@ export function SiteFooter() {
           <Link href="/contact" className="mt-2 block hover:opacity-70" style={{ color: "var(--accent)" }}>
             Contact &amp; office details →
           </Link>
+          <Link href="/about" className="mt-2 block hover:opacity-70" style={{ color: "var(--accent)" }}>
+            About EightByFour →
+          </Link>
         </div>
         <nav className="flex flex-col gap-1.5" aria-label="Products">
           <span className="tracked-caps text-xs">Products</span>

@@ -35,7 +35,7 @@ export async function getSitemapEntries(id: SitemapId): Promise<SitemapUrlEntry[
 }
 
 function contentSitemap(): SitemapUrlEntry[] {
-  const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad", "/contact"].map(
+  const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad", "/contact", "/about"].map(
     (path) => ({ url: `${SITE_URL}${path}`, lastModified: new Date() })
   );
 
