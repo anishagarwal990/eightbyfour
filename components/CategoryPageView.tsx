@@ -5,6 +5,7 @@ import type { ProductRow } from "@/lib/supabase/types";
 import type { CategoryBrand, CategoryFilterCounts } from "@/lib/data/products";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
 import { CategoryFilterBar } from "@/components/CategoryFilterBar";
+import { PlywoodFilterableGrid } from "@/components/PlywoodFilterableGrid";
 import { CategoryPagination, CategoryPaginationLinks } from "@/components/CategoryPagination";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Reveal } from "@/components/Reveal";
@@ -103,7 +104,11 @@ export function CategoryPageView({
         <div className="mt-4">
           <CategoryFilterBar slug={category.slug} filterCounts={filterCounts} active={collection} />
           {products.length > 0 ? (
-            <CategoryProductGrid products={products} />
+            category.slug === "plywood" ? (
+              <PlywoodFilterableGrid products={products} />
+            ) : (
+              <CategoryProductGrid products={products} />
+            )
           ) : (
             <p style={{ color: "var(--line-strong)" }}>No products found for this filter.</p>
           )}
