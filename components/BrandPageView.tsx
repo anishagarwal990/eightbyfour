@@ -10,6 +10,10 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { getContent } from "@/lib/mdx";
 import { BRAND_GUIDE_SLUGS } from "@/lib/brandGuides";
+import { Reveal } from "@/components/Reveal";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buttonClasses } from "@/components/ui/Button";
 
 export interface BrandFaq {
   question: string;
@@ -27,6 +31,22 @@ export function getBrandFaqs(brandName: string): BrandFaq[] {
       answer: "Yes — trade and bulk pricing is available on request for contractors, architects and builders.",
     },
   ];
+}
+
+function CheckIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.92 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.23 8.23 0 0 1-1.26-4.38c0-4.55 3.7-8.25 8.26-8.25 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.84c0 4.55-3.71 8.23-8.25 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.13-.17.24-.64.8-.78.97-.14.16-.29.18-.53.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.16-.24.25-.4.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.4-.42-.56-.42-.14-.01-.31-.01-.47-.01a.9.9 0 0 0-.65.3c-.23.24-.86.84-.86 2.04 0 1.2.88 2.37 1 2.53.12.16 1.73 2.64 4.2 3.7.59.25 1.04.4 1.4.52.59.19 1.12.16 1.54.1.47-.07 1.47-.6 1.68-1.18.2-.58.2-1.08.14-1.18-.06-.1-.22-.16-.47-.28Z" />
+    </svg>
+  );
 }
 
 export function BrandPageView({
@@ -51,6 +71,8 @@ export function BrandPageView({
     })
     .filter((g): g is { slug: string; title: string } => g !== null);
 
+  const certifications = [...new Set(products.flatMap((p) => p.certifications || []))].slice(0, 6);
+
   return (
     <main>
       <BreadcrumbSchema
@@ -63,108 +85,141 @@ export function BrandPageView({
       <FaqSchema faqs={faqs} />
       <BrandPaginationLinks slug={brand.slug} page={page} totalPages={totalPages} />
       <div className="mx-auto max-w-6xl">
-      <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
+      <div className="px-7 pt-4">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
+      </div>
 
-      <section className="flex flex-wrap items-center gap-6 px-7 py-8">
-        {brand.logo_url ? (
-          <div className="relative h-16 w-40 shrink-0">
-            <Image
-              src={brand.logo_url}
-              alt={`${brand.name} logo`}
-              fill
-              sizes="160px"
-              priority
-              className="object-contain object-left"
-            />
-          </div>
-        ) : null}
+      <section className="reveal-strong is-visible grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-[2fr_1fr] lg:items-center">
         <div>
+          {brand.logo_url ? (
+            <div className="relative mb-5 h-16 w-40 shrink-0">
+              <Image
+                src={brand.logo_url}
+                alt={`${brand.name} logo`}
+                fill
+                sizes="160px"
+                priority
+                className="object-contain object-left"
+              />
+            </div>
+          ) : null}
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             {brand.name} · Hyderabad
           </p>
-          <h1 className="serif mt-1" style={{ fontSize: "var(--fs-h1)" }}>
+          <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
             {brand.name} Dealer in Hyderabad
           </h1>
-        </div>
-      </section>
+          {brand.overview ? (
+            <p className="mt-4 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+              {brand.overview}
+            </p>
+          ) : null}
 
-      {brand.range_image_url ? (
-        <section className="px-7 pb-6">
-          <div className="relative aspect-[1184/620] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
+          {certifications.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {certifications.map((cert) => (
+                <span
+                  key={cert}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  style={{ background: "var(--card)", color: "var(--ink)" }}
+                >
+                  <span style={{ color: "var(--burgundy)" }}>
+                    <CheckIcon />
+                  </span>
+                  {cert}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <RequestQuoteButton label={`Get ${brand.name} Pricing`} />
+            <a
+              href={buildWhatsAppUrl(`Hi, I'm interested in ${brand.name} products. Can you share pricing and availability?`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClasses("secondary", "md")}
+            >
+              <WhatsAppIcon />
+              WhatsApp
+            </a>
+          </div>
+        </div>
+
+        {brand.range_image_url ? (
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-sm" style={{ background: "var(--paper-dim)" }}>
             <Image
               src={brand.range_image_url}
               alt={`${brand.name} product range`}
               fill
-              sizes="(max-width: 1024px) 100vw, 1024px"
+              sizes="(max-width: 1024px) 100vw, 480px"
               className="object-cover"
             />
           </div>
-        </section>
-      ) : null}
+        ) : null}
+      </section>
 
-      {brand.overview ? (
-        <section className="px-7 pb-6">
-          <p className="max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
-            {brand.overview}
-          </p>
-        </section>
-      ) : null}
+      {relatedGuides.length > 0 || relatedCategoryConfigs.length > 0 ? (
+        <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            {relatedCategoryConfigs.length > 0 ? (
+              <div>
+                <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                  Shop by Category
+                </h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {relatedCategoryConfigs.map((c) =>
+                    c ? (
+                      <Link
+                        key={c.slug}
+                        href={`/products/${c.slug}`}
+                        className="rounded-full border px-3 py-1 text-sm transition-colors duration-150 hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
+                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                      >
+                        {c.name}
+                      </Link>
+                    ) : null
+                  )}
+                </div>
+              </div>
+            ) : null}
 
-      {relatedGuides.length > 0 ? (
-        <section className="px-7 py-6">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-            Guides
-          </h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {relatedGuides.map((g) => (
-              <Link
-                key={g.slug}
-                href={`/guides/${g.slug}`}
-                className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                style={{ borderColor: "var(--line)" }}
-              >
-                {g.title}
-              </Link>
-            ))}
+            {relatedGuides.length > 0 ? (
+              <div>
+                <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                  Guides
+                </h2>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {relatedGuides.map((g) => (
+                    <Link
+                      key={g.slug}
+                      href={`/guides/${g.slug}`}
+                      className="rounded-full border px-3 py-1 text-sm transition-colors duration-150 hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
+                      style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                    >
+                      {g.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
-        </section>
+        </Reveal>
       ) : null}
 
-      {relatedCategoryConfigs.length > 0 ? (
-        <section className="px-7 py-6">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-            Categories
-          </h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {relatedCategoryConfigs.map((c) =>
-              c ? (
-                <Link
-                  key={c.slug}
-                  href={`/products/${c.slug}`}
-                  className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                  style={{ borderColor: "var(--line)" }}
-                >
-                  {c.name}
-                </Link>
-              ) : null
-            )}
-          </div>
-        </section>
-      ) : null}
-
-      <section className="px-7 py-8">
+      <Reveal as="section" className="px-7 py-8">
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           All {brand.name} Products in Hyderabad
         </h2>
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
-        </div>
+        </Reveal>
         <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} />
-      </section>
+      </Reveal>
 
-      <section className="px-7 py-8">
+      <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
@@ -178,7 +233,7 @@ export function BrandPageView({
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
       </div>
     </main>
   );

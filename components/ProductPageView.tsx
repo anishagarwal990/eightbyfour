@@ -287,14 +287,14 @@ export function ProductPageView({
               ]
                 .filter(([, v]) => v)
                 .map(([label, value]) => (
-                  <div key={label} className="flex justify-between border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
-                    <dt style={{ color: "var(--line-strong)" }}>{label}</dt>
+                  <div key={label} className="flex flex-col gap-0.5 border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
+                    <dt className="text-xs" style={{ color: "var(--line-strong)" }}>{label}</dt>
                     <dd>{value}</dd>
                   </div>
                 ))}
               {(product.spec_table || []).map((row) => (
-                <div key={row.label} className="flex justify-between border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
-                  <dt style={{ color: "var(--line-strong)" }}>{row.label}</dt>
+                <div key={row.label} className="flex flex-col gap-0.5 border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
+                  <dt className="text-xs" style={{ color: "var(--line-strong)" }}>{row.label}</dt>
                   <dd>{row.value}</dd>
                 </div>
               ))}
