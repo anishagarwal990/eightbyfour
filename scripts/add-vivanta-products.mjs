@@ -117,7 +117,7 @@ async function main() {
       warranty: "10 Years Warranty",
       certifications: CERTIFICATIONS,
       spec_table: SPEC_TABLE,
-      price_table: { starting_price: 480, unit: "sqft", cashback_pct: 5 },
+      price_table: { starting_price: 500, unit: "sqft", cashback_pct: 5 },
       main_img_url,
     });
     if (error) throw error;
