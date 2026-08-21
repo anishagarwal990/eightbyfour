@@ -126,9 +126,19 @@ export function ProductPageView({
           <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
             {product.category} in Hyderabad · {product.size || "Standard sheet size"}
           </p>
-          {product.sd_code ? (
-            <p className="mt-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
-              Shade Code: {product.sd_code}
+          {product.sd_code || product.catalogue_url ? (
+            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
+              {product.sd_code ? <span>Shade Code: {product.sd_code}</span> : null}
+              {product.catalogue_url ? (
+                <a
+                  href={product.catalogue_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  View {product.brand} catalogue (PDF) →
+                </a>
+              ) : null}
             </p>
           ) : null}
           {product.description ? (
