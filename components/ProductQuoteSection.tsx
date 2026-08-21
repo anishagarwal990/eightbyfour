@@ -107,7 +107,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
                 </>
               )}
               <span className="ml-1.5 text-sm font-normal" style={{ color: "var(--line-strong)" }}>
-                /{unitLabel(price.unit)} · excl. GST
+                /{unitLabel(price.unit)}
               </span>
             </p>
           ) : (
