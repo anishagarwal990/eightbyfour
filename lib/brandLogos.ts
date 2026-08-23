@@ -17,5 +17,6 @@ export const BRAND_LOGOS: Record<string, string> = {
   RelWOOD: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/relwood.jpeg",
   "Sky Decor": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/skydecor.png",
   Tiara: "/brand-logos/tiara.png",
+  Virgo: "/brand-logos/virgo.jpg",
   "Wigwam Excel": "/brand-logos/wigwam.png",
 };

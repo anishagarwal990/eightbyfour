@@ -102,7 +102,13 @@ export default async function ProductOrCategoryPage({
       getBrandByName(product.brand),
       getProductsByBrand(product.brand),
     ]);
-    const brandProducts = brandProductsRaw.filter((p) => p.id !== product.id).slice(0, 4);
+    // Same shade code first (e.g. other finishes of the same Virgo design) —
+    // a more useful "more from this brand" than an arbitrary brand-wide slice
+    // when the brand differentiates SKUs by code+finish.
+    const brandProducts = brandProductsRaw
+      .filter((p) => p.id !== product.id)
+      .sort((a, b) => Number(b.sd_code === product.sd_code) - Number(a.sd_code === product.sd_code))
+      .slice(0, 4);
     return (
       <ProductPageView
         product={product}

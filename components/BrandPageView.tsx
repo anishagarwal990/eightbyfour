@@ -4,6 +4,8 @@ import type { CategoryConfig } from "@/lib/categories";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { BrandRow } from "@/lib/supabase/types";
 import { ProductCard } from "@/components/ProductCard";
+import { ShadeFinishPicker, type ShadeEntry } from "@/components/ShadeFinishPicker";
+import { FinishFilterableGrid } from "@/components/FinishFilterableGrid";
 import { BrandPagination, BrandPaginationLinks } from "@/components/BrandPagination";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
@@ -56,6 +58,8 @@ export function BrandPageView({
   faqs,
   page,
   totalPages,
+  shadeFinder,
+  allProducts,
 }: {
   brand: BrandRow;
   products: ProductRow[];
@@ -63,6 +67,10 @@ export function BrandPageView({
   faqs: BrandFaq[];
   page: number;
   totalPages: number;
+  /** Code+Finish shade picker (Virgo-style catalogues where finish is a per-SKU differentiator, not a minor filter). */
+  shadeFinder?: ShadeEntry[];
+  /** Full unpaginated product list for finish-filterable brands — renders in place of the plain paginated grid when present (page 1 only; paginated /page/N routes keep the server-paginated grid). */
+  allProducts?: ProductRow[];
 }) {
   const relatedGuides = (BRAND_GUIDE_SLUGS[brand.slug] || [])
     .map((slug) => {
@@ -159,6 +167,12 @@ export function BrandPageView({
         ) : null}
       </section>
 
+      {shadeFinder && shadeFinder.length > 0 ? (
+        <Reveal as="section" className="px-7 py-6">
+          <ShadeFinishPicker brandName={brand.name} shades={shadeFinder} />
+        </Reveal>
+      ) : null}
+
       {relatedGuides.length > 0 || relatedCategoryConfigs.length > 0 ? (
         <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
@@ -211,12 +225,20 @@ export function BrandPageView({
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
           All {brand.name} Products in Hyderabad
         </h2>
-        <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </Reveal>
-        <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} />
+        {allProducts ? (
+          <div className="mt-4">
+            <FinishFilterableGrid products={allProducts} brandName={brand.name} />
+          </div>
+        ) : (
+          <>
+            <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </Reveal>
+            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} />
+          </>
+        )}
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>

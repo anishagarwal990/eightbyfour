@@ -15,7 +15,7 @@ import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
 import { resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
-import { productImages } from "@/lib/productSeo";
+import { finishCode, productImages } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
@@ -30,6 +30,27 @@ function CheckIcon() {
   return (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
       <path d="M5 12.5 9.5 17 19 6.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PdfIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="shrink-0">
+      <path
+        d="M7 2.75h7.5L19 7.25V19.5a1.75 1.75 0 0 1-1.75 1.75h-8.5A1.75 1.75 0 0 1 7 19.5V2.75Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M14.5 2.75V7h4.5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path
+        d="M9 13.2h1.1c.5 0 .9.4.9.9v.1c0 .5-.4.9-.9.9H9v-1.9Zm0 0v3.3M12.6 13.2h1.15c.75 0 1.35.6 1.35 1.35v.6c0 .75-.6 1.35-1.35 1.35H12.6v-3.3Zm4.4 0h-1.9v3.3m0-1.65h1.7"
+        stroke="currentColor"
+        strokeWidth="1.15"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -76,6 +97,18 @@ export function ProductPageView({
   const price = resolvePrice(product);
   const images = productImages(product);
   const faqs = buildFaqs(product);
+  // Surfaced next to the shade code up top rather than buried in the specs
+  // table further down — the page number in the source catalogue PDF is one
+  // of the most useful facts on a page built around "go check the real PDF
+  // for the actual shade," so it shouldn't take scrolling to find.
+  const cataloguePage = product.spec_table?.find((row) => row.label === "Catalogue Page")?.value;
+  // Matches buildProductTitle's finish-in-title guard (lib/productSeo.ts) —
+  // code+finish lead the H1 for catalogues where finish is a per-SKU
+  // differentiator (Virgo-style), since that's the exact string customers
+  // search for ("6511 SF", not just "Tahiti Samoa Teak"). Falls back to the
+  // bare name everywhere else, unchanged from before.
+  const finish = finishCode(product);
+  const h1Text = product.sd_code && finish ? `${product.sd_code} ${finish} — ${product.name}` : product.name;
   // Cross-sell using the category's own editorial "related categories" so a
   // Laminates product doesn't get told to buy more Laminates — falls back to
   // the general Adhesives/Laminates pair for categories with none configured.
@@ -120,25 +153,32 @@ export function ProductPageView({
 
         <div>
           <BrandLogo brand={product.brand} height={40} />
-          <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
-            {product.name}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-3">
+            <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
+              {h1Text}
+            </h1>
+            {product.catalogue_url ? (
+              <a
+                href={product.catalogue_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`View ${product.brand} catalogue (PDF)`}
+                aria-label={`View ${product.brand} catalogue (PDF)`}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+                style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}
+              >
+                <PdfIcon />
+              </a>
+            ) : null}
+          </div>
           <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
             {product.category} in Hyderabad · {product.size || "Standard sheet size"}
           </p>
-          {product.sd_code || product.catalogue_url ? (
-            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
-              {product.sd_code ? <span>Shade Code: {product.sd_code}</span> : null}
-              {product.catalogue_url ? (
-                <a
-                  href={product.catalogue_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-2"
-                >
-                  View {product.brand} catalogue (PDF) →
-                </a>
-              ) : null}
+          {product.sd_code || cataloguePage ? (
+            <p className="mt-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
+              {product.sd_code ? <>Shade Code: {product.sd_code}</> : null}
+              {product.sd_code && cataloguePage ? " · " : null}
+              {cataloguePage ? <>Catalogue Page {cataloguePage}</> : null}
             </p>
           ) : null}
           {product.description ? (

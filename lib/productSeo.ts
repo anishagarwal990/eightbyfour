@@ -7,8 +7,10 @@ const CTA_LONG = "In stock in Hyderabad, samples available.";
 const CTA_SHORT = "Samples available.";
 
 /**
- * "{Product Name} {Product Code} {Category}" — e.g. "Merino Bronze 99988
- * Laminate". The " | Eight x Four" brand suffix is appended automatically by
+ * "{Product Name} {Product Code} {Finish} {Category}" — e.g. "Merino Bronze
+ * 99988 Laminate", or "Virgo Tahiti Samoa Teak 6511 SF Laminate" for
+ * catalogues where finish is a per-SKU differentiator (see `finishCode`
+ * below). The " | Eight x Four" brand suffix is appended automatically by
  * buildMetadata()/the root layout title template, not here. sd_code is the
  * real shade/product code on file; falls back to `collection` when a
  * product has no code — e.g. Stone Panels has no shade codes but does have
@@ -22,7 +24,21 @@ export function buildProductTitle(product: ProductRow): string {
   const displayName = productDisplayName(product);
   const category = categorySingularName(product.category);
   const code = product.sd_code || product.collection;
-  return [displayName, code, category].filter(Boolean).join(" ");
+  return [displayName, code, finishCode(product), category].filter(Boolean).join(" ");
+}
+
+/**
+ * The product's finish code, but only when it's a real per-SKU
+ * differentiator rather than one of several finishes the same design ships
+ * in (`finishes[]` populated — e.g. Greenlam/Merino, where a design like
+ * "163 Bay" is one product page covering multiple finishes, so a single
+ * finish code in the title/H1 would be misleading). Virgo-style catalogues
+ * have exactly one finish per SKU/slug and an empty `finishes[]`, so this is
+ * the guard that scopes finish-in-title to those without touching every
+ * other brand's existing title format.
+ */
+export function finishCode(product: ProductRow): string | null {
+  return product.finishes?.length ? null : product.finish;
 }
 
 function firstSentence(text: string): string {

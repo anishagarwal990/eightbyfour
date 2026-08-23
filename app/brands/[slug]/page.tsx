@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllBrandsWithCounts, getBrandBySlug, getBrandCategories } from "@/lib/data/brands";
-import { getProductsByBrandPage } from "@/lib/data/products";
+import { getProductsByBrand, getProductsByBrandPage } from "@/lib/data/products";
+import type { ProductRow } from "@/lib/supabase/types";
+import type { ShadeEntry } from "@/components/ShadeFinishPicker";
 import { CATEGORIES } from "@/lib/categories";
 import { buildMetadata } from "@/lib/seo";
 import { brandPagePath } from "@/lib/brandPagination";
@@ -46,6 +48,31 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {};
 }
 
+// Brands catalogued as one product row per Code+Finish combination (finish is
+// a core, per-SKU differentiator, not a minor variant) — these get the
+// shade/code + finish picker on their brand page in addition to the regular
+// product grid. See ShadeFinishPicker for why.
+const SHADE_FINDER_BRANDS = new Set(["virgo"]);
+
+function buildShadeFinder(products: ProductRow[]): ShadeEntry[] {
+  const byCode = new Map<string, ShadeEntry>();
+  for (const p of products) {
+    if (!p.sd_code || !p.finish) continue;
+    let entry = byCode.get(p.sd_code);
+    if (!entry) {
+      entry = { code: p.sd_code, name: p.name, finishes: [] };
+      byCode.set(p.sd_code, entry);
+    }
+    entry.finishes.push({ code: p.sd_code, finish: p.finish, slug: p.slug });
+  }
+  return [...byCode.values()].sort((a, b) => {
+    const na = Number(a.code);
+    const nb = Number(b.code);
+    if (!isNaN(na) && !isNaN(nb)) return na - nb;
+    return a.code.localeCompare(b.code);
+  });
+}
+
 export default async function BrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
@@ -56,15 +83,17 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
-  const [{ products, totalPages }, categories] = await Promise.all([
+  const [{ products, totalPages }, categories, shadeFinderProducts] = await Promise.all([
     getProductsByBrandPage(brand.name, { page: 1 }),
     getBrandCategories(brand.name),
+    SHADE_FINDER_BRANDS.has(brand.slug) ? getProductsByBrand(brand.name) : Promise.resolve<ProductRow[]>([]),
   ]);
   const relatedCategoryConfigs = categories
     .map((dbCategory) => CATEGORIES.find((c) => c.dbCategory === dbCategory))
     .filter(Boolean);
 
   const faqs = getBrandFaqs(brand.name);
+  const shadeFinder = shadeFinderProducts.length > 0 ? buildShadeFinder(shadeFinderProducts) : undefined;
 
   return (
     <BrandPageView
@@ -74,6 +103,8 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
       faqs={faqs}
       page={1}
       totalPages={totalPages}
+      shadeFinder={shadeFinder}
+      allProducts={shadeFinderProducts.length > 0 ? shadeFinderProducts : undefined}
     />
   );
 }
