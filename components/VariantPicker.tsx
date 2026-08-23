@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
+import { Button, buttonClasses, chipStyle } from "@/components/ui/Button";
 import type { ProductVariants, VariantCore, VariantSize } from "@/lib/pricing";
+import { sqftFromSizeLabel } from "@/lib/pricing";
 
 export function VariantPicker({
   variants,
@@ -57,7 +58,7 @@ export function VariantPicker({
       </div>
       <div>
         <p className="text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
-          Size
+          Size (in ft.)
         </p>
         <div className="mt-1.5 flex flex-wrap gap-2">
           {core.sizes.map((s) => (
@@ -76,6 +77,18 @@ export function VariantPicker({
           ))}
         </div>
       </div>
+      {sqftFromSizeLabel(size.label) ? (
+        <div>
+          <p className="text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
+            Per Sheet Quantity (in sqft.)
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-2">
+            <span className={buttonClasses("chip", "sm", "normal-case tracking-normal cursor-default active:scale-100 hover:translate-y-0 hover:shadow-none")} style={chipStyle(true)}>
+              {sqftFromSizeLabel(size.label)} sq.ft
+            </span>
+          </div>
+        </div>
+      ) : null}
       <div>
         <p className="text-xs tracked-caps" style={{ color: "var(--line-strong)" }}>
           Thickness

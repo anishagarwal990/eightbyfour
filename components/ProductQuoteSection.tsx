@@ -5,7 +5,8 @@ import type { ProductRow } from "@/lib/supabase/types";
 import { QuoteRequestForm } from "@/components/QuoteRequestForm";
 import { VariantPicker } from "@/components/VariantPicker";
 import { Button, buttonClasses } from "@/components/ui/Button";
-import { resolvePrice, unitLabel, parseVariants, firstSize, firstThickness } from "@/lib/pricing";
+import { OfferBox } from "@/components/OfferBox";
+import { resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { productDisplayName } from "@/lib/productDisplay";
 
@@ -63,6 +64,16 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
 
   const price = variants && selectedThickness ? { kind: "single" as const, amount: selectedThickness.price, unit: variants.unit, cashbackPct: null } : resolvePrice(product);
 
+  const sizeLabel = variants && selectedSize ? selectedSize.label : product.size;
+  const sqft = price && price.unit === "sqft" ? sqftFromSizeLabel(sizeLabel) : null;
+  const sheetPrice =
+    sqft && price
+      ? price.kind === "single"
+        ? Math.round(price.amount * sqft)
+        : { min: Math.round(price.min * sqft), max: Math.round(price.max * sqft) }
+      : null;
+  const cashbackPct = resolvePrice(product)?.cashbackPct ?? null;
+
   return (
     <div
       className="flex flex-col gap-5 rounded-2xl p-6 shadow-[var(--shadow-md)]"
@@ -89,7 +100,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
       >
         <div>
           <p className="tracked-caps text-[11px] font-medium" style={{ color: "color-mix(in srgb, var(--burgundy) 75%, var(--ink))" }}>
-            Your Price
+            Starting
           </p>
           {price ? (
             <p
@@ -119,6 +130,31 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
             Receive a personalized commercial quotation in under 15 minutes.
           </p>
         </div>
+        {sheetPrice ? (
+          <div className="border-t pt-5" style={{ borderColor: "var(--line)" }}>
+            <p className="tracked-caps text-[11px] font-medium" style={{ color: "color-mix(in srgb, var(--burgundy) 75%, var(--ink))" }}>
+              Starting
+            </p>
+            <p
+              className="serif mt-1 [font-variant-numeric:tabular-nums]"
+              style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}
+            >
+              <span className="text-lg font-normal" style={{ color: "var(--line-strong)" }}>
+                From{" "}
+              </span>
+              {typeof sheetPrice === "number" ? (
+                <>₹{sheetPrice.toLocaleString("en-IN")}</>
+              ) : (
+                <>
+                  ₹{sheetPrice.min.toLocaleString("en-IN")}–{sheetPrice.max.toLocaleString("en-IN")}
+                </>
+              )}
+              <span className="ml-1.5 text-sm font-normal" style={{ color: "var(--line-strong)" }}>
+                /per sheet
+              </span>
+            </p>
+          </div>
+        ) : null}
         <div className="grid grid-cols-2 gap-3">
           <Button type="button" variant="primary" onClick={() => setExpanded(true)} className="w-full">
             Request a Quote
@@ -133,6 +169,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
             WhatsApp
           </a>
         </div>
+        {cashbackPct ? <OfferBox cashbackPct={cashbackPct} /> : null}
       </div>
     </div>
   );

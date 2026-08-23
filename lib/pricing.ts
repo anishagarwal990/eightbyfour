@@ -38,6 +38,17 @@ export function unitLabel(unit: string): string {
   return unit === "sqft" ? "sq.ft" : unit;
 }
 
+/** Parses "8×4 ft" / "6.25x3 ft (...)" style size labels into total sq.ft. */
+export function sqftFromSizeLabel(label: string | null | undefined): number | null {
+  if (!label) return null;
+  const match = label.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+  if (!match) return null;
+  const a = parseFloat(match[1]);
+  const b = parseFloat(match[2]);
+  if (!isFinite(a) || !isFinite(b)) return null;
+  return a * b;
+}
+
 export interface VariantThickness {
   key: string;
   label: string;
