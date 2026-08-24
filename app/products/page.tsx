@@ -9,7 +9,7 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 export const metadata: Metadata = buildMetadata({
   title: "Materials Catalogue — Plywood, Laminates, Veneers & More in Hyderabad",
   description:
-    "Browse EightByFour's full materials catalogue for Hyderabad projects: plywood, laminates, MDF & HDHMR, veneers, acrylic solid surface and adhesives, sourced across trusted manufacturers.",
+    "Browse EightxFour's full materials catalogue for Hyderabad projects: plywood, laminates, MDF & HDHMR, veneers, acrylic solid surface and adhesives, sourced across trusted manufacturers.",
   path: "/products",
 });
 
@@ -29,7 +29,7 @@ export default async function ProductsIndexPage() {
           Every category, available across Hyderabad
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
-          EightByFour procures directly from manufacturers so contractors, architects, interior designers
+          EightxFour procures directly from manufacturers so contractors, architects, interior designers
           and builders can source everything a project needs from one place. Pick a category to see live stock,
           available brands and a buying guide.
         </p>

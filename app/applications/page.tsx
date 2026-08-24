@@ -6,7 +6,7 @@ import { ContentIndexView } from "@/components/ContentIndexView";
 export const metadata: Metadata = buildMetadata({
   title: "Materials for Every Application in Hyderabad",
   description:
-    "From modular kitchens to hotel interiors — the plywood, laminate, veneer and hardware combinations EightByFour recommends for each application in Hyderabad.",
+    "From modular kitchens to hotel interiors — the plywood, laminate, veneer and hardware combinations EightxFour recommends for each application in Hyderabad.",
   path: "/applications",
 });
 

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
     title: `${brand.name} Dealer in Hyderabad — Page ${page}`,
     description:
       brand.overview ||
-      `${brand.name} products available through EightByFour in Hyderabad — request trade pricing and delivery. Page ${page}.`,
+      `${brand.name} products available through EightxFour in Hyderabad — request trade pricing and delivery. Page ${page}.`,
     path: brandPagePath(brand.slug, page),
     image: brand.logo_url || undefined,
   });

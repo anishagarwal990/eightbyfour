@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
-import { getProductsByCategoryPage } from "@/lib/data/products";
+import { getCategoryCounts, getCategorySampleProducts } from "@/lib/data/products";
 import { CATEGORIES } from "@/lib/categories";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
@@ -65,7 +65,7 @@ const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
 };
 
 export const metadata: Metadata = buildMetadata({
-  title: "EightByFour — Interior & Construction Material Procurement in Hyderabad",
+  title: "EightxFour — Interior & Construction Material Procurement in Hyderabad",
   description:
     "Upload your BOQ once and compare organized quotes across 25+ brands — plywood, laminates, veneers, hardware and solid surfaces. Stop chasing suppliers, start comparing smartly.",
   path: "/",
@@ -258,29 +258,33 @@ function WhoIcon({ name }: { name: WhoIconName }) {
 export default async function Home() {
   const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
 
-  // brands, per-category product samples and testimonials are three
-  // independent data sources with no dependency on each other — fetching
-  // them as a single Promise.all instead of three sequential awaits means
-  // homepage TTFB is bounded by the slowest of the three, not their sum.
-  const [brands, categorySections, testimonials] = await Promise.all([
+  // brands, category counts, per-category product samples and testimonials
+  // are independent data sources with no dependency on each other — fetching
+  // them as a single Promise.all instead of sequential awaits means homepage
+  // TTFB is bounded by the slowest of them, not their sum. Category counts
+  // come from one grouped RPC (not a per-category count query) so the
+  // per-category Promise.all below only does one lightweight sample-products
+  // fetch each, instead of a count-plus-data pair.
+  const [brands, categoryCounts, categorySections, testimonials] = await Promise.all([
     getAllBrandsWithCounts(),
+    getCategoryCounts(),
     Promise.all(
       featuredCategories.map(async (category) => {
         // Only the representative image (products[0]) is used on the homepage —
         // sample a small pool and shuffle so every load picks a different one,
         // instead of the same alphabetically-first product every time.
-        const { products, total } = await getProductsByCategoryPage(category.dbCategory, { page: 1, pageSize: 10 });
+        const products = await getCategorySampleProducts(category.dbCategory, 10);
         const withImages = products.filter((p) => p.main_img_url);
         const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
-        return { category, products: sample, total };
+        return { category, products: sample };
       })
     ),
     getTestimonials(),
   ]);
-  const categoryPhotoItems = categorySections.map(({ category, products, total }) => ({
+  const categoryPhotoItems = categorySections.map(({ category, products }) => ({
     slug: category.slug,
     name: category.name,
-    total,
+    total: categoryCounts[category.dbCategory] ?? 0,
     image: products[0]?.main_img_url ?? CATEGORY_FALLBACK_IMAGE[category.slug] ?? null,
   }));
 
@@ -374,7 +378,7 @@ export default async function Home() {
               Built for Everyone Building a Space
             </h2>
             <p className="mt-4 max-w-xs" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Whether it&apos;s one home or a dozen sites, EightByFour is the same single point of contact.
+              Whether it&apos;s one home or a dozen sites, EightxFour is the same single point of contact.
             </p>
           </div>
           <Reveal stagger strong className="flex flex-col">
@@ -433,7 +437,7 @@ export default async function Home() {
           </div>
           <div className="rounded-sm border p-6" style={{ borderColor: "var(--burgundy)", background: "var(--paper)" }}>
             <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              The EightByFour Way
+              The EightxFour Way
             </p>
             <ul className="mt-4 flex flex-col gap-3">
               {NEW_WAY.map((item) => (

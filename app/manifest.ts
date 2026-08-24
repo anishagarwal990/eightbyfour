@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "EightByFour — Procurement Platform for Interior & Construction Materials",
-    short_name: "EightByFour",
+    name: "EightxFour — Procurement Platform for Interior & Construction Materials",
+    short_name: "EightxFour",
     description:
-      "EightByFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad.",
+      "EightxFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

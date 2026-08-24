@@ -9,6 +9,7 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { LikeCommentWidget } from "@/components/LikeCommentWidget";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BrandLogo } from "@/components/BrandLogo";
+import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
@@ -61,7 +62,7 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
   const faqs = [
     {
       question: `Is ${displayName} available in Hyderabad?`,
-      answer: `Yes — EightByFour stocks ${displayName} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
+      answer: `Yes — EightxFour stocks ${displayName} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
     },
     ...(product.custom_faqs || []),
   ];
@@ -95,6 +96,7 @@ export function ProductPageView({
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
+  const categoryMarkSlug = categorySlug && isCategoryMarkSlug(categorySlug) ? categorySlug : undefined;
   const price = resolvePrice(product);
   const images = productImages(product);
   const faqs = buildFaqs(product);
@@ -165,7 +167,11 @@ export function ProductPageView({
         </div>
 
         <div>
-          <BrandLogo brand={product.brand} height={40} />
+          {product.brand === "EightByFour" && categoryMarkSlug ? (
+            <CategoryTile slug={categoryMarkSlug} size={40} />
+          ) : (
+            <BrandLogo brand={product.brand} height={40} />
+          )}
           <div className="mt-2 flex items-start justify-between gap-3">
             <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
               {h1Text}
@@ -507,7 +513,7 @@ export function ProductPageView({
           </h2>
           <div className="mt-3 flex flex-wrap gap-3">
             {frequentlyBoughtWith.map((c) => (
-              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full border px-4 py-1.5 text-sm" style={{ borderColor: "var(--line)" }}>
+              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full px-4 py-1.5 text-sm" style={{ background: "var(--paper)" }}>
                 {c.name}
               </Link>
             ))}

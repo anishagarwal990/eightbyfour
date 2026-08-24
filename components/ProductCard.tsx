@@ -2,11 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { BrandLogo } from "@/components/BrandLogo";
+import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
+import { CATEGORIES } from "@/lib/categories";
 import { resolvePrice, unitLabel } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 
+const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(CATEGORIES.map((c) => [c.dbCategory, c.slug]));
+
 export function ProductCard({ product }: { product: ProductRow }) {
   const price = resolvePrice(product);
+  const categorySlug = CATEGORY_SLUG_BY_DB[product.category];
+  const categoryMarkSlug = categorySlug && isCategoryMarkSlug(categorySlug) ? categorySlug : undefined;
   return (
     <Link
       href={`/products/${product.slug}`}
@@ -39,7 +45,11 @@ export function ProductCard({ product }: { product: ProductRow }) {
         ) : null}
       </div>
       <div className="p-3">
-        <BrandLogo brand={product.brand} height={16} />
+        {product.brand === "EightByFour" && categoryMarkSlug ? (
+          <CategoryTile slug={categoryMarkSlug} size={24} />
+        ) : (
+          <BrandLogo brand={product.brand} height={16} />
+        )}
         <h3 className="serif mt-1 text-base leading-snug">{product.name}</h3>
         {product.sd_code ? (
           <p className="mt-0.5 text-xs font-medium" style={{ color: "var(--burgundy)" }}>

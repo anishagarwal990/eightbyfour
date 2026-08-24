@@ -50,7 +50,7 @@ export async function GET() {
       return [
         String(p.id),
         `${p.brand} ${p.name}`,
-        p.description || `${p.brand} ${p.name} — available in Hyderabad from EightByFour.`,
+        p.description || `${p.brand} ${p.name} — available in Hyderabad from EightxFour.`,
         `${SITE_URL}/products/${p.slug}`,
         p.main_img_url,
         "in_stock",

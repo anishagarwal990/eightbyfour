@@ -13,18 +13,14 @@ export const SOURCE_ONLY_BRANDS = [
   { name: "Dorset", slug: "dorset", file: "dorset.webp" },
   { name: "Europa", slug: "europa", file: "europa.webp" },
   { name: "Saburi Ply", slug: "saburi-ply", file: "saburi-ply.png" },
-  { name: "Vivanta Solid Surfaces", slug: "vivanta-solid-surfaces", file: "vivanta.jpeg" },
   { name: "LX Hausys", slug: "lx-hausys", file: "lx-hausys.jpeg" },
   { name: "Staron", slug: "staron", file: "staron.png" },
   { name: "PTA Fastener", slug: "pta-fastener", file: "pta-fastener.jpeg" },
   { name: "Archidply", slug: "archidply", file: "archidply.webp" },
   { name: "Durian", slug: "durian", file: "durian.webp" },
   { name: "Abro", slug: "abro", file: "abro.webp" },
-  { name: "Greenlam", slug: "greenlam", file: "greenlam.webp" },
-  { name: "Merino", slug: "merino", file: "merino.webp" },
   { name: "Durlax", slug: "durlax", file: "durlax.png" },
   { name: "Glo Panels", slug: "glo-panels", file: "glo-panels.jpeg" },
-  { name: "Skydecor", slug: "skydecor", file: "skydecor.png" },
   { name: "Vivre Panels", slug: "vivre-panels", file: "vivre.png" },
 ];
 

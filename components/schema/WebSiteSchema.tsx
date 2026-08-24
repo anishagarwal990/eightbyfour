@@ -5,7 +5,7 @@ export function WebSiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    alternateName: "EightByFour",
+    alternateName: "EightxFour",
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",

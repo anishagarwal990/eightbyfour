@@ -16,6 +16,14 @@ import { CATEGORY_PAGE_SIZE } from "@/lib/data/products";
 import { categoryPageUrl } from "@/lib/categoryPagination";
 import { productDisplayName } from "@/lib/productDisplay";
 import { ViewTracker } from "@/components/ViewTracker";
+import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
+import { BrandLogo } from "@/components/BrandLogo";
+
+// Brand pill in "Brands Available" — fixed-height box so every logo (odd
+// aspect ratios included) sits centered at the same scale, with a filled
+// background and hover lift so it reads as a button, not a bare image.
+const BRAND_PILL_CLASS =
+  "flex h-11 min-w-[64px] items-center justify-center rounded-full bg-[var(--paper-dim)] px-4 transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]";
 
 export function CategoryPageView({
   category,
@@ -82,23 +90,32 @@ export function CategoryPageView({
           <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
             Brands Available
           </h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {brands.map((b) =>
-              b.slug ? (
-                <Link
-                  key={b.name}
-                  href={`/brands/${b.slug}`}
-                  className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                  style={{ borderColor: "var(--line)" }}
-                >
-                  {b.name}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {brands.map((b) => {
+              // EightByFour's own stock is sold under a category sub-brand —
+              // the colored tile alone stands in for the name, same as any
+              // other brand's logo would.
+              if (b.name === "EightByFour" && isCategoryMarkSlug(category.slug)) {
+                return b.slug ? (
+                  <Link key={b.name} href={`/brands/${b.slug}`} aria-label="EightxFour" className={BRAND_PILL_CLASS}>
+                    <CategoryTile slug={category.slug} size={32} />
+                  </Link>
+                ) : (
+                  <span key={b.name} aria-label="EightxFour" className={BRAND_PILL_CLASS}>
+                    <CategoryTile slug={category.slug} size={32} />
+                  </span>
+                );
+              }
+              return b.slug ? (
+                <Link key={b.name} href={`/brands/${b.slug}`} className={BRAND_PILL_CLASS}>
+                  <BrandLogo brand={b.name} height={22} />
                 </Link>
               ) : (
-                <span key={b.name} className="rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--line)" }}>
-                  {b.name}
+                <span key={b.name} className={BRAND_PILL_CLASS}>
+                  <BrandLogo brand={b.name} height={22} />
                 </span>
-              )
-            )}
+              );
+            })}
           </div>
         </Reveal>
       ) : null}
@@ -141,8 +158,8 @@ export function CategoryPageView({
               <Link
                 key={slug}
                 href={`/applications/${slug}`}
-                className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                style={{ borderColor: "var(--line)" }}
+                className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                style={{ background: "var(--paper-dim)" }}
               >
                 {slug.replace(/-/g, " ")}
               </Link>
@@ -174,7 +191,7 @@ export function CategoryPageView({
           </h2>
           <div className="mt-3 flex flex-wrap gap-3">
             {related.map((c) => (
-              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full border px-4 py-1.5 text-sm hover:opacity-70" style={{ borderColor: "var(--line)" }}>
+              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full px-4 py-1.5 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
                 {c.name}
               </Link>
             ))}

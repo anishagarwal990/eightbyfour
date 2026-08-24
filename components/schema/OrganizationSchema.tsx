@@ -10,12 +10,12 @@ export function OrganizationSchema() {
     // re-declaring the full HomeAndConstructionBusiness object each time.
     "@id": `${SITE_URL}/#organization`,
     name: SITE_NAME,
-    alternateName: "EightByFour",
+    alternateName: "EightxFour",
     url: SITE_URL,
     image: `${SITE_URL}/og-image.jpg`,
     logo: `${SITE_URL}/eightbyfour-logo.png`,
     description:
-      "EightByFour is a procurement platform for interior and construction materials operating in Hyderabad — sourcing plywood, laminates, veneers, hardware and more directly from trusted manufacturers.",
+      "EightxFour is a procurement platform for interior and construction materials operating in Hyderabad — sourcing plywood, laminates, veneers, hardware and more directly from trusted manufacturers.",
     areaServed: { "@type": "City", name: "Hyderabad" },
     address: {
       "@type": "PostalAddress",

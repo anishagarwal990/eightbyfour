@@ -7,9 +7,9 @@ import { Reveal } from "@/components/Reveal";
 import { buttonClasses } from "@/components/ui/Button";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About EightByFour — Material Procurement in Hyderabad",
+  title: "About EightxFour — Material Procurement in Hyderabad",
   description:
-    "EightByFour is a procurement platform for interior and construction materials in Hyderabad — sourcing directly from manufacturers instead of reselling through a single catalogue.",
+    "EightxFour is a procurement platform for interior and construction materials in Hyderabad — sourcing directly from manufacturers instead of reselling through a single catalogue.",
   path: "/about",
 });
 
@@ -33,10 +33,10 @@ export default function AboutPage() {
             A procurement platform, not a reseller
           </h1>
           <p className="mt-3" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
-            EightByFour is a procurement platform for interior and construction materials, operating in Hyderabad.
+            EightxFour is a procurement platform for interior and construction materials, operating in Hyderabad.
             We source plywood, laminates, veneers, hardware, solid surface and adhesives directly from manufacturers
             across our distribution network — so pricing and stock reflect the manufacturer, not a reseller markup.
-            EightByFour is a unit of DRG Group.
+            EightxFour is a unit of DRG Group.
           </p>
         </section>
 
@@ -72,7 +72,7 @@ export default function AboutPage() {
             Where we operate
           </h2>
           <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
-            EightByFour currently serves Hyderabad — every brand relationship, delivery route and process is built
+            EightxFour currently serves Hyderabad — every brand relationship, delivery route and process is built
             around this city&apos;s sites and timelines, not a generic pan-India catalogue. See our{" "}
             <Link href="/hyderabad" className="underline hover:opacity-70">
               Hyderabad procurement pages

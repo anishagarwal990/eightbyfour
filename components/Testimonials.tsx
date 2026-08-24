@@ -112,7 +112,7 @@ export function Testimonials({ initialTestimonials }: { initialTestimonials: Tes
           </h2>
           {testimonials.length === 0 ? (
             <p className="mt-2 max-w-md text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
-              We&apos;re early — this page doesn&apos;t have reviews yet. If you&apos;ve sourced through EightByFour, tell the
+              We&apos;re early — this page doesn&apos;t have reviews yet. If you&apos;ve sourced through EightxFour, tell the
               next homeowner or contractor what that was actually like.
             </p>
           ) : null}
@@ -169,7 +169,7 @@ export function Testimonials({ initialTestimonials }: { initialTestimonials: Tes
           </div>
 
           <textarea
-            placeholder="Share your experience working with EightByFour…"
+            placeholder="Share your experience working with EightxFour…"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}

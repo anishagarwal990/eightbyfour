@@ -10,7 +10,7 @@ export function SiteFooter() {
         <div>
           <BrandWordmark size={22} />
           <p className="mt-2 max-w-xs" style={{ color: "var(--line-strong)" }}>
-            EightByFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
+            EightxFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
             MDF, laminates, veneers and hardware, sourced directly from trusted manufacturers.
           </p>
           <WhatsAppTrackedLink
@@ -25,7 +25,7 @@ export function SiteFooter() {
             Contact &amp; office details →
           </Link>
           <Link href="/about" className="mt-2 block hover:opacity-70" style={{ color: "var(--accent)" }}>
-            About EightByFour →
+            About EightxFour →
           </Link>
         </div>
         <nav className="flex flex-col gap-1.5" aria-label="Products">
@@ -57,7 +57,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <div className="mx-auto mt-10 max-w-6xl border-t pt-6 text-xs" style={{ borderColor: "var(--line)", color: "var(--line-strong)" }}>
-        <p>EightByFour is a unit of DRG Group.</p>
+        <p>EightxFour is a unit of DRG Group.</p>
         <p className="mt-1">Registered Office: 7-1-21/B 106 Sita Sarovar, Begumpet, Hyderabad, 500016, TG</p>
       </div>
     </footer>

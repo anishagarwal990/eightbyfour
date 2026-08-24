@@ -28,7 +28,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "Plywood",
     heroTagline: "Commercial and marine-grade plywood from Century, Austin, Green Panel and Wigwam Excel.",
     overview:
-      "Plywood is the structural backbone of almost every interior project — cabinetry carcasses, wardrobe shutters, false ceilings, and furniture that needs to hold screws and hardware over decades. EightByFour sources plywood in standard 8×4 ft sheets across MR (moisture-resistant), BWP (boil-proof) and fire-retardant grades from manufacturers already trusted on Hyderabad sites, so you're choosing between real stock, not a catalogue.",
+      "Plywood is the structural backbone of almost every interior project — cabinetry carcasses, wardrobe shutters, false ceilings, and furniture that needs to hold screws and hardware over decades. EightxFour sources plywood in standard 8×4 ft sheets across MR (moisture-resistant), BWP (boil-proof) and fire-retardant grades from manufacturers already trusted on Hyderabad sites, so you're choosing between real stock, not a catalogue.",
     buyingGuide:
       "Match the grade to the environment: MR grade is fine for dry interior furniture, BWP (boil-water-proof) is worth the premium for kitchens, bathrooms and any site with monsoon exposure risk, and fire-retardant (FR) grade matters for commercial and hospitality fit-outs where it's often a code requirement. Thickness follows the application — 19mm for structural carcasses and shutters, 12mm for backs and shelves, 6mm for drawer bottoms and panel infills.",
     faqs: [
@@ -57,7 +57,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "Birch Plywood",
     heroTagline: "Imported Russian Birch Ply in BB/BB grade for furniture with exposed edges.",
     overview:
-      "Birch plywood is a multi-ply hardwood panel built from thin birch veneers, prized for its dense, void-free cross-section — the edge itself looks finished, which is why designers reach for it on open shelving, exposed-edge furniture and Scandinavian-style joinery. EightByFour stocks imported Russian Birch Ply in BB/BB grade (both faces clean).",
+      "Birch plywood is a multi-ply hardwood panel built from thin birch veneers, prized for its dense, void-free cross-section — the edge itself looks finished, which is why designers reach for it on open shelving, exposed-edge furniture and Scandinavian-style joinery. EightxFour stocks imported Russian Birch Ply in BB/BB grade (both faces clean).",
     buyingGuide:
       "Birch ply is heavier and stiffer than standard commercial plywood, which is what gives it a clean, chip-free edge when cut — factor that into hardware selection and transport. It's priced at a premium over commercial plywood, so it's typically specified where the edge or cross-section will actually be visible, not for hidden carcasses.",
     faqs: [
@@ -128,7 +128,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "Laminates",
     heroTagline: "Decorative laminate sheets across finishes and thicknesses for cabinetry and wall surfaces.",
     overview:
-      "Laminates are the visible finish layer on most modular furniture — bonded onto plywood, MDF or HDHMR to give cabinetry, wardrobes and panelling their final texture and colour. EightByFour's laminate catalogue spans matte, glossy, textured and wood-grain finishes across the thicknesses used in Hyderabad fabrication.",
+      "Laminates are the visible finish layer on most modular furniture — bonded onto plywood, MDF or HDHMR to give cabinetry, wardrobes and panelling their final texture and colour. EightxFour's laminate catalogue spans matte, glossy, textured and wood-grain finishes across the thicknesses used in Hyderabad fabrication.",
     buyingGuide:
       "Pick finish for both look and use: high-gloss reads premium but shows fingerprints and scratches more readily, making it a better fit for wardrobe interiors or low-touch surfaces than daily-use kitchen counters. Match laminate thickness to the substrate and edge-banding plan your fabricator is using — thicker laminates (1mm) suit high-wear horizontal surfaces, thinner sheets (0.8mm and below) are standard for vertical shutter faces.",
     faqs: [
@@ -152,7 +152,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "Corian / Acrylic Solid Surface",
     heroTagline: "Durasein, Tiara and Vivanta acrylic solid surface sheets across a full shade catalogue for countertops and cladding.",
     overview:
-      "Acrylic solid surface (the category Corian popularised) is a non-porous, seamlessly jointable sheet material used for kitchen countertops, wash-basin counters, wall cladding and reception desks. EightByFour stocks the Durasein, Tiara and Vivanta shade ranges — solid colours, marble-effect and textured finishes — with real shade codes you can spec against.",
+      "Acrylic solid surface (the category Corian popularised) is a non-porous, seamlessly jointable sheet material used for kitchen countertops, wash-basin counters, wall cladding and reception desks. EightxFour stocks the Durasein, Tiara and Vivanta shade ranges — solid colours, marble-effect and textured finishes — with real shade codes you can spec against.",
     buyingGuide:
       "Solid surface counters can be thermoformed and joined seam-free, which is the main reason to spec them over stone for curved or long-run counters. For kitchens, pair with a heat-resistant trivet zone near the hob — while durable, solid surface can scorch under direct high heat the way natural stone won't.",
     faqs: [
@@ -174,9 +174,9 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "veneers",
     dbCategory: "Veneers",
     name: "Veneers",
-    heroTagline: "Natural, dyed and embossed veneers — EightByFour's largest catalogue by shade and species.",
+    heroTagline: "Natural, dyed and embossed veneers — EightxFour's largest catalogue by shade and species.",
     overview:
-      "Veneer is a thin slice of real wood bonded onto a substrate, used wherever a project calls for genuine wood grain without the cost or movement risk of solid timber — panelling, doors, reception counters and feature walls. This is EightByFour's deepest catalogue: natural species veneers, dyed veneers in editorial colourways, and embossed textures, all sourced through our Propperly curated line and specialist suppliers.",
+      "Veneer is a thin slice of real wood bonded onto a substrate, used wherever a project calls for genuine wood grain without the cost or movement risk of solid timber — panelling, doors, reception counters and feature walls. This is EightxFour's deepest catalogue: natural species veneers, dyed veneers in editorial colourways, and embossed textures, sourced and quality-checked for Hyderabad fabrication.",
     buyingGuide:
       "Natural veneer grain is unique sheet-to-sheet — for a continuous grain run across a wall or door set, order from the same flitch/batch rather than mixing sheets bought at different times. Dyed and embossed veneers give more colour consistency if a uniform look across a large area matters more than natural grain variation.",
     faqs: [
@@ -198,9 +198,9 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "stone-panels",
     dbCategory: "Stone Panels",
     name: "Stone Panels",
-    heroTagline: "Marble, slate, sandstone and translucent stone-veneer panels from Propperly for feature walls and counters.",
+    heroTagline: "Marble, slate, sandstone and translucent stone-veneer panels for feature walls and counters.",
     overview:
-      "Stone panels give the look of natural marble, slate or sandstone as a thin, lightweight sheet, used for feature walls, reception counters and backlit accent strips where solid stone would be too heavy or costly to install. EightByFour stocks Propperly's stone panel range across Marble, Slate, Sandstone, Translucent, Concrete and Metallic finishes.",
+      "Stone panels give the look of natural marble, slate or sandstone as a thin, lightweight sheet, used for feature walls, reception counters and backlit accent strips where solid stone would be too heavy or costly to install. EightxFour stocks its own stone panel range across Marble, Slate, Sandstone, Translucent, Concrete and Metallic finishes.",
     buyingGuide:
       "Translucent and Metallic finishes are the ones worth specifying where the panel will be backlit — reception desks, bar fronts, feature strips — since the effect depends on light passing through. Marble and Slate finishes read closer to natural stone and suit feature walls, cladding and counters where the panel won't be lit from behind.",
     faqs: [
@@ -247,7 +247,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "NFC (Natural Fibre Composite) Boards",
     heroTagline: "RelWOOD natural fibre composite boards — a moisture and termite-proof alternative to plywood and MDF.",
     overview:
-      "Natural Fibre Composite (NFC) boards are an engineered wood-alternative made from natural fibre composite rather than timber veneers, giving them strong resistance to moisture, termites and weathering without deforestation. EightByFour stocks RelWOOD, Reliance Industries' NFC board line, across three densities and a full 8×4 ft thickness range for both interior and exterior use.",
+      "Natural Fibre Composite (NFC) boards are an engineered wood-alternative made from natural fibre composite rather than timber veneers, giving them strong resistance to moisture, termites and weathering without deforestation. EightxFour stocks RelWOOD, Reliance Industries' NFC board line, across three densities and a full 8×4 ft thickness range for both interior and exterior use.",
     buyingGuide:
       "Pick density by application: lower-density boards (0.65 g/cm³) suit interior panelling and partitions where weight and cost matter, while the denser 1.0 g/cm³ board holds up better for exterior cladding, facades and outdoor furniture exposed to weathering. Because NFC boards are inherently moisture and termite resistant, they're a common substitute for BWP plywood or WPC on exterior-facing work.",
     faqs: [
@@ -330,7 +330,7 @@ export const CATEGORIES: CategoryConfig[] = [
     name: "Blockboards",
     heroTagline: "Solid-core blockboard for long-span shelving and worktops, in pinewood and hardwood core.",
     overview:
-      "Blockboard is a solid-core engineered panel — a core of glued timber strips sandwiched between Gurjan face veneer — prized for holding screws well and resisting sag over long, unsupported spans like shelving and worktops. EightByFour stocks it in two core types: pinewood, which is lighter and easier to work with, and hardwood, which is denser and stronger for the same thickness.",
+      "Blockboard is a solid-core engineered panel — a core of glued timber strips sandwiched between Gurjan face veneer — prized for holding screws well and resisting sag over long, unsupported spans like shelving and worktops. EightxFour stocks it in two core types: pinewood, which is lighter and easier to work with, and hardwood, which is denser and stronger for the same thickness.",
     buyingGuide:
       "Pick pinewood core for general shelving, wardrobe shutters and worktops where weight and cost matter more than maximum strength. Step up to hardwood core for longer spans or heavier loads where sag resistance and screw-holding strength are the priority. Both are stocked in 16mm, 18mm and 25mm; pinewood also comes in a wider 10×4 ft sheet for larger spans.",
     faqs: [

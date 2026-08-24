@@ -235,8 +235,8 @@ export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) 
               key={`${c.facet}-${c.value}`}
               type="button"
               onClick={() => clearFacet(c.facet, c.value)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium"
-              style={{ borderColor: "var(--line)", background: "var(--paper)", color: "var(--ink)" }}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+              style={{ background: "var(--paper-dim)", color: "var(--ink)" }}
             >
               <span style={{ color: "var(--line-strong)" }}>{c.label}:</span>
               {c.value}
@@ -256,8 +256,8 @@ export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) 
             <button
               type="button"
               onClick={clearAll}
-              className="cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium hover:opacity-70"
-              style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}
+              className="cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium hover:opacity-70"
+              style={{ background: "color-mix(in srgb, var(--burgundy) 10%, var(--paper))", color: "var(--burgundy)" }}
             >
               Clear filters
             </button>

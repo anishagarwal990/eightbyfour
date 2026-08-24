@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBrandsWithCounts, getBrandBySlug, getBrandCategories } from "@/lib/data/brands";
+import { getAllBrandsWithCounts, getBrandBySlug, getBrandCategories, getEightByFourCategoryCounts } from "@/lib/data/brands";
 import { getProductsByBrand, getProductsByBrandPage } from "@/lib/data/products";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ShadeEntry } from "@/components/ShadeFinishPicker";
@@ -21,11 +21,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
   if (brand) {
+    const isEightByFour = brand.slug === "eightbyfour";
     return buildMetadata({
-      title: `${brand.name} Dealer in Hyderabad — Products, Downloads & Pricing`,
+      title: isEightByFour
+        ? "EightxFour Products in Hyderabad — Downloads & Pricing"
+        : `${brand.name} Dealer in Hyderabad — Products, Downloads & Pricing`,
       description:
         brand.overview ||
-        `${brand.name} products available through EightByFour in Hyderabad — request trade pricing and delivery.`,
+        (isEightByFour
+          ? "EightxFour's own product line in Hyderabad — request trade pricing and delivery."
+          : `${brand.name} products available through EightxFour in Hyderabad — request trade pricing and delivery.`),
       path: brandPagePath(brand.slug, 1),
       image: brand.logo_url || undefined,
     });
@@ -40,7 +45,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         : `${sourceOnly.name} in Hyderabad — Ask for Availability & Quote`,
       description:
         content?.intro ||
-        `EightByFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
+        `EightxFour sources ${sourceOnly.name} through our manufacturer network — request a quote and we'll get back to you in under 15 minutes.`,
       path: `/brands/${sourceOnly.slug}`,
     });
   }
@@ -83,10 +88,11 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
-  const [{ products, totalPages }, categories, shadeFinderProducts] = await Promise.all([
+  const [{ products, totalPages }, categories, shadeFinderProducts, subBrandCounts] = await Promise.all([
     getProductsByBrandPage(brand.name, { page: 1 }),
     getBrandCategories(brand.name),
     SHADE_FINDER_BRANDS.has(brand.slug) ? getProductsByBrand(brand.name) : Promise.resolve<ProductRow[]>([]),
+    brand.slug === "eightbyfour" ? getEightByFourCategoryCounts() : Promise.resolve<Record<string, number>>({}),
   ]);
   const relatedCategoryConfigs = categories
     .map((dbCategory) => CATEGORIES.find((c) => c.dbCategory === dbCategory))
@@ -105,6 +111,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
       totalPages={totalPages}
       shadeFinder={shadeFinder}
       allProducts={shadeFinderProducts.length > 0 ? shadeFinderProducts : undefined}
+      subBrandCounts={brand.slug === "eightbyfour" ? subBrandCounts : undefined}
     />
   );
 }

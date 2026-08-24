@@ -17,6 +17,8 @@ import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import { CategoryTile, CATEGORY_MARK_LABEL, CATEGORY_MARK_SLUGS } from "@/components/CategoryMark";
+import { getCategoryBySlug } from "@/lib/categories";
 
 export interface BrandFaq {
   question: string;
@@ -27,7 +29,7 @@ export function getBrandFaqs(brandName: string): BrandFaq[] {
   return [
     {
       question: `Is ${brandName} available for delivery across Hyderabad?`,
-      answer: `Yes — EightByFour delivers ${brandName} products across Hyderabad. Request a quote on any product page for current pricing and lead time.`,
+      answer: `Yes — EightxFour delivers ${brandName} products across Hyderabad. Request a quote on any product page for current pricing and lead time.`,
     },
     {
       question: `Can I get trade pricing on ${brandName} products?`,
@@ -61,6 +63,7 @@ export function BrandPageView({
   totalPages,
   shadeFinder,
   allProducts,
+  subBrandCounts,
 }: {
   brand: BrandRow;
   products: ProductRow[];
@@ -72,6 +75,8 @@ export function BrandPageView({
   shadeFinder?: ShadeEntry[];
   /** Full unpaginated product list for finish-filterable brands — renders in place of the plain paginated grid when present (page 1 only; paginated /page/N routes keep the server-paginated grid). */
   allProducts?: ProductRow[];
+  /** EightByFour only — SKU counts per dbCategory, to show its three category sub-brands (Plywood Shop, Laminates, Veneers) under the hero. */
+  subBrandCounts?: Record<string, number>;
 }) {
   const relatedGuides = (BRAND_GUIDE_SLUGS[brand.slug] || [])
     .map((slug) => {
@@ -116,10 +121,10 @@ export function BrandPageView({
             {brand.name} · Hyderabad
           </p>
           <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-            {/* EightByFour is the site's own brand, not a third party it "deals" —
+            {/* EightxFour is the site's own brand, not a third party it "deals" —
                 every other brand on this template is external, so only this one
                 needs different copy. */}
-            {brand.slug === "eightbyfour" ? "EightByFour Products in Hyderabad" : `${brand.name} Dealer in Hyderabad`}
+            {brand.slug === "eightbyfour" ? "EightxFour Products in Hyderabad" : `${brand.name} Dealer in Hyderabad`}
           </h1>
           {brand.overview ? (
             <p className="mt-4 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -141,6 +146,28 @@ export function BrandPageView({
                   {cert}
                 </span>
               ))}
+            </div>
+          ) : null}
+
+          {subBrandCounts ? (
+            <div className="mt-6 flex flex-wrap gap-5">
+              {CATEGORY_MARK_SLUGS.map((slug) => {
+                const dbCategory = getCategoryBySlug(slug)?.dbCategory ?? "";
+                const count = subBrandCounts[dbCategory] ?? 0;
+                if (count === 0) return null;
+                return (
+                  <Link key={slug} href={`/products/${slug}`} className="group flex items-center gap-2">
+                    <CategoryTile
+                      slug={slug}
+                      size={36}
+                      className="grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100"
+                    />
+                    <span className="text-sm" style={{ color: "var(--line-strong)" }}>
+                      {CATEGORY_MARK_LABEL[slug]} · {count} SKUs
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           ) : null}
 
@@ -191,8 +218,8 @@ export function BrandPageView({
                       <Link
                         key={c.slug}
                         href={`/products/${c.slug}`}
-                        className="rounded-full border px-3 py-1 text-sm transition-colors duration-150 hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
-                        style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                        className="rounded-full px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                        style={{ background: "var(--paper-dim)" }}
                       >
                         {c.name}
                       </Link>
@@ -212,8 +239,8 @@ export function BrandPageView({
                     <Link
                       key={g.slug}
                       href={`/guides/${g.slug}`}
-                      className="rounded-full border px-3 py-1 text-sm transition-colors duration-150 hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
-                      style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+                      className="rounded-full px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                      style={{ background: "var(--paper-dim)" }}
                     >
                       {g.title}
                     </Link>

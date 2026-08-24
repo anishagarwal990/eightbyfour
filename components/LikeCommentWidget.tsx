@@ -180,8 +180,11 @@ export function LikeCommentWidget({
           onClick={doSave}
           aria-label={saved ? "Remove from saved products" : "Save this product"}
           aria-pressed={saved}
-          className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,border-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
-          style={{ borderColor: saved ? "var(--burgundy)" : "var(--line)", color: saved ? "var(--burgundy)" : "var(--ink)" }}
+          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,background-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          style={{
+            background: saved ? "color-mix(in srgb, var(--burgundy) 10%, var(--paper))" : "var(--paper-dim)",
+            color: saved ? "var(--burgundy)" : "var(--ink)",
+          }}
         >
           <SaveIcon filled={saved} />
           {saved ? "Saved" : "Save"}
@@ -190,8 +193,8 @@ export function LikeCommentWidget({
           type="button"
           onClick={doShare}
           aria-label="Share this product"
-          className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,border-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
-          style={{ borderColor: "var(--line)" }}
+          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          style={{ background: "var(--paper-dim)" }}
         >
           <ShareIcon />
           Share

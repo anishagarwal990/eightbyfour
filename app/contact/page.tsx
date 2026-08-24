@@ -14,8 +14,8 @@ const ADDRESS_LINE_2 = "Hyderabad, Telangana 500016";
 const DIRECTIONS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ADDRESS_LINE_1}, ${ADDRESS_LINE_2}`)}`;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Contact EightByFour — Hyderabad",
-  description: "Reach EightByFour by phone, WhatsApp or email for material procurement in Hyderabad — plywood, laminates, veneers, hardware and more.",
+  title: "Contact EightxFour — Hyderabad",
+  description: "Reach EightxFour by phone, WhatsApp or email for material procurement in Hyderabad — plywood, laminates, veneers, hardware and more.",
   path: "/contact",
 });
 
@@ -34,7 +34,7 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="mt-2 text-base" style={{ color: "var(--line-strong)" }}>
-            EightByFour operates as a procurement platform across Hyderabad — reach us directly, or send your BOQ and
+            EightxFour operates as a procurement platform across Hyderabad — reach us directly, or send your BOQ and
             we&apos;ll respond in under 15 minutes during business hours.
           </p>
         </section>
@@ -105,7 +105,7 @@ export default function ContactPage() {
             Service Area
           </h2>
           <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
-            EightByFour sources and delivers across Hyderabad and the surrounding metro area — see our{" "}
+            EightxFour sources and delivers across Hyderabad and the surrounding metro area — see our{" "}
             <a href="/hyderabad" className="underline hover:opacity-70">
               Hyderabad procurement pages
             </a>{" "}

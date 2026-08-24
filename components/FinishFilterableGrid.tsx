@@ -116,8 +116,8 @@ export function FinishFilterableGrid({ products, brandName }: { products: Produc
           <button
             type="button"
             onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            className="rounded-full border px-5 py-2.5 text-sm font-medium transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
-            style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}
+            className="rounded-full px-5 py-2.5 text-sm font-medium transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+            style={{ background: "color-mix(in srgb, var(--burgundy) 10%, var(--paper))", color: "var(--burgundy)" }}
           >
             Show More ({filtered.length - visibleCount} left)
           </button>

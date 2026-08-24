@@ -29,11 +29,11 @@ const canelaText = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.eightbyfour.com"),
   title: {
-    default: "EightByFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
+    default: "EightxFour — Procurement Platform for Interior & Construction Materials in Hyderabad",
     template: `%s | ${BRAND_SHORT}`,
   },
   description:
-    "EightByFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad — for contractors, architects, interior designers and builders.",
+    "EightxFour simplifies procurement of plywood, laminates, MDF, veneers, hardware and more directly from trusted manufacturers in Hyderabad — for contractors, architects, interior designers and builders.",
   manifest: "/manifest.webmanifest",
   // favicon.svg dropped from this list — same reason as before (old abstract
   // glyph reads as a blob at favicon size). icon.png/apple-icon.png/favicon.ico

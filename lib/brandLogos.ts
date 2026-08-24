@@ -6,6 +6,7 @@
 export const BRAND_LOGOS: Record<string, string> = {
   Austin: "/brand-logos/austin.png",
   Century: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png",
+  "Century Laminates": "/brand-logos/century-laminates.jpg",
   Durasein: "/brand-logos/durasein.webp",
   EightByFour: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/eightbyfour.png",
   Fevicol: "/brand-logos/fevicol.jpeg",
@@ -14,7 +15,6 @@ export const BRAND_LOGOS: Record<string, string> = {
   Greenply: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/greenply.svg",
   Merino: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/merino.webp",
   Mikasa: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/mikasa.png",
-  Propperly: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/propperly.png",
   RelWOOD: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/relwood.jpeg",
   "Sky Decor": "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/skydecor.png",
   Tiara: "/brand-logos/tiara.png",

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AutoScrollRow } from "@/components/AutoScrollRow";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
+import { CategoryTile, CATEGORY_MARK_SLUGS } from "@/components/CategoryMark";
 
 interface RealBrand {
   slug: string;
@@ -42,6 +43,15 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
   function renderItems(keyPrefix: string) {
     return (
       <>
+        {CATEGORY_MARK_SLUGS.map((slug) => (
+          <Link key={`${keyPrefix}-eightxfour-${slug}`} href={`/brands/eightbyfour`} className="flex shrink-0 items-center">
+            <CategoryTile
+              slug={slug}
+              size={56}
+              className="grayscale opacity-75 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100"
+            />
+          </Link>
+        ))}
         {brands.map((b) => (
           <LogoItem key={`${keyPrefix}-${b.slug}`} brand={b} />
         ))}
