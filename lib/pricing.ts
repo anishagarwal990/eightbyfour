@@ -38,15 +38,24 @@ export function unitLabel(unit: string): string {
   return unit === "sqft" ? "sq.ft" : unit;
 }
 
-/** Parses "8×4 ft" / "6.25x3 ft (...)" style size labels into total sq.ft. */
+/** Parses "8×4 ft" / "6.25x3 ft (...)" / "760×2490mm (30×98in)" style size labels into total sq.ft. */
 export function sqftFromSizeLabel(label: string | null | undefined): number | null {
   if (!label) return null;
-  const match = label.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+  const match = label.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(mm|cm|m|in|ft)?/i);
   if (!match) return null;
   const a = parseFloat(match[1]);
   const b = parseFloat(match[2]);
   if (!isFinite(a) || !isFinite(b)) return null;
-  return a * b;
+  const unit = (match[3] || "ft").toLowerCase();
+  const feetPerUnit: Record<string, number> = {
+    mm: 1 / 304.8,
+    cm: 1 / 30.48,
+    m: 1 / 0.3048,
+    in: 1 / 12,
+    ft: 1,
+  };
+  const factor = feetPerUnit[unit] ?? 1;
+  return a * factor * (b * factor);
 }
 
 export interface VariantThickness {
