@@ -60,7 +60,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${plexSans.variable} ${canelaText.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col pb-14 lg:pb-0">
+      <body className="min-h-full flex flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         <Suspense fallback={null}>
           <MarketingTracking />
         </Suspense>

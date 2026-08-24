@@ -13,7 +13,12 @@ export function MobileStickyCTA() {
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t lg:hidden"
-      style={{ borderColor: "var(--line)", background: "var(--paper)", boxShadow: "var(--shadow-lg)" }}
+      style={{
+        borderColor: "var(--line)",
+        background: "var(--paper)",
+        boxShadow: "var(--shadow-lg)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+      }}
     >
       <a
         href={`tel:${PHONE_TEL}`}
