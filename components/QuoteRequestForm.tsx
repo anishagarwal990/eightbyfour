@@ -7,6 +7,8 @@ import { UploadIcon } from "@/components/icons/UploadIcon";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import type { ProductRow } from "@/lib/supabase/types";
 import { productDisplayName } from "@/lib/productDisplay";
+import { trackEvent } from "@/lib/analytics";
+import { getStoredUtm } from "@/lib/utm";
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.heic,.webp";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -91,6 +93,8 @@ export function QuoteRequestForm({ product, variantSelection }: { product: Produ
     if (uploadedFileUrl) lines.push(`Requirement list: ${uploadedFileUrl}`);
     else if (file) lines.push(`Attached file: ${file.name} (please attach again here — upload failed)`);
 
+    const utm = getStoredUtm();
+
     supabase
       .from("inquiries")
       .insert({
@@ -106,10 +110,25 @@ export function QuoteRequestForm({ product, variantSelection }: { product: Produ
         sample_requested: sampleRequested,
         uploaded_file_name: file ? file.name : null,
         uploaded_file_url: uploadedFileUrl,
+        ...utm,
       })
       .then(({ error }) => {
         if (error) console.error("Failed to log inquiry:", error.message);
       });
+
+    trackEvent("quote_request", {
+      inquiry_ref: inquiryRef,
+      inquiry_type: "single",
+      product_id: product.id,
+      product_name: product.name,
+      category: product.category,
+      brand: product.brand,
+      product_code: product.sd_code,
+      finish: product.category === "Laminates" ? finishLabel || null : null,
+      campaign: utm.utm_campaign,
+      source: utm.utm_source,
+      medium: utm.utm_medium,
+    });
 
     const url = buildWhatsAppUrl(lines.join("\n"));
     window.open(url, "_blank", "noopener");

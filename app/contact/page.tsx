@@ -4,8 +4,10 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { Reveal } from "@/components/Reveal";
 import { buttonClasses } from "@/components/ui/Button";
-import { PHONE_DISPLAY, PHONE_TEL, EMAIL } from "@/lib/contact";
+import { PHONE_DISPLAY, EMAIL } from "@/lib/contact";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import { TrackedTelLink } from "@/components/TrackedTelLink";
 
 const ADDRESS_LINE_1 = "7-1-21/B 106 Sita Sarovar, Begumpet";
 const ADDRESS_LINE_2 = "Hyderabad, Telangana 500016";
@@ -44,18 +46,17 @@ export default function ContactPage() {
                 Phone &amp; WhatsApp
               </h2>
               <p className="mt-2">
-                <a href={`tel:${PHONE_TEL}`} className="hover:opacity-70" style={{ color: "var(--ink)" }}>
+                <TrackedTelLink source="contact_page" className="hover:opacity-70" style={{ color: "var(--ink)" }}>
                   {PHONE_DISPLAY}
-                </a>
+                </TrackedTelLink>
               </p>
-              <a
+              <WhatsAppTrackedLink
                 href={buildWhatsAppUrl("Hi, I'd like to get in touch — found you via the Contact page on eightbyfour.com")}
-                target="_blank"
-                rel="noopener noreferrer"
+                source="contact_page"
                 className={`mt-3 inline-flex ${buttonClasses("primary")}`}
               >
                 Message on WhatsApp
-              </a>
+              </WhatsAppTrackedLink>
             </div>
             <div>
               <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>

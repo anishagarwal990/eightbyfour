@@ -2,13 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { trackEvent } from "@/lib/analytics";
 
 export interface GalleryImage {
   src: string;
   alt: string;
 }
 
-export function ProductGallery({ images }: { images: GalleryImage[] }) {
+export function ProductGallery({
+  images,
+  productId,
+  productName,
+}: {
+  images: GalleryImage[];
+  /** Optional — only present when this gallery belongs to a product page, so the standalone image_view event only fires there. */
+  productId?: number;
+  productName?: string;
+}) {
   const [active, setActive] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -53,7 +63,10 @@ export function ProductGallery({ images }: { images: GalleryImage[] }) {
     <div>
       <button
         type="button"
-        onClick={() => setLightboxOpen(true)}
+        onClick={() => {
+          setLightboxOpen(true);
+          if (productId !== undefined) trackEvent("product_image_view", { product_id: productId, product_name: productName, image_index: active });
+        }}
         className="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl shadow-[var(--shadow-md)]"
         style={{ background: "var(--paper-dim)" }}
         aria-label="View full-size image"

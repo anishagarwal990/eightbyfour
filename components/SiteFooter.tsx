@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { WHATSAPP_NUMBER } from "@/lib/whatsapp";
 import { BrandWordmark } from "@/components/BrandWordmark";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
 
 export function SiteFooter() {
   return (
@@ -12,15 +13,14 @@ export function SiteFooter() {
             EightByFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
             MDF, laminates, veneers and hardware, sourced directly from trusted manufacturers.
           </p>
-          <a
+          <WhatsAppTrackedLink
             href={`https://wa.me/${WHATSAPP_NUMBER}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            source="footer"
             className="mt-3 inline-block hover:opacity-70"
             style={{ color: "var(--accent)" }}
           >
             ↗ Chat with us on WhatsApp
-          </a>
+          </WhatsAppTrackedLink>
           <Link href="/contact" className="mt-2 block hover:opacity-70" style={{ color: "var(--accent)" }}>
             Contact &amp; office details →
           </Link>

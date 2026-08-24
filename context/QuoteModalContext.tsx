@@ -5,6 +5,8 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { buildWhatsAppUrl, generateInquiryRef } from "@/lib/whatsapp";
 import { UploadIcon } from "@/components/icons/UploadIcon";
 import { Button, buttonClasses } from "@/components/ui/Button";
+import { trackEvent } from "@/lib/analytics";
+import { getStoredUtm } from "@/lib/utm";
 
 const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.heic,.webp";
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -152,6 +154,8 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     if (email.trim()) lines.push(`Email: ${email.trim()}`);
     if (message.trim()) lines.push(`Message: ${message.trim()}`);
 
+    const utm = getStoredUtm();
+
     supabase
       .from("inquiries")
       .insert({
@@ -164,10 +168,20 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
         message: message.trim() || null,
         uploaded_file_name: file ? file.name : null,
         uploaded_file_url: uploadedFileUrl,
+        ...utm,
       })
       .then(({ error }) => {
         if (error) console.error("Failed to log inquiry:", error.message);
       });
+
+    trackEvent("quote_request", {
+      inquiry_ref: inquiryRef,
+      inquiry_type: "list",
+      item_count: items.length,
+      campaign: utm.utm_campaign,
+      source: utm.utm_source,
+      medium: utm.utm_medium,
+    });
 
     const url = buildWhatsAppUrl(lines.join("\n"));
     window.open(url, "_blank", "noopener");

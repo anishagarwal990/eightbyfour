@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ProductRow } from "@/lib/supabase/types";
 import { ProductCard } from "@/components/ProductCard";
+import { trackEvent } from "@/lib/analytics";
 
 const PAGE_SIZE = 60;
 
@@ -44,6 +45,7 @@ export function FinishFilterableGrid({ products, brandName }: { products: Produc
   function selectFinish(value: string | null) {
     setSelectedFinish(value);
     setVisibleCount(PAGE_SIZE);
+    if (value) trackEvent("product_filter", { filter_type: "finish", filter_value: value, brand: brandName });
   }
 
   return (

@@ -6,6 +6,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { CONTENT_TYPE_LABEL, CONTENT_TYPE_PATH, getAllContent, type ContentType } from "@/lib/mdx";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CategoryProductGrid } from "@/components/CategoryProductGrid";
+import { ViewTracker } from "@/components/ViewTracker";
 
 const CONTENT_TYPES: ContentType[] = ["applications", "guides", "comparisons", "hyderabad"];
 
@@ -37,6 +38,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <main>
+      {query ? (
+        <ViewTracker event="product_search" dedupeKey={query} params={{ search_term: query, result_count: totalMatches }} />
+      ) : null}
       <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Search" }]} />
       <section className="px-7 py-8">

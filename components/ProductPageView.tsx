@@ -17,6 +17,7 @@ import { resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 import { finishCode, productImages } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
+import { ViewTracker } from "@/components/ViewTracker";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
   CATEGORIES.map((c) => [c.dbCategory, c.slug])
@@ -128,6 +129,18 @@ export function ProductPageView({
 
   return (
     <main>
+      <ViewTracker
+        event="product_view"
+        dedupeKey={product.slug}
+        params={{
+          product_id: product.id,
+          product_name: product.name,
+          category: product.category,
+          brand: product.brand,
+          product_code: product.sd_code,
+          finish: product.finish,
+        }}
+      />
       <BreadcrumbSchema items={breadcrumbPaths} />
       <FaqSchema faqs={faqs} />
       <ProductSchema product={product} ratings={ratings} />
@@ -148,7 +161,7 @@ export function ProductPageView({
           isn't scroll-gated. */}
       <section className="reveal-strong is-visible grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <ProductGallery images={images} />
+          <ProductGallery images={images} productId={product.id} productName={product.name} />
         </div>
 
         <div>

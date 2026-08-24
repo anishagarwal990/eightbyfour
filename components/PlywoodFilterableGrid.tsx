@@ -128,7 +128,11 @@ export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) 
   const [certs, setCerts] = useState<Set<string>>(() => parseParam(searchParams, QUERY_KEYS.certification));
 
   useEffect(() => {
-    const params = new URLSearchParams();
+    // Start from the live URL's params (not a fresh URLSearchParams) so
+    // anything this component doesn't own — utm_* campaign params above all —
+    // survives the pill clicks intact instead of being silently dropped.
+    const params = new URLSearchParams(window.location.search);
+    for (const key of Object.values(QUERY_KEYS)) params.delete(key);
     if (grades.size) params.set(QUERY_KEYS.grade, [...grades].join(","));
     if (warranties.size) params.set(QUERY_KEYS.warranty, [...warranties].join(","));
     if (certs.size) params.set(QUERY_KEYS.certification, [...certs].join(","));

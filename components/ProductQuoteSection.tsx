@@ -9,6 +9,7 @@ import { OfferBox } from "@/components/OfferBox";
 import { resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { productDisplayName } from "@/lib/productDisplay";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
 
 function WhatsAppIcon() {
   return (
@@ -159,15 +160,15 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
           <Button type="button" variant="primary" onClick={() => setExpanded(true)} className="w-full">
             Request a Quote
           </Button>
-          <a
+          <WhatsAppTrackedLink
             href={buildWhatsAppUrl(`Hi, I'm interested in ${productDisplayName(product)}. Can you share pricing and availability?`)}
-            target="_blank"
-            rel="noopener noreferrer"
+            source="product_quote_section"
+            context={{ product_id: product.id, product_name: product.name, category: product.category, brand: product.brand, product_code: product.sd_code }}
             className={buttonClasses("secondary", "md", "w-full")}
           >
             <WhatsAppIcon />
             WhatsApp
-          </a>
+          </WhatsAppTrackedLink>
         </div>
         {cashbackPct ? <OfferBox cashbackPct={cashbackPct} /> : null}
       </div>

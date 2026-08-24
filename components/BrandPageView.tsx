@@ -16,6 +16,7 @@ import { Reveal } from "@/components/Reveal";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
 
 export interface BrandFaq {
   question: string;
@@ -115,7 +116,10 @@ export function BrandPageView({
             {brand.name} · Hyderabad
           </p>
           <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-            {brand.name} Dealer in Hyderabad
+            {/* EightByFour is the site's own brand, not a third party it "deals" —
+                every other brand on this template is external, so only this one
+                needs different copy. */}
+            {brand.slug === "eightbyfour" ? "EightByFour Products in Hyderabad" : `${brand.name} Dealer in Hyderabad`}
           </h1>
           {brand.overview ? (
             <p className="mt-4 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -142,15 +146,15 @@ export function BrandPageView({
 
           <div className="mt-6 flex flex-wrap gap-3">
             <RequestQuoteButton label={`Get ${brand.name} Pricing`} />
-            <a
+            <WhatsAppTrackedLink
               href={buildWhatsAppUrl(`Hi, I'm interested in ${brand.name} products. Can you share pricing and availability?`)}
-              target="_blank"
-              rel="noopener noreferrer"
+              source="brand_page"
+              context={{ brand: brand.name }}
               className={buttonClasses("secondary", "md")}
             >
               <WhatsAppIcon />
               WhatsApp
-            </a>
+            </WhatsAppTrackedLink>
           </div>
         </div>
 

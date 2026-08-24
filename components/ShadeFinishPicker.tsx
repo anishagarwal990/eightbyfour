@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 
 export interface ShadeFinishOption {
   code: string;
@@ -44,6 +45,12 @@ export function ShadeFinishPicker({ brandName, shades }: { brandName: string; sh
     setQuery(`${shade.code} — ${shade.name}`);
     setOpen(false);
     setSelectedFinish(shade.finishes.length === 1 ? shade.finishes[0].finish : "");
+    trackEvent("laminate_code_search", { code: shade.code, brand: brandName, result_count: shade.finishes.length });
+  }
+
+  function selectFinish(finish: string) {
+    setSelectedFinish(finish);
+    if (selectedShade) trackEvent("laminate_finish_selection", { code: selectedShade.code, finish, brand: brandName });
   }
 
   function goToProduct() {
@@ -116,7 +123,7 @@ export function ShadeFinishPicker({ brandName, shades }: { brandName: string; sh
           <select
             value={selectedFinish}
             disabled={!selectedShade}
-            onChange={(e) => setSelectedFinish(e.target.value)}
+            onChange={(e) => selectFinish(e.target.value)}
             className="w-full rounded-lg border px-3.5 py-2.5 text-sm focus:outline-none focus:border-[var(--burgundy)] disabled:opacity-50"
             style={{ borderColor: "var(--line)", background: "var(--paper)" }}
           >

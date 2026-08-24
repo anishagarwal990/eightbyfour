@@ -116,6 +116,16 @@ create table if not exists public.inquiries (
 
 alter table public.inquiries add column if not exists uploaded_file_url text;
 
+-- Meta Ads attribution — captured client-side from the landing URL's
+-- utm_* params (sessionStorage, see lib/utm.ts) and attached when the
+-- inquiry is logged, so a lead can be traced back to its ad campaign.
+alter table public.inquiries add column if not exists utm_source text;
+alter table public.inquiries add column if not exists utm_medium text;
+alter table public.inquiries add column if not exists utm_campaign text;
+alter table public.inquiries add column if not exists utm_content text;
+alter table public.inquiries add column if not exists utm_term text;
+alter table public.inquiries add column if not exists landing_path text;
+
 create index if not exists inquiries_created_at_idx on public.inquiries (created_at desc);
 create index if not exists inquiries_status_idx on public.inquiries (status);
 

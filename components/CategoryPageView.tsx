@@ -15,6 +15,7 @@ import { CollectionPageSchema } from "@/components/schema/CollectionPageSchema";
 import { CATEGORY_PAGE_SIZE } from "@/lib/data/products";
 import { categoryPageUrl } from "@/lib/categoryPagination";
 import { productDisplayName } from "@/lib/productDisplay";
+import { ViewTracker } from "@/components/ViewTracker";
 
 export function CategoryPageView({
   category,
@@ -37,6 +38,11 @@ export function CategoryPageView({
 
   return (
     <main>
+      <ViewTracker
+        event="category_view"
+        dedupeKey={`${category.slug}:${page}:${collection ?? ""}`}
+        params={{ category: category.dbCategory, page, collection, product_count: filterCounts.total }}
+      />
       <BreadcrumbSchema
         items={[
           { name: "Home", path: "/" },

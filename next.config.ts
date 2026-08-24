@@ -8,13 +8,22 @@ const IMAGE_DELIVERY_ORIGIN = "https://imagedelivery.net";
 // would need a broader nonce/hash rollout to enforce safely. Report-only
 // still surfaces violations (via a browser's console/reporting) without any
 // risk of breaking the live site.
+// GA4 + Meta Pixel hosts — added so the loader scripts (googletagmanager.com,
+// connect.facebook.net) and their outbound beacons don't show as violations
+// once this policy goes from report-only to enforced. Meta's pixel also
+// loads a 1x1 tracking image from facebook.com, hence img-src.
+const GA_SCRIPT_ORIGIN = "https://www.googletagmanager.com";
+const GA_CONNECT_ORIGIN = "https://www.google-analytics.com";
+const META_SCRIPT_ORIGIN = "https://connect.facebook.net";
+const META_CONNECT_ORIGIN = "https://www.facebook.com";
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline' ${GA_SCRIPT_ORIGIN} ${META_SCRIPT_ORIGIN}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: ${SUPABASE_ORIGIN} ${IMAGE_DELIVERY_ORIGIN}`,
+  `img-src 'self' data: ${SUPABASE_ORIGIN} ${IMAGE_DELIVERY_ORIGIN} ${META_CONNECT_ORIGIN}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${SUPABASE_ORIGIN} wss://${new URL(SUPABASE_ORIGIN).host}`,
+  `connect-src 'self' ${SUPABASE_ORIGIN} wss://${new URL(SUPABASE_ORIGIN).host} ${GA_CONNECT_ORIGIN} ${GA_SCRIPT_ORIGIN} ${META_CONNECT_ORIGIN}`,
   "frame-ancestors 'self'",
 ].join("; ");
 
@@ -44,6 +53,17 @@ const nextConfig: NextConfig = {
       {
         source: "/guides/hdmmr-for-bathroom-kitchen",
         destination: "/guides/hdhmr-for-bathroom-kitchen",
+        permanent: true,
+      },
+      // "Propperly" retired as a customer-facing brand — every product
+      // formerly on it (veneers, laminates, stone panels) now carries brand
+      // "EightByFour" (see lib/data/brands.ts migration). The brand row and
+      // /brands/propperly route are kept for history, not deleted, but
+      // shouldn't resolve publicly anymore. Veneers is where ~76% (493/648)
+      // of the old Propperly catalogue lived, so that's the redirect target.
+      {
+        source: "/brands/propperly",
+        destination: "/products/veneers",
         permanent: true,
       },
     ];

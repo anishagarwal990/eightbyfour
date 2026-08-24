@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -8,6 +9,7 @@ import { MobileStickyCTA } from "@/components/MobileStickyCTA";
 import { OrganizationSchema } from "@/components/schema/OrganizationSchema";
 import { WebSiteSchema } from "@/components/schema/WebSiteSchema";
 import { QuoteModalProvider } from "@/context/QuoteModalContext";
+import { MarketingTracking } from "@/components/MarketingTracking";
 import { getCategoryCounts } from "@/lib/data/products";
 import { getBrandsMenuData } from "@/lib/data/brands";
 import { BRAND_SHORT } from "@/lib/seo";
@@ -59,6 +61,9 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${plexSans.variable} ${canelaText.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col pb-14 lg:pb-0">
+        <Suspense fallback={null}>
+          <MarketingTracking />
+        </Suspense>
         <OrganizationSchema />
         <WebSiteSchema />
         <QuoteModalProvider>
