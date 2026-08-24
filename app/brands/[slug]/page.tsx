@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 // a core, per-SKU differentiator, not a minor variant) — these get the
 // shade/code + finish picker on their brand page in addition to the regular
 // product grid. See ShadeFinishPicker for why.
-const SHADE_FINDER_BRANDS = new Set(["virgo"]);
+const SHADE_FINDER_BRANDS = new Set(["virgo", "century"]);
 
 function buildShadeFinder(products: ProductRow[]): ShadeEntry[] {
   const byCode = new Map<string, ShadeEntry>();
