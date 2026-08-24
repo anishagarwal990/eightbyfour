@@ -21,8 +21,8 @@ async function upload(localPath, remotePath) {
 }
 
 async function main() {
-  const mainUrl = await upload(join(ROOT, "Product images ", "Updated Birch Image 1.png"), "products/400-main.png");
-  const edgeUrl = await upload(join(ROOT, "Product images ", "Updated Birch Image 2 .png"), "products/400-edge.png");
+  const mainUrl = await upload(join(ROOT, "..", "eightbyfour-assets", "Product images ", "Updated Birch Image 1.png"), "products/400-main.png");
+  const edgeUrl = await upload(join(ROOT, "..", "eightbyfour-assets", "Product images ", "Updated Birch Image 2 .png"), "products/400-edge.png");
 
   const { error } = await supabase
     .from("products")

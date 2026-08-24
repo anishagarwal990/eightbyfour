@@ -42,8 +42,8 @@ function RelatedContentSection({
           <Link
             key={item.slug}
             href={`${basePath}/${item.slug}`}
-            className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-            style={{ borderColor: "var(--line)" }}
+            className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+            style={{ background: "var(--paper-dim)" }}
           >
             {item.title}
           </Link>
@@ -143,8 +143,8 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
                 <Link
                   key={c.slug}
                   href={`/products/${c.slug}`}
-                  className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                  style={{ borderColor: "var(--line)" }}
+                  className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                  style={{ background: "var(--paper-dim)" }}
                 >
                   {c.name}
                 </Link>
@@ -164,8 +164,8 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
               <Link
                 key={b.slug}
                 href={`/brands/${b.slug}`}
-                className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-                style={{ borderColor: "var(--line)" }}
+                className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                style={{ background: "var(--paper-dim)" }}
               >
                 {b.name}
               </Link>

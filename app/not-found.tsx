@@ -44,8 +44,8 @@ export default function NotFound() {
             <Link
               key={c.slug}
               href={`/products/${c.slug}`}
-              className="rounded-full border px-3 py-1 text-sm hover:opacity-70"
-              style={{ borderColor: "var(--line)" }}
+              className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+              style={{ background: "var(--paper-dim)" }}
             >
               {c.name}
             </Link>

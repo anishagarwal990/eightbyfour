@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
-const buffer = readFileSync("/Users/anishagarwal/Downloads/eightbyfour/Brand logo/relwood_logo.jpeg");
+const buffer = readFileSync("/Users/anishagarwal/Downloads/eightbyfour-assets/Brand logo/relwood_logo.jpeg");
 const path = "brands/relwood.jpeg";
 const { error } = await supabase.storage.from("product-images").upload(path, buffer, { contentType: "image/jpeg", upsert: true });
 if (error) throw new Error(error.message);

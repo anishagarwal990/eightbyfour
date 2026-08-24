@@ -61,17 +61,17 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             {matchedBrands.length > 0 || matchedCategories.length > 0 || matchedContent.length > 0 ? (
               <div className="mt-4 flex flex-wrap gap-2">
                 {matchedCategories.map((c) => (
-                  <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full border px-3 py-1 text-sm hover:opacity-70" style={{ borderColor: "var(--line)" }}>
+                  <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full px-3 py-1 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
                     {c.name} <span style={{ color: "var(--accent)" }}>Category</span>
                   </Link>
                 ))}
                 {matchedBrands.map((b) => (
-                  <Link key={b.slug} href={`/brands/${b.slug}`} className="rounded-full border px-3 py-1 text-sm hover:opacity-70" style={{ borderColor: "var(--line)" }}>
+                  <Link key={b.slug} href={`/brands/${b.slug}`} className="rounded-full px-3 py-1 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
                     {b.name} <span style={{ color: "var(--accent)" }}>Brand</span>
                   </Link>
                 ))}
                 {matchedContent.map((c) => (
-                  <Link key={c.url} href={c.url} className="rounded-full border px-3 py-1 text-sm hover:opacity-70" style={{ borderColor: "var(--line)" }}>
+                  <Link key={c.url} href={c.url} className="rounded-full px-3 py-1 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
                     {c.title} <span style={{ color: "var(--accent)" }}>{c.label}</span>
                   </Link>
                 ))}

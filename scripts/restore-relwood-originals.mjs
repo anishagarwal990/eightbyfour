@@ -15,5 +15,5 @@ async function upload(local, remote, contentType) {
   console.log(remote, "restored,", buffer.length, "bytes");
 }
 
-await upload("/Users/anishagarwal/Downloads/eightbyfour/Product images /reliance-relwood-plywood-in-jodhpur.png", "products/2382-main.png", "image/png");
-await upload("/Users/anishagarwal/Downloads/eightbyfour/Product images /relwood product images .png", "products/2382-gallery-1.png", "image/png");
+await upload("/Users/anishagarwal/Downloads/eightbyfour-assets/Product images /reliance-relwood-plywood-in-jodhpur.png", "products/2382-main.png", "image/png");
+await upload("/Users/anishagarwal/Downloads/eightbyfour-assets/Product images /relwood product images .png", "products/2382-gallery-1.png", "image/png");

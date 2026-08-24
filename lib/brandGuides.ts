@@ -5,5 +5,5 @@
 export const BRAND_GUIDE_SLUGS: Record<string, string[]> = {
   greenlam: ["greenlam-laminate-finishes-guide", "laminate-care-and-maintenance"],
   merino: ["merino-laminate-finishes-guide", "laminate-care-and-maintenance"],
-  propperly: ["veneer-buying-guide", "laminate-care-and-maintenance"],
+  eightbyfour: ["veneer-buying-guide", "laminate-care-and-maintenance"],
 };

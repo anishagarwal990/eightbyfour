@@ -29,7 +29,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 BASE = "https://www.greenlam.co.in"
-OUT_DIR = Path(__file__).resolve().parent.parent / "Greenlam Shades"
+OUT_DIR = Path(__file__).resolve().parent.parent.parent / "eightbyfour-assets" / "Greenlam Shades"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; ClaudeBot research scrape)"}
 REQUEST_DELAY = 0.4  # seconds between HTTP requests, be polite to the server
 

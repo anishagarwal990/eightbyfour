@@ -11,7 +11,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
-const SHADES_DIR = join(__dirname, "..", "Sky Decor Shades");
+const SHADES_DIR = join(__dirname, "..", "..", "eightbyfour-assets", "Sky Decor Shades");
 const BUCKET = "product-images";
 const STORAGE_PREFIX = "skydecor/liner-laminates";
 

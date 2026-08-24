@@ -1,7 +1,8 @@
 // One-off: uploads product photos and a brand range thumbnail supplied in the
-// project root's "Product images ", "Birch ply images " folders, and sets
-// brands.range_image_url for Green Panel. Verified against DB rows by content
-// (not filename) before running — see conversation history for the mapping.
+// sibling "eightbyfour-assets" directory's "Product images ", "Birch ply
+// images " folders, and sets brands.range_image_url for Green Panel. Verified
+// against DB rows by content (not filename) before running — see
+// conversation history for the mapping.
 //
 // Usage: node scripts/upload-july2026-product-photos.mjs
 
@@ -13,6 +14,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
+const ASSETS_ROOT = join(ROOT, "..", "eightbyfour-assets");
 config({ path: join(ROOT, ".env") });
 
 const BUCKET = "product-images";
@@ -26,7 +28,7 @@ function contentTypeFor(path) {
 }
 
 async function upload(storagePath, localPath) {
-  const buffer = readFileSync(join(ROOT, localPath));
+  const buffer = readFileSync(join(ASSETS_ROOT, localPath));
   const { error } = await supabase.storage.from(BUCKET).upload(storagePath, buffer, {
     contentType: contentTypeFor(localPath),
     upsert: true,

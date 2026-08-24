@@ -11,7 +11,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
   auth: { persistSession: false },
 });
 
-const SHADES_DIR = join(__dirname, "..", "Greenlam Shades");
+const SHADES_DIR = join(__dirname, "..", "..", "eightbyfour-assets", "Greenlam Shades");
 const BUCKET = "product-images";
 const STORAGE_PREFIX = "greenlam/laminates";
 

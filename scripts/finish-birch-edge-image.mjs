@@ -19,7 +19,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 });
 
 async function main() {
-  const localPath = join(ROOT, "Birch ply images ", "WhatsApp Image 2026-07-20 at 16.28.47 (1).jpeg");
+  const localPath = join(ROOT, "..", "eightbyfour-assets", "Birch ply images ", "WhatsApp Image 2026-07-20 at 16.28.47 (1).jpeg");
   const buffer = readFileSync(localPath);
   const storagePath = "products/400-edge.jpeg";
 

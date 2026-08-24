@@ -223,19 +223,25 @@ export async function searchProducts(query: string): Promise<ProductRow[]> {
 
 export async function getCategoryCounts(): Promise<Record<string, number>> {
   const supabase = createServerSupabaseClient();
-  // Per-category head counts, not one unbounded `.select("category")` - that
-  // silently truncates at PostgREST's default 1000-row cap once the table
-  // passes that size, undercounting (or zeroing) every category whose rows
-  // don't make the cut.
-  const dbCategories = CATEGORIES.map((c) => c.dbCategory);
-  const results = await Promise.all(
-    dbCategories.map(async (cat) => {
-      const { count, error } = await supabase.from("products").select("*", { count: "exact", head: true }).eq("category", cat);
-      if (error) throw error;
-      return [cat, count || 0] as const;
-    })
-  );
-  return Object.fromEntries(results);
+  // One grouped RPC instead of a per-category head-count query — the old
+  // Promise.all of 17+ parallel count queries was bursting past PostgREST's
+  // connection pool on every homepage load, tripping fetchWithRetry's
+  // backoff on the overflow and adding tens of seconds to render time.
+  const { data, error } = await supabase.rpc("get_category_counts");
+  if (error) throw error;
+  const counts = Object.fromEntries((data as { category: string; count: number }[]).map((r) => [r.category, r.count]));
+  return Object.fromEntries(CATEGORIES.map((c) => [c.dbCategory, counts[c.dbCategory] ?? 0]));
+}
+
+// Sample products for a category with no count query attached — for callers
+// (like the homepage grid) that already have the total from
+// getCategoryCounts() and only need a few representative rows, not another
+// per-category round-trip just to learn a number they already have.
+export async function getCategorySampleProducts(dbCategory: string, limit = 10): Promise<ProductRow[]> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase.from("products").select("*").eq("category", dbCategory).limit(limit);
+  if (error) throw error;
+  return data;
 }
 
 export interface CategoryBrand {

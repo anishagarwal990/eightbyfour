@@ -4,7 +4,7 @@ import { categoryPageUrl } from "@/lib/categoryPagination";
 import type { CategoryFilterCounts } from "@/lib/data/products";
 
 export const CHIP_CLASS =
-  "inline-flex items-center justify-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,border-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]";
+  "inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,border-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]";
 
 // A filter change always jumps back to page 1 of that (sub)set — collection
 // counts are small enough (tens to low hundreds) that re-paginating within
