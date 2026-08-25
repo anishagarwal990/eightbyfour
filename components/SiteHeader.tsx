@@ -9,7 +9,7 @@ import { SaveIcon } from "@/components/icons/SaveIcon";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
 import { CATEGORIES } from "@/lib/categories";
 import { BrandLogo } from "@/components/BrandLogo";
-import { BrandWordmark } from "@/components/BrandWordmark";
+import { SiteBrandMark } from "@/components/SiteBrandMark";
 import type { BrandMenuEntry } from "@/lib/data/brands";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 import { HyderabadLinkList } from "@/components/HyderabadLinkList";
@@ -418,13 +418,8 @@ export function SiteHeader({
             background: scrolled ? "rgba(255,255,255,0.72)" : transparentAtRest ? "rgba(255,255,255,0.55)" : "var(--paper)",
           }}
         >
-          <Link href="/" className="leading-tight transition-opacity duration-150 hover:opacity-75">
-            <span className="block">
-              <BrandWordmark size={28} />
-            </span>
-            <span className="tracked-caps mt-1 block text-[10px]" style={{ color: "var(--line-strong)" }}>
-              Base to Surface
-            </span>
+          <Link href="/" className="transition-opacity duration-150 hover:opacity-75">
+            <SiteBrandMark scrolled={scrolled} />
           </Link>
           <nav className="hidden flex-wrap items-center gap-5 text-sm lg:flex" aria-label="Primary">
             <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
