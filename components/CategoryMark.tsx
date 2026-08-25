@@ -30,6 +30,17 @@ export const CATEGORY_MARK_DB_CATEGORIES: Record<CategoryMarkSlug, string[]> = {
   veneers: ["Veneers"],
 };
 
+// Reverse lookup for grouping a mixed product list back into its sub-brand
+// sections — e.g. a Blockboard row groups under Plywood Shop, not its own
+// "Blockboard" heading, since there's no separate blockboard mark.
+const DB_CATEGORY_TO_MARK: Record<string, CategoryMarkSlug> = Object.fromEntries(
+  CATEGORY_MARK_SLUGS.flatMap((slug) => CATEGORY_MARK_DB_CATEGORIES[slug].map((dbCategory) => [dbCategory, slug]))
+);
+
+export function categoryMarkForDbCategory(dbCategory: string): CategoryMarkSlug | undefined {
+  return DB_CATEGORY_TO_MARK[dbCategory];
+}
+
 // Tile background (one shared lightness/chroma across all three, only hue
 // changes), the tile's "x" tint (a light contrast color pulled against that
 // tone rather than the parent's burgundy), and the short tag set under the

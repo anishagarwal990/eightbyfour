@@ -17,7 +17,14 @@ import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
-import { CategoryTile, CATEGORY_MARK_LABEL, CATEGORY_MARK_SLUGS, CATEGORY_MARK_DB_CATEGORIES, type CategoryMarkSlug } from "@/components/CategoryMark";
+import {
+  CategoryTile,
+  CATEGORY_MARK_LABEL,
+  CATEGORY_MARK_SLUGS,
+  CATEGORY_MARK_DB_CATEGORIES,
+  categoryMarkForDbCategory,
+  type CategoryMarkSlug,
+} from "@/components/CategoryMark";
 
 export interface BrandFaq {
   question: string;
@@ -88,6 +95,30 @@ export function BrandPageView({
     .filter((g): g is { slug: string; title: string } => g !== null);
 
   const certifications = [...new Set(products.flatMap((p) => p.certifications || []))].slice(0, 6);
+
+  // EightByFour spans five categories under three sub-brands — with no
+  // ?category= filter picked, group the page's products back into their
+  // sections (Plywood Shop, Laminates, Veneers, plus any category with no
+  // mark of its own like Stone Panels) instead of one undifferentiated grid.
+  // `products` already arrives ordered by category, so each group is
+  // contiguous — no re-sort needed.
+  const sectionedProducts =
+    brand.slug === "eightbyfour" && !categoryFilter && !allProducts
+      ? (() => {
+          const byKey = new Map<string, { key: string; label: string; products: ProductRow[] }>();
+          for (const p of products) {
+            const mark = categoryMarkForDbCategory(p.category);
+            const key = mark ?? p.category;
+            let section = byKey.get(key);
+            if (!section) {
+              section = { key, label: mark ? CATEGORY_MARK_LABEL[mark] : p.category, products: [] };
+              byKey.set(key, section);
+            }
+            section.products.push(p);
+          }
+          return [...byKey.values()];
+        })()
+      : null;
 
   return (
     <main>
@@ -258,25 +289,45 @@ export function BrandPageView({
         </Reveal>
       ) : null}
 
-      <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          {categoryFilter ? `${CATEGORY_MARK_LABEL[categoryFilter]} Products in Hyderabad` : `All ${brand.name} Products in Hyderabad`}
-        </h2>
-        {allProducts ? (
-          <div className="mt-4">
-            <FinishFilterableGrid products={allProducts} brandName={brand.name} />
-          </div>
-        ) : (
-          <>
-            <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
-              ))}
+      {sectionedProducts ? (
+        <>
+          {sectionedProducts.map((section) => (
+            <Reveal key={section.key} as="section" className="px-7 py-8">
+              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                {section.label} Products in Hyderabad
+              </h2>
+              <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {section.products.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </Reveal>
             </Reveal>
-            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
-          </>
-        )}
-      </Reveal>
+          ))}
+          <div className="px-7 pb-8">
+            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} />
+          </div>
+        </>
+      ) : (
+        <Reveal as="section" className="px-7 py-8">
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            {categoryFilter ? `${CATEGORY_MARK_LABEL[categoryFilter]} Products in Hyderabad` : `All ${brand.name} Products in Hyderabad`}
+          </h2>
+          {allProducts ? (
+            <div className="mt-4">
+              <FinishFilterableGrid products={allProducts} brandName={brand.name} />
+            </div>
+          ) : (
+            <>
+              <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {products.map((p) => (
+                  <ProductCard key={p.id} product={p} />
+                ))}
+              </Reveal>
+              <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
+            </>
+          )}
+        </Reveal>
+      )}
 
       <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
