@@ -25,10 +25,10 @@ export const CATEGORY_MARK_LABEL: Record<CategoryMarkSlug, string> = {
 // changes), the tile's "x" tint (a light contrast color pulled against that
 // tone rather than the parent's burgundy), and the short tag set under the
 // numeral inside the tile.
-const CATEGORY_TILE: Record<CategoryMarkSlug, { bg: string; x: string; tag: string }> = {
-  plywood: { bg: "oklch(0.62 0.09 145)", x: "var(--burgundy)", tag: "PLY" },
-  laminates: { bg: "oklch(0.62 0.09 250)", x: "oklch(0.88 0.12 80)", tag: "LAM" },
-  veneers: { bg: "oklch(0.62 0.09 25)", x: "oklch(0.88 0.10 125)", tag: "VENEER" },
+const CATEGORY_TILE: Record<CategoryMarkSlug, { bg: string; x: string; tag: string; tagSize: number; tagTracking: string }> = {
+  plywood: { bg: "oklch(0.62 0.09 145)", x: "var(--burgundy)", tag: "PLY & BOARDS", tagSize: 7, tagTracking: "0.12em" },
+  laminates: { bg: "oklch(0.62 0.09 250)", x: "oklch(0.88 0.12 80)", tag: "LAM", tagSize: 8.5, tagTracking: "0.22em" },
+  veneers: { bg: "oklch(0.62 0.09 25)", x: "oklch(0.88 0.10 125)", tag: "VENEER", tagSize: 8.5, tagTracking: "0.22em" },
 };
 
 // Base sizes the proportions below were designed against.
@@ -82,11 +82,12 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
         <div
           style={{
             fontFamily: "'General Sans', Inter, sans-serif",
-            fontSize: 8.5 * scale,
+            fontSize: tone.tagSize * scale,
             fontWeight: 600,
-            letterSpacing: "0.22em",
+            letterSpacing: tone.tagTracking,
             color: "rgba(255,255,255,0.9)",
-            textIndent: "0.22em",
+            textIndent: tone.tagTracking,
+            whiteSpace: "nowrap",
           }}
         >
           {tone.tag}
