@@ -86,16 +86,6 @@ function VeneerIcon(props: IconProps) {
   );
 }
 
-// Layered stone slab.
-function StoneIcon(props: IconProps) {
-  return (
-    <Base {...props}>
-      <path d="M4 15 L9 6 L14 12 L17 8 L20 15 Z" />
-      <path d="M3.5 18 H20.5" />
-    </Base>
-  );
-}
-
 // Adhesive drop.
 function AdhesiveIcon(props: IconProps) {
   return (
@@ -113,7 +103,6 @@ const ICONS: Record<string, (props: IconProps) => React.JSX.Element> = {
   laminates: LaminateIcon,
   "corian-acrylic-solid-surface": CorianIcon,
   veneers: VeneerIcon,
-  "stone-panels": StoneIcon,
   adhesive: AdhesiveIcon,
 };
 

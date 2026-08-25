@@ -29,7 +29,7 @@ const OVERVIEWS = {
   Greenply: "Greenply is one of India's largest plywood and panel manufacturers, known for interior and exterior-grade plywood.",
   Mikasa: "Mikasa supplies commercial plywood for furniture and interior fit-out projects.",
   "Wigwam Excel": "Wigwam Excel manufactures MR and FR grade commercial plywood.",
-  Propperly: "Propperly is EightByFour's in-house curated line of veneers, stone panels and surface materials.",
+  Propperly: "Propperly is EightByFour's in-house curated line of veneers and surface materials.",
   Durasein: "Durasein manufactures acrylic solid surface sheets used for countertops, wall cladding and Corian-style surfaces.",
   Tiara: "Tiara produces acrylic solid surface sheets in a wide range of shades for kitchen and bath surfaces.",
   Fevicol: "Fevicol (Pidilite) is India's leading brand of wood and construction adhesives.",

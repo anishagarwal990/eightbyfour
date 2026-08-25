@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
@@ -106,9 +107,9 @@ export default function ContactPage() {
           </h2>
           <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
             EightxFour sources and delivers across Hyderabad and the surrounding metro area — see our{" "}
-            <a href="/hyderabad" className="underline hover:opacity-70">
+            <Link href="/hyderabad" className="underline hover:opacity-70">
               Hyderabad procurement pages
-            </a>{" "}
+            </Link>{" "}
             for delivery and process details by project type.
           </p>
         </Reveal>

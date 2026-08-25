@@ -99,7 +99,7 @@ export function BrandPageView({
   // EightByFour spans five categories under three sub-brands — with no
   // ?category= filter picked, group the page's products back into their
   // sections (Plywood Shop, Laminates, Veneers, plus any category with no
-  // mark of its own like Stone Panels) instead of one undifferentiated grid.
+  // mark of its own) instead of one undifferentiated grid.
   // `products` already arrives ordered by category, so each group is
   // contiguous — no re-sort needed.
   const sectionedProducts =

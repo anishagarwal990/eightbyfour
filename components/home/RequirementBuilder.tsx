@@ -4,16 +4,23 @@ import { useState } from "react";
 import { useQuoteModal } from "@/context/QuoteModalContext";
 import { Button, buttonClasses } from "@/components/ui/Button";
 
+// Real lines a Hyderabad site actually orders, and the same lines the example
+// card beside this one returns priced — the two halves have to agree or the
+// demonstration falls apart.
 const EXAMPLES = [
-  "18 sheets 18mm BWP plywood",
-  "12 sheets white laminate",
-  "6 pairs soft-close hinges",
-  "4 sheets MDF",
-  "2 Corian slabs",
+  "42 sheets 18mm BWP plywood",
+  "60 sheets 1mm laminate, SD 591 SF",
+  "96 pairs soft-close hinges",
+  "6 drums SH marine adhesive",
 ];
 
-/** Tangible "give us your list" widget — the hero's primary interaction, not a plain upload button. */
-export function HeroQuoteBuilder() {
+/**
+ * The "what you send" half of the compare section. Deliberately typed, not
+ * described: a visitor who adds two lines has already done the thing the
+ * business is asking for, and the example beside it shows those lines coming
+ * back priced. Chips are real materials off the catalogue, not lorem.
+ */
+export function RequirementBuilder() {
   const { items, addItem, removeItem, openModal } = useQuoteModal();
   const [descInput, setDescInput] = useState("");
 
@@ -24,8 +31,14 @@ export function HeroQuoteBuilder() {
   }
 
   return (
-    <div className="w-full max-w-md rounded-sm border p-6 text-left" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
-      <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+    <div
+      className="flex w-full flex-col p-5 text-left sm:p-6"
+      // Explicit ink: this card sits inside an inverted section, so without
+      // it every input value, chip and list row inherits the section's white
+      // text and renders white-on-white.
+      style={{ background: "var(--paper)", color: "var(--ink)", borderRadius: "var(--radius-xs)" }}
+    >
+      <p className="tracked-caps" style={{ fontSize: "var(--fs-label)", color: "var(--burgundy)" }}>
         What do you need?
       </p>
 
@@ -39,9 +52,9 @@ export function HeroQuoteBuilder() {
               handleAdd();
             }
           }}
-          placeholder="e.g. 18 sheets 18mm BWP plywood"
-          className="min-w-0 flex-1 rounded-sm border px-3 py-2 text-sm"
-          style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+          placeholder="e.g. 42 sheets 18mm BWP plywood"
+          className="min-w-0 flex-1 border px-3 py-2 text-sm"
+          style={{ borderColor: "var(--line)", background: "var(--paper)", borderRadius: "var(--radius-xs)" }}
         />
         <button type="button" onClick={handleAdd} className={buttonClasses("secondary", "sm", "shrink-0")}>
           + Add
@@ -53,8 +66,8 @@ export function HeroQuoteBuilder() {
           {items.map((item, i) => (
             <li
               key={i}
-              className="flex items-center justify-between gap-2 rounded-sm border px-3 py-1.5 text-sm"
-              style={{ borderColor: "var(--line)", background: "var(--paper)" }}
+              className="flex items-center justify-between gap-2 border px-3 py-1.5 text-sm"
+              style={{ borderColor: "var(--line)", background: "var(--paper)", borderRadius: "var(--radius-xs)" }}
             >
               <span>
                 <strong>{item.qty} ×</strong> {item.desc}
@@ -79,7 +92,7 @@ export function HeroQuoteBuilder() {
               type="button"
               onClick={() => addItem(example)}
               className={buttonClasses("chip", "sm")}
-              style={{ borderColor: "var(--line)", background: "var(--paper)", color: "var(--line-strong)" }}
+              style={{ boxShadow: "inset 0 0 0 1px var(--line)", background: "var(--paper)", color: "var(--line-strong)" }}
             >
               {example}
             </button>
@@ -87,9 +100,9 @@ export function HeroQuoteBuilder() {
         </div>
       )}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-6 flex flex-wrap gap-3">
         <Button type="button" variant="primary" onClick={() => openModal(undefined, undefined, "Get My Quote")}>
-          Get My Quote →
+          Get My Quote
         </Button>
         <button
           type="button"

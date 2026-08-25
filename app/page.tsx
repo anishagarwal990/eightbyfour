@@ -3,14 +3,20 @@ import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getCategoryCounts, getCategorySampleProducts } from "@/lib/data/products";
 import { CATEGORIES } from "@/lib/categories";
+import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
+import { buttonClasses } from "@/components/ui/Button";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
-import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
+import { HeroShowcase, type ShowcaseBrand, type ShowcaseTile } from "@/components/home/HeroShowcase";
 import { HowItWorks } from "@/components/HowItWorks";
-import { CategoryPhotoGrid } from "@/components/CategoryPhotoGrid";
+import { MaterialDiscovery, type DiscoveryTile } from "@/components/home/MaterialDiscovery";
+import { CompareSlide } from "@/components/home/CompareSlide";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { isRepresentativeImage, treatmentForCategory } from "@/lib/categoryArt";
 import { UseCaseNav } from "@/components/UseCaseNav";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
@@ -19,49 +25,44 @@ import { getTestimonials } from "@/lib/data/testimonials";
 // homepage points at these four and links to /applications for the rest.
 const HOMEPAGE_APPLICATION_SLUGS = ["modular-kitchen", "wardrobes", "commercial-spaces", "retail-stores"];
 
-// The catalogue's strongest categories by real stock depth, plus the
-// "coming soon" categories (zero live SKUs, no photo yet — CategoryPhotoGrid
-// renders those with a placeholder instead of a product image). Birch
-// Plywood, Boil Boards and NFC Boards stay reachable via /products and their
-// own category pages but are left off this list — they have real photos, but
-// only 1-2 SKUs each, which reads as broken rather than curated in a
-// grid; that's a different situation from a deliberate coming-soon entry.
-const HOMEPAGE_CATEGORY_SLUGS = [
-  "plywood",
-  "laminates",
-  "veneers",
-  "corian-acrylic-solid-surface",
-  "mdf-and-hdhmr",
-  "adhesive",
-  "aluminium-sections",
-  "galvanised-iron-sheets",
-  "steel-pipes",
-  "blockboards",
-  "cement-boards",
-  "louvers",
-  "wall-panels",
-  "hardware",
-  "timber",
-  "nails",
-  "screws",
-];
+// A category holding one, two or four SKUs reads as a broken tile rather than
+// as depth, and sitting it beside 2,464 laminates as an equal is a credibility
+// problem — the old grid showed seventeen categories, eleven of which had zero
+// SKUs and rendered stock photography. Ten is the floor for merchandising a
+// category here; below it the category keeps its route, its page, its
+// mega-menu entry and its place in the "Also sourced" row underneath, it just
+// isn't presented as stock you can shop.
+const MERCHANDISE_FLOOR = 10;
 
-// "Coming soon" categories have zero live SKUs yet, so no product row/photo
-// exists in Supabase for them. These are EightByFour's own real product
-// photos (not stock) — swap each entry out for a real Supabase-backed photo
-// once that category actually has SKUs listed.
-const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
-  "aluminium-sections": "/category-fallback/aluminium-sections.jpg",
-  "galvanised-iron-sheets": "/category-fallback/galvanised-iron-sheets.jpg",
-  "steel-pipes": "/category-fallback/steel-pipes.jpg",
-  blockboards: "/category-fallback/blockboards.png",
-  "cement-boards": "/category-fallback/cement-boards.png",
-  louvers: "/category-fallback/louvers.png",
-  "wall-panels": "/category-fallback/wall-panels.jpg",
-  hardware: "/category-fallback/hardware.png",
-  timber: "/category-fallback/timber.jpg",
-  nails: "/category-fallback/nails.jpg",
-  screws: "/category-fallback/screws.jpg",
+// How many photos each category tile cycles through. Enough to read as a range
+// rather than a blink between two images, few enough that a tile isn't holding
+// a dozen decoded frames in memory.
+const IMAGES_PER_TILE = 6;
+
+// The four categories that carry the hero, deepest first. Three are surfaces
+// shot as texture; plywood is a packshot and renders contained on the neutral
+// ground rather than bleeding, which is what keeps the block quiet.
+const HERO_TILE_SLUGS = ["laminates", "veneers", "corian-acrylic-solid-surface", "plywood"];
+
+// "Corian / Acrylic Solid Surface" truncates in a half-width tile; the tile
+// caption is shortened while the alt text and the category page keep the
+// full name.
+const HERO_TILE_LABELS: Partial<Record<string, string>> = {
+  "corian-acrylic-solid-surface": "Solid Surface",
+};
+
+// Names a Hyderabad contractor recognises on sight, spanning boards,
+// laminates and adhesives — breadth is the point of the row, not a ranking.
+const HERO_BRAND_SLUGS = ["century", "merino", "greenlam", "fevicol"];
+
+// One-line reasons a category is worth opening, for the two lead tiles.
+const CATEGORY_BLURBS: Record<string, string> = {
+  laminates: "Shade codes, finishes and textures from Merino, Greenlam, Century and more — searchable by code.",
+  veneers: "Natural and reconstituted veneers, including bookmatched and embossed sheets.",
+  "corian-acrylic-solid-surface": "Seamless acrylic solid surface in stocked colours, for counters and vanities.",
+  plywood: "MR, BWP and fire-retardant grades in standard 8×4 ft sheets.",
+  adhesive: "Site-grade adhesives, including marine and heat-resistant grades.",
+  "mdf-and-hdhmr": "MDF and HDHMR boards for shutters, mouldings and wet areas.",
 };
 
 export const metadata: Metadata = buildMetadata({
@@ -256,36 +257,80 @@ function WhoIcon({ name }: { name: WhoIconName }) {
 }
 
 export default async function Home() {
-  const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
-
-  // brands, category counts, per-category product samples and testimonials
-  // are independent data sources with no dependency on each other — fetching
-  // them as a single Promise.all instead of sequential awaits means homepage
-  // TTFB is bounded by the slowest of them, not their sum. Category counts
-  // come from one grouped RPC (not a per-category count query) so the
-  // per-category Promise.all below only does one lightweight sample-products
-  // fetch each, instead of a count-plus-data pair.
-  const [brands, categoryCounts, categorySections, testimonials] = await Promise.all([
+  // brands, category counts and testimonials are independent data sources with
+  // no dependency on each other — fetching them as a single Promise.all instead
+  // of sequential awaits means homepage TTFB is bounded by the slowest of them,
+  // not their sum. Category counts come from one grouped RPC and are the single
+  // source of truth for every count rendered on this page.
+  const [brands, categoryCounts, testimonials] = await Promise.all([
     getAllBrandsWithCounts(),
     getCategoryCounts(),
-    Promise.all(
-      featuredCategories.map(async (category) => {
-        // Only the representative image (products[0]) is used on the homepage —
-        // sample a small pool and shuffle so every load picks a different one,
-        // instead of the same alphabetically-first product every time.
-        const products = await getCategorySampleProducts(category.dbCategory, 10);
-        const withImages = products.filter((p) => p.main_img_url);
-        const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
-        return { category, products: sample };
-      })
-    ),
     getTestimonials(),
   ]);
-  const categoryPhotoItems = categorySections.map(({ category, products }) => ({
-    slug: category.slug,
-    name: category.name,
-    total: categoryCounts[category.dbCategory] ?? 0,
-    image: products[0]?.main_img_url ?? CATEGORY_FALLBACK_IMAGE[category.slug] ?? null,
+
+  const merchandisable = CATEGORIES.filter((c) => (categoryCounts[c.dbCategory] || 0) >= MERCHANDISE_FLOOR).sort(
+    (a, b) => (categoryCounts[b.dbCategory] || 0) - (categoryCounts[a.dbCategory] || 0)
+  );
+  const alsoSourced = CATEGORIES.filter((c) => !merchandisable.includes(c)).map((c) => ({
+    slug: c.slug,
+    name: c.name,
+  }));
+
+  // A short reel of real products per merchandised category — the tiles cycle
+  // through these rather than showing one fixed photo.
+  //
+  // Ordering is derived from the slug, not randomised: a random pick during
+  // render is impure, defeats caching, and makes a bad crop unreproducible
+  // when someone reports it. The hero and the category grid start from
+  // opposite ends of the same reel so the two sections aren't showing the
+  // visitor the same laminate at the same moment.
+  const samples = await Promise.all(
+    merchandisable.map(async (category) => {
+      const products = await getCategorySampleProducts(category.dbCategory, 16);
+      const urls = products
+        .map((p) => p.main_img_url)
+        .filter((url): url is string => isRepresentativeImage(url));
+      const seed = [...category.slug].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      // Rotate the list by the seed so different categories don't all open on
+      // whatever the query happened to return first.
+      const rotated = urls.map((_, i) => urls[(seed + i) % urls.length]);
+      return {
+        slug: category.slug,
+        hero: rotated.slice(0, IMAGES_PER_TILE),
+        grid: [...rotated].reverse().slice(0, IMAGES_PER_TILE),
+      };
+    })
+  );
+  const heroImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.hero]));
+  const gridImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.grid]));
+
+  const heroTiles: ShowcaseTile[] = HERO_TILE_SLUGS.map((slug): ShowcaseTile | null => {
+    const category = CATEGORIES.find((c) => c.slug === slug);
+    if (!category) return null;
+    return {
+      slug,
+      name: category.name,
+      label: HERO_TILE_LABELS[slug],
+      count: categoryCounts[category.dbCategory] || 0,
+      images: heroImagesBySlug[slug] ?? [],
+      treatment: treatmentForCategory(slug),
+    };
+  }).filter((t): t is ShowcaseTile => t !== null);
+
+  const heroBrands: ShowcaseBrand[] = HERO_BRAND_SLUGS.map((slug) => {
+    const stocked = brands.find((b) => b.slug === slug);
+    if (stocked) return { name: stocked.name, slug: stocked.slug };
+    const sourceOnly = SOURCE_ONLY_BRANDS.find((b) => b.slug === slug);
+    return sourceOnly ? { name: sourceOnly.name, slug: sourceOnly.slug, file: sourceOnly.file } : null;
+  }).filter((b): b is ShowcaseBrand => b !== null);
+
+  const discoveryTiles: DiscoveryTile[] = merchandisable.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    count: categoryCounts[c.dbCategory] || 0,
+    images: gridImagesBySlug[c.slug] ?? [],
+    treatment: treatmentForCategory(c.slug),
+    blurb: CATEGORY_BLURBS[c.slug] ?? c.heroTagline,
   }));
 
   const allApplications = getAllContent("applications");
@@ -300,49 +345,57 @@ export default async function Home() {
 
   return (
     <main>
-      {/* ---------- Hero ---------- */}
-      {/* Pulled up behind the fixed header by --chrome-h (set in SiteHeader's
-          measure effect) so the header floats as glass over real hero content
-          instead of sitting as a flat opaque bar in its own row. Body stays
-          plain white — separation comes from the header's own blur/shadow,
-          not a tinted backdrop. */}
-      <section
-        className="reveal is-visible relative px-7 pb-20"
-        style={{
-          marginTop: "calc(-1 * var(--chrome-h, 0px))",
-          paddingTop: "calc(var(--chrome-h, 0px) + 5rem)",
-        }}
-      >
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
-          <div>
-            <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-              Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
-            </p>
-            <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Interior &amp; Construction Material Procurement in Hyderabad
-            </h1>
-            <h2
-              className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
-              style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
-            >
-              Give Us Your List.
-              <br className="hidden sm:block" /> Get Your Quote.
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Send your BOQ, product list, drawings — or just tell us what you need. We&apos;ll organize the
-              requirements, source across our network and come back with options you can compare.
-            </p>
-            <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
-              First response in under 15 minutes, during business hours.
-            </p>
-            <Link href="/products" className="mx-auto mt-4 block text-sm underline lg:mx-0" style={{ color: "var(--line-strong)" }}>
-              Prefer to browse first? See all products →
-            </Link>
-          </div>
-          <div className="flex justify-center lg:justify-start">
-            <HeroQuoteBuilder />
-          </div>
-        </div>
+      {/* ---------- Hero ----------
+          Two slides: the proposition, then the mechanic. The old hero was
+          pulled up behind the fixed header by --chrome-h so the header floated
+          as glass over it — that is dropped here, because slide two inverts to
+          near-black and a translucent white header sitting over it reads as
+          muddy rather than as glass. */}
+      <section className="reveal is-visible relative">
+        <HeroCarousel
+          labels={["Every material your project needs", "Stop chasing suppliers"]}
+          slides={[
+            // Both slides stretch to the taller of the two, so this one centres
+            // its content in the space rather than sitting against the top with
+            // a void underneath.
+            <div key="proposition" className="flex h-full items-center px-7 py-12 md:py-14">
+              <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
+                <div>
+                  <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
+                    Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
+                  </p>
+                  <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+                    Interior &amp; Construction Material Procurement in Hyderabad
+                  </h1>
+                  <h2
+                    className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
+                    style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
+                  >
+                    Give Us Your List.
+                    <br className="hidden sm:block" /> Get Your Quote.
+                  </h2>
+                  <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+                    Send your BOQ, product list, drawings — or just tell us what you need. We&rsquo;ll organize the
+                    requirements, source across our network and come back with options you can compare.
+                  </p>
+                  <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
+                    First response in under 15 minutes, during business hours.
+                  </p>
+                  <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
+                    <RequestQuoteButton label="Get My Quote" />
+                    <Link href="/products" className={buttonClasses("secondary")}>
+                      Browse Products
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex justify-center lg:justify-end">
+                  <HeroShowcase tiles={heroTiles} brands={heroBrands} brandCount={brands.length + SOURCE_ONLY_BRANDS.length} />
+                </div>
+              </div>
+            </div>,
+            <CompareSlide key="mechanic" />,
+          ]}
+        />
       </section>
 
       {/* ---------- Trust Stats (thin strip, not a full beat) ---------- */}
@@ -361,8 +414,8 @@ export default async function Home() {
 
       <ManufacturerStrip brands={brands} />
 
-      {/* ---------- Category Grid — one consolidated "real stock" moment ---------- */}
-      <CategoryPhotoGrid items={categoryPhotoItems} />
+      {/* ---------- Category discovery — depth-ranked, honestly ---------- */}
+      <MaterialDiscovery tiles={discoveryTiles} sourced={alsoSourced} />
 
       {/* ---------- How It Works ---------- */}
       <HowItWorks />

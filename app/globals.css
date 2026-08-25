@@ -18,8 +18,15 @@
   --fs-h1: clamp(28px, 4vw, 40px);
   --fs-h2: clamp(22px, 3vw, 28px);
   --fs-body: 15px;
+  --fs-h3: 20px;
+  --fs-body-sm: 13.5px;
+  --fs-label: 11px;
   --lh-tight: 1.08;
+  --lh-snug: 1.2;
   --lh-normal: 1.55;
+
+  /* Near-square corners — architectural rather than app-store. */
+  --radius-xs: 2px;
 
   --shadow-sm: 0 1px 2px rgba(18, 18, 18, 0.06), 0 1px 1px rgba(18, 18, 18, 0.04);
   --shadow-md: 0 8px 24px -8px rgba(18, 18, 18, 0.16), 0 2px 8px -2px rgba(18, 18, 18, 0.08);
@@ -50,8 +57,17 @@
   --color-burgundy-dark: var(--burgundy-dark);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-serif: var(--font-canela);
-  --font-sans: var(--font-plex);
+  /* Two faces. font-display = Instrument Sans (the mark, headings, numerals,
+     stat figures, eyebrows/labels); font-body = General Sans (body copy, UI,
+     buttons, form fields, tables, product specs).
+     --font-serif and --font-sans are kept as aliases, not because either face
+     is a serif, but because ~24 files already write `font-serif` for headings
+     and `font-sans` for body. Re-pointing the aliases swaps the type across
+     the whole site from here instead of touching every one of them. */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-body);
 }
 
 @layer base {
@@ -81,7 +97,7 @@
   body {
     background: var(--paper);
     color: var(--ink);
-    font-family: var(--font-plex), "IBM Plex Sans", sans-serif;
+    font-family: var(--font-body), "General Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -92,14 +108,27 @@
   }
 }
 
+/* Historic class name — it has never been a serif. Kept so the ~24 files
+   already using it keep working; it now carries the display face. */
 .serif {
-  font-family: var(--font-canela), serif;
+  font-family: var(--font-display), sans-serif;
 }
 
 .tracked-caps {
-  font-family: var(--font-canela), serif;
+  font-family: var(--font-display), sans-serif;
   text-transform: uppercase;
-  letter-spacing: 2.5px;
+  /* Proportional, not a flat 2.5px: at 11px the old value was ~0.23em and
+     read as decoration rather than as a label. */
+  letter-spacing: 0.13em;
+  font-weight: 600;
+}
+
+/* Display-face figures, tabular so columns of numbers line up. */
+.metric {
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 button,
@@ -306,6 +335,31 @@ textarea {
 .brand-ribbon-mask {
   -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+}
+
+/* ---------- Hero slider ----------
+   Native horizontal scrolling, so a swipe on touch and a trackpad flick both
+   work with no JS gesture handling. Mandatory snap (not proximity, as the
+   product carousels below use) because a half-shown slide in the hero is never
+   a valid resting state. */
+.hero-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.hero-track::-webkit-scrollbar {
+  display: none;
+}
+
+.hero-track > * {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 /* ---------- User-driven horizontal product carousels (native scroll-snap, no JS) ---------- */

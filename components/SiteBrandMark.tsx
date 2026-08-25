@@ -16,7 +16,7 @@ export function SiteBrandMark({ scrolled }: { scrolled: boolean }) {
         style={{
           display: "inline-flex",
           alignItems: "center",
-          fontFamily: "var(--font-space-grotesk), sans-serif",
+          fontFamily: "var(--font-display), sans-serif",
           fontWeight: 700,
           letterSpacing: "-0.03em",
           color: "var(--ink)",
@@ -33,7 +33,7 @@ export function SiteBrandMark({ scrolled }: { scrolled: boolean }) {
           style={{
             display: "inline-flex",
             alignItems: "center",
-            fontFamily: "var(--font-space-grotesk), sans-serif",
+            fontFamily: "var(--font-display), sans-serif",
             fontWeight: 600,
             color: "var(--ink)",
             lineHeight: 1,

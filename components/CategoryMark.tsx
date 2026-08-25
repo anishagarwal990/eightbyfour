@@ -86,7 +86,7 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
         style={{
           display: "inline-flex",
           alignItems: "center",
-          fontFamily: "var(--font-space-grotesk), sans-serif",
+          fontFamily: "var(--font-display), sans-serif",
           fontWeight: 700,
           letterSpacing: "-0.03em",
           color: "#FFFFFF",
@@ -123,7 +123,7 @@ function Numeral({ size }: { size: number }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        fontFamily: "var(--font-space-grotesk), sans-serif",
+        fontFamily: "var(--font-display), sans-serif",
         fontWeight: 700,
         letterSpacing: "-0.03em",
         color: "var(--ink)",

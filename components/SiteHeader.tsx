@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
-import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { SaveIcon } from "@/components/icons/SaveIcon";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
 import { CATEGORIES } from "@/lib/categories";
@@ -16,10 +15,12 @@ import { HyderabadLinkList } from "@/components/HyderabadLinkList";
 import { POPULAR_SEARCHES, CATEGORY_LINKS } from "@/lib/hyderabadLinks";
 import { MobileMenu } from "@/components/MobileMenu";
 
+// Comparisons left the top bar — one route holding two documents was taking
+// the same nav weight as the whole catalogue. It stays reachable from /guides,
+// the footer and the sitemap, so no route or link equity is lost.
 const NAV_LINKS = [
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
-  { href: "/comparisons", label: "Comparisons" },
 ];
 
 const HYDERABAD_GUIDE_LINKS = [
@@ -260,7 +261,7 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
         href="/hyderabad"
         className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
       >
-        Serving Hyderabad
+        Hyderabad
         <span
           aria-hidden="true"
           className={`absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] ${
@@ -410,7 +411,7 @@ export function SiteHeader({
         </div>
         <header
           ref={headerElRef}
-          className={`flex flex-wrap items-center gap-5 border-b px-7 backdrop-blur-md transition-[padding,background-color,border-color,box-shadow,backdrop-filter] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+          className={`grid grid-cols-[auto_1fr_auto] items-center gap-5 border-b px-7 backdrop-blur-md transition-[padding,background-color,border-color,box-shadow,backdrop-filter] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
             scrolled ? "py-2 shadow-[var(--shadow-sm)]" : transparentAtRest ? "py-3.5 shadow-[0_1px_24px_-4px_rgba(18,18,18,0.08)]" : "border-b-2 py-3.5"
           }`}
           style={{
@@ -421,7 +422,7 @@ export function SiteHeader({
           <Link href="/" className="transition-opacity duration-150 hover:opacity-75">
             <SiteBrandMark scrolled={scrolled} />
           </Link>
-          <nav className="hidden flex-wrap items-center gap-5 text-sm lg:flex" aria-label="Primary">
+          <nav className="hidden items-center justify-center gap-5 text-sm lg:flex" aria-label="Primary">
             <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
             <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
             {NAV_LINKS.map((link) => (
@@ -429,7 +430,7 @@ export function SiteHeader({
             ))}
             <HyderabadMegaMenu active={pathname?.startsWith("/hyderabad") ?? false} />
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="col-start-3 flex items-center gap-3">
             <div className="hidden lg:block">
               <SearchBar />
             </div>
@@ -440,9 +441,6 @@ export function SiteHeader({
             >
               <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
             </Link>
-            <div className="hidden lg:block">
-              <RequestQuoteButton />
-            </div>
             <MobileMenu />
           </div>
         </header>

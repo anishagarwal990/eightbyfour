@@ -13,9 +13,9 @@ const CTA_SHORT = "Samples available.";
  * below). The " | Eight x Four" brand suffix is appended automatically by
  * buildMetadata()/the root layout title template, not here. sd_code is the
  * real shade/product code on file; falls back to `collection` when a
- * product has no code — e.g. Stone Panels has no shade codes but does have
- * distinct collections (Slate/Translucent/Pannel), and several of those
- * share a bare name (all "K Black", "Copper", etc). Without a disambiguator
+ * product has no code but does have a distinct collection, and several such
+ * products share a bare name (all "K Black", "Copper", etc). The Stone Panels
+ * range was the original case for this. Without a disambiguator
  * those pages would render byte-identical <title> text, a real
  * duplicate-content risk (verified: 5 name collisions across 8 SKUs before
  * this fallback, 0 after).
@@ -63,9 +63,8 @@ export function buildProductDescription(product: ProductRow): string {
   const displayName = productDisplayName(product);
   const categoryLower = categorySingularName(product.category).toLowerCase();
   // Same sd_code -> collection fallback as buildProductTitle: without it,
-  // same-name products with no code and no `description` on file (e.g. the
-  // Stone Panels collection variants) would render byte-identical meta
-  // descriptions off the generic fallback sentence below.
+  // same-name products with no code and no `description` on file would render
+  // byte-identical meta descriptions off the generic fallback sentence below.
   const code = product.sd_code || product.collection;
 
   let sentence = product.description

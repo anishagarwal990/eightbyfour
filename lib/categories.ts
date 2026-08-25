@@ -195,30 +195,6 @@ export const CATEGORIES: CategoryConfig[] = [
     relatedCategorySlugs: ["plywood", "laminates"],
   },
   {
-    slug: "stone-panels",
-    dbCategory: "Stone Panels",
-    name: "Stone Panels",
-    heroTagline: "Marble, slate, sandstone and translucent stone-veneer panels for feature walls and counters.",
-    overview:
-      "Stone panels give the look of natural marble, slate or sandstone as a thin, lightweight sheet, used for feature walls, reception counters and backlit accent strips where solid stone would be too heavy or costly to install. EightxFour stocks its own stone panel range across Marble, Slate, Sandstone, Translucent, Concrete and Metallic finishes.",
-    buyingGuide:
-      "Translucent and Metallic finishes are the ones worth specifying where the panel will be backlit — reception desks, bar fronts, feature strips — since the effect depends on light passing through. Marble and Slate finishes read closer to natural stone and suit feature walls, cladding and counters where the panel won't be lit from behind.",
-    faqs: [
-      {
-        question: "Are stone panels as heavy as natural stone?",
-        answer:
-          "No — stone panels are a thin decorative sheet rather than a solid slab, so they're substantially lighter than natural marble or slate and easier to install on vertical surfaces like feature walls.",
-      },
-      {
-        question: "Can stone panels be backlit?",
-        answer:
-          "The Translucent and Metallic collections are specifically suited to backlighting — light passes through the panel for a lit feature-wall or reception-counter effect that solid stone can't achieve.",
-      },
-    ],
-    applicationSlugs: ["hotel-interiors", "commercial-spaces", "retail-stores", "tv-units"],
-    relatedCategorySlugs: ["veneers", "laminates"],
-  },
-  {
     slug: "adhesive",
     dbCategory: "Adhesive",
     name: "Adhesives",
