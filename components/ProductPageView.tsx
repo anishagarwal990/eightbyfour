@@ -9,7 +9,7 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { LikeCommentWidget } from "@/components/LikeCommentWidget";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BrandLogo } from "@/components/BrandLogo";
-import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
+import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMark";
 import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
@@ -96,7 +96,7 @@ export function ProductPageView({
 }) {
   const categorySlug = categorySlugFor(product.category);
   const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
-  const categoryMarkSlug = categorySlug && isCategoryMarkSlug(categorySlug) ? categorySlug : undefined;
+  const categoryMarkSlug = categoryMarkForDbCategory(product.category);
   const price = resolvePrice(product);
   const images = productImages(product);
   const faqs = buildFaqs(product);

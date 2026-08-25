@@ -2,17 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { BrandLogo } from "@/components/BrandLogo";
-import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
-import { CATEGORIES } from "@/lib/categories";
+import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMark";
 import { resolvePrice, unitLabel } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 
-const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(CATEGORIES.map((c) => [c.dbCategory, c.slug]));
-
 export function ProductCard({ product }: { product: ProductRow }) {
   const price = resolvePrice(product);
-  const categorySlug = CATEGORY_SLUG_BY_DB[product.category];
-  const categoryMarkSlug = categorySlug && isCategoryMarkSlug(categorySlug) ? categorySlug : undefined;
+  const categoryMarkSlug = categoryMarkForDbCategory(product.category);
   return (
     <Link
       href={`/products/${product.slug}`}
