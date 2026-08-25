@@ -21,6 +21,15 @@ export const CATEGORY_MARK_LABEL: Record<CategoryMarkSlug, string> = {
   veneers: "Veneers",
 };
 
+// The dbCategory values each sub-brand actually covers — Plywood Shop's tile
+// says "PLY & BOARDS" because Blockboard is sold under it too, so filtering
+// a brand page by this mark has to pull both categories, not just Plywood.
+export const CATEGORY_MARK_DB_CATEGORIES: Record<CategoryMarkSlug, string[]> = {
+  plywood: ["Plywood", "Blockboard"],
+  laminates: ["Laminates"],
+  veneers: ["Veneers"],
+};
+
 // Tile background (one shared lightness/chroma across all three, only hue
 // changes), the tile's "x" tint (a light contrast color pulled against that
 // tone rather than the parent's burgundy), and the short tag set under the

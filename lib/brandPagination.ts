@@ -2,8 +2,9 @@
 // /products/[slug] — brand pages have no collection filter, just pages.
 import { parsePageParam } from "@/lib/categoryPagination";
 
-export function brandPagePath(slug: string, page: number): string {
-  return page <= 1 ? `/brands/${slug}` : `/brands/${slug}/page/${page}`;
+export function brandPagePath(slug: string, page: number, category?: string): string {
+  const base = page <= 1 ? `/brands/${slug}` : `/brands/${slug}/page/${page}`;
+  return category ? `${base}?category=${category}` : base;
 }
 
 export { parsePageParam };

@@ -17,8 +17,7 @@ import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
-import { CategoryTile, CATEGORY_MARK_LABEL, CATEGORY_MARK_SLUGS } from "@/components/CategoryMark";
-import { getCategoryBySlug } from "@/lib/categories";
+import { CategoryTile, CATEGORY_MARK_LABEL, CATEGORY_MARK_SLUGS, CATEGORY_MARK_DB_CATEGORIES, type CategoryMarkSlug } from "@/components/CategoryMark";
 
 export interface BrandFaq {
   question: string;
@@ -64,6 +63,7 @@ export function BrandPageView({
   shadeFinder,
   allProducts,
   subBrandCounts,
+  categoryFilter,
 }: {
   brand: BrandRow;
   products: ProductRow[];
@@ -77,6 +77,8 @@ export function BrandPageView({
   allProducts?: ProductRow[];
   /** EightByFour only — SKU counts per dbCategory, to show its three category sub-brands (Plywood Shop, Laminates, Veneers) under the hero. */
   subBrandCounts?: Record<string, number>;
+  /** Set when the page was reached via a sub-brand tile (?category=) — narrows the product grid to that sub-brand's categories only. */
+  categoryFilter?: CategoryMarkSlug;
 }) {
   const relatedGuides = (BRAND_GUIDE_SLUGS[brand.slug] || [])
     .map((slug) => {
@@ -97,7 +99,7 @@ export function BrandPageView({
         ]}
       />
       <FaqSchema faqs={faqs} />
-      <BrandPaginationLinks slug={brand.slug} page={page} totalPages={totalPages} />
+      <BrandPaginationLinks slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
       <div className="mx-auto max-w-6xl">
       <div className="px-7 pt-4">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
@@ -152,17 +154,21 @@ export function BrandPageView({
           {subBrandCounts ? (
             <div className="mt-6 flex flex-wrap gap-5">
               {CATEGORY_MARK_SLUGS.map((slug) => {
-                const dbCategory = getCategoryBySlug(slug)?.dbCategory ?? "";
-                const count = subBrandCounts[dbCategory] ?? 0;
+                const count = CATEGORY_MARK_DB_CATEGORIES[slug].reduce((sum, dbCategory) => sum + (subBrandCounts[dbCategory] ?? 0), 0);
                 if (count === 0) return null;
+                const active = categoryFilter === slug;
                 return (
-                  <Link key={slug} href={`/products/${slug}`} className="group flex items-center gap-2">
+                  <Link key={slug} href={`/brands/${brand.slug}?category=${slug}`} className="group flex items-center gap-2">
                     <CategoryTile
                       slug={slug}
                       size={36}
-                      className="grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100"
+                      className={
+                        active
+                          ? ""
+                          : "grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100"
+                      }
                     />
-                    <span className="text-sm" style={{ color: "var(--line-strong)" }}>
+                    <span className="text-sm" style={{ color: active ? "var(--ink)" : "var(--line-strong)", fontWeight: active ? 600 : 400 }}>
                       {CATEGORY_MARK_LABEL[slug]} · {count} SKUs
                     </span>
                   </Link>
@@ -254,7 +260,7 @@ export function BrandPageView({
 
       <Reveal as="section" className="px-7 py-8">
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          All {brand.name} Products in Hyderabad
+          {categoryFilter ? `${CATEGORY_MARK_LABEL[categoryFilter]} Products in Hyderabad` : `All ${brand.name} Products in Hyderabad`}
         </h2>
         {allProducts ? (
           <div className="mt-4">
@@ -267,7 +273,7 @@ export function BrandPageView({
                 <ProductCard key={p.id} product={p} />
               ))}
             </Reveal>
-            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} />
+            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
           </>
         )}
       </Reveal>

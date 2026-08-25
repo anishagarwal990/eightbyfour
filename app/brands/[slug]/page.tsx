@@ -5,6 +5,7 @@ import { getProductsByBrand, getProductsByBrandPage } from "@/lib/data/products"
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ShadeEntry } from "@/components/ShadeFinishPicker";
 import { CATEGORIES } from "@/lib/categories";
+import { isCategoryMarkSlug, CATEGORY_MARK_DB_CATEGORIES } from "@/components/CategoryMark";
 import { buildMetadata } from "@/lib/seo";
 import { brandPagePath } from "@/lib/brandPagination";
 import { BrandPageView, getBrandFaqs } from "@/components/BrandPageView";
@@ -78,8 +79,15 @@ function buildShadeFinder(products: ProductRow[]): ShadeEntry[] {
   });
 }
 
-export default async function BrandPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BrandPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ category?: string }>;
+}) {
   const { slug } = await params;
+  const { category } = await searchParams;
   const brand = await getBrandBySlug(slug);
 
   if (!brand) {
@@ -88,10 +96,17 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     notFound();
   }
 
+  // A sub-brand tile (Plywood Shop, Laminates, Veneers) links here with
+  // ?category=<mark slug> — narrows the grid to just that mark's dbCategories
+  // (Plywood Shop covers both Plywood and Blockboard) instead of every
+  // EightByFour product regardless of which tile was clicked.
+  const categoryFilter = category && isCategoryMarkSlug(category) ? category : undefined;
+  const filterCategories = categoryFilter ? CATEGORY_MARK_DB_CATEGORIES[categoryFilter] : undefined;
+
   const [{ products, totalPages }, categories, shadeFinderProducts, subBrandCounts] = await Promise.all([
-    getProductsByBrandPage(brand.name, { page: 1 }),
+    getProductsByBrandPage(brand.name, { page: 1, categories: filterCategories }),
     getBrandCategories(brand.name),
-    SHADE_FINDER_BRANDS.has(brand.slug) ? getProductsByBrand(brand.name) : Promise.resolve<ProductRow[]>([]),
+    SHADE_FINDER_BRANDS.has(brand.slug) && !categoryFilter ? getProductsByBrand(brand.name) : Promise.resolve<ProductRow[]>([]),
     brand.slug === "eightbyfour" ? getEightByFourCategoryCounts() : Promise.resolve<Record<string, number>>({}),
   ]);
   const relatedCategoryConfigs = categories
@@ -112,6 +127,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
       shadeFinder={shadeFinder}
       allProducts={shadeFinderProducts.length > 0 ? shadeFinderProducts : undefined}
       subBrandCounts={brand.slug === "eightbyfour" ? subBrandCounts : undefined}
+      categoryFilter={categoryFilter}
     />
   );
 }

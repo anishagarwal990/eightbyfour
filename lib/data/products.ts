@@ -175,18 +175,18 @@ export async function getProductsByBrand(brandName: string): Promise<ProductRow[
 
 export async function getProductsByBrandPage(
   brandName: string,
-  opts: { page: number; pageSize?: number }
+  opts: { page: number; pageSize?: number; categories?: string[] }
 ): Promise<PaginatedProducts> {
   const supabase = createServerSupabaseClient();
   const pageSize = opts.pageSize ?? CATEGORY_PAGE_SIZE;
   const page = Math.max(1, opts.page);
+  const { categories } = opts;
 
   // Count first — see getProductsByCategoryPage for why: PostgREST throws on
   // an out-of-range .range() rather than returning empty.
-  const { count, error: countError } = await supabase
-    .from("products")
-    .select("*", { count: "exact", head: true })
-    .eq("brand", brandName);
+  let countQuery = supabase.from("products").select("*", { count: "exact", head: true }).eq("brand", brandName);
+  countQuery = categories && categories.length > 0 ? countQuery.in("category", categories) : countQuery;
+  const { count, error: countError } = await countQuery;
   if (countError) throw countError;
   const total = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -195,14 +195,10 @@ export async function getProductsByBrandPage(
     return { products: [], total, page, pageSize, totalPages };
   }
 
+  let dataQuery = supabase.from("products").select("*").eq("brand", brandName);
+  dataQuery = categories && categories.length > 0 ? dataQuery.in("category", categories) : dataQuery;
   const from = (page - 1) * pageSize;
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("brand", brandName)
-    .order("category")
-    .order("name")
-    .range(from, from + pageSize - 1);
+  const { data, error } = await dataQuery.order("category").order("name").range(from, from + pageSize - 1);
   if (error) throw error;
   return { products: data, total, page, pageSize, totalPages };
 }

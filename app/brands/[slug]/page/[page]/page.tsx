@@ -6,6 +6,7 @@ import { brandPagePath, parsePageParam } from "@/lib/brandPagination";
 import { CATEGORY_PAGE_SIZE, getProductsByBrandPage } from "@/lib/data/products";
 import { buildMetadata } from "@/lib/seo";
 import { BrandPageView, getBrandFaqs } from "@/components/BrandPageView";
+import { isCategoryMarkSlug, CATEGORY_MARK_DB_CATEGORIES } from "@/components/CategoryMark";
 
 type RouteParams = { slug: string; page: string };
 
@@ -37,20 +38,30 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
   });
 }
 
-export default async function BrandPaginatedPage({ params }: { params: Promise<RouteParams> }) {
+export default async function BrandPaginatedPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<RouteParams>;
+  searchParams: Promise<{ category?: string }>;
+}) {
   const { slug, page: rawPage } = await params;
+  const { category } = await searchParams;
   const brand = await getBrandBySlug(slug);
   if (!brand) notFound();
 
   const page = parsePageParam(rawPage);
   if (!page) notFound();
 
+  const categoryFilter = category && isCategoryMarkSlug(category) ? category : undefined;
+  const filterCategories = categoryFilter ? CATEGORY_MARK_DB_CATEGORIES[categoryFilter] : undefined;
+
   if (page === 1) {
-    redirect(brandPagePath(brand.slug, 1));
+    redirect(brandPagePath(brand.slug, 1, categoryFilter));
   }
 
   const [{ products, totalPages }, categories] = await Promise.all([
-    getProductsByBrandPage(brand.name, { page }),
+    getProductsByBrandPage(brand.name, { page, categories: filterCategories }),
     getBrandCategories(brand.name),
   ]);
 
@@ -67,6 +78,7 @@ export default async function BrandPaginatedPage({ params }: { params: Promise<R
       faqs={faqs}
       page={page}
       totalPages={totalPages}
+      categoryFilter={categoryFilter}
     />
   );
 }

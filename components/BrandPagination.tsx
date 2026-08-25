@@ -2,22 +2,42 @@ import Link from "next/link";
 import { buttonClasses } from "@/components/ui/Button";
 import { brandPagePath } from "@/lib/brandPagination";
 
-export function BrandPaginationLinks({ slug, page, totalPages }: { slug: string; page: number; totalPages: number }) {
+export function BrandPaginationLinks({
+  slug,
+  page,
+  totalPages,
+  category,
+}: {
+  slug: string;
+  page: number;
+  totalPages: number;
+  category?: string;
+}) {
   return (
     <>
-      {page > 1 ? <link rel="prev" href={brandPagePath(slug, page - 1)} /> : null}
-      {page < totalPages ? <link rel="next" href={brandPagePath(slug, page + 1)} /> : null}
+      {page > 1 ? <link rel="prev" href={brandPagePath(slug, page - 1, category)} /> : null}
+      {page < totalPages ? <link rel="next" href={brandPagePath(slug, page + 1, category)} /> : null}
     </>
   );
 }
 
-export function BrandPagination({ slug, page, totalPages }: { slug: string; page: number; totalPages: number }) {
+export function BrandPagination({
+  slug,
+  page,
+  totalPages,
+  category,
+}: {
+  slug: string;
+  page: number;
+  totalPages: number;
+  category?: string;
+}) {
   if (totalPages <= 1) return null;
 
   return (
     <nav aria-label="Pagination" className="mt-8 flex items-center justify-center gap-4">
       {page > 1 ? (
-        <Link href={brandPagePath(slug, page - 1)} className={buttonClasses("secondary", "sm")} rel="prev">
+        <Link href={brandPagePath(slug, page - 1, category)} className={buttonClasses("secondary", "sm")} rel="prev">
           ← Previous
         </Link>
       ) : (
@@ -27,7 +47,7 @@ export function BrandPagination({ slug, page, totalPages }: { slug: string; page
         Page {page} of {totalPages}
       </span>
       {page < totalPages ? (
-        <Link href={brandPagePath(slug, page + 1)} className={buttonClasses("secondary", "sm")} rel="next">
+        <Link href={brandPagePath(slug, page + 1, category)} className={buttonClasses("secondary", "sm")} rel="next">
           Next →
         </Link>
       ) : (

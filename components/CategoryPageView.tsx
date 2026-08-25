@@ -97,7 +97,7 @@ export function CategoryPageView({
               // other brand's logo would.
               if (b.name === "EightByFour" && isCategoryMarkSlug(category.slug)) {
                 return b.slug ? (
-                  <Link key={b.name} href={`/brands/${b.slug}`} aria-label="EightxFour" className={BRAND_PILL_CLASS}>
+                  <Link key={b.name} href={`/brands/${b.slug}?category=${category.slug}`} aria-label="EightxFour" className={BRAND_PILL_CLASS}>
                     <CategoryTile slug={category.slug} size={32} />
                   </Link>
                 ) : (
