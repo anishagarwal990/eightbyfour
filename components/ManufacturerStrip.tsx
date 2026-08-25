@@ -32,7 +32,7 @@ function LogoItem({ brand }: { brand: RealBrand }) {
   return (
     <Link
       href={`/brands/${brand.slug}`}
-      className="serif shrink-0 whitespace-nowrap text-lg opacity-75 transition-opacity hover:opacity-100"
+      className="font-display shrink-0 whitespace-nowrap text-lg opacity-75 transition-opacity hover:opacity-100"
     >
       {brand.name}
     </Link>
@@ -75,10 +75,17 @@ export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
 
   return (
     <section className="py-16" aria-label="Manufacturers we source from">
-      <p className="tracked-caps px-7 text-center text-sm" style={{ color: "var(--accent)" }}>
-        Manufacturers We Source From
-      </p>
-      <AutoScrollRow className="brand-ribbon-mask mt-8" trackClassName="flex items-center gap-16 px-7" speed={45}>
+      {/* A sentence, not another tracked-caps eyebrow — the old site opened
+          every section with one and they stopped reading as labels. */}
+      <div className="mx-auto flex max-w-6xl flex-wrap items-baseline justify-between gap-x-8 gap-y-2 px-7">
+        <h2 style={{ fontSize: "var(--fs-h3)", lineHeight: "var(--lh-snug)" }}>
+          We source across manufacturers, not from one
+        </h2>
+        <Link href="/brands" className="text-sm underline underline-offset-4" style={{ color: "var(--brand-primary)" }}>
+          All brands we work with
+        </Link>
+      </div>
+      <AutoScrollRow className="mt-8" trackClassName="flex items-center gap-16 px-7" speed={45} label="Manufacturers we source from">
         {renderItems("a")}
         {renderItems("b")}
       </AutoScrollRow>

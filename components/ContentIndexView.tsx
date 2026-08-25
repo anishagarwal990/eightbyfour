@@ -24,7 +24,7 @@ export function ContentIndexView({
       <div className="mx-auto max-w-6xl">
       <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: title }]} />
       <section className="px-7 py-10">
-        <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display" style={{ fontSize: "var(--fs-h1)" }}>
           {title}
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -34,7 +34,7 @@ export function ContentIndexView({
       <section className="grid grid-cols-1 gap-x-10 gap-y-10 px-7 pb-16 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map((entry) => (
           <Link key={entry.slug} href={`/${type}/${entry.slug}`} className="group block border-t pt-5" style={{ borderColor: "var(--line)" }}>
-            <h2 className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "var(--fs-h2)" }}>
+            <h2 className="font-display transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "var(--fs-h2)" }}>
               {entry.frontmatter.title}
             </h2>
             <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>

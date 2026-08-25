@@ -1,6 +1,6 @@
 export function BrandWordmark({ size = 28 }: { size?: number }) {
   return (
-    <span className="serif inline-flex items-baseline" style={{ fontSize: size, fontWeight: 600, letterSpacing: "-0.02em" }}>
+    <span className="font-display inline-flex items-baseline" style={{ fontSize: size, fontWeight: 600, letterSpacing: "-0.02em" }}>
       EIGHT
       <span
         aria-hidden="true"

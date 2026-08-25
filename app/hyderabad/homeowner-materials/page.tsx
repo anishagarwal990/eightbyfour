@@ -54,7 +54,7 @@ export default async function HomeownerMaterialsPage() {
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           For Homeowners · Hyderabad
         </p>
-        <h1 className="serif mx-auto mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mx-auto mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
           Picture the room. We&apos;ll sort the materials.
         </h1>
         <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -85,7 +85,7 @@ export default async function HomeownerMaterialsPage() {
                 <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
                   {r.room}
                 </p>
-                <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
+                <h2 className="font-display mt-1" style={{ fontSize: "var(--fs-h2)" }}>
                   {r.entry.frontmatter.title}
                 </h2>
                 <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
@@ -98,7 +98,7 @@ export default async function HomeownerMaterialsPage() {
       </Reveal>
 
       <Reveal as="section" className="px-7 py-14 text-center">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Not sure where to start?
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>

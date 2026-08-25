@@ -15,7 +15,7 @@ export function OrganizationSchema() {
     image: `${SITE_URL}/og-image.jpg`,
     logo: `${SITE_URL}/eightbyfour-logo.png`,
     description:
-      "EightxFour is a procurement platform for interior and construction materials operating in Hyderabad — sourcing plywood, laminates, veneers, hardware and more directly from trusted manufacturers.",
+      "EightxFour is a material procurement partner for interior and construction projects in Hyderabad — sourcing plywood, laminates, veneers, boards, hardware and more directly from manufacturers, and quoting a whole requirement as one list.",
     areaServed: { "@type": "City", name: "Hyderabad" },
     address: {
       "@type": "PostalAddress",

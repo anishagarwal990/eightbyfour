@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { SaveIcon } from "@/components/icons/SaveIcon";
+import { useRequirement } from "@/lib/requirement";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
 import { CATEGORIES } from "@/lib/categories";
 import { BrandLogo } from "@/components/BrandLogo";
@@ -16,10 +17,12 @@ import { HyderabadLinkList } from "@/components/HyderabadLinkList";
 import { POPULAR_SEARCHES, CATEGORY_LINKS } from "@/lib/hyderabadLinks";
 import { MobileMenu } from "@/components/MobileMenu";
 
+// "Comparisons" left the top bar — it's one route with two documents, and it
+// was taking the same nav weight as the whole catalogue. It stays reachable
+// from /guides, the footer and the sitemap, so no route or link equity is lost.
 const NAV_LINKS = [
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
-  { href: "/comparisons", label: "Comparisons" },
 ];
 
 const HYDERABAD_GUIDE_LINKS = [
@@ -56,7 +59,11 @@ function ProductsMegaMenu({
   counts: Record<string, number>;
   brands: BrandMenuEntry[];
 }) {
+  // One source of truth for every count on the site — this same grouped RPC
+  // result feeds the homepage proof band, so a number can never contradict
+  // itself across two elements of the same page.
   const totalProducts = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  const stockedCategories = CATEGORIES.filter((c) => (counts[c.dbCategory] || 0) > 0).length;
 
   return (
     <div className="group relative">
@@ -113,21 +120,20 @@ function ProductsMegaMenu({
             </div>
           ))}
           <div className="flex flex-col rounded-sm p-5" style={{ background: "var(--burgundy)", color: "var(--paper)" }}>
-            <p className="serif" style={{ fontSize: "20px" }}>
+            <p className="font-display" style={{ fontSize: "20px" }}>
               Full Materials Catalogue
             </p>
             <p className="mt-2 text-xs leading-relaxed opacity-90">
-              {totalProducts}+ SKUs across {CATEGORIES.length} categories, sourced directly from manufacturers for
-              Hyderabad projects.
+              Live SKUs you can browse today — and we source well beyond this list for Hyderabad projects.
             </p>
             <dl className="mt-4 flex flex-col gap-2 text-xs">
               <div className="flex justify-between border-t border-white/20 pt-2">
-                <dt className="opacity-80">Categories</dt>
-                <dd className="font-medium">{CATEGORIES.length}</dd>
+                <dt className="opacity-80">Live SKUs</dt>
+                <dd className="metric">{totalProducts.toLocaleString("en-IN")}</dd>
               </div>
               <div className="flex justify-between border-t border-white/20 pt-2">
-                <dt className="opacity-80">Total SKUs</dt>
-                <dd className="font-medium">{totalProducts}+</dd>
+                <dt className="opacity-80">Stocked categories</dt>
+                <dd className="metric">{stockedCategories}</dd>
               </div>
             </dl>
             <Link
@@ -260,7 +266,7 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
         href="/hyderabad"
         className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
       >
-        Serving Hyderabad
+        Hyderabad
         <span
           aria-hidden="true"
           className={`absolute -bottom-0.5 left-0 h-[1.5px] w-full origin-left transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] ${
@@ -305,6 +311,31 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
   );
 }
 
+/** Header-visible count is what turns a shortlist into a Requirement — you
+    can see the list accumulating while you browse. */
+function RequirementLink({ active }: { active: boolean }) {
+  const count = useRequirement().length;
+  return (
+    <Link
+      href="/saved"
+      aria-label={count > 0 ? `Your requirement, ${count} items` : "Your requirement"}
+      className="relative hidden items-center gap-2 text-sm transition-colors duration-150 hover:text-[var(--brand-primary)] lg:flex"
+      style={{ color: active ? "var(--brand-primary)" : "var(--text-primary)" }}
+    >
+      <SaveIcon filled={active || count > 0} />
+      <span className="hidden xl:inline">Requirement</span>
+      {count > 0 ? (
+        <span
+          className="metric inline-flex h-5 min-w-5 items-center justify-center px-1 text-[11px] leading-none"
+          style={{ background: "var(--brand-primary)", color: "var(--brand-on-primary)", borderRadius: "var(--radius-xs)" }}
+        >
+          {count}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
   return (
     <Link
@@ -333,6 +364,10 @@ export function SiteHeader({
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [chromeHidden, setChromeHidden] = useState(false);
+  // The header CTA is deliberately absent above the fold — the hero's own
+  // "Get My Quote" is the single quote CTA there. It only reappears once the
+  // hero is gone, so there's always exactly one visible quote action.
+  const [pastHero, setPastHero] = useState(false);
   const contactRef = useRef<HTMLDivElement>(null);
   const headerElRef = useRef<HTMLElement>(null);
   const [chromeHeight, setChromeHeight] = useState<number | null>(null);
@@ -361,6 +396,30 @@ export function SiteHeader({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Pages without a [data-hero] block (everything but the homepage) have no
+  // above-fold quote CTA of their own, so the header CTA is available as soon
+  // as the user scrolls at all.
+  //
+  // Measured in the scroll handler rather than via IntersectionObserver so
+  // it shares the one passive listener the header already runs, and so the
+  // threshold is the same number the compact bar is keyed to.
+  useEffect(() => {
+    const hero = document.querySelector("[data-hero]");
+    function check() {
+      // No hero on this page (everything but the homepage) — nothing is
+      // holding the CTA back, so treat it as already scrolled past.
+      setPastHero(!hero || (hero as HTMLElement).getBoundingClientRect().bottom <= 64);
+    }
+    const raf = requestAnimationFrame(check);
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [pathname]);
+
   useEffect(() => {
     function measure() {
       const h = (contactRef.current?.offsetHeight ?? 0) + (headerElRef.current?.offsetHeight ?? 0);
@@ -379,6 +438,9 @@ export function SiteHeader({
 
   const isHome = pathname === "/";
   const transparentAtRest = isHome && !scrolled;
+  // The compact bar and the returning CTA are the same moment — the hero is
+  // gone, so the header takes over both the mark and the quote action.
+  const compact = scrolled && pastHero;
 
   return (
     <>
@@ -387,16 +449,17 @@ export function SiteHeader({
           the browser's scroll-anchoring and flicker. The spacer below reserves
           its space in the flow at a constant height so content never jumps. */}
       <div
-        className="fixed inset-x-0 z-20 transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)]"
+          className="fixed inset-x-0 z-20 transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)]"
         style={{
           top: "var(--sku-ribbon-h)",
           transform: chromeHidden ? "translateY(-100%)" : "translateY(0)",
         }}
       >
+        {/* Row 1 — contact bar, fixed 40px, desktop only. */}
         <div
           ref={contactRef}
-          className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-1 px-7 py-1.5 text-xs font-medium lg:flex"
-          style={{ background: "var(--burgundy)", color: "var(--paper)" }}
+          className="hidden items-center justify-center gap-x-6 px-7 text-xs font-medium lg:flex"
+          style={{ height: 40, background: "var(--brand-primary)", color: "var(--brand-on-primary)" }}
         >
           <a href={`tel:${PHONE_TEL}`} className="hover:opacity-80">
             Call us: {PHONE_DISPLAY}
@@ -408,20 +471,25 @@ export function SiteHeader({
             Write us: {EMAIL}
           </a>
         </div>
+        {/* Row 2 — logo left, nav centre, utilities right. Three explicit
+            grid tracks rather than flex-wrap: wrapping is what split this
+            into two ragged rows at mid widths. Collapses 88px -> 58px once
+            the hero is gone. */}
         <header
           ref={headerElRef}
-          className={`flex flex-wrap items-center gap-5 border-b px-7 backdrop-blur-md transition-[padding,background-color,border-color,box-shadow,backdrop-filter] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
-            scrolled ? "py-2 shadow-[var(--shadow-sm)]" : transparentAtRest ? "py-3.5 shadow-[0_1px_24px_-4px_rgba(18,18,18,0.08)]" : "border-b-2 py-3.5"
+          className={`grid grid-cols-[auto_1fr_auto] items-center gap-5 border-b px-7 backdrop-blur-md transition-[height,background-color,border-color,box-shadow,backdrop-filter] duration-300 [transition-timing-function:var(--ease-out-soft)] ${
+            compact ? "shadow-[var(--shadow-sm)]" : transparentAtRest ? "shadow-[0_1px_24px_-4px_rgba(18,18,18,0.08)]" : "border-b-2"
           }`}
           style={{
-            borderColor: scrolled ? "var(--line-strong)" : transparentAtRest ? "rgba(18,18,18,0.08)" : "var(--ink)",
-            background: scrolled ? "rgba(255,255,255,0.72)" : transparentAtRest ? "rgba(255,255,255,0.55)" : "var(--paper)",
+            height: compact ? 58 : 72,
+            borderColor: compact ? "var(--line-strong)" : transparentAtRest ? "rgba(18,18,18,0.08)" : "var(--ink)",
+            background: compact ? "rgba(255,255,255,0.72)" : transparentAtRest ? "rgba(255,255,255,0.55)" : "var(--paper)",
           }}
         >
           <Link href="/" className="transition-opacity duration-150 hover:opacity-75">
-            <SiteBrandMark scrolled={scrolled} />
+            <SiteBrandMark scrolled={compact} />
           </Link>
-          <nav className="hidden flex-wrap items-center gap-5 text-sm lg:flex" aria-label="Primary">
+          <nav className="hidden items-center justify-center gap-5 text-sm lg:flex" aria-label="Primary">
             <ProductsMegaMenu active={pathname?.startsWith("/products") ?? false} counts={categoryCounts} brands={brandsMenu} />
             <BrandsMegaMenu active={pathname?.startsWith("/brands") ?? false} brands={brandsMenu} />
             {NAV_LINKS.map((link) => (
@@ -429,20 +497,17 @@ export function SiteHeader({
             ))}
             <HyderabadMegaMenu active={pathname?.startsWith("/hyderabad") ?? false} />
           </nav>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="col-start-3 flex items-center gap-4">
             <div className="hidden lg:block">
               <SearchBar />
             </div>
-            <Link
-              href="/saved"
-              aria-label="Saved products"
-              className="hidden items-center text-[var(--ink)] transition-colors duration-150 hover:text-[var(--burgundy)] lg:flex"
-            >
-              <SaveIcon filled={pathname?.startsWith("/saved") ?? false} />
-            </Link>
-            <div className="hidden lg:block">
-              <RequestQuoteButton />
-            </div>
+            <RequirementLink active={pathname?.startsWith("/saved") ?? false} />
+            {/* Absent above the fold — the hero form owns that CTA. */}
+            {pastHero ? (
+              <div className="hidden lg:block">
+                <RequestQuoteButton />
+              </div>
+            ) : null}
             <MobileMenu />
           </div>
         </header>

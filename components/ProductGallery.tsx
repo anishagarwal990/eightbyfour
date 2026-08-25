@@ -92,7 +92,7 @@ export function ProductGallery({
               onClick={() => setActive(i)}
               aria-label={`Show image ${i + 1}`}
               aria-current={active === i}
-              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-[border-color,transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 transition-[border-color,transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)]"
               style={{ borderColor: active === i ? "var(--burgundy)" : "var(--line)", background: "var(--paper-dim)" }}
             >
               <Image src={img.src} alt={img.alt} fill sizes="64px" className="object-cover" />

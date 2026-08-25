@@ -9,7 +9,7 @@ import { POPULAR_SEARCHES, CATEGORY_LINKS, SOURCE_ONLY_BRAND_LINKS, stockedBrand
 export const metadata: Metadata = buildMetadata({
   title: "Material Procurement in Hyderabad",
   description:
-    "EightxFour is Hyderabad's procurement platform for interior and construction materials — plywood, laminates, veneers and hardware sourced directly from trusted manufacturers, city-wide.",
+    "EightxFour is a material procurement partner for interior and construction projects in Hyderabad — plywood, laminates, veneers, boards and hardware sourced directly from manufacturers and quoted as one list, city-wide.",
   path: "/hyderabad",
 });
 
@@ -58,7 +58,7 @@ export default async function HyderabadIndexPage() {
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             Serving Hyderabad
           </p>
-          <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display mt-1" style={{ fontSize: "var(--fs-h2)" }}>
             Shop Hyderabad by Material &amp; Brand
           </h2>
           <p className="mt-3 max-w-2xl text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>

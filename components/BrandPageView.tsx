@@ -153,7 +153,7 @@ export function BrandPageView({
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             {brand.name} · Hyderabad
           </p>
-          <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+          <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
             {/* EightxFour is the site's own brand, not a third party it "deals" —
                 every other brand on this template is external, so only this one
                 needs different copy. */}
@@ -170,7 +170,7 @@ export function BrandPageView({
               {certifications.map((cert) => (
                 <span
                   key={cert}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3 py-1.5 text-xs font-medium"
                   style={{ background: "var(--card)", color: "var(--ink)" }}
                 >
                   <span style={{ color: "var(--burgundy)" }}>
@@ -246,7 +246,7 @@ export function BrandPageView({
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
             {relatedCategoryConfigs.length > 0 ? (
               <div>
-                <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                   Shop by Category
                 </h2>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -255,7 +255,7 @@ export function BrandPageView({
                       <Link
                         key={c.slug}
                         href={`/products/${c.slug}`}
-                        className="rounded-full px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                        className="rounded-[var(--radius-xs)] px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
                         style={{ background: "var(--paper-dim)" }}
                       >
                         {c.name}
@@ -268,7 +268,7 @@ export function BrandPageView({
 
             {relatedGuides.length > 0 ? (
               <div>
-                <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                   Guides
                 </h2>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export function BrandPageView({
                     <Link
                       key={g.slug}
                       href={`/guides/${g.slug}`}
-                      className="rounded-full px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                      className="rounded-[var(--radius-xs)] px-3 py-1 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
                       style={{ background: "var(--paper-dim)" }}
                     >
                       {g.title}
@@ -293,7 +293,7 @@ export function BrandPageView({
         <>
           {sectionedProducts.map((section) => (
             <Reveal key={section.key} as="section" className="px-7 py-8">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 {section.label} Products in Hyderabad
               </h2>
               <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -309,7 +309,7 @@ export function BrandPageView({
         </>
       ) : (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             {categoryFilter ? `${CATEGORY_MARK_LABEL[categoryFilter]} Products in Hyderabad` : `All ${brand.name} Products in Hyderabad`}
           </h2>
           {allProducts ? (
@@ -330,7 +330,7 @@ export function BrandPageView({
       )}
 
       <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
         <div className="mt-3 flex flex-col gap-4">

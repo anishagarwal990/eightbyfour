@@ -10,8 +10,9 @@ export function SiteFooter() {
         <div>
           <BrandWordmark size={22} />
           <p className="mt-2 max-w-xs" style={{ color: "var(--line-strong)" }}>
-            EightxFour is Hyderabad&apos;s procurement platform for interior and construction materials — plywood,
-            MDF, laminates, veneers and hardware, sourced directly from trusted manufacturers.
+            EightxFour is a material procurement partner for interior and construction projects in Hyderabad — one
+            requirement across plywood, boards, laminates, veneers, solid surface, adhesives and hardware, sourced
+            directly from manufacturers and quoted as one list.
           </p>
           <WhatsAppTrackedLink
             href={`https://wa.me/${WHATSAPP_NUMBER}`}

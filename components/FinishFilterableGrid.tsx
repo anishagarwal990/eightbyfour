@@ -72,7 +72,7 @@ export function FinishFilterableGrid({ products, brandName }: { products: Produc
               type="button"
               onClick={() => selectFinish(null)}
               aria-pressed={selectedFinish === null}
-              className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+              className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)]"
               style={
                 selectedFinish === null
                   ? { background: "color-mix(in srgb, var(--burgundy) 14%, var(--paper))", color: "var(--burgundy)", fontWeight: 600 }
@@ -87,7 +87,7 @@ export function FinishFilterableGrid({ products, brandName }: { products: Produc
                 type="button"
                 onClick={() => selectFinish(o.value)}
                 aria-pressed={selectedFinish === o.value}
-                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)]"
                 style={
                   selectedFinish === o.value
                     ? { background: "color-mix(in srgb, var(--burgundy) 14%, var(--paper))", color: "var(--burgundy)", fontWeight: 600 }
@@ -116,7 +116,7 @@ export function FinishFilterableGrid({ products, brandName }: { products: Produc
           <button
             type="button"
             onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            className="rounded-full px-5 py-2.5 text-sm font-medium transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+            className="rounded-[var(--radius-xs)] px-5 py-2.5 text-sm font-medium transition-[transform,box-shadow] duration-150"
             style={{ background: "color-mix(in srgb, var(--burgundy) 10%, var(--paper))", color: "var(--burgundy)" }}
           >
             Show More ({filtered.length - visibleCount} left)

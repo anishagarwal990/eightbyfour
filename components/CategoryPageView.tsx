@@ -23,7 +23,7 @@ import { BrandLogo } from "@/components/BrandLogo";
 // aspect ratios included) sits centered at the same scale, with a filled
 // background and hover lift so it reads as a button, not a bare image.
 const BRAND_PILL_CLASS =
-  "flex h-11 min-w-[64px] items-center justify-center rounded-full bg-[var(--paper-dim)] px-4 transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]";
+  "flex h-11 min-w-[64px] items-center justify-center rounded-[var(--radius-xs)] bg-[var(--paper-dim)] px-4 transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)]";
 
 export function CategoryPageView({
   category,
@@ -74,7 +74,7 @@ export function CategoryPageView({
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           {category.name} · Hyderabad
         </p>
-        <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)" }}>
           {category.name} Supplier in Hyderabad
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--line-strong)" }}>
@@ -87,7 +87,7 @@ export function CategoryPageView({
 
       {brands.length > 0 ? (
         <Reveal as="section" className="px-7 py-6">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Brands Available
           </h2>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -121,7 +121,7 @@ export function CategoryPageView({
       ) : null}
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           {category.name} Products
         </h2>
         <div className="mt-4">
@@ -140,7 +140,7 @@ export function CategoryPageView({
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Buying Guide
         </h2>
         <p className="mt-3 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -150,7 +150,7 @@ export function CategoryPageView({
 
       {category.applicationSlugs.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Applications
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -158,7 +158,7 @@ export function CategoryPageView({
               <Link
                 key={slug}
                 href={`/applications/${slug}`}
-                className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                className="rounded-[var(--radius-xs)] px-3 py-1 text-sm hover:opacity-70"
                 style={{ background: "var(--paper-dim)" }}
               >
                 {slug.replace(/-/g, " ")}
@@ -169,7 +169,7 @@ export function CategoryPageView({
       ) : null}
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
         <div className="mt-3 flex flex-col gap-4">
@@ -186,12 +186,12 @@ export function CategoryPageView({
 
       {related.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Related Categories
           </h2>
           <div className="mt-3 flex flex-wrap gap-3">
             {related.map((c) => (
-              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full px-4 py-1.5 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
+              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-[var(--radius-xs)] px-4 py-1.5 text-sm hover:opacity-70" style={{ background: "var(--paper-dim)" }}>
                 {c.name}
               </Link>
             ))}

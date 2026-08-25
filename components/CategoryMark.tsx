@@ -42,14 +42,29 @@ export function categoryMarkForDbCategory(dbCategory: string): CategoryMarkSlug 
 }
 
 // Tile background (one shared lightness/chroma across all three, only hue
-// changes), the tile's "x" tint (a light contrast color pulled against that
-// tone rather than the parent's burgundy), and the short tag set under the
-// numeral inside the tile.
-const CATEGORY_TILE: Record<CategoryMarkSlug, { bg: string; x: string; tag: string; tagSize: number; tagTracking: string }> = {
-  plywood: { bg: "oklch(0.62 0.09 145)", x: "var(--burgundy)", tag: "PLY & BOARDS", tagSize: 7, tagTracking: "0.12em" },
-  laminates: { bg: "oklch(0.62 0.09 250)", x: "oklch(0.88 0.12 80)", tag: "LAM", tagSize: 8.5, tagTracking: "0.22em" },
-  veneers: { bg: "oklch(0.62 0.09 25)", x: "oklch(0.88 0.10 125)", tag: "VENEER", tagSize: 8.5, tagTracking: "0.22em" },
+// changes) and the short tag set under the numeral inside the tile. The "×"
+// is always #FFFFFF here: every tile ground is a saturated mid-tone, not a
+// light ground, so the burgundy ink would land in the same unreadable band
+// the spec forbids on vermilion.
+const CATEGORY_TILE: Record<CategoryMarkSlug, { bg: string; tag: string; tagSize: number; tagTracking: string }> = {
+  plywood: { bg: "oklch(0.62 0.09 145)", tag: "PLY & BOARDS", tagSize: 7, tagTracking: "0.12em" },
+  laminates: { bg: "oklch(0.62 0.09 250)", tag: "LAM", tagSize: 8.5, tagTracking: "0.22em" },
+  veneers: { bg: "oklch(0.62 0.09 25)", tag: "VENEER", tagSize: 8.5, tagTracking: "0.22em" },
 };
+
+// Locked logo spec — the "×" is U+00D7, never the letter x. It optically
+// needs more weight and size as the numeral shrinks, so the ratio steps at a
+// 40px numeral rather than scaling linearly.
+export function markTimesStyle(numeralSize: number, color: string): React.CSSProperties {
+  const small = numeralSize < 40;
+  return {
+    fontSize: numeralSize * (small ? 0.4 : 0.31),
+    fontWeight: small ? 700 : 500,
+    margin: "0 0.13em",
+    transform: "translateY(-0.05em)",
+    color,
+  };
+}
 
 // Base sizes the proportions below were designed against.
 const TILE_BASE = 80;
@@ -86,7 +101,7 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
         style={{
           display: "inline-flex",
           alignItems: "center",
-          fontFamily: "var(--font-space-grotesk), sans-serif",
+          fontFamily: "var(--font-display), sans-serif",
           fontWeight: 700,
           letterSpacing: "-0.03em",
           color: "#FFFFFF",
@@ -94,13 +109,13 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
         }}
       >
         <span style={{ fontSize: digit }}>8</span>
-        <span style={{ fontSize: digit * 0.31, fontWeight: 500, margin: "0 0.15em", transform: "translateY(-0.05em)", color: tone.x }}>×</span>
+        <span style={markTimesStyle(digit, "#FFFFFF")}>×</span>
         <span style={{ fontSize: digit }}>4</span>
       </div>
       {showTag ? (
         <div
           style={{
-            fontFamily: "'General Sans', Inter, sans-serif",
+            fontFamily: "var(--font-body), sans-serif",
             fontSize: tone.tagSize * scale,
             fontWeight: 600,
             letterSpacing: tone.tagTracking,
@@ -123,7 +138,7 @@ function Numeral({ size }: { size: number }) {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        fontFamily: "var(--font-space-grotesk), sans-serif",
+        fontFamily: "var(--font-display), sans-serif",
         fontWeight: 700,
         letterSpacing: "-0.03em",
         color: "var(--ink)",
@@ -131,7 +146,8 @@ function Numeral({ size }: { size: number }) {
       }}
     >
       <span style={{ fontSize: digit }}>8</span>
-      <span style={{ fontSize: digit * 0.31, fontWeight: 500, margin: "0 0.15em", transform: "translateY(-0.05em)", color: "var(--burgundy)" }}>×</span>
+      {/* Light ground here (page background), so burgundy ink. */}
+      <span style={markTimesStyle(digit, "var(--burgundy)")}>×</span>
       <span style={{ fontSize: digit }}>4</span>
     </div>
   );
@@ -148,7 +164,7 @@ export function CategoryLockup({ slug, size = 40 }: { slug: CategoryMarkSlug; si
       <div className="flex items-center gap-4">
         <Numeral size={size} />
         <div style={{ width: 1, height: ruleHeight, background: "rgba(18,18,18,0.18)" }} />
-        <span className="serif" style={{ fontSize: size * (23 / NUMERAL_BASE) + 6, color: "var(--ink)", letterSpacing: "0.01em" }}>
+        <span className="font-display" style={{ fontSize: size * (23 / NUMERAL_BASE) + 6, color: "var(--ink)", letterSpacing: "0.01em" }}>
           {CATEGORY_MARK_LABEL[slug]}
         </span>
       </div>

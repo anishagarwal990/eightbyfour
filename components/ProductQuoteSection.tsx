@@ -105,7 +105,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
           </p>
           {price ? (
             <p
-              className="serif mt-1 [font-variant-numeric:tabular-nums]"
+              className="font-display mt-1 [font-variant-numeric:tabular-nums]"
               style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}
             >
               {price.kind === "range" ? (
@@ -123,7 +123,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               </span>
             </p>
           ) : (
-            <p className="serif mt-1" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}>
+            <p className="font-display mt-1" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}>
               Price on Request
             </p>
           )}
@@ -137,7 +137,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               Starting
             </p>
             <p
-              className="serif mt-1 [font-variant-numeric:tabular-nums]"
+              className="font-display mt-1 [font-variant-numeric:tabular-nums]"
               style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}
             >
               <span className="text-lg font-normal" style={{ color: "var(--line-strong)" }}>

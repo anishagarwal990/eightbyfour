@@ -1,29 +1,111 @@
 @import "tailwindcss";
 
+/* ============================================================================
+   Design tokens — EightByFour
+   ----------------------------------------------------------------------------
+   Two layers. PRIMITIVES are raw values and are never referenced by a
+   component. SEMANTIC tokens name a role (what the value is for) and are the
+   only thing components should read. The legacy aliases at the bottom
+   (--ink, --paper, --burgundy, --line …) are kept deliberately: ~40 components
+   already reference them, and re-pointing them at the semantic layer
+   restyles the whole site from one place instead of a risky mass rewrite.
+   New code should use the semantic names.
+   ========================================================================= */
 :root {
-  --ink: #121212;
-  --paper: #ffffff;
-  --paper-dim: #ececec;
-  --card: #f6f6f6;
-  --walnut: #6e1f2e;
-  --stamp: #0f0f0f;
-  --accent: #6e1f2e;
-  --accent-dark: #4f1520;
-  --burgundy: #6e1f2e;
-  --burgundy-dark: #4f1520;
-  --line: rgba(0, 0, 0, 0.15);
-  --line-strong: rgba(0, 0, 0, 0.35);
+  /* ---- Primitives ---------------------------------------------------- */
+  --burgundy-900: #4c1219;
+  --burgundy-800: #5e1621;
+  --burgundy-700: #7a1f2b; /* signature — richer + warmer than the old #6e1f2e */
+  --burgundy-100: #f4e7e8;
 
-  --fs-hero: clamp(44px, 5.6vw, 78px);
-  --fs-h1: clamp(28px, 4vw, 40px);
-  --fs-h2: clamp(22px, 3vw, 28px);
-  --fs-body: 15px;
-  --lh-tight: 1.08;
-  --lh-normal: 1.55;
+  --neutral-950: #1a1917; /* warm near-black */
+  --neutral-700: #55504a;
+  --neutral-500: #837c73;
+  --neutral-200: #e6e1d9;
+  --neutral-100: #f2eee8;
+  --neutral-050: #faf8f5; /* warm off-white page ground */
+  --white: #ffffff;
 
-  --shadow-sm: 0 1px 2px rgba(18, 18, 18, 0.06), 0 1px 1px rgba(18, 18, 18, 0.04);
-  --shadow-md: 0 8px 24px -8px rgba(18, 18, 18, 0.16), 0 2px 8px -2px rgba(18, 18, 18, 0.08);
-  --shadow-lg: 0 20px 48px -12px rgba(18, 18, 18, 0.22), 0 8px 16px -4px rgba(18, 18, 18, 0.1);
+  /* ---- Semantic: brand ------------------------------------------------ */
+  --brand-primary: var(--burgundy-700);
+  --brand-primary-hover: var(--burgundy-800);
+  --brand-primary-active: var(--burgundy-900);
+  --brand-primary-soft: var(--burgundy-100);
+  --brand-on-primary: var(--white);
+
+  /* ---- Semantic: text -------------------------------------------------- */
+  --text-primary: var(--neutral-950);
+  --text-secondary: var(--neutral-700);
+  --text-muted: var(--neutral-500);
+  --text-on-inverse: #f7f4ef;
+
+  /* ---- Semantic: surface ---------------------------------------------- */
+  --surface-page: var(--neutral-050);
+  --surface-primary: var(--white);
+  --surface-secondary: var(--neutral-100);
+  --surface-inverse: #1c1a17;
+
+  /* ---- Semantic: border ------------------------------------------------ */
+  --border-subtle: rgba(26, 25, 23, 0.12);
+  --border-strong: rgba(26, 25, 23, 0.3);
+
+  /* ---- Type scale ------------------------------------------------------
+     Hierarchy is weight + line-height + measure, not size alone — the
+     display face is set tight and dark, body copy stays open and lighter. */
+  --fs-display: clamp(33px, 5.2vw, 66px);
+  --fs-h1: clamp(28px, 3.6vw, 44px);
+  --fs-h2: clamp(22px, 2.6vw, 30px);
+  --fs-h3: 20px;
+  --fs-h4: 17px;
+  --fs-body-lg: clamp(15.5px, 1.3vw, 18px);
+  --fs-body: 15.5px;
+  --fs-body-sm: 13.5px;
+  --fs-label: 11px;
+  --fs-metric: clamp(30px, 3.4vw, 44px);
+
+  --lh-tight: 1.03;
+  --lh-snug: 1.2;
+  --lh-normal: 1.6;
+
+  --tr-display: -0.028em;
+  --tr-heading: -0.02em;
+  --tr-label: 0.13em;
+
+  /* ---- Space & radius --------------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Architectural, not app-store: near-square corners everywhere. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 4px;
+
+  /* ---- Legacy aliases (kept so existing components restyle for free) ---- */
+  --ink: var(--text-primary);
+  --paper: var(--surface-primary);
+  --paper-dim: var(--surface-secondary);
+  --card: var(--surface-secondary);
+  --walnut: var(--brand-primary);
+  --stamp: var(--text-primary);
+  --accent: var(--brand-primary);
+  --accent-dark: var(--brand-primary-hover);
+  --burgundy: var(--brand-primary);
+  --burgundy-dark: var(--brand-primary-hover);
+  --line: var(--border-subtle);
+  --line-strong: var(--text-secondary);
+
+  --fs-hero: var(--fs-display);
+
+  --shadow-sm: 0 1px 2px rgba(26, 25, 23, 0.06), 0 1px 1px rgba(26, 25, 23, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(26, 25, 23, 0.16), 0 2px 8px -2px rgba(26, 25, 23, 0.08);
+  --shadow-lg: 0 20px 48px -12px rgba(26, 25, 23, 0.2), 0 8px 16px -4px rgba(26, 25, 23, 0.09);
 
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
@@ -31,9 +113,11 @@
   --dur-base: 280ms;
   --dur-slow: 480ms;
 
-  --background: var(--paper);
-  --foreground: var(--ink);
+  --background: var(--surface-page);
+  --foreground: var(--text-primary);
 
+  /* Heights of the two chrome rows above the header — the SKU ticker and the
+     contact strip. Read by SiteHeader to position itself and by the hero. */
   --sku-ribbon-h: 40px;
   --contact-bar-h: 30px;
 }
@@ -50,8 +134,25 @@
   --color-burgundy-dark: var(--burgundy-dark);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-serif: var(--font-canela);
-  --font-sans: var(--font-plex);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-surface-page: var(--surface-page);
+  --color-surface-primary: var(--surface-primary);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-primary-hover);
+  --color-brand-soft: var(--brand-primary-soft);
+  /* Two faces, no exceptions. font-display = Instrument Sans (the mark,
+     display/h1–h4, numerals, stat figures, eyebrows/labels); font-body =
+     General Sans (body copy, UI, buttons, form fields, tables, specs).
+     --font-sans aliases the body face so Tailwind's default sans matches. */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-sans: var(--font-body);
 }
 
 @layer base {
@@ -79,38 +180,78 @@
   }
 
   body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--font-plex), "IBM Plex Sans", sans-serif;
+    background: var(--surface-page);
+    color: var(--text-primary);
+    font-family: var(--font-body), "General Sans", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
   h1,
   h2,
-  h3 {
+  h3,
+  h4 {
     margin: 0;
+    font-family: var(--font-display), sans-serif;
+    letter-spacing: var(--tr-heading);
   }
 }
 
-.serif {
-  font-family: var(--font-canela), serif;
+/* Headings and stat figures use Tailwind's generated `font-display`
+   utility (from --font-display in @theme) — no bespoke class needed.
+   Eyebrows/labels are display-face too, so .tracked-caps carries it.
+   Declared in @layer components, not bare CSS, so a utility like
+   tracking-[1.5px] on the same element still wins the cascade. */
+@layer components {
+  /* Small tracked caps stay in the system as a *sparing* signature device —
+     section eyebrows were on every block before and read as formulaic.
+     Tracking pulled back from 2.5px to a proportional 0.13em so it reads as
+     a label rather than as decoration. */
+  .tracked-caps {
+    font-family: var(--font-display), sans-serif;
+    text-transform: uppercase;
+    letter-spacing: var(--tr-label);
+    font-weight: 600;
+  }
+
+  /* Display-face metric figures, tabular so columns of numbers line up. */
+  .metric {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 600;
+    letter-spacing: var(--tr-heading);
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-.tracked-caps {
-  font-family: var(--font-canela), serif;
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
-}
-
+/* Form fields must not inherit label styling. Fields are frequently wrapped in
+   a <label class="tracked-caps"> for the caption, and uppercase + 0.13em
+   tracking + 600 weight were leaking into the value and the placeholder. The
+   body face is the field face, always. */
 button,
 input,
 select,
 textarea {
-  font-family: inherit;
+  font-family: var(--font-body), "General Sans", system-ui, sans-serif;
+}
+
+input,
+select,
+textarea {
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
 }
 
@@ -298,14 +439,13 @@ textarea {
   cursor: grabbing;
 }
 
-.sku-ribbon-mask {
-  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
-}
+/* Edge fades are applied per-edge from AutoScrollRow, which only masks an
+   edge that actually has content scrolled past it — a static both-edge mask
+   dimmed the first and last item even when nothing was cut off. */
 
-.brand-ribbon-mask {
-  -webkit-mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
+.ribbon-scroll:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: -2px;
 }
 
 /* ---------- User-driven horizontal product carousels (native scroll-snap, no JS) ---------- */

@@ -58,7 +58,7 @@ export default async function ContractorProcurementPage() {
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           For Contractors · Hyderabad
         </p>
-        <h1 className="serif mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
           You don&apos;t need ten suppliers for one site.
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -71,7 +71,7 @@ export default async function ContractorProcurementPage() {
       </section>
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Every Category, One View
         </h2>
         <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -84,7 +84,7 @@ export default async function ContractorProcurementPage() {
             >
               <CategoryIcon slug={cat.slug} className="text-[var(--burgundy)]" />
               <div>
-                <p className="serif" style={{ fontSize: "16px" }}>
+                <p className="font-display" style={{ fontSize: "16px" }}>
                   {cat.name}
                 </p>
                 <p className="mt-0.5 text-xs tracked-caps" style={{ color: "var(--accent)" }}>
@@ -97,7 +97,7 @@ export default async function ContractorProcurementPage() {
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Brands Available
         </h2>
         <p className="mt-3 max-w-3xl text-sm" style={{ color: "var(--line-strong)" }}>
@@ -107,7 +107,7 @@ export default async function ContractorProcurementPage() {
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
         <div className="mt-3 flex flex-col gap-4">

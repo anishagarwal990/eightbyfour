@@ -5,16 +5,24 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMark";
 import { resolvePrice, unitLabel } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
+import { AddToRequirementButton } from "@/components/AddToRequirementButton";
 
 export function ProductCard({ product }: { product: ProductRow }) {
   const price = resolvePrice(product);
   const categoryMarkSlug = categoryMarkForDbCategory(product.category);
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group relative block overflow-hidden rounded-md transition-[transform,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[var(--shadow-lg)]"
-      style={{ background: "var(--card)" }}
+    // A stretched link rather than a wrapping <a>: the requirement toggle is a
+    // real button, and a button nested inside an anchor is invalid markup that
+    // browsers and screen readers both handle badly.
+    <div
+      className="group relative overflow-hidden transition-shadow duration-300 [transition-timing-function:var(--ease-out-soft)] hover:shadow-[var(--shadow-md)]"
+      style={{ background: "var(--surface-secondary)", borderRadius: "var(--radius-xs)" }}
     >
+      <Link
+        href={`/products/${product.slug}`}
+        className="absolute inset-0 z-10"
+        aria-label={productDisplayName(product)}
+      />
       <div className="relative aspect-[4/3] w-full overflow-hidden" style={{ background: "var(--card)" }}>
         {product.main_img_url ? (
           <Image
@@ -25,20 +33,23 @@ export function ProductCard({ product }: { product: ProductRow }) {
             className="object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-[1.06]"
           />
         ) : (
-          <div className="flex h-full items-center justify-center serif text-sm" style={{ color: "var(--line-strong)" }}>
+          <div className="flex h-full items-center justify-center font-display text-sm" style={{ color: "var(--line-strong)" }}>
             {product.brand}
           </div>
         )}
         {product.warranty ? (
-          <div className="absolute right-2 top-2">
+          <div className="absolute left-2 top-2">
             <span
-              className="rounded-full px-2 py-0.5 text-right text-[10px] font-medium leading-tight"
-              style={{ background: "rgba(255,255,255,0.9)", color: "var(--burgundy)" }}
+              className="px-2 py-0.5 text-right text-[10px] font-medium leading-tight"
+              style={{ background: "rgba(255,255,255,0.92)", color: "var(--brand-primary)", borderRadius: "var(--radius-xs)" }}
             >
               {product.warranty}
             </span>
           </div>
         ) : null}
+        <div className="absolute right-2 top-2 z-20">
+          <AddToRequirementButton productId={product.id} productName={productDisplayName(product)} />
+        </div>
       </div>
       <div className="p-3">
         {product.brand === "EightByFour" && categoryMarkSlug ? (
@@ -46,7 +57,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
         ) : (
           <BrandLogo brand={product.brand} height={16} />
         )}
-        <h3 className="serif mt-1 text-base leading-snug">{product.name}</h3>
+        <h3 className="font-display mt-1 text-base leading-snug">{product.name}</h3>
         {product.sd_code ? (
           <p className="mt-0.5 text-xs font-medium" style={{ color: "var(--burgundy)" }}>
             Code: {product.sd_code}
@@ -70,13 +81,7 @@ export function ProductCard({ product }: { product: ProductRow }) {
             )}
           </p>
         ) : null}
-        <p
-          className="mt-2 translate-y-1 text-xs font-medium opacity-0 transition-[transform,opacity] duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-y-0 group-hover:opacity-100"
-          style={{ color: "var(--burgundy)" }}
-        >
-          View details →
-        </p>
       </div>
-    </Link>
+    </div>
   );
 }

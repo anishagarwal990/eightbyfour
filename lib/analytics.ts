@@ -25,6 +25,10 @@ export type AnalyticsEventName =
   | "whatsapp_click"
   | "quote_request"
   | "contact_submit"
+  // Engagement, not conversion — a line added to a Requirement is intent, but
+  // the Lead only fires when the requirement is actually sent. Deliberately
+  // absent from META_EVENT_MAP for that reason.
+  | "add_to_requirement"
   | "phone_click";
 
 type EventParams = Record<string, string | number | boolean | null | undefined>;

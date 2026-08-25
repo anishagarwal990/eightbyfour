@@ -25,7 +25,7 @@ export default async function ProductsIndexPage() {
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           Materials Catalogue
         </p>
-        <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)" }}>
           Every category, available across Hyderabad
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -39,16 +39,16 @@ export default async function ProductsIndexPage() {
           <Link
             key={cat.slug}
             href={`/products/${cat.slug}`}
-            className="group relative block rounded-lg p-4 transition-[transform,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[var(--shadow-md)]"
+            className="group relative block rounded-lg p-4 transition-[transform,box-shadow] duration-300 [transition-timing-function:var(--ease-out-soft)]"
             style={{ background: "var(--card)" }}
           >
             <span
-              className="absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-xs"
+              className="absolute top-3 right-3 rounded-[var(--radius-xs)] px-2.5 py-0.5 text-xs"
               style={{ background: "var(--paper)", color: "var(--burgundy)" }}
             >
               {counts[cat.dbCategory] || 0}
             </span>
-            <h2 className="serif pr-8" style={{ fontSize: "17px" }}>
+            <h2 className="font-display pr-8" style={{ fontSize: "17px" }}>
               {cat.name}
             </h2>
             <p className="mt-1.5 text-xs" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>

@@ -140,7 +140,7 @@ export function ShadeFinishPicker({ brandName, shades }: { brandName: string; sh
           type="button"
           onClick={goToProduct}
           disabled={!selectedShade || !selectedFinish}
-          className="rounded-full px-5 py-2.5 text-sm font-medium text-white transition-[transform,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-40"
+          className="rounded-[var(--radius-xs)] px-5 py-2.5 text-sm font-medium text-white transition-[transform,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-40"
           style={{ background: "var(--burgundy)" }}
         >
           View Shade

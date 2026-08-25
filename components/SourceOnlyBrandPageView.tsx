@@ -34,7 +34,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             {brand.name} · Ask for Availability & Quote
           </p>
-          <h1 className="serif mt-1" style={{ fontSize: "var(--fs-h1)" }}>
+          <h1 className="font-display mt-1" style={{ fontSize: "var(--fs-h1)" }}>
             {brand.name} in Hyderabad
           </h1>
           {content ? (
@@ -77,7 +77,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
 
           {content.sections.map((section) => (
             <section key={section.heading} className="px-7 pb-8">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 {section.heading}
               </h2>
               <p className="mt-3 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -88,7 +88,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
 
           {content.designFeatures ? (
             <section className="px-7 pb-8">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 Design Without Limits
               </h2>
               <p className="mt-3 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -109,7 +109,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
 
           {content.applications ? (
             <section className="px-7 pb-8">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 Where HIMACS Fits
               </h2>
               <p className="mt-3 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -129,7 +129,7 @@ export function SourceOnlyBrandPageView({ brand }: { brand: SourceOnlyBrand }) {
           ) : null}
 
           <section className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
               {content.ctaHeading}
             </h2>
             <p className="mt-3 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>

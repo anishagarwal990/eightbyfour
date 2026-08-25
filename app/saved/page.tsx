@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SavedProductsView } from "@/components/SavedProductsView";
 
 export const metadata: Metadata = {
-  title: "Saved Products",
+  title: "Your Requirement",
   robots: { index: false, follow: true },
 };
 

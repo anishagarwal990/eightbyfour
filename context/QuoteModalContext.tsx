@@ -18,6 +18,8 @@ export interface ListItem {
 
 interface QuoteModalContextValue {
   openModal: (prefillDesc?: string, note?: string, title?: string) => void;
+  /** Opens the modal seeded with a whole list — used to send a Requirement in one go. */
+  openModalWithItems: (lines: ListItem[], title?: string, note?: string) => void;
   items: ListItem[];
   addItem: (desc: string, qty?: string) => void;
   removeItem: (i: number) => void;
@@ -46,6 +48,13 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
   const [submitting, setSubmitting] = useState(false);
   const [ref, setRef] = useState<string | null>(null);
   const [waUrl, setWaUrl] = useState<string | null>(null);
+  // Echoed back on the confirmation screen — a requirement you can't see was
+  // received doesn't feel received. Captured at submit time because the form
+  // state is cleared when the modal closes.
+  const [submittedSummary, setSubmittedSummary] = useState<{ lineCount: number; fileName: string | null }>({
+    lineCount: 0,
+    fileName: null,
+  });
   const [modalNote, setModalNote] = useState<string | null>(null);
   const [modalTitle, setModalTitle] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +81,16 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setOpen(true);
   }
 
+  function openModalWithItems(lines: ListItem[], title?: string, note?: string) {
+    setItems((prev) => {
+      const seen = new Set(prev.map((i) => i.desc));
+      return [...prev, ...lines.filter((l) => !seen.has(l.desc))];
+    });
+    setModalTitle(title ?? null);
+    setModalNote(note ?? null);
+    setOpen(true);
+  }
+
   function resetForm() {
     setItems([]);
     setDescInput("");
@@ -85,6 +104,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setSubmitNote(null);
     setRef(null);
     setWaUrl(null);
+    setSubmittedSummary({ lineCount: 0, fileName: null });
     setModalNote(null);
     setModalTitle(null);
   }
@@ -185,13 +205,14 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
 
     const url = buildWhatsAppUrl(lines.join("\n"));
     window.open(url, "_blank", "noopener");
+    setSubmittedSummary({ lineCount: items.length, fileName: file ? file.name : null });
     setRef(inquiryRef);
     setWaUrl(url);
     setSubmitting(false);
   }
 
   return (
-    <QuoteModalContext.Provider value={{ openModal, items, addItem, removeItem }}>
+    <QuoteModalContext.Provider value={{ openModal, openModalWithItems, items, addItem, removeItem }}>
       {children}
 
       {open ? (
@@ -206,17 +227,41 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
           >
             {ref ? (
               <div>
-                <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-                  Request sent
+                <p className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
+                  Requirement received
                 </p>
-                <p className="mt-2 text-sm">
-                  We&apos;ve opened WhatsApp with your request pre-filled — just hit send there to reach us.
+                <p className="mt-1 metric" style={{ fontSize: "22px", color: "var(--brand-primary)" }}>
+                  {ref}
                 </p>
-                <p className="mt-2 text-xs" style={{ color: "var(--line-strong)" }}>
-                  Reference: {ref}
+                <dl className="mt-4 flex flex-col gap-2 border-t pt-4 text-sm" style={{ borderColor: "var(--border-subtle)" }}>
+                  {submittedSummary.lineCount > 0 ? (
+                    <div className="flex justify-between gap-4">
+                      <dt style={{ color: "var(--text-secondary)" }}>Lines received</dt>
+                      <dd className="metric">{submittedSummary.lineCount}</dd>
+                    </div>
+                  ) : null}
+                  {submittedSummary.fileName ? (
+                    <div className="flex justify-between gap-4">
+                      <dt style={{ color: "var(--text-secondary)" }}>File attached</dt>
+                      <dd className="max-w-[60%] truncate text-right font-medium">{submittedSummary.fileName}</dd>
+                    </div>
+                  ) : null}
+                  <div className="flex justify-between gap-4">
+                    <dt style={{ color: "var(--text-secondary)" }}>First reply</dt>
+                    <dd className="font-medium">Under 15 min, business hours</dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt style={{ color: "var(--text-secondary)" }}>Priced quote</dt>
+                    <dd className="font-medium">Same or next working day</dd>
+                  </div>
+                </dl>
+                <p className="mt-4 text-sm" style={{ lineHeight: "var(--lh-normal)", color: "var(--text-secondary)" }}>
+                  A person on our procurement desk reads this, checks stock and pricing across our manufacturer
+                  network, and comes back on WhatsApp with the whole list priced together. We&apos;ve opened WhatsApp
+                  with your requirement pre-filled — hit send there so we can reply in the same thread.
                 </p>
                 {waUrl ? (
-                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm underline">
+                  <a href={waUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm underline">
                     Didn&apos;t open? Tap here to open WhatsApp
                   </a>
                 ) : null}
@@ -235,8 +280,8 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div className="flex items-start justify-between">
-                  <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-                    {modalTitle || "Request a quote"}
+                  <p className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
+                    {modalTitle || "Send your requirement"}
                   </p>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="text-2xl leading-none">
                     ×
@@ -244,13 +289,13 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                 </div>
 
                 {modalNote ? (
-                  <p className="rounded-sm border px-3 py-2 text-sm" style={{ borderColor: "var(--line)", background: "var(--paper-dim)", color: "var(--ink)" }}>
+                  <p className="rounded-xs border px-3 py-2 text-sm" style={{ borderColor: "var(--line)", background: "var(--paper-dim)", color: "var(--ink)" }}>
                     {modalNote}
                   </p>
                 ) : null}
 
                 <div>
-                  <p className="text-xs tracked-caps">Items needed</p>
+                  <p className="text-xs tracked-caps">What you need</p>
                   <div className="mt-1.5 flex gap-2">
                     <input
                       value={descInput}
@@ -261,7 +306,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                           addItemFromInputs();
                         }
                       }}
-                      placeholder="e.g. 19mm BWP plywood"
+                      placeholder="e.g. 19mm BWP plywood — or anything we don’t list"
                       className="flex-1 rounded-sm border px-3 py-2 text-sm"
                       style={{ borderColor: "var(--line)" }}
                     />
@@ -301,8 +346,8 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                       ))}
                     </ul>
                   ) : (
-                    <p className="mt-2 text-sm italic" style={{ color: "var(--line-strong)" }}>
-                      No items added yet — add your first item above.
+                    <p className="mt-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+                      Add lines one at a time, or skip this and attach a BOQ below — either works.
                     </p>
                   )}
                 </div>
@@ -316,11 +361,11 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                 </div>
 
                 <div>
-                  <p className="text-xs tracked-caps" style={{ color: "var(--burgundy)" }}>
-                    Upload a file instead
+                  <p className="text-xs tracked-caps" style={{ color: "var(--brand-primary)" }}>
+                    Attach a BOQ or drawing
                   </p>
-                  <p className="mt-0.5 text-sm" style={{ color: "var(--line-strong)" }}>
-                    Excel, PDF, photo — whatever&apos;s easiest.
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--text-secondary)" }}>
+                    Excel, PDF, drawing or a photo of a handwritten list — up to 20MB.
                   </p>
                   <div className="mt-2">
                     {file ? (
@@ -423,7 +468,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
                 ) : null}
 
                 <Button type="submit" variant="primary" disabled={submitting} className="w-full">
-                  {submitting ? "Sending…" : "Request Quotation via WhatsApp"}
+                  {submitting ? "Sending…" : "Send requirement via WhatsApp"}
                 </Button>
               </form>
             )}

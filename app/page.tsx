@@ -3,289 +3,124 @@ import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getCategoryCounts, getCategorySampleProducts } from "@/lib/data/products";
 import { CATEGORIES } from "@/lib/categories";
+import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
+import { isRepresentativeImage, treatmentForCategory } from "@/lib/categoryArt";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
-import { HeroCTAs } from "@/components/HeroCTAs";
-import { HeroQuoteBuilder } from "@/components/HeroQuoteBuilder";
 import { HowItWorks } from "@/components/HowItWorks";
-import { CategoryPhotoGrid } from "@/components/CategoryPhotoGrid";
 import { UseCaseNav } from "@/components/UseCaseNav";
 import { Testimonials } from "@/components/Testimonials";
 import { getTestimonials } from "@/lib/data/testimonials";
+import { HeroActions } from "@/components/home/HeroActions";
+import { HeroMaterial, type HeroMaterialTile } from "@/components/home/HeroMaterial";
+import { ProofBand } from "@/components/home/ProofBand";
+import { TwoDoors } from "@/components/home/TwoDoors";
+import { MaterialDiscovery, type DiscoveryTile } from "@/components/home/MaterialDiscovery";
+import { RequirementExample } from "@/components/home/RequirementExample";
+import { WhyEightByFour } from "@/components/home/WhyEightByFour";
+import { TrustBlock } from "@/components/home/TrustBlock";
+import { WhoWeServe } from "@/components/home/WhoWeServe";
 
 // A residential-to-commercial spread, not every application page — the
 // homepage points at these four and links to /applications for the rest.
 const HOMEPAGE_APPLICATION_SLUGS = ["modular-kitchen", "wardrobes", "commercial-spaces", "retail-stores"];
 
-// The catalogue's strongest categories by real stock depth, plus the
-// "coming soon" categories (zero live SKUs, no photo yet — CategoryPhotoGrid
-// renders those with a placeholder instead of a product image). Birch
-// Plywood, Boil Boards and NFC Boards stay reachable via /products and their
-// own category pages but are left off this list — they have real photos, but
-// only 1-2 SKUs each, which reads as broken rather than curated in a
-// grid; that's a different situation from a deliberate coming-soon entry.
-const HOMEPAGE_CATEGORY_SLUGS = [
-  "plywood",
-  "laminates",
-  "veneers",
-  "corian-acrylic-solid-surface",
-  "mdf-and-hdhmr",
-  "adhesive",
-  "aluminium-sections",
-  "galvanised-iron-sheets",
-  "steel-pipes",
-  "blockboards",
-  "cement-boards",
-  "louvers",
-  "wall-panels",
-  "hardware",
-  "timber",
-  "nails",
-  "screws",
-];
+// A category holding one, two or four SKUs reads as a broken tile rather than
+// as depth, and sitting it beside 2,464 laminates as an equal is the exact
+// credibility problem this redesign exists to fix. Ten is the floor for
+// merchandising a category on the homepage; below it the category keeps its
+// route, its page, its mega-menu entry and its place in the text row further
+// down — it just isn't presented as stock you can shop.
+const MERCHANDISE_FLOOR = 10;
 
-// "Coming soon" categories have zero live SKUs yet, so no product row/photo
-// exists in Supabase for them. These are EightByFour's own real product
-// photos (not stock) — swap each entry out for a real Supabase-backed photo
-// once that category actually has SKUs listed.
-const CATEGORY_FALLBACK_IMAGE: Record<string, string> = {
-  "aluminium-sections": "/category-fallback/aluminium-sections.jpg",
-  "galvanised-iron-sheets": "/category-fallback/galvanised-iron-sheets.jpg",
-  "steel-pipes": "/category-fallback/steel-pipes.jpg",
-  blockboards: "/category-fallback/blockboards.png",
-  "cement-boards": "/category-fallback/cement-boards.png",
-  louvers: "/category-fallback/louvers.png",
-  "wall-panels": "/category-fallback/wall-panels.jpg",
-  hardware: "/category-fallback/hardware.png",
-  timber: "/category-fallback/timber.jpg",
-  nails: "/category-fallback/nails.jpg",
-  screws: "/category-fallback/screws.jpg",
+// The three surfaces that carry the first viewport, in order of catalogue
+// depth. Laminates leads because it is 77% of live stock — the old hero
+// eyebrow led with Plywood and Hardware, one of which is 0.8% of stock and
+// the other of which has none at all.
+const HERO_CATEGORY_SLUGS = ["laminates", "veneers", "corian-acrylic-solid-surface"];
+
+// One-line reasons a category is worth opening, for the two lead tiles.
+const CATEGORY_BLURBS: Record<string, string> = {
+  laminates: "Shade codes, finishes and textures from Merino, Greenlam, Century and more — searchable by code.",
+  veneers: "Natural and reconstituted veneers, including bookmatched and embossed sheets.",
+  "corian-acrylic-solid-surface": "Seamless acrylic solid surface in stocked colours, for counters and vanities.",
+  "stone-panels": "Large-format stone and sintered panels for walls, counters and facades.",
+  plywood: "MR, BWP and fire-retardant grades in standard 8×4 ft sheets.",
+  adhesive: "Site-grade adhesives, including marine and heat-resistant grades.",
+  "mdf-and-hdhmr": "MDF and HDHMR boards for shutters, mouldings and wet areas.",
 };
 
 export const metadata: Metadata = buildMetadata({
   title: "EightxFour — Interior & Construction Material Procurement in Hyderabad",
   description:
-    "Upload your BOQ once and compare organized quotes across 25+ brands — plywood, laminates, veneers, hardware and solid surfaces. Stop chasing suppliers, start comparing smartly.",
+    "Send one requirement — BOQ, product list, drawing or a sentence — and get one consolidated quote. Laminates, veneers, plywood, solid surface, boards and adhesives, sourced across 25+ manufacturers for Hyderabad projects.",
   path: "/",
 });
 
-// Real, current numbers only — update alongside the data they describe.
-const STATS = [
-  { value: "750+", label: "SKUs In Stock" },
-  { value: "25+", label: "Manufacturers Sourced" },
-  { value: "<15 min", label: "First Response Time" },
-  { value: "Same/Next-Day", label: "Delivery in Hyderabad" },
-];
-
-const OLD_WAY = [
-  "Call Supplier A, describe the BOQ",
-  "Call Supplier B, repeat yourself",
-  "Wait — sometimes days — for a reply",
-  "Follow up again, and again",
-  "Receive quotes in different formats",
-  "Try comparing everything by hand",
-  "Still unsure if you're paying the right price",
-];
-
-const NEW_WAY = [
-  "Upload your BOQ once",
-  "Our network checks stock & pricing",
-  "Quotes come back organized, one format",
-  "Compare brand, spec and price on one screen",
-  "Choose with confidence — not guesswork",
-];
-
-const WHY_EIGHTBYFOUR = [
-  {
-    title: "Direct from manufacturers",
-    body: "We source directly from manufacturers across our distribution network, so you get manufacturer pricing and manufacturer-backed reliability, not a marked-up reseller rate.",
-    icon: "direct",
-  },
-  {
-    title: "We source beyond what's listed",
-    body: "750+ real SKUs are live on this site today. If what you need isn't one of them, tell us — we source well beyond our own listed catalogue.",
-    icon: "search",
-  },
-  {
-    title: "Currently serving Hyderabad",
-    body: "Every brand, delivery route and process is built around this city's sites and timelines — not a generic pan-India catalogue.",
-    icon: "pin",
-  },
-  {
-    title: "One consolidated quote",
-    body: "A BOQ spanning plywood, laminate, hardware and adhesive comes back as a single quote — not five separate vendor calls.",
-    icon: "quote",
-  },
-] as const;
-
-type WhyIconName = (typeof WHY_EIGHTBYFOUR)[number]["icon"];
-
-function WhyIcon({ name }: { name: WhyIconName }) {
-  const common = {
-    width: 22,
-    height: 22,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.5,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true as const,
-  };
-  switch (name) {
-    case "direct":
-      return (
-        <svg {...common}>
-          <rect x="2" y="9" width="6" height="6" rx="1" />
-          <rect x="16" y="9" width="6" height="6" rx="1" />
-          <path d="M8 12h8M13 9l3 3-3 3" />
-        </svg>
-      );
-    case "search":
-      return (
-        <svg {...common}>
-          <circle cx="10" cy="10" r="6" />
-          <path d="M20 20l-5.5-5.5" />
-        </svg>
-      );
-    case "pin":
-      return (
-        <svg {...common}>
-          <path d="M12 21s7-7.58 7-12a7 7 0 1 0-14 0c0 4.42 7 12 7 12Z" />
-          <circle cx="12" cy="9" r="2.5" />
-        </svg>
-      );
-    case "quote":
-      return (
-        <svg {...common}>
-          <path d="M6 3h9l3 3v15H6z" />
-          <path d="M9 11h6M9 15h6" />
-        </svg>
-      );
-  }
-}
-
-const WHO_WE_SERVE = [
-  {
-    title: "Homeowners",
-    body: "Building or renovating your own home — source real materials without chasing ten different shops.",
-    href: "/hyderabad/homeowner-materials",
-    icon: "house",
-  },
-  {
-    title: "Interior Designers",
-    body: "One point of contact across plywood, laminates, veneers, hardware and solid surfaces — for every client project.",
-    href: "/hyderabad/architect-material-sourcing",
-    icon: "pencil",
-  },
-  {
-    title: "Architects",
-    body: "Spec real, in-stock materials against real shade and edge-band codes — not a catalogue that may or may not be available on site.",
-    href: "/hyderabad/architect-material-sourcing",
-    icon: "compass",
-  },
-  {
-    title: "Contractors",
-    body: "A single supplier for every category on the BOQ, with trade pricing and delivery scheduled against your site timeline.",
-    href: "/hyderabad/contractor-procurement",
-    icon: "hardhat",
-  },
-  {
-    title: "Builders & Procurement Teams",
-    body: "Procurement across multiple sites and projects, consolidated through one relationship instead of a dozen vendor accounts.",
-    href: "/hyderabad/contractor-procurement",
-    icon: "stack",
-  },
-] as const;
-
-type WhoIconName = (typeof WHO_WE_SERVE)[number]["icon"];
-
-function WhoIcon({ name }: { name: WhoIconName }) {
-  const common = {
-    width: 22,
-    height: 22,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.5,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-    "aria-hidden": true as const,
-  };
-  switch (name) {
-    case "house":
-      return (
-        <svg {...common}>
-          <path d="M3 11.5 12 4l9 7.5" />
-          <path d="M5.5 10v10h13V10" />
-          <path d="M10 20v-6h4v6" />
-        </svg>
-      );
-    case "pencil":
-      return (
-        <svg {...common}>
-          <path d="M4 20l.8-3.5L15.5 6l3.5 3.5L8.3 20.3z" />
-          <path d="M13.5 8 16 10.5" />
-        </svg>
-      );
-    case "compass":
-      return (
-        <svg {...common}>
-          <circle cx="12" cy="6" r="1.6" />
-          <path d="M12 7.6 7 20M12 7.6l5 12.4M7.5 20h9" />
-        </svg>
-      );
-    case "hardhat":
-      return (
-        <svg {...common}>
-          <path d="M4 16a8 8 0 0 1 16 0" />
-          <path d="M2.5 16h19" />
-          <path d="M12 5v3" />
-        </svg>
-      );
-    case "stack":
-      return (
-        <svg {...common}>
-          <rect x="5" y="10" width="6" height="10" />
-          <rect x="13" y="5" width="6" height="15" />
-        </svg>
-      );
-  }
-}
-
 export default async function Home() {
-  const featuredCategories = HOMEPAGE_CATEGORY_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter((c) => c !== undefined);
-
-  // brands, category counts, per-category product samples and testimonials
-  // are independent data sources with no dependency on each other — fetching
-  // them as a single Promise.all instead of sequential awaits means homepage
-  // TTFB is bounded by the slowest of them, not their sum. Category counts
-  // come from one grouped RPC (not a per-category count query) so the
-  // per-category Promise.all below only does one lightweight sample-products
-  // fetch each, instead of a count-plus-data pair.
-  const [brands, categoryCounts, categorySections, testimonials] = await Promise.all([
+  // Category counts, per-category samples, brands and testimonials are
+  // independent, so they resolve as one Promise.all — homepage TTFB is bounded
+  // by the slowest, not their sum. Counts come from one grouped RPC and are
+  // the single source of truth for every number rendered on this page.
+  const [brands, categoryCounts, testimonials] = await Promise.all([
     getAllBrandsWithCounts(),
     getCategoryCounts(),
-    Promise.all(
-      featuredCategories.map(async (category) => {
-        // Only the representative image (products[0]) is used on the homepage —
-        // sample a small pool and shuffle so every load picks a different one,
-        // instead of the same alphabetically-first product every time.
-        const products = await getCategorySampleProducts(category.dbCategory, 10);
-        const withImages = products.filter((p) => p.main_img_url);
-        const sample = [...withImages].sort(() => Math.random() - 0.5).slice(0, 1);
-        return { category, products: sample };
-      })
-    ),
     getTestimonials(),
   ]);
-  const categoryPhotoItems = categorySections.map(({ category, products }) => ({
-    slug: category.slug,
-    name: category.name,
-    total: categoryCounts[category.dbCategory] ?? 0,
-    image: products[0]?.main_img_url ?? CATEGORY_FALLBACK_IMAGE[category.slug] ?? null,
+
+  const stockedCategories = CATEGORIES.filter((c) => (categoryCounts[c.dbCategory] || 0) > 0).sort(
+    (a, b) => (categoryCounts[b.dbCategory] || 0) - (categoryCounts[a.dbCategory] || 0)
+  );
+  const merchandisable = stockedCategories.filter((c) => (categoryCounts[c.dbCategory] || 0) >= MERCHANDISE_FLOOR);
+  const alsoSourced = CATEGORIES.filter((c) => !merchandisable.includes(c)).map((c) => ({
+    slug: c.slug,
+    name: c.name,
+  }));
+
+  const totalSkus = Object.values(categoryCounts).reduce((sum, n) => sum + n, 0);
+  const brandCount = brands.length + SOURCE_ONLY_BRANDS.length;
+
+  // One representative photo per merchandised category. The pick is derived
+  // from the slug rather than randomised: a random choice per render is impure
+  // during render, defeats caching, and makes the hero's composition
+  // unreproducible when someone reports that a crop looks wrong.
+  const samples = await Promise.all(
+    merchandisable.map(async (category) => {
+      const products = await getCategorySampleProducts(category.dbCategory, 10);
+      const withImages = products.filter((p) => isRepresentativeImage(p.main_img_url));
+      const seed = [...category.slug].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+      const pick = (offset: number) =>
+        withImages.length > 0 ? (withImages[(seed + offset) % withImages.length]?.main_img_url ?? null) : null;
+      // Two different photos per category so the hero and the discovery grid
+      // aren't showing the visitor the same laminate twice on one page.
+      return { slug: category.slug, hero: pick(0), grid: pick(withImages.length > 1 ? 1 : 0) };
+    })
+  );
+  const heroImageBySlug = Object.fromEntries(samples.map((s) => [s.slug, s.hero]));
+  const gridImageBySlug = Object.fromEntries(samples.map((s) => [s.slug, s.grid]));
+
+  const heroTiles: HeroMaterialTile[] = HERO_CATEGORY_SLUGS.map((slug) => {
+    const category = CATEGORIES.find((c) => c.slug === slug);
+    const image = heroImageBySlug[slug];
+    if (!category || !image) return null;
+    return {
+      slug,
+      name: category.name,
+      count: categoryCounts[category.dbCategory] || 0,
+      image,
+      treatment: treatmentForCategory(slug),
+    };
+  }).filter((t): t is HeroMaterialTile => t !== null);
+
+  const discoveryTiles: DiscoveryTile[] = merchandisable.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    count: categoryCounts[c.dbCategory] || 0,
+    image: gridImageBySlug[c.slug] ?? null,
+    treatment: treatmentForCategory(c.slug),
+    blurb: CATEGORY_BLURBS[c.slug] ?? c.heroTagline,
   }));
 
   const allApplications = getAllContent("applications");
@@ -300,205 +135,137 @@ export default async function Home() {
 
   return (
     <main>
-      {/* ---------- Hero ---------- */}
-      {/* Pulled up behind the fixed header by --chrome-h (set in SiteHeader's
-          measure effect) so the header floats as glass over real hero content
-          instead of sitting as a flat opaque bar in its own row. Body stays
-          plain white — separation comes from the header's own blur/shadow,
-          not a tinted backdrop. */}
+      {/* ---------- Hero ----------
+          Definition first, in real type, then the position, then the material.
+          The old hero set the only sentence that said what the company is at
+          14px grey above a 78px slogan that could have belonged to a freight
+          broker — and showed no material at all above the fold. */}
       <section
-        className="reveal is-visible relative px-7 pb-20"
-        style={{
-          marginTop: "calc(-1 * var(--chrome-h, 0px))",
-          paddingTop: "calc(var(--chrome-h, 0px) + 5rem)",
-        }}
+        data-hero
+        className="reveal is-visible px-7 pb-14 pt-6 md:pb-20 md:pt-16"
+        style={{ background: "var(--surface-page)" }}
       >
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
-          <div>
-            <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
-              Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
-            </p>
-            <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Interior &amp; Construction Material Procurement in Hyderabad
-            </h1>
-            <h2
-              className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
-              style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
-            >
-              Give Us Your List.
-              <br className="hidden sm:block" /> Get Your Quote.
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Send your BOQ, product list, drawings — or just tell us what you need. We&apos;ll organize the
-              requirements, source across our network and come back with options you can compare.
-            </p>
-            <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
-              First response in under 15 minutes, during business hours.
-            </p>
-            <Link href="/products" className="mx-auto mt-4 block text-sm underline lg:mx-0" style={{ color: "var(--line-strong)" }}>
-              Prefer to browse first? See all products →
-            </Link>
+        {/* `contents` on mobile lets the two text blocks become direct grid
+            items alongside the material band, so the band can sit between the
+            headline and the actions — that is what gets a real material into
+            the first 844px on a phone. At lg the wrapper becomes a normal
+            block again and the layout returns to two columns. */}
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-x-16 gap-y-8 lg:grid-cols-[1.12fr_0.88fr]">
+          <div className="contents lg:block">
+            <div className="order-1">
+              {/* The one burgundy mark above the fold besides the CTA — a rule,
+                  not a badge or a tracked-caps eyebrow. It ties the hero to the
+                  burgundy "×" in the mark and gives the brand a signal here
+                  without tinting the whole first screen. */}
+              <span
+                aria-hidden="true"
+                className="mb-4 block h-[3px] w-10 md:mb-5"
+                style={{ background: "var(--brand-primary)" }}
+              />
+              <p
+                className="max-w-lg"
+                style={{ fontSize: "var(--fs-body-lg)", lineHeight: "var(--lh-normal)", color: "var(--text-secondary)" }}
+              >
+                EightxFour is a material procurement partner for interior and construction projects in Hyderabad.
+              </p>
+              <h1
+                className="mt-4 max-w-2xl md:mt-5"
+                style={{ fontSize: "var(--fs-display)", lineHeight: "var(--lh-tight)", letterSpacing: "var(--tr-display)" }}
+              >
+                Every material your project needs. Sourced by one partner.
+              </h1>
+            </div>
+            <div className="order-3 lg:mt-6">
+              <p
+                className="max-w-xl"
+                style={{ fontSize: "var(--fs-body-lg)", lineHeight: "var(--lh-normal)", color: "var(--text-secondary)" }}
+              >
+                Send one requirement — a BOQ, a product list, a drawing, or just a description. We organise it, source
+                it across {brandCount}+ manufacturers, and come back with a single consolidated quote.
+              </p>
+              <div className="mt-7">
+                <HeroActions browseLabel={`Browse ${totalSkus.toLocaleString("en-IN")} materials`} />
+              </div>
+            </div>
           </div>
-          <div className="flex justify-center lg:justify-start">
-            <HeroQuoteBuilder />
+          <div className="order-2 lg:order-none lg:pl-4">
+            <HeroMaterial tiles={heroTiles} />
           </div>
         </div>
       </section>
 
-      {/* ---------- Trust Stats (thin strip, not a full beat) ---------- */}
-      <Reveal className="border-t px-7 py-6" style={{ borderColor: "var(--line)" }}>
-        <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-10 gap-y-2 text-center">
-          {STATS.map((s) => (
-            <p key={s.label} className="text-sm" style={{ color: "var(--line-strong)" }}>
-              <span className="serif" style={{ fontSize: "18px", color: "var(--burgundy)" }}>
-                {s.value}
-              </span>{" "}
-              <span className="tracked-caps text-xs">{s.label}</span>
-            </p>
-          ))}
-        </div>
-      </Reveal>
+      {/* ---------- Proof of depth ---------- */}
+      <ProofBand
+        stats={[
+          { value: (categoryCounts["Laminates"] || 0).toLocaleString("en-IN"), label: "Laminate shades, by code", href: "/products/laminates" },
+          { value: (categoryCounts["Veneers"] || 0).toLocaleString("en-IN"), label: "Veneer sheets", href: "/products/veneers" },
+          { value: totalSkus.toLocaleString("en-IN"), label: "Live SKUs you can browse", href: "/products" },
+          { value: `${brandCount}+`, label: "Manufacturers sourced", href: "/brands" },
+        ]}
+        note="Counts read live from the catalogue. We source well beyond what's listed here — anything not on the site can still go on your requirement."
+      />
 
-      <ManufacturerStrip brands={brands} />
+      {/* ---------- Material discovery ---------- */}
+      <MaterialDiscovery tiles={discoveryTiles} sourced={alsoSourced} />
 
-      {/* ---------- Category Grid — one consolidated "real stock" moment ---------- */}
-      <CategoryPhotoGrid items={categoryPhotoItems} />
-
-      {/* ---------- How It Works ---------- */}
+      {/* ---------- How it works ---------- */}
       <HowItWorks />
 
-      {/* ---------- Who We Serve (moved up — persona self-identification before anything else) ---------- */}
-      <Reveal as="section" className="px-7 py-20" style={{ background: "var(--paper-dim)" }}>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-          <div>
-            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              Who We Serve
-            </p>
-            <h2 className="serif mt-3 max-w-sm" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-              Built for Everyone Building a Space
-            </h2>
-            <p className="mt-4 max-w-xs" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-              Whether it&apos;s one home or a dozen sites, EightxFour is the same single point of contact.
-            </p>
-          </div>
-          <Reveal stagger strong className="flex flex-col">
-            {WHO_WE_SERVE.map((item) => (
-              <Link key={item.title} href={item.href} className="group flex items-center justify-between gap-6 border-b py-6 first:pt-0 last:border-b-0" style={{ borderColor: "var(--line)" }}>
-                <span className="flex items-center gap-4">
-                  <span style={{ color: "var(--burgundy)" }}>
-                    <WhoIcon name={item.icon} />
-                  </span>
-                  <p className="serif transition-colors duration-300 group-hover:opacity-70" style={{ fontSize: "22px" }}>
-                    {item.title}
-                  </p>
-                </span>
-                <span
-                  className="shrink-0 text-lg transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
-                  style={{ color: "var(--burgundy)" }}
-                  aria-hidden="true"
-                >
-                  →
-                </span>
-              </Link>
-            ))}
-          </Reveal>
-        </div>
-      </Reveal>
+      {/* ---------- Show the output ---------- */}
+      <RequirementExample />
 
-      {/* ---------- Use-Case Navigation — the "I don't know what I need" path ---------- */}
+      {/* ---------- Why ---------- */}
+      <WhyEightByFour />
+
+      {/* ---------- Who it's for ---------- */}
+      <WhoWeServe />
+
+      {/* ---------- Manufacturers ---------- */}
+      <ManufacturerStrip brands={brands} />
+
+      {/* ---------- Discovery by application — the "still choosing" path ---------- */}
       <UseCaseNav applications={homepageApplications} />
 
-      {/* ---------- Why This Matters — single consolidated trust section ---------- */}
-      {/* Old-vs-new comparison is the primary proof; the four differentiators
-          support that claim as a compact row underneath, instead of repeating
-          the same pitch under a second heading a few seconds later. */}
-      <Reveal as="section" className="px-7 py-16" style={{ background: "var(--paper-dim)" }}>
-        <div className="mb-10 text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Why This Matters
-          </p>
-          <h2 className="serif mt-2" style={{ fontSize: "var(--fs-h2)" }}>
-            Interior Procurement Shouldn&apos;t Be This Complicated
-          </h2>
-        </div>
-        <Reveal stagger className="mx-auto grid max-w-4xl grid-cols-1 gap-8 sm:grid-cols-2">
-          <div className="rounded-sm border p-6" style={{ borderColor: "var(--line)", background: "var(--paper)" }}>
-            <p className="tracked-caps text-xs" style={{ color: "var(--line-strong)" }}>
-              The Old Way
-            </p>
-            <ul className="mt-4 flex flex-col gap-3">
-              {OLD_WAY.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm" style={{ color: "var(--line-strong)" }}>
-                  <span aria-hidden="true">&times;</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="rounded-sm border p-6" style={{ borderColor: "var(--burgundy)", background: "var(--paper)" }}>
-            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-              The EightxFour Way
-            </p>
-            <ul className="mt-4 flex flex-col gap-3">
-              {NEW_WAY.map((item) => (
-                <li key={item} className="flex items-start gap-2 text-sm">
-                  <span aria-hidden="true" style={{ color: "var(--burgundy)" }}>
-                    &#10003;
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Reveal>
-        <Reveal stagger strong className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-x-10 gap-y-6 sm:grid-cols-2">
-          {WHY_EIGHTBYFOUR.map((item) => (
-            <div key={item.title} className="flex items-center gap-4 border-t pt-4" style={{ borderColor: "var(--line)" }}>
-              <span style={{ color: "var(--burgundy)" }}>
-                <WhyIcon name={item.icon} />
-              </span>
-              <p className="serif" style={{ fontSize: "16px" }}>
-                {item.title}
-              </p>
-            </div>
-          ))}
-        </Reveal>
-      </Reveal>
+      {/* ---------- Trust ---------- */}
+      <TrustBlock />
 
-      {/* ---------- Testimonials ---------- */}
-      <Reveal as="section" className="px-7 py-16">
-        <Testimonials initialTestimonials={testimonials} />
+      {/* Real reviews when there are real reviews — the component states
+          plainly that there aren't yet rather than inventing any. */}
+      <Reveal as="section" className="px-7 py-14" style={{ background: "var(--surface-secondary)" }}>
+        <div className="mx-auto max-w-6xl">
+          <Testimonials initialTestimonials={testimonials} />
+        </div>
       </Reveal>
 
       {/* ---------- Resources (SEO internal-linking utility — compact, off the main narrative) ---------- */}
       {guides.length > 0 || hyderabadPages.length > 0 ? (
-        <Reveal as="section" className="border-t px-7 py-12" style={{ borderColor: "var(--line)", background: "var(--paper-dim)" }}>
-          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-10 sm:grid-cols-2">
+        <Reveal as="section" className="border-t px-7 py-12" style={{ borderColor: "var(--border-subtle)" }}>
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 sm:grid-cols-2">
             {guides.length > 0 ? (
               <div>
-                <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-                  Buying Guides &amp; Comparisons
+                <p className="tracked-caps" style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>
+                  Buying guides &amp; comparisons
                 </p>
                 <div className="mt-3 flex flex-col gap-2">
                   {guides.map((g) => (
-                    <Link key={`${g.section}-${g.slug}`} href={`/${g.section}/${g.slug}`} className="text-sm hover:opacity-70">
+                    <Link key={`${g.section}-${g.slug}`} href={`/${g.section}/${g.slug}`} className="text-sm hover:text-[var(--brand-primary)]">
                       {g.frontmatter.title}
                     </Link>
                   ))}
                 </div>
-                <Link href="/guides" className="mt-3 inline-block text-sm" style={{ color: "var(--accent)" }}>
-                  View all →
+                <Link href="/guides" className="mt-3 inline-block text-sm underline underline-offset-4" style={{ color: "var(--brand-primary)" }}>
+                  All guides
                 </Link>
               </div>
             ) : null}
             {hyderabadPages.length > 0 ? (
               <div>
-                <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+                <p className="tracked-caps" style={{ fontSize: "var(--fs-label)", color: "var(--text-muted)" }}>
                   Serving Telangana &amp; Andhra Pradesh
                 </p>
                 <div className="mt-3 flex flex-col gap-2">
                   {hyderabadPages.map((h) => (
-                    <Link key={h.slug} href={`/hyderabad/${h.slug}`} className="text-sm hover:opacity-70">
+                    <Link key={h.slug} href={`/hyderabad/${h.slug}`} className="text-sm hover:text-[var(--brand-primary)]">
                       {h.frontmatter.title}
                     </Link>
                   ))}
@@ -509,16 +276,13 @@ export default async function Home() {
         </Reveal>
       ) : null}
 
-      {/* ---------- Closing CTA ---------- */}
-      <Reveal as="section" className="px-7 py-14 text-center">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-          Tell Us What You&apos;re Building.
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-          Give us your list. We&apos;ll help you figure out the rest.
-        </p>
-        <HeroCTAs />
-      </Reveal>
+      {/* ---------- Close: the two doors ----------
+          This is where the old "Tell Us What You're Building." block sat — a
+          centred headline over two pills, which asked for the decision without
+          restating either option. The two doors close the page instead: by
+          this point the visitor has seen the catalogue depth, the process and
+          the output, so the only thing left is which way in they want. */}
+      <TwoDoors totalSkus={totalSkus} brandCount={brandCount} />
     </main>
   );
 }

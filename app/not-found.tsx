@@ -18,7 +18,7 @@ export default function NotFound() {
       <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
         404
       </p>
-      <h1 className="serif mt-3" style={{ fontSize: "var(--fs-h1)" }}>
+      <h1 className="font-display mt-3" style={{ fontSize: "var(--fs-h1)" }}>
         We couldn&apos;t find that page
       </h1>
       <p className="mt-3 max-w-md" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -44,7 +44,7 @@ export default function NotFound() {
             <Link
               key={c.slug}
               href={`/products/${c.slug}`}
-              className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+              className="rounded-[var(--radius-xs)] px-3 py-1 text-sm hover:opacity-70"
               style={{ background: "var(--paper-dim)" }}
             >
               {c.name}

@@ -15,8 +15,8 @@ const LINKS = [
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
   { href: "/comparisons", label: "Comparisons" },
-  { href: "/hyderabad", label: "Serving Hyderabad" },
-  { href: "/saved", label: "Saved Products" },
+  { href: "/hyderabad", label: "Hyderabad" },
+  { href: "/saved", label: "Your Requirement" },
 ];
 
 /** Mobile-only hamburger + slide-in drawer. The desktop hover mega-menus in
@@ -103,7 +103,7 @@ export function MobileMenu() {
           className="mt-auto flex flex-col gap-3 px-5 py-6"
           onClick={(e) => e.currentTarget.contains(e.target as Node) && setOpen(false)}
         >
-          <RequestQuoteButton />
+          <RequestQuoteButton label="Send your requirement" />
           <a
             href={buildWhatsAppUrl("Hi, I'd like to get a quote for my project.")}
             target="_blank"

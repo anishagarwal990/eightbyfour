@@ -38,7 +38,7 @@ function countOptions(values: string[]): { value: string; count: number }[] {
 }
 
 const PILL_BASE =
-  "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] cursor-pointer";
+  "inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-[transform,box-shadow,background-color,color] duration-150 [transition-timing-function:var(--ease-out-soft)] cursor-pointer";
 
 function Pill({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
   return (
@@ -235,7 +235,7 @@ export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) 
               key={`${c.facet}-${c.value}`}
               type="button"
               onClick={() => clearFacet(c.facet, c.value)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-[var(--radius-xs)] px-3 py-1 text-xs font-medium"
               style={{ background: "var(--paper-dim)", color: "var(--ink)" }}
             >
               <span style={{ color: "var(--line-strong)" }}>{c.label}:</span>
@@ -256,7 +256,7 @@ export function PlywoodFilterableGrid({ products }: { products: ProductRow[] }) 
             <button
               type="button"
               onClick={clearAll}
-              className="cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium hover:opacity-70"
+              className="cursor-pointer rounded-[var(--radius-xs)] px-4 py-1.5 text-sm font-medium hover:opacity-70"
               style={{ background: "color-mix(in srgb, var(--burgundy) 10%, var(--paper))", color: "var(--burgundy)" }}
             >
               Clear filters

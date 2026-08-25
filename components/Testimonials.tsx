@@ -107,7 +107,7 @@ export function Testimonials({ initialTestimonials }: { initialTestimonials: Tes
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             {testimonials.length === 0 ? "Early Days" : "What Our Customers Say"}
           </p>
-          <h2 className="serif mt-1" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display mt-1" style={{ fontSize: "var(--fs-h2)" }}>
             {testimonials.length === 0 ? "Be Among Our First Reviews" : "Trusted by Homeowners, Designers & Contractors"}
           </h2>
           {testimonials.length === 0 ? (

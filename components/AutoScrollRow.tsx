@@ -1,6 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+/** Width of the gradient fade applied over an edge that has content scrolled past it. */
+const FADE = 32;
 
 /** Auto-scrolling horizontal row that visitors can also grab-drag (mouse) or swipe (touch) themselves. */
 export function AutoScrollRow({
@@ -8,20 +11,47 @@ export function AutoScrollRow({
   trackClassName = "",
   speed = 30,
   className = "",
+  label,
 }: {
   children: React.ReactNode;
   trackClassName?: string;
   speed?: number;
   className?: string;
+  /** Accessible name for the scrollable region — required for the keyboard affordance to be announced. */
+  label?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const hoveringRef = useRef(false);
+  const focusedRef = useRef(false);
   const startXRef = useRef(0);
   const startScrollRef = useRef(0);
   const lastXRef = useRef(0);
   const suppressClickRef = useRef(false);
   const pressTargetRef = useRef<Element | null>(null);
+  // Which edges actually have content past them — a fade over an edge with
+  // nothing behind it just dims the first/last item for no reason.
+  const [fade, setFade] = useState({ start: false, end: false });
+
+  const syncFade = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    // 1px slack: fractional scroll positions never land exactly on 0 / max.
+    setFade({ start: el.scrollLeft > 1, end: el.scrollLeft < max - 1 });
+  }, []);
+
+  // Fade state has to settle even when the marquee never animates (reduced
+  // motion, or content narrower than the viewport), so it lives outside the
+  // rAF effect below.
+  useEffect(() => {
+    syncFade();
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(syncFade);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [syncFade, children]);
 
   useEffect(() => {
     const el = ref.current;
@@ -49,7 +79,7 @@ export function AutoScrollRow({
       if (hoveringRef.current && el && !el.matches(":hover")) {
         hoveringRef.current = false;
       }
-      if (!draggingRef.current && !hoveringRef.current && el) {
+      if (!draggingRef.current && !hoveringRef.current && !focusedRef.current && el) {
         el.scrollLeft += speed * dt;
         const half = el.scrollWidth / 2;
         const maxScroll = el.scrollWidth - el.clientWidth;
@@ -130,10 +160,45 @@ export function AutoScrollRow({
     if (e.pointerType === "mouse") hoveringRef.current = false;
   }
 
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    const el = ref.current;
+    if (!el) return;
+    const step = e.key === "Home" || e.key === "End" ? el.scrollWidth : el.clientWidth * 0.8;
+    if (e.key === "ArrowRight") el.scrollLeft += 80;
+    else if (e.key === "ArrowLeft") el.scrollLeft -= 80;
+    else if (e.key === "PageDown") el.scrollLeft += step;
+    else if (e.key === "PageUp") el.scrollLeft -= step;
+    else if (e.key === "Home") el.scrollLeft = 0;
+    else if (e.key === "End") el.scrollLeft = el.scrollWidth;
+    else return;
+    e.preventDefault();
+    syncFade();
+  }
+
+  // Mask is a computed value (which edges, how wide) so it can't be a
+  // static utility class.
+  const maskImage =
+    fade.start || fade.end
+      ? `linear-gradient(to right, transparent 0, black ${fade.start ? FADE : 0}px, black calc(100% - ${fade.end ? FADE : 0}px), transparent 100%)`
+      : undefined;
+
   return (
     <div
       ref={ref}
       className={`ribbon-scroll ${className}`}
+      // Focusable so keyboard users can reach and scroll the region; without
+      // a name and role it would be an unlabelled tab stop.
+      tabIndex={0}
+      role="region"
+      aria-label={label}
+      onKeyDown={onKeyDown}
+      onFocus={() => {
+        focusedRef.current = true;
+      }}
+      onBlur={() => {
+        focusedRef.current = false;
+      }}
+      onScroll={syncFade}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
@@ -141,6 +206,7 @@ export function AutoScrollRow({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       onClickCapture={onClickCapture}
+      style={{ WebkitMaskImage: maskImage, maskImage }}
     >
       <div className={trackClassName}>{children}</div>
     </div>

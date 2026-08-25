@@ -63,7 +63,7 @@ export default async function ArchitectMaterialSourcingPage() {
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           For Architects &amp; Designers · Hyderabad
         </p>
-        <h1 className="serif mx-auto mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mx-auto mt-2 max-w-2xl" style={{ fontSize: "var(--fs-h1)" }}>
           Real stock, not a catalogue that may or may not be available.
         </h1>
         <p className="mx-auto mt-3 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
@@ -79,7 +79,7 @@ export default async function ArchitectMaterialSourcingPage() {
         cat.products.length > 0 ? (
           <Reveal key={cat.slug} as="section" className="py-6">
             <div className="flex items-baseline justify-between px-7">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 {cat.name}
               </h2>
               <Link href={`/products/${cat.slug}`} className="text-sm hover:opacity-70" style={{ color: "var(--accent)" }}>
@@ -104,7 +104,7 @@ export default async function ArchitectMaterialSourcingPage() {
       )}
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
         <div className="mt-3 flex flex-col gap-4">

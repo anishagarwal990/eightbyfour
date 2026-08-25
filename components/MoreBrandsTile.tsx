@@ -44,7 +44,7 @@ export function MoreBrandsTile() {
       className="flex flex-col items-center justify-center gap-2 rounded-sm border border-dashed p-5 text-center transition-[border-color] duration-200 hover:border-[var(--burgundy)]"
       style={{ borderColor: "var(--line)" }}
     >
-      <p className="serif" style={{ fontSize: "18px" }}>
+      <p className="font-display" style={{ fontSize: "18px" }}>
         Sourcing even more
       </p>
       <p className="text-xs tracked-caps" style={{ color: "var(--accent)" }}>

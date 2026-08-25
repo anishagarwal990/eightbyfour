@@ -27,7 +27,7 @@ export default async function BrandsIndexPage() {
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           Manufacturers
         </p>
-        <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)" }}>
           Brands We Carry in Hyderabad
         </h1>
         <p className="mt-3 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
@@ -72,7 +72,7 @@ export default async function BrandsIndexPage() {
                 />
               </div>
             ) : (
-              <p className="serif opacity-75 transition-opacity duration-200 group-hover:opacity-100" style={{ fontSize: "var(--fs-h2)" }}>
+              <p className="font-display opacity-75 transition-opacity duration-200 group-hover:opacity-100" style={{ fontSize: "var(--fs-h2)" }}>
                 {b.name}
               </p>
             )}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
@@ -30,11 +31,11 @@ export default function ContactPage() {
           <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
             Contact · Hyderabad
           </p>
-          <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
+          <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)" }}>
             Get in Touch
           </h1>
           <p className="mt-2 text-base" style={{ color: "var(--line-strong)" }}>
-            EightxFour operates as a procurement platform across Hyderabad — reach us directly, or send your BOQ and
+            EightxFour sources materials for projects across Hyderabad — reach us directly, or send your BOQ and
             we&apos;ll respond in under 15 minutes during business hours.
           </p>
         </section>
@@ -42,7 +43,7 @@ export default function ContactPage() {
         <Reveal as="section" className="px-7 pb-8">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 Phone &amp; WhatsApp
               </h2>
               <p className="mt-2">
@@ -59,7 +60,7 @@ export default function ContactPage() {
               </WhatsAppTrackedLink>
             </div>
             <div>
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 Email
               </h2>
               <p className="mt-2">
@@ -69,7 +70,7 @@ export default function ContactPage() {
               </p>
             </div>
             <div>
-              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
                 Business Hours
               </h2>
               <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
@@ -80,7 +81,7 @@ export default function ContactPage() {
         </Reveal>
 
         <Reveal as="section" className="px-7 pb-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Office
           </h2>
           <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
@@ -101,14 +102,14 @@ export default function ContactPage() {
         </Reveal>
 
         <Reveal as="section" className="px-7 pb-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Service Area
           </h2>
           <p className="mt-2" style={{ lineHeight: "var(--lh-normal)" }}>
             EightxFour sources and delivers across Hyderabad and the surrounding metro area — see our{" "}
-            <a href="/hyderabad" className="underline hover:opacity-70">
+            <Link href="/hyderabad" className="underline hover:opacity-70">
               Hyderabad procurement pages
-            </a>{" "}
+            </Link>{" "}
             for delivery and process details by project type.
           </p>
         </Reveal>

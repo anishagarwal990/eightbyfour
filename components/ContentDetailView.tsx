@@ -34,7 +34,7 @@ function RelatedContentSection({
   if (items.length === 0) return null;
   return (
     <Reveal as="section" className="px-7 py-8">
-      <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+      <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
         {heading}
       </h2>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -42,7 +42,7 @@ function RelatedContentSection({
           <Link
             key={item.slug}
             href={`${basePath}/${item.slug}`}
-            className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+            className="rounded-[var(--radius-xs)] px-3 py-1 text-sm hover:opacity-70"
             style={{ background: "var(--paper-dim)" }}
           >
             {item.title}
@@ -103,7 +103,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
         <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
           {type === "hyderabad" ? CONTENT_TYPE_LABEL[type] : `${CONTENT_TYPE_LABEL[type]} · Hyderabad`}
         </p>
-        <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)" }}>
+        <h1 className="font-display mt-2" style={{ fontSize: "var(--fs-h1)" }}>
           {frontmatter.title}
         </h1>
         {frontmatter.heroTagline ? (
@@ -134,7 +134,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
 
       {relatedCategories.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Related Products
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -143,7 +143,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
                 <Link
                   key={c.slug}
                   href={`/products/${c.slug}`}
-                  className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                  className="rounded-[var(--radius-xs)] px-3 py-1 text-sm hover:opacity-70"
                   style={{ background: "var(--paper-dim)" }}
                 >
                   {c.name}
@@ -156,7 +156,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
 
       {relatedBrands.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Related Brands
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -164,7 +164,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
               <Link
                 key={b.slug}
                 href={`/brands/${b.slug}`}
-                className="rounded-full px-3 py-1 text-sm hover:opacity-70"
+                className="rounded-[var(--radius-xs)] px-3 py-1 text-sm hover:opacity-70"
                 style={{ background: "var(--paper-dim)" }}
               >
                 {b.name}
@@ -176,7 +176,7 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
 
       {frontmatter.faqs?.length ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Frequently Asked Questions
           </h2>
           <div className="mt-3 flex flex-col gap-4">

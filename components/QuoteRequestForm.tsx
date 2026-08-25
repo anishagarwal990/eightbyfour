@@ -140,7 +140,7 @@ export function QuoteRequestForm({ product, variantSelection }: { product: Produ
   if (ref) {
     return (
       <div className="rounded-2xl border p-5 shadow-[var(--shadow-md)]" style={{ borderColor: "var(--line)", background: "var(--card)" }}>
-        <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <p className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Request sent
         </p>
         <p className="mt-2 text-sm">We&apos;ve opened WhatsApp with your request pre-filled — just hit send there to reach us.</p>
@@ -162,7 +162,7 @@ export function QuoteRequestForm({ product, variantSelection }: { product: Produ
       className="flex flex-col gap-3 rounded-2xl border p-5 shadow-[var(--shadow-md)]"
       style={{ borderColor: "var(--line)", background: "var(--card)" }}
     >
-      <p className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+      <p className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
         Request a quote
       </p>
       <div>

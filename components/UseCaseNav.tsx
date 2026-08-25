@@ -13,16 +13,16 @@ export function UseCaseNav({ applications }: { applications: ContentEntry[] }) {
   return (
     <Reveal as="section" className="px-7 py-20">
       <div className="mx-auto max-w-5xl">
-        <div className="text-center">
-          <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
-            Not Sure Where To Start?
-          </p>
-          <h2 className="serif mt-3" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-            Start From Your Project
+        {/* Left-aligned and eyebrow-free: this is the fourth section down and
+            the old centred eyebrow-plus-headline-plus-paragraph stack was the
+            same shape as every other one. */}
+        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
+          <h2 className="max-w-md" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-snug)" }}>
+            Still choosing? Start from the project
           </h2>
-          <p className="mx-auto mt-3 max-w-md" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-            You don&apos;t need to know BWP from MR yet — start from the project and we&apos;ll point you to the right
-            materials.
+          <p className="max-w-sm" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--text-secondary)" }}>
+            You don&apos;t need to know BWP from MR yet — start from what you&apos;re building and we&apos;ll point you
+            at the right materials.
           </p>
         </div>
 
@@ -32,19 +32,19 @@ export function UseCaseNav({ applications }: { applications: ContentEntry[] }) {
               key={app.slug}
               href={`/applications/${app.slug}`}
               className={cardClasses("flex flex-col justify-between gap-6 p-5")}
-              style={{ ...CARD_BASE_STYLE, borderColor: "transparent" }}
+              style={{ ...CARD_BASE_STYLE, background: "var(--surface-secondary)" }}
             >
               <div>
-                <p className="serif" style={{ fontSize: "18px", lineHeight: "var(--lh-tight)" }}>
+                <p className="font-display" style={{ fontSize: "18px", lineHeight: "var(--lh-tight)" }}>
                   {app.frontmatter.title}
                 </p>
-                <p className="mt-2 text-xs" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+                <p className="mt-2 text-xs" style={{ color: "var(--text-secondary)", lineHeight: "var(--lh-normal)" }}>
                   {app.frontmatter.heroTagline}
                 </p>
               </div>
               <span
                 className="self-start text-sm transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-x-1"
-                style={{ color: "var(--burgundy)" }}
+                style={{ color: "var(--brand-primary)" }}
                 aria-hidden="true"
               >
                 See materials →
@@ -53,9 +53,9 @@ export function UseCaseNav({ applications }: { applications: ContentEntry[] }) {
           ))}
         </Reveal>
 
-        <div className="mt-8 text-center">
-          <Link href="/applications" className="text-sm underline" style={{ color: "var(--line-strong)" }}>
-            See all project types →
+        <div className="mt-8">
+          <Link href="/applications" className="text-sm underline underline-offset-4" style={{ color: "var(--brand-primary)" }}>
+            All project types
           </Link>
         </div>
       </div>

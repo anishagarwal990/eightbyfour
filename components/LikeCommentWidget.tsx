@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 import { getIdentity, setIdentity, hasLiked, markLiked } from "@/lib/identity";
-import { isSaved, toggleSaved } from "@/lib/saved";
+import { isInRequirement, toggleRequirement } from "@/lib/requirement";
 import { Button } from "@/components/ui/Button";
 import { ShareIcon } from "@/components/icons/ShareIcon";
 import { SaveIcon } from "@/components/icons/SaveIcon";
@@ -32,7 +32,7 @@ export function LikeCommentWidget({
   const supabase = createBrowserSupabaseClient();
   const [likeCount, setLikeCount] = useState(0);
   const [liked, setLiked] = useState(() => (typeof window !== "undefined" ? hasLiked(productId) : false));
-  const [saved, setSaved] = useState(() => (typeof window !== "undefined" ? isSaved(productId) : false));
+  const [saved, setSaved] = useState(() => (typeof window !== "undefined" ? isInRequirement(productId) : false));
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [comments, setComments] = useState<Comment[] | null>(initialRatings ? initialRatings.reviews : null);
   const [commentText, setCommentText] = useState("");
@@ -82,7 +82,7 @@ export function LikeCommentWidget({
   }
 
   function doSave() {
-    setSaved(toggleSaved(productId));
+    setSaved(toggleRequirement(productId));
   }
 
   async function doShare() {
@@ -178,22 +178,22 @@ export function LikeCommentWidget({
         <button
           type="button"
           onClick={doSave}
-          aria-label={saved ? "Remove from saved products" : "Save this product"}
+          aria-label={saved ? "Remove from your requirement" : "Add to your requirement"}
           aria-pressed={saved}
-          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow,background-color,color] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 active:scale-[0.97]"
           style={{
-            background: saved ? "color-mix(in srgb, var(--burgundy) 10%, var(--paper))" : "var(--paper-dim)",
-            color: saved ? "var(--burgundy)" : "var(--ink)",
+            background: saved ? "var(--brand-primary)" : "var(--surface-secondary)",
+            color: saved ? "var(--brand-on-primary)" : "var(--text-primary)",
           }}
         >
           <SaveIcon filled={saved} />
-          {saved ? "Saved" : "Save"}
+          {saved ? "In requirement" : "Add to requirement"}
         </button>
         <button
           type="button"
           onClick={doShare}
           aria-label="Share this product"
-          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] active:scale-[0.97]"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 active:scale-[0.97]"
           style={{ background: "var(--paper-dim)" }}
         >
           <ShareIcon />

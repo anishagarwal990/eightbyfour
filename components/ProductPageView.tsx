@@ -173,7 +173,7 @@ export function ProductPageView({
             <BrandLogo brand={product.brand} height={40} />
           )}
           <div className="mt-2 flex items-start justify-between gap-3">
-            <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
+            <h1 className="font-display" style={{ fontSize: "var(--fs-h1)" }}>
               {h1Text}
             </h1>
             {product.catalogue_url ? (
@@ -183,7 +183,7 @@ export function ProductPageView({
                 rel="noopener noreferrer"
                 title={`View ${product.brand} catalogue (PDF)`}
                 aria-label={`View ${product.brand} catalogue (PDF)`}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition-[transform,box-shadow] duration-150 [transition-timing-function:var(--ease-out-soft)]"
                 style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}
               >
                 <PdfIcon />
@@ -202,7 +202,7 @@ export function ProductPageView({
           ) : null}
           {product.description ? (
             <div className="mt-4">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Product Description
               </h2>
               <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", whiteSpace: "pre-line" }}>
@@ -212,12 +212,12 @@ export function ProductPageView({
                 <div className="mt-2 flex flex-col gap-1">
                   {product.brand === "Merino" ? (
                     <Link href="/guides/merino-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                      See our full guide to Merino's finish range →
+                      See our full guide to Merino&rsquo;s finish range →
                     </Link>
                   ) : null}
                   {product.brand === "Greenlam" ? (
                     <Link href="/guides/greenlam-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                      See our full guide to Greenlam's finish range →
+                      See our full guide to Greenlam&rsquo;s finish range →
                     </Link>
                   ) : null}
                   <Link href="/guides/laminate-care-and-maintenance" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
@@ -244,11 +244,11 @@ export function ProductPageView({
 
           {product.features?.length ? (
             <div className="mt-5">
-              <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
+              <h2 className="font-display" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Key Features
               </h2>
               <p
-                className="serif mt-3 border-l-2 pl-4"
+                className="font-display mt-3 border-l-2 pl-4"
                 style={{ borderColor: "var(--burgundy)", fontSize: "var(--fs-h3, 1.15rem)", lineHeight: "var(--lh-tight)" }}
               >
                 {product.features[0]}
@@ -280,7 +280,7 @@ export function ProductPageView({
           {product.certifications?.length || product.warranty ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3 py-1.5 text-xs font-semibold"
                 style={{ background: "var(--burgundy)", color: "var(--paper)" }}
               >
                 <CheckIcon />
@@ -289,7 +289,7 @@ export function ProductPageView({
               {product.certifications?.map((cert) => (
                 <span
                   key={cert}
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3 py-1.5 text-xs font-medium"
                   style={{ background: "var(--card)", color: "var(--ink)" }}
                 >
                   <CheckIcon />
@@ -298,7 +298,7 @@ export function ProductPageView({
               ))}
               {product.warranty ? (
                 <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-xs)] px-3 py-1.5 text-xs font-medium"
                   style={{ background: "var(--card)", color: "var(--ink)" }}
                 >
                   <CheckIcon />
@@ -327,7 +327,7 @@ export function ProductPageView({
                     {(values as string[]).map((v) => (
                       <span
                         key={v}
-                        className="rounded-full px-3 py-1 text-xs"
+                        className="rounded-[var(--radius-xs)] px-3 py-1 text-xs"
                         style={{ background: "var(--card)" }}
                       >
                         {v}
@@ -339,7 +339,7 @@ export function ProductPageView({
           </div>
 
           <div className="mt-6">
-            <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
+            <h2 className="font-display" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
               Technical Specifications
             </h2>
             <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
@@ -384,13 +384,13 @@ export function ProductPageView({
 
       {product.how_to_apply?.length ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             How to Apply
           </h2>
           <ol className="mt-3 flex flex-col gap-3 text-sm">
             {product.how_to_apply.map((step, i) => (
               <li key={i} className="flex gap-3">
-                <span className="serif shrink-0" style={{ color: "var(--burgundy)" }}>
+                <span className="font-display shrink-0" style={{ color: "var(--burgundy)" }}>
                   {i + 1}.
                 </span>
                 <span style={{ lineHeight: "var(--lh-normal)" }}>{step}</span>
@@ -402,7 +402,7 @@ export function ProductPageView({
 
       {product.catalogue_url || product.tech_sheet_url || product.installation_guide_url ? (
         <Reveal as="section" className="px-7 py-8">
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Downloads
           </h2>
           <ul className="mt-3 flex flex-col gap-2 text-sm">
@@ -432,7 +432,7 @@ export function ProductPageView({
       ) : null}
 
       <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Frequently Asked Questions
         </h2>
         <div className="mt-3 flex flex-col gap-4">
@@ -448,7 +448,7 @@ export function ProductPageView({
       </Reveal>
 
       <Reveal as="section" className="px-7 py-8">
-        <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+        <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
           Reviews &amp; Ratings
         </h2>
         <div className="mt-4">
@@ -458,7 +458,7 @@ export function ProductPageView({
 
       {relatedProducts.length > 0 ? (
         <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Related Products
           </h2>
           <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -472,7 +472,7 @@ export function ProductPageView({
       {brand && brandProducts && brandProducts.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
               More from {brand.name}
             </h2>
             <Link href={`/brands/${brand.slug}`} className="shrink-0 text-sm underline">
@@ -508,12 +508,12 @@ export function ProductPageView({
 
       {frequentlyBoughtWith.length > 0 ? (
         <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          <h2 className="font-display" style={{ fontSize: "var(--fs-h2)" }}>
             Frequently Bought Together
           </h2>
           <div className="mt-3 flex flex-wrap gap-3">
             {frequentlyBoughtWith.map((c) => (
-              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-full px-4 py-1.5 text-sm" style={{ background: "var(--paper)" }}>
+              <Link key={c.slug} href={`/products/${c.slug}`} className="rounded-[var(--radius-xs)] px-4 py-1.5 text-sm" style={{ background: "var(--paper)" }}>
                 {c.name}
               </Link>
             ))}
