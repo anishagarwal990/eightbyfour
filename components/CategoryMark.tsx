@@ -63,8 +63,6 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
   const tone = CATEGORY_TILE[slug];
   const scale = size / TILE_BASE;
   const digit = 32 * scale;
-  const x = 13 * scale;
-  const xMargin = 5 * scale;
   const radius = 18 * scale;
   const gap = 4 * scale;
   const showTag = size >= 48;
@@ -88,14 +86,15 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
         style={{
           display: "inline-flex",
           alignItems: "center",
-          fontFamily: "Georgia, 'Times New Roman', serif",
+          fontFamily: "var(--font-space-grotesk), sans-serif",
           fontWeight: 700,
+          letterSpacing: "-0.03em",
           color: "#FFFFFF",
           lineHeight: 1,
         }}
       >
         <span style={{ fontSize: digit }}>8</span>
-        <span style={{ fontSize: x, margin: `0 ${xMargin}px`, color: tone.x }}>x</span>
+        <span style={{ fontSize: digit * 0.31, fontWeight: 500, margin: "0 0.15em", transform: "translateY(-0.05em)", color: tone.x }}>×</span>
         <span style={{ fontSize: digit }}>4</span>
       </div>
       {showTag ? (
@@ -118,23 +117,21 @@ export function CategoryTile({ slug, size = 80, className = "" }: { slug: Catego
 }
 
 function Numeral({ size }: { size: number }) {
-  const scale = size / NUMERAL_BASE;
   const digit = size;
-  const x = 18 * scale;
-  const xMargin = 6 * scale;
   return (
     <div
       style={{
         display: "inline-flex",
         alignItems: "center",
-        fontFamily: "Georgia, 'Times New Roman', serif",
+        fontFamily: "var(--font-space-grotesk), sans-serif",
         fontWeight: 700,
+        letterSpacing: "-0.03em",
         color: "var(--ink)",
         lineHeight: 1,
       }}
     >
       <span style={{ fontSize: digit }}>8</span>
-      <span style={{ fontSize: x, margin: `0 ${xMargin}px` }}>x</span>
+      <span style={{ fontSize: digit * 0.31, fontWeight: 500, margin: "0 0.15em", transform: "translateY(-0.05em)", color: "var(--burgundy)" }}>×</span>
       <span style={{ fontSize: digit }}>4</span>
     </div>
   );

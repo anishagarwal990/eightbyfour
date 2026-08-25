@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Geist } from "next/font/google";
+import { Geist, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -23,6 +23,15 @@ const plexSans = Geist({
 const canelaText = Geist({
   variable: "--font-canela",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// The "8x4" numeral in the sub-brand marks (see components/CategoryMark.tsx)
+// per the brand identity doc's section 09 update.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["500", "700"],
   display: "swap",
 });
 
@@ -59,7 +68,7 @@ export default async function RootLayout({
   const [counts, brandsMenu] = await Promise.all([getCategoryCounts(), getBrandsMenuData()]);
 
   return (
-    <html lang="en" className={`${plexSans.variable} ${canelaText.variable} h-full antialiased`}>
+    <html lang="en" className={`${plexSans.variable} ${canelaText.variable} ${spaceGrotesk.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         <Suspense fallback={null}>
           <MarketingTracking />
