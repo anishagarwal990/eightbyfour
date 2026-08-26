@@ -1,8 +1,16 @@
 import type { ProductRow } from "@/lib/supabase/types";
 
+// Two separate things, deliberately not merged:
+//
+//   discountPct — fixed, published, applies to every order. The stored rate is
+//     the LIST price, and this is what gets cut off it. The site shows both
+//     numbers, list struck through.
+//   cashbackPct — negotiated per deal and variable. Displayed as an "up to"
+//     figure alongside the price, never subtracted from it, because the real
+//     number is settled in conversation rather than on the page.
 export type PriceInfo =
-  | { kind: "single"; amount: number; unit: string; cashbackPct: number | null }
-  | { kind: "range"; min: number; max: number; unit: string; cashbackPct: number | null };
+  | { kind: "single"; amount: number; unit: string; cashbackPct: number | null; discountPct: number | null }
+  | { kind: "range"; min: number; max: number; unit: string; cashbackPct: number | null; discountPct: number | null };
 
 export function resolvePrice(product: ProductRow): PriceInfo | null {
   const table = product.price_table;
@@ -17,21 +25,62 @@ export function resolvePrice(product: ProductRow): PriceInfo | null {
     if (prices.length === 0) return null;
     const min = Math.min(...prices);
     const max = Math.max(...prices);
-    if (min === max) return { kind: "single", amount: min, unit: "pack", cashbackPct: null };
-    return { kind: "range", min, max, unit: "pack", cashbackPct: null };
+    if (min === max) return { kind: "single", amount: min, unit: "pack", cashbackPct: null, discountPct: null };
+    return { kind: "range", min, max, unit: "pack", cashbackPct: null, discountPct: null };
   }
 
   if (typeof table !== "object") return null;
-  const t = table as { starting_price?: unknown; min_price?: unknown; max_price?: unknown; unit?: unknown; cashback_pct?: unknown };
+  const t = table as {
+    starting_price?: unknown;
+    min_price?: unknown;
+    max_price?: unknown;
+    unit?: unknown;
+    cashback_pct?: unknown;
+    discount_pct?: unknown;
+  };
   const unit = typeof t.unit === "string" ? t.unit : "sqft";
   const cashbackPct = typeof t.cashback_pct === "number" ? t.cashback_pct : null;
+  const discountPct = typeof t.discount_pct === "number" && t.discount_pct > 0 && t.discount_pct < 100 ? t.discount_pct : null;
   if (typeof t.min_price === "number" && typeof t.max_price === "number") {
-    return { kind: "range", min: t.min_price, max: t.max_price, unit, cashbackPct };
+    return { kind: "range", min: t.min_price, max: t.max_price, unit, cashbackPct, discountPct };
   }
   if (typeof t.starting_price === "number") {
-    return { kind: "single", amount: t.starting_price, unit, cashbackPct };
+    return { kind: "single", amount: t.starting_price, unit, cashbackPct, discountPct };
   }
   return null;
+}
+
+/** Apply a fixed discount to a list price. Rounded to the rupee — nobody quotes paise on a sheet. */
+export function applyDiscount(value: number, discountPct: number | null): number {
+  if (!discountPct) return value;
+  return Math.round(value * (1 - discountPct / 100));
+}
+
+export interface DisplayPrice {
+  /** What the customer pays — the list price with any fixed discount applied. */
+  netLabel: string;
+  /** The pre-discount figure, for striking through. Null when there is no discount. */
+  listLabel: string | null;
+  discountPct: number | null;
+  cashbackPct: number | null;
+}
+
+/**
+ * One place that decides how a price reads, so a card, a table row, a product
+ * page and the JSON-LD can never disagree about what a product costs.
+ */
+export function displayPrice(price: PriceInfo): DisplayPrice {
+  const unit = unitLabel(price.unit);
+  const format = (discounted: boolean) => {
+    const at = (value: number) => (discounted ? applyDiscount(value, price.discountPct) : value);
+    return price.kind === "range" ? `₹${at(price.min)} – ₹${at(price.max)}/${unit}` : `₹${at(price.amount)}/${unit}`;
+  };
+  return {
+    netLabel: format(true),
+    listLabel: price.discountPct ? format(false) : null,
+    discountPct: price.discountPct,
+    cashbackPct: price.cashbackPct,
+  };
 }
 
 export function unitLabel(unit: string): string {

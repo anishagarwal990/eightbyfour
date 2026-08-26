@@ -96,7 +96,7 @@ export interface PricePageConfig {
 // prose — just the two facts every plywood page has to restate because the
 // price table is meaningless without them.
 const PLYWOOD_GST_NOTE =
-  "Rates above are per sq.ft, exclusive of GST, and cover the product's full stocked thickness span — a 4mm sheet sits at the bottom of each range and a 25mm sheet at the top.";
+  "Rates above are per sq.ft, exclusive of GST, and are the band each product is quoted across — they are not mapped to a specific thickness, so the low end is not necessarily the thinnest sheet. Ask for a confirmed rate against the thickness and sheet count you need.";
 
 const GRADE_COMPARISON: ComparisonBlock = {
   heading: "MR vs BWR vs BWP vs FR",
@@ -129,7 +129,7 @@ const PLYWOOD_PRICE: PricePageConfig = {
     "Current plywood rates in Hyderabad across MR, BWR, BWP and fire-retardant grades from Century, Austin, Green Panel and Wigwam Excel. Compare per sq.ft and per sheet, then quote your whole list.",
   eyebrow: "Hyderabad price guide",
   intro: [
-    "Plywood in Hyderabad is quoted per square foot excluding GST, and the number moves on three things: grade, thickness and core. A 4mm MR sheet and a 25mm structural sheet from the same brand sit close to ₹100/sq.ft apart, so a single plywood rate quoted over the phone means very little until all three are fixed.",
+    "Plywood in Hyderabad is quoted per square foot excluding GST, and the number moves on three things: grade, thickness and core. Across the catalogue below the spread runs from the low thirties to well past ₹150/sq.ft, so a single plywood rate quoted over the phone means very little until all three are fixed.",
     "The table below is the live catalogue — every plywood brand and grade EightByFour sources, with the rate span each product is stocked at and the certification it carries. Where a manufacturer's rates are not loaded yet the row says so; nothing here is an estimate.",
     "Per-sheet figures are the per-sq.ft rate multiplied by the sheet's own area — a standard 8×4 ft board is 32 sq.ft. They are there to sanity-check a quote you have been given elsewhere. The number that goes on your order is confirmed against current stock.",
   ],
@@ -336,7 +336,7 @@ const SIX_MM = thicknessPage({
   intro: [
     "6mm is the back-panel and drawer-bottom sheet. Nobody plans a project around it, but on a full flat it runs to dozens of sheets, and using an MR sheet where a BWP one belonged is a cheap mistake that surfaces under a kitchen sink two years later.",
     "Every plywood brand here stocks 6mm, so the table is an exact-thickness list. Rates are per sq.ft excluding GST.",
-    "Because most products carry a single rate band across their full range, the span shown covers thicker sheets too — a 6mm sheet sits near the bottom of each range. Ask for a confirmed 6mm rate against your sheet count.",
+    "Most products are quoted as one band rather than thickness by thickness, so the span shown is the product's overall band and not a 6mm figure. Ask for a confirmed 6mm rate against your sheet count.",
   ],
   tableNote: PLYWOOD_GST_NOTE,
   applications: [
@@ -375,7 +375,7 @@ const MR_PLYWOOD: PricePageConfig = {
   intro: [
     "MR stands for moisture resistant, and the name oversells it. An IS 303 MR sheet handles humidity and the occasional splash; it is not built for standing water, and it will delaminate under a leaking sink trap given enough time.",
     "That said, MR is the correct grade for most of a flat. Wardrobes, bedroom storage, TV units and any joinery on a dry internal wall have no business carrying a BWP premium. The table below lists every MR sheet in the catalogue with its live rate and certification.",
-    "Rates are per sq.ft excluding GST and cover each product's full stocked thickness span.",
+    "Rates are per sq.ft excluding GST and are the band each product is quoted across, not a rate for one thickness.",
   ],
   selector: { dbCategories: ["Plywood"], grades: ["MR"] },
   layout: "table",
@@ -434,12 +434,12 @@ const BWP_PLYWOOD: PricePageConfig = {
   intro: [
     "BWP means boiling water proof, and unlike MR the name is earned: an IS 710 sheet is tested by boiling the bonded panel for 72 hours. That test, and the phenolic adhesive behind it, is what you are paying the premium for.",
     "BWR is the grade between the two — longer boil resistance than MR, still an IS 303 interior bond. Several ranges sold as 710 in the market are certified BWR rather than BWP, so the certification column below matters more than the product name.",
-    "Rates are per sq.ft excluding GST and cover each product's full stocked thickness span.",
+    "Rates are per sq.ft excluding GST and are the band each product is quoted across, not a rate for one thickness.",
   ],
   selector: { dbCategories: ["Plywood", "Boil Boards"], grades: ["BWP", "BWR"] },
   layout: "table",
   tableNote:
-    "Read the certification column, not the range name. IS 710 is the boil-proof standard; IS 303 (BWR) is a different, lower test. Rates are per sq.ft excluding GST across each product's full thickness span.",
+    "Read the certification column, not the range name. IS 710 is the boil-proof standard; IS 303 (BWR) is a different, lower test. Rates are per sq.ft excluding GST and are the band each board is quoted across.",
   picks: [
     { label: "Lowest BWP rate", criterion: { kind: "cheapest" }, note: "Entry point for kitchen carcasses where the budget is fixed." },
     { label: "Cheapest genuine IS 710 sheet", criterion: { kind: "cheapestWithCertification", pattern: "710" }, note: "Certified to the boil test rather than to the interior-grade IS 303 standard." },
@@ -496,12 +496,12 @@ const MARINE_PLYWOOD: PricePageConfig = {
   intro: [
     "Marine plywood is the top of the boil-proof range: an IS 710 or BS 1088 panel where the veneer quality and permissible defects are specified as tightly as the adhesive. In a Hyderabad flat it earns its price in exactly three places — under the sink, in the bathroom vanity, and on anything that sees weather.",
     "The table below lists only sheets carrying a marine or IS 710 certification in our catalogue, with the standard each one is certified against shown per product. BS 1088 is the stricter of the two.",
-    "Rates are per sq.ft excluding GST and cover each product's full stocked thickness span.",
+    "Rates are per sq.ft excluding GST and are the band each product is quoted across, not a rate for one thickness.",
   ],
   selector: { dbCategories: ["Plywood", "Boil Boards"], certificationPattern: "marine|710|1088" },
   layout: "table",
   tableNote:
-    "Certification is shown per product — IS 710 is the Indian boil-proof marine standard, BS 1088 the stricter British specification. Rates are per sq.ft excluding GST across each product's full thickness span.",
+    "Certification is shown per product — IS 710 is the Indian boil-proof marine standard, BS 1088 the stricter British specification. Rates are per sq.ft excluding GST and are the band each board is quoted across.",
   picks: [
     { label: "Lowest marine-grade rate", criterion: { kind: "cheapest" }, note: "Entry point where the specification calls for IS 710 and the budget is fixed." },
     { label: "BS 1088 certified option", criterion: { kind: "cheapestWithCertification", pattern: "1088" }, note: "The stricter British marine specification, for boat work and genuinely weather-exposed joinery." },
@@ -555,7 +555,7 @@ const CENTURY_PLYWOOD: PricePageConfig = {
   intro: [
     "Century's plywood range splits cleanly by grade rather than by badge: Sainik MR at the entry point, Sainik 710 as the BWR step up, Club Prime for genuine IS 710 boil-proof work, and Bond Shield and Architect Ply for fire-retardant fit-outs. Every one of them is a different price band, which is why a single Century rate quoted on the phone is meaningless.",
     "The table below carries the live rate span, IS certification and warranty for each range EightByFour sources. One point worth reading closely: Sainik 710 is certified IS 303 BWR, not IS 710 — the range name and the standard are not the same thing.",
-    "Rates are per sq.ft excluding GST and cover each product's full stocked thickness span from 4mm to 25mm.",
+    "Rates are per sq.ft excluding GST and are the band each range is quoted across, covering stocked thicknesses from 4mm to 25mm.",
   ],
   selector: { dbCategories: ["Plywood", "Boil Boards"], brands: ["Century"] },
   layout: "table",
@@ -691,12 +691,12 @@ const HDHMR_BOARD: PricePageConfig = {
   intro: [
     "HDHMR is the board contractors reach for when a flat, machinable surface matters more than screw-holding — shutters, louvered fronts, CNC-routed panels, wardrobe faces that must not telegraph a core joint. It is denser than MDF and treated for moisture, which is where the price sits relative to both MDF and plywood.",
     "The table below covers every high-density board in the catalogue with its grade, certification and thickness range. Note that these boards run to far more thicknesses than plywood does — 3mm through 30mm — which is why the rate span is wide.",
-    "Rates are per sq.ft excluding GST across each product's full thickness span.",
+    "Rates are per sq.ft excluding GST and are the band each board is quoted across.",
   ],
   selector: { dbCategories: ["MDF and HDHMR", "Boil Boards"], namePattern: "hdhmr|hdf|hdwr|high density|premium plus|boilblack" },
   layout: "table",
   tableNote:
-    "Rates above are per sq.ft excluding GST and cover the product's full thickness span — a 3mm sheet sits at the bottom of each range and a 30mm sheet at the top, so a mid-thickness board falls well inside the span rather than at its ends.",
+    "Rates above are per sq.ft excluding GST and are the band each board is quoted across, not a rate for any one thickness. These boards run from 3mm to 30mm, which is why the bands are wide — ask for a confirmed rate at the thickness you need.",
   picks: [
     { label: "Lowest HDHMR rate", criterion: { kind: "cheapest" }, note: "Where the board is being laminated on both faces and the substrate is never seen." },
     { label: "Water-resistant grade", criterion: { kind: "cheapestWithCertification", pattern: "HMR|BWP|water" }, note: "Kitchen shutters and vanity fronts, where the board sees splash rather than standing water." },
@@ -762,12 +762,12 @@ const MDF_BOARD: PricePageConfig = {
   intro: [
     "MDF is the cheapest flat panel that takes a paint finish properly, which is why it dominates wall panelling, painted shutters and display joinery. It is also the board most often misused — an interior-grade REG sheet put somewhere it meets water will swell and never recover.",
     "The grade split is the thing to get right. IS 12406 REG is the interior grade; MR is the exterior/moisture-resistant grade and costs meaningfully more. Both are in the table below with their certification and full thickness range.",
-    "Rates are per sq.ft excluding GST across each product's full thickness span, which for MDF runs from under 2mm to 30mm.",
+    "Rates are per sq.ft excluding GST and are the band each board is quoted across; MDF here runs from under 2mm to 30mm, which is why the bands are wide.",
   ],
   selector: { dbCategories: ["MDF and HDHMR"], namePattern: "mdf" },
   layout: "table",
   tableNote:
-    "Rates above are per sq.ft excluding GST and cover the product's full thickness span. MDF is stocked in far more thicknesses than plywood, so a mid-range board sits well inside the span rather than at either end.",
+    "Rates above are per sq.ft excluding GST and are the band each board is quoted across, not a rate for any one thickness. MDF is stocked in far more thicknesses than plywood, which is why the bands are wide.",
   picks: [
     { label: "Lowest MDF rate", criterion: { kind: "cheapest" }, note: "Interior panelling, painted shutters and display work in dry areas." },
     { label: "Moisture-resistant grade", criterion: { kind: "cheapestWithGrade", grades: ["MR"] }, note: "Anywhere the panel might meet humidity — the grade step that stops a swollen edge two monsoons in." },

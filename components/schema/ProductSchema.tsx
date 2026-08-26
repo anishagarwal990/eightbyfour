@@ -2,7 +2,7 @@ import { SITE_URL } from "@/lib/seo";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
 import { productDisplayName } from "@/lib/productDisplay";
-import { resolvePrice } from "@/lib/pricing";
+import { applyDiscount, resolvePrice } from "@/lib/pricing";
 import { bestProductImage } from "@/lib/productSeo";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
@@ -29,8 +29,11 @@ function buildOffers(product: ProductRow) {
     return {
       "@type": "AggregateOffer",
       ...base,
-      lowPrice: price.min,
-      highPrice: price.max,
+      // Net of any fixed discount — Google compares the marked-up price
+      // against what the page actually shows, and a list price here against a
+      // discounted price on the page is a mismatch that costs the rich result.
+      lowPrice: applyDiscount(price.min, price.discountPct),
+      highPrice: applyDiscount(price.max, price.discountPct),
       offerCount,
     };
   }
@@ -38,7 +41,7 @@ function buildOffers(product: ProductRow) {
     return {
       "@type": "Offer",
       ...base,
-      price: price.amount,
+      price: applyDiscount(price.amount, price.discountPct),
       itemCondition: "https://schema.org/NewCondition",
     };
   }

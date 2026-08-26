@@ -8,3 +8,10 @@ node_modules/
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+# Catalogue tool: full row dumps taken before every --apply. Local safety
+# net, not source — they go stale the moment the catalogue moves on.
+scripts/snapshots/
+# Working CSVs exported for editing.
+scripts/tmp/
+*.catalogue.csv

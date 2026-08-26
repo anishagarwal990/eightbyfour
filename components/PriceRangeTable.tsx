@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { unitLabel } from "@/lib/pricing";
+import { displayPrice } from "@/lib/pricing";
 import type { PriceRangeGroup } from "@/lib/priceRows";
 
 // One row per brand + collection, for catalogues where a single rate covers
@@ -38,11 +38,19 @@ export function PriceRangeTable({ groups }: { groups: PriceRangeGroup[] }) {
               <td className="px-3 py-3">
                 {group.price ? (
                   <>
+                    {displayPrice(group.price).listLabel ? (
+                      <span className="mr-1.5 text-xs line-through" style={{ color: "var(--line-strong)" }}>
+                        {displayPrice(group.price).listLabel}
+                      </span>
+                    ) : null}
                     <span className="font-medium" style={{ color: "var(--burgundy)" }}>
-                      {group.price.kind === "range"
-                        ? `₹${group.price.min} – ₹${group.price.max}/${unitLabel(group.price.unit)}`
-                        : `₹${group.price.amount}/${unitLabel(group.price.unit)}`}
+                      {displayPrice(group.price).netLabel}
                     </span>
+                    {group.price.discountPct ? (
+                      <span className="mt-0.5 block text-xs" style={{ color: "var(--line-strong)" }}>
+                        {group.price.discountPct}% discount applied
+                      </span>
+                    ) : null}
                     {group.mixedRates ? (
                       <span className="mt-0.5 block text-xs" style={{ color: "var(--line-strong)" }}>
                         Rate loaded for part of this range

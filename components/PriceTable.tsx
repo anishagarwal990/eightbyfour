@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatPrice, type PriceRow } from "@/lib/priceRows";
+import { formatListPrice, formatPrice, type PriceRow } from "@/lib/priceRows";
 
 // One row per SKU. Scrolls inside its own container rather than letting a
 // six-column table push the page body sideways on a phone, which is where
@@ -21,6 +21,7 @@ export function PriceTable({ rows, focusThickness }: { rows: PriceRow[]; focusTh
         <tbody>
           {rows.map((row) => {
             const price = formatPrice(row);
+            const listPrice = formatListPrice(row);
             return (
               <tr key={row.slug} style={{ borderBottom: "1px solid var(--line)" }}>
                 <td className="px-3 py-3">
@@ -43,9 +44,21 @@ export function PriceTable({ rows, focusThickness }: { rows: PriceRow[]; focusTh
                 <td className="px-3 py-3">{row.size ?? "—"}</td>
                 <td className="px-3 py-3">
                   {price ? (
-                    <span className="font-medium" style={{ color: "var(--burgundy)" }}>
-                      {price}
-                    </span>
+                    <>
+                      {listPrice ? (
+                        <span className="mr-1.5 text-xs line-through" style={{ color: "var(--line-strong)" }}>
+                          {listPrice}
+                        </span>
+                      ) : null}
+                      <span className="font-medium" style={{ color: "var(--burgundy)" }}>
+                        {price}
+                      </span>
+                      {row.price?.discountPct ? (
+                        <span className="mt-0.5 block text-xs" style={{ color: "var(--line-strong)" }}>
+                          {row.price.discountPct}% discount applied
+                        </span>
+                      ) : null}
+                    </>
                   ) : (
                     // No rate loaded for this product. Say so plainly rather
                     // than showing an estimate or borrowing a sibling's rate.

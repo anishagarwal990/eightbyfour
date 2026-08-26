@@ -1,5 +1,5 @@
 import type { ProductRow } from "@/lib/supabase/types";
-import { parseVariants, resolvePrice, sqftFromSizeLabel, unitLabel, type PriceInfo } from "@/lib/pricing";
+import { applyDiscount, displayPrice, parseVariants, resolvePrice, sqftFromSizeLabel, unitLabel, type PriceInfo } from "@/lib/pricing";
 import { closestThicknessLabel, thicknessRangeLabel } from "@/lib/thickness";
 import { productDisplayName } from "@/lib/productDisplay";
 
@@ -109,18 +109,33 @@ export function toPriceRow(product: ProductRow, focusThicknessMm: number | null 
   };
 }
 
-/** Lowest number a row quotes, for sorting cheapest-first and for "best value" picks. */
+/**
+ * Lowest number a row quotes, net of any fixed discount — this is what sorts
+ * the table cheapest-first and what the "best value" picks compare. Sorting on
+ * list price would rank a heavily discounted sheet above one that actually
+ * costs the customer less.
+ */
 export function rowFromPrice(row: PriceRow): number | null {
-  if (row.focusThicknessPrice !== null) return row.focusThicknessPrice;
+  const discount = row.price?.discountPct ?? null;
+  if (row.focusThicknessPrice !== null) return applyDiscount(row.focusThicknessPrice, discount);
   if (!row.price) return null;
-  return row.price.kind === "range" ? row.price.min : row.price.amount;
+  return applyDiscount(row.price.kind === "range" ? row.price.min : row.price.amount, discount);
 }
 
+/** What the customer pays, formatted. Never the pre-discount list figure. */
 export function formatPrice(row: PriceRow): string | null {
-  if (row.focusThicknessPrice !== null && row.price) return `₹${row.focusThicknessPrice}/${unitLabel(row.price.unit)}`;
   if (!row.price) return null;
-  const unit = unitLabel(row.price.unit);
-  return row.price.kind === "range" ? `₹${row.price.min} – ₹${row.price.max}/${unit}` : `₹${row.price.amount}/${unit}`;
+  if (row.focusThicknessPrice !== null) {
+    return `₹${applyDiscount(row.focusThicknessPrice, row.price.discountPct)}/${unitLabel(row.price.unit)}`;
+  }
+  return displayPrice(row.price).netLabel;
+}
+
+/** The pre-discount figure for a row, for striking through. Null when undiscounted. */
+export function formatListPrice(row: PriceRow): string | null {
+  if (!row.price?.discountPct) return null;
+  if (row.focusThicknessPrice !== null) return `₹${row.focusThicknessPrice}/${unitLabel(row.price.unit)}`;
+  return displayPrice(row.price).listLabel;
 }
 
 /** Aggregate min/max across every priced row, for the page's headline range and ItemList schema. */
@@ -131,8 +146,9 @@ export function priceSpan(rows: PriceRow[]): { min: number; max: number; unit: s
   // Mixed units (a page spanning per-sq.ft boards and per-sheet laminates)
   // can't collapse into one headline figure without misleading the reader.
   if (priced.some((r) => r.price!.unit !== unit)) return null;
-  const lows = priced.map((r) => (r.price!.kind === "range" ? r.price!.min : r.price!.amount));
-  const highs = priced.map((r) => (r.price!.kind === "range" ? r.price!.max : r.price!.amount));
+  // Net of discount, matching every figure in the table below the headline.
+  const lows = priced.map((r) => applyDiscount(r.price!.kind === "range" ? r.price!.min : r.price!.amount, r.price!.discountPct));
+  const highs = priced.map((r) => applyDiscount(r.price!.kind === "range" ? r.price!.max : r.price!.amount, r.price!.discountPct));
   return { min: Math.min(...lows), max: Math.max(...highs), unit };
 }
 
@@ -235,12 +251,17 @@ export function toRangeGroups(
       const min = lows.length ? Math.min(...lows) : null;
       const max = highs.length ? Math.max(...highs) : null;
       const unit = prices[0]?.unit ?? "sheet";
+      // A group only carries a discount when every SKU in it shares the same
+      // one — a range where half the shades are discounted has no single
+      // percentage that could honestly head the row.
+      const discounts = new Set(prices.map((p) => p.discountPct));
+      const groupDiscount = discounts.size === 1 ? [...discounts][0] : null;
       const price: PriceInfo | null =
         min === null || max === null
           ? null
           : min === max
-            ? { kind: "single", amount: min, unit, cashbackPct: null }
-            : { kind: "range", min, max, unit, cashbackPct: null };
+            ? { kind: "single", amount: min, unit, cashbackPct: null, discountPct: groupDiscount }
+            : { kind: "range", min, max, unit, cashbackPct: null, discountPct: groupDiscount };
 
       return {
         brand: items[0].brand,

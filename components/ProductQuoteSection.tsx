@@ -6,7 +6,7 @@ import { QuoteRequestForm } from "@/components/QuoteRequestForm";
 import { VariantPicker } from "@/components/VariantPicker";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { OfferBox } from "@/components/OfferBox";
-import { resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel } from "@/lib/pricing";
+import { applyDiscount, resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { productDisplayName } from "@/lib/productDisplay";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
@@ -63,17 +63,27 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
     );
   }
 
-  const price = variants && selectedThickness ? { kind: "single" as const, amount: selectedThickness.price, unit: variants.unit, cashbackPct: null } : resolvePrice(product);
+  const tablePrice = resolvePrice(product);
+  // The fixed discount lives on the product's price_table, so a per-thickness
+  // variant rate has to inherit it — those rates are list prices too.
+  const discountPct = tablePrice?.discountPct ?? null;
+  const price =
+    variants && selectedThickness
+      ? { kind: "single" as const, amount: selectedThickness.price, unit: variants.unit, cashbackPct: null, discountPct }
+      : tablePrice;
 
   const sizeLabel = variants && selectedSize ? selectedSize.label : product.size;
   const sqft = price && price.unit === "sqft" ? sqftFromSizeLabel(sizeLabel) : null;
+  // Sheet price follows the net rate — it is what this sheet costs, not what
+  // it would have cost without the discount.
+  const net = (value: number) => applyDiscount(value, discountPct);
   const sheetPrice =
     sqft && price
       ? price.kind === "single"
-        ? Math.round(price.amount * sqft)
-        : { min: Math.round(price.min * sqft), max: Math.round(price.max * sqft) }
+        ? Math.round(net(price.amount) * sqft)
+        : { min: Math.round(net(price.min) * sqft), max: Math.round(net(price.max) * sqft) }
       : null;
-  const cashbackPct = resolvePrice(product)?.cashbackPct ?? null;
+  const cashbackPct = tablePrice?.cashbackPct ?? null;
 
   return (
     <div
@@ -109,24 +119,33 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}
             >
               {price.kind === "range" ? (
-                <>₹{price.min}–{price.max}</>
+                <>₹{net(price.min)}–{net(price.max)}</>
               ) : (
                 <>
                   <span className="text-lg font-normal" style={{ color: "var(--line-strong)" }}>
                     From{" "}
                   </span>
-                  ₹{price.amount}
+                  ₹{net(price.amount)}
                 </>
               )}
               <span className="ml-1.5 text-sm font-normal" style={{ color: "var(--line-strong)" }}>
                 /{unitLabel(price.unit)}
               </span>
             </p>
-          ) : (
+          ) : null}
+          {price && discountPct ? (
+            <p className="mt-1 text-sm" style={{ color: "var(--line-strong)" }}>
+              <span className="line-through">
+                {price.kind === "range" ? `₹${price.min}–${price.max}` : `₹${price.amount}`}/{unitLabel(price.unit)}
+              </span>{" "}
+              <span style={{ color: "var(--burgundy)", fontWeight: 500 }}>{discountPct}% off</span>
+            </p>
+          ) : null}
+          {!price ? (
             <p className="serif mt-1" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)", color: "var(--burgundy)" }}>
               Price on Request
             </p>
-          )}
+          ) : null}
           <p className="mt-1.5 text-xs" style={{ color: "var(--line-strong)" }}>
             Receive a personalized commercial quotation in under 15 minutes.
           </p>

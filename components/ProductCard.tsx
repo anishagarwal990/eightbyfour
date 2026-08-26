@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { ProductRow } from "@/lib/supabase/types";
 import { BrandLogo } from "@/components/BrandLogo";
 import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMark";
-import { resolvePrice, unitLabel } from "@/lib/pricing";
+import { displayPrice, resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 
 export function ProductCard({ product }: { product: ProductRow }) {
@@ -58,17 +58,20 @@ export function ProductCard({ product }: { product: ProductRow }) {
           </p>
         ) : null}
         {price ? (
-          <p className="mt-1 text-xs font-medium" style={{ color: "var(--burgundy)" }}>
-            {price.kind === "range" ? (
-              <>
-                From ₹{price.min} – ₹{price.max}/{unitLabel(price.unit)}
-              </>
-            ) : (
-              <>
-                From ₹{price.amount}/{unitLabel(price.unit)}
-              </>
-            )}
-          </p>
+          (() => {
+            const display = displayPrice(price);
+            return (
+              <p className="mt-1 text-xs font-medium" style={{ color: "var(--burgundy)" }}>
+                {display.listLabel ? (
+                  <span className="mr-1 font-normal line-through" style={{ color: "var(--line-strong)" }}>
+                    {display.listLabel}
+                  </span>
+                ) : null}
+                From {display.netLabel}
+                {display.discountPct ? <span className="ml-1 font-normal">({display.discountPct}% off)</span> : null}
+              </p>
+            );
+          })()
         ) : null}
         <p
           className="mt-2 translate-y-1 text-xs font-medium opacity-0 transition-[transform,opacity] duration-300 [transition-timing-function:var(--ease-out-soft)] group-hover:translate-y-0 group-hover:opacity-100"

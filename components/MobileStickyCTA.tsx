@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useQuoteModal } from "@/context/QuoteModalContext";
 import { PHONE_TEL } from "@/lib/contact";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -9,6 +10,13 @@ import { trackEvent } from "@/lib/analytics";
     (carpenters, contractors) — always-visible instead of buried in a menu. */
 export function MobileStickyCTA() {
   const { openModal } = useQuoteModal();
+  const pathname = usePathname();
+
+  // /admin is an internal tool, not a storefront page. The bar is
+  // position:fixed at the bottom, so on a phone it sits on top of the admin
+  // forms' save buttons — and "WhatsApp us for a quote" makes no sense to
+  // someone editing the catalogue.
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <div

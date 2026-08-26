@@ -18,6 +18,8 @@ import { resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 import { finishCode, productImages } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
+import { PricePageLinks } from "@/components/PricePageLinks";
+import { pricePagesForDbCategory } from "@/lib/pricePages";
 import { ViewTracker } from "@/components/ViewTracker";
 
 const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
@@ -455,6 +457,11 @@ export function ProductPageView({
           <LikeCommentWidget productId={product.id} initialRatings={ratings} />
         </div>
       </Reveal>
+
+      <PricePageLinks
+        links={pricePagesForDbCategory(product.category, 5)}
+        intro={`Comparing this against the rest of the ${product.category.toLowerCase()} range — current Hyderabad rates by grade, thickness and brand.`}
+      />
 
       {relatedProducts.length > 0 ? (
         <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>

@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.110.6",
     "dotenv": "^17.4.2",
     "fuse.js": "^7.0.0",

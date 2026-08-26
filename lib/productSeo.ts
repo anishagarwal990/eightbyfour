@@ -1,6 +1,26 @@
 import type { ProductRow } from "@/lib/supabase/types";
 import { categorySingularName } from "@/lib/categories";
 import { productDisplayName } from "@/lib/productDisplay";
+import { resolvePrice } from "@/lib/pricing";
+
+// Board categories where the dominant search for a named SKU is a price
+// query ("century sainik 710 price"), and where the catalogue is small
+// enough — a few dozen SKUs — that the title has room for the qualifier.
+// Deliberately excludes Laminates and Veneers: a thousand-plus shade pages
+// each ending "Price in Hyderabad" reads as boilerplate to a reader and as a
+// duplicated pattern to a crawler, and shade searches are not price-led.
+const PRICE_QUALIFIER = "Price in Hyderabad";
+// Mirrors TITLE_HARD_MAX in lib/seo.ts — past this, buildMetadata truncates.
+const TITLE_HARD_MAX = 78;
+
+const PRICE_INTENT_CATEGORIES = new Set([
+  "Plywood",
+  "Birch Plywood",
+  "Boil Boards",
+  "MDF and HDHMR",
+  "Blockboard",
+  "NFC Boards",
+]);
 
 const MAX_DESCRIPTION_LENGTH = 155;
 const CTA_LONG = "In stock in Hyderabad, samples available.";
@@ -24,7 +44,15 @@ export function buildProductTitle(product: ProductRow): string {
   const displayName = productDisplayName(product);
   const category = categorySingularName(product.category);
   const code = product.sd_code || product.collection;
-  return [displayName, code, finishCode(product), category].filter(Boolean).join(" ");
+  const base = [displayName, code, finishCode(product), category].filter(Boolean).join(" ");
+  // Only where the page can actually answer the price question — a product
+  // with no rate on file promising a price in its title is a bounce — and
+  // only where the qualifier fits, since buildMetadata truncates past its
+  // hard ceiling and a title ending "…Price in Hyder…" is worse than one
+  // that never made the promise.
+  const priced = PRICE_INTENT_CATEGORIES.has(product.category) && resolvePrice(product) !== null;
+  const withPrice = `${base} ${PRICE_QUALIFIER}`;
+  return priced && withPrice.length <= TITLE_HARD_MAX ? withPrice : base;
 }
 
 /**
