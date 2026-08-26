@@ -360,6 +360,18 @@ textarea {
   flex: 0 0 100%;
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  /* Clamp each slide to the track's height, which JS pins to whichever slide
+     is showing. Without this the track's content is as tall as the TALLER
+     slide while its box is shorter, giving it real vertical overflow — and
+     since making an element scroll horizontally forces overflow-y to compute
+     as `auto`, that overflow turned the hero into a vertical scroll box that
+     swallowed the page scroll.
+     Clamping the slides rather than setting overflow-y: hidden on the track
+     is deliberate: hiding the axis also kills `behavior: "smooth"` on this
+     snap container in Chrome, so the dots and the auto-advance stopped
+     animating (and, with the snap, stopped moving at all). */
+  max-height: 100%;
+  overflow: hidden;
 }
 
 /* ---------- User-driven horizontal product carousels (native scroll-snap, no JS) ---------- */

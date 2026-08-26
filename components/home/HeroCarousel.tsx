@@ -45,7 +45,18 @@ export function HeroCarousel({ slides, labels }: { slides: React.ReactNode[]; la
     const track = trackRef.current;
     if (!track) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    track.scrollTo({ left: track.clientWidth * next, behavior: smooth && !reduce ? "smooth" : "auto" });
+    const left = track.clientWidth * next;
+    track.scrollTo({ left, behavior: smooth && !reduce ? "smooth" : "auto" });
+
+    // Some environments accept `behavior: "smooth"` and then do nothing —
+    // embedded webviews in particular, where it is a silent no-op and
+    // prefers-reduced-motion still reports false, so there is nothing to
+    // feature-detect against. Left unchecked the carousel simply never moves.
+    // Confirm the scroll actually started; if it didn't, jump.
+    window.setTimeout(() => {
+      if (!trackRef.current) return;
+      if (Math.abs(trackRef.current.scrollLeft - left) > 1) trackRef.current.scrollLeft = left;
+    }, 400);
   }, []);
 
   // Read the index back off the scroll position rather than tracking it
@@ -59,6 +70,33 @@ export function HeroCarousel({ slides, labels }: { slides: React.ReactNode[]; la
     }
     track.addEventListener("scroll", onScroll, { passive: true });
     return () => track.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Vertical wheel over the hero must scroll the page, not the slider.
+  //
+  // Two browser behaviours conspire here. Making the track a horizontal
+  // scroller forces overflow-y to compute as `auto`, so it became a vertical
+  // scroll box that swallowed the wheel (fixed with overflow-y: hidden in
+  // globals.css). With that clipped, Chrome then does the opposite and maps a
+  // vertical wheel onto the only axis the element *can* scroll — horizontally
+  // — so scrolling down flicked the carousel sideways instead.
+  //
+  // So the wheel is claimed only when it is genuinely horizontal. A
+  // vertical-dominant wheel is cancelled and applied to the window by hand.
+  // The listener has to be registered manually because React attaches wheel
+  // handlers passively, and a passive listener cannot preventDefault.
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    function onWheel(e: WheelEvent) {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      // deltaMode: 0 = pixels, 1 = lines, 2 = pages.
+      const scale = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      window.scrollBy({ top: e.deltaY * scale, behavior: "auto" });
+    }
+    track.addEventListener("wheel", onWheel, { passive: false });
+    return () => track.removeEventListener("wheel", onWheel);
   }, []);
 
   useEffect(() => {
