@@ -4,7 +4,8 @@ import { buildMetadata } from "@/lib/seo";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { ContentIndexView } from "@/components/ContentIndexView";
 import { HyderabadLinkList } from "@/components/HyderabadLinkList";
-import { POPULAR_SEARCHES, CATEGORY_LINKS, SOURCE_ONLY_BRAND_LINKS, stockedBrandLinks } from "@/lib/hyderabadLinks";
+import { BESPOKE_HYDERABAD_PAGES, POPULAR_SEARCHES, CATEGORY_LINKS, PRICE_PAGE_LINKS, SOURCE_ONLY_BRAND_LINKS, stockedBrandLinks } from "@/lib/hyderabadLinks";
+import { PRICE_PAGES } from "@/lib/pricePages";
 
 export const metadata: Metadata = buildMetadata({
   title: "Material Procurement in Hyderabad",
@@ -13,37 +14,25 @@ export const metadata: Metadata = buildMetadata({
   path: "/hyderabad",
 });
 
-// These three have bespoke page templates (app/hyderabad/<slug>/page.tsx) instead
-// of MDX content, so they're listed here by hand alongside the MDX-driven entries.
-const PERSONA_ENTRIES: ContentEntry[] = [
-  {
-    slug: "contractor-procurement",
-    frontmatter: {
-      title: "Contractor Procurement in Hyderabad",
-      description: "Every stocked category in one view, with live SKU counts and trade pricing — built for contractors running multiple sites.",
-    },
-    body: "",
-  },
-  {
-    slug: "architect-material-sourcing",
-    frontmatter: {
-      title: "Architect Material Sourcing in Hyderabad",
-      description: "Real photography from our veneer, stone and solid-surface catalogue — for specifying, not browsing.",
-    },
-    body: "",
-  },
-  {
-    slug: "homeowner-materials",
-    frontmatter: {
-      title: "Materials for Your Home in Hyderabad",
-      description: "Plain-language guidance by room — kitchen, wardrobe, TV unit — instead of a raw materials catalogue.",
-    },
-    body: "",
-  },
-];
+// Bespoke /hyderabad pages (their own page.tsx rather than MDX) come from the
+// shared registry in lib/hyderabadLinks.ts, so this listing can't drift out of
+// sync with what those routes actually are.
+const BESPOKE_ENTRIES: ContentEntry[] = BESPOKE_HYDERABAD_PAGES.map((page) => ({
+  slug: page.slug,
+  frontmatter: { title: page.title, description: page.description },
+  body: "",
+}));
+
+// Price pages live in lib/pricePages.ts rather than in content/hyderabad, so
+// they need adapting to the same shape the index cards render from.
+const PRICE_PAGE_ENTRIES: ContentEntry[] = PRICE_PAGES.map((page) => ({
+  slug: page.slug,
+  frontmatter: { title: page.h1, description: page.metaDescription },
+  body: "",
+}));
 
 export default async function HyderabadIndexPage() {
-  const entries = [...PERSONA_ENTRIES, ...getAllContent("hyderabad")];
+  const entries = [...BESPOKE_ENTRIES, ...PRICE_PAGE_ENTRIES, ...getAllContent("hyderabad")];
   const brands = await getAllBrandsWithCounts();
 
   return (
@@ -65,7 +54,8 @@ export default async function HyderabadIndexPage() {
             Every link below goes to a real, in-stock catalogue page or brand page. Can&apos;t find what you&apos;re
             looking for? Request a quote and we&apos;ll source it — we cover far more than what&apos;s listed here.
           </p>
-          <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
+            <HyderabadLinkList title="Price Guides" entries={PRICE_PAGE_LINKS} />
             <HyderabadLinkList title="Popular Searches" entries={POPULAR_SEARCHES} />
             <HyderabadLinkList title="Shop by Category" entries={CATEGORY_LINKS} />
             <HyderabadLinkList title="Brands We Work With" entries={stockedBrandLinks(brands)} />

@@ -70,6 +70,11 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     setModalNote(note ?? null);
     setModalTitle(title ?? null);
     setOpen(true);
+    // Intent event, distinct from quote_request (which only fires on submit).
+    // The gap between the two is the funnel step worth optimising for paid
+    // traffic — a landing page can drive plenty of opens and still lose
+    // everyone at the form.
+    trackEvent("quote_modal_open", { source: title ?? "unspecified", prefilled: prefillDesc ? 1 : 0 });
   }
 
   function resetForm() {
@@ -114,6 +119,9 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     }
     setFileError(null);
     setFile(picked);
+    if (picked) {
+      trackEvent("boq_file_attached", { file_type: picked.name.split(".").pop()?.toLowerCase() ?? "unknown", file_kb: Math.round(picked.size / 1024) });
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -178,6 +186,9 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
       inquiry_ref: inquiryRef,
       inquiry_type: "list",
       item_count: items.length,
+      // Whether a BOQ document came with the request — the difference
+      // between a one-line enquiry and a whole project's material list.
+      has_attachment: file ? 1 : 0,
       campaign: utm.utm_campaign,
       source: utm.utm_source,
       medium: utm.utm_medium,

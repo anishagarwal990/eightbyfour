@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ContentEntry, ContentType } from "@/lib/mdx";
 import { CONTENT_TYPE_LABEL, CONTENT_TYPE_NAV_LABEL, CONTENT_TYPE_PATH, getContent } from "@/lib/mdx";
+import { getPricePage } from "@/lib/pricePages";
+import { getBespokeHyderabadPage } from "@/lib/hyderabadLinks";
 import { CATEGORIES } from "@/lib/categories";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { MdxContent } from "@/components/MdxContent";
@@ -16,6 +18,16 @@ function resolveRelatedContent(type: ContentType, slugs: string[] | undefined): 
   if (!slugs?.length) return [];
   return slugs
     .map((slug) => {
+      // /hyderabad holds two page families: MDX entries and the data-driven
+      // price pages in lib/pricePages.ts. Frontmatter can point at either, so
+      // resolve both here or every relatedHyderabadSlugs link to a price page
+      // silently vanishes from the rendered list.
+      if (type === "hyderabad") {
+        const pricePage = getPricePage(slug);
+        if (pricePage) return { slug, title: pricePage.h1 };
+        const bespoke = getBespokeHyderabadPage(slug);
+        if (bespoke) return { slug, title: bespoke.title };
+      }
       const content = getContent(type, slug);
       return content ? { slug, title: content.frontmatter.title } : null;
     })

@@ -4,6 +4,8 @@ import type { CategoryConfig } from "@/lib/categories";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { BrandRow } from "@/lib/supabase/types";
 import { ProductCard } from "@/components/ProductCard";
+import { PricePageLinks } from "@/components/PricePageLinks";
+import { pricePagesForBrandSlug } from "@/lib/pricePages";
 import { ShadeFinishPicker, type ShadeEntry } from "@/components/ShadeFinishPicker";
 import { FinishFilterableGrid } from "@/components/FinishFilterableGrid";
 import { BrandPagination, BrandPaginationLinks } from "@/components/BrandPagination";
@@ -95,6 +97,7 @@ export function BrandPageView({
     .filter((g): g is { slug: string; title: string } => g !== null);
 
   const certifications = [...new Set(products.flatMap((p) => p.certifications || []))].slice(0, 6);
+  const pricePages = pricePagesForBrandSlug(brand.slug);
 
   // EightByFour spans five categories under three sub-brands — with no
   // ?category= filter picked, group the page's products back into their
@@ -328,6 +331,11 @@ export function BrandPageView({
           )}
         </Reveal>
       )}
+
+      <PricePageLinks
+        links={pricePages}
+        intro={`Current ${brand.name} rates in Hyderabad, with grade, certification and thickness read live from this catalogue.`}
+      />
 
       <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
         <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>

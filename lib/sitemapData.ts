@@ -8,6 +8,8 @@ import { CATEGORY_PAGE_SIZE, getAllProductSlugsWithDates, getCategoryFilterCount
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs, getContentMtime } from "@/lib/mdx";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
+import { PRICE_PAGE_SLUGS } from "@/lib/pricePages";
+import { BESPOKE_HYDERABAD_PAGES } from "@/lib/hyderabadLinks";
 import type { SitemapUrlEntry } from "@/lib/sitemapXml";
 
 // Split by content type instead of one flat file — lets Search Console
@@ -46,14 +48,25 @@ function contentSitemap(): SitemapUrlEntry[] {
     }))
   );
 
-  // Bespoke persona pages under /hyderabad that use a page.tsx template
-  // instead of MDX — use the source file's own mtime as the real signal.
-  const personaRoutes = ["contractor-procurement", "architect-material-sourcing", "homeowner-materials"].map((slug) => ({
+  // Bespoke /hyderabad pages that use a page.tsx template instead of MDX —
+  // the source file's own mtime is the real per-page signal. Driven off the
+  // shared registry so a new bespoke page can't be added to the site and
+  // forgotten here.
+  const personaRoutes = BESPOKE_HYDERABAD_PAGES.map(({ slug }) => ({
     url: `${SITE_URL}/hyderabad/${slug}`,
     lastModified: statSync(join(process.cwd(), "app", "hyderabad", slug, "page.tsx")).mtime,
   }));
 
-  return [...staticRoutes, ...contentRoutes, ...personaRoutes];
+  // Data-driven Hyderabad price pages — served by app/hyderabad/[slug]/page.tsx
+  // from lib/pricePages.ts rather than from an MDX file, so their real
+  // per-page signal is that config file's own mtime.
+  const pricePagesMtime = statSync(join(process.cwd(), "lib", "pricePages.ts")).mtime;
+  const pricePageRoutes = PRICE_PAGE_SLUGS.map((slug) => ({
+    url: `${SITE_URL}/hyderabad/${slug}`,
+    lastModified: pricePagesMtime,
+  }));
+
+  return [...staticRoutes, ...contentRoutes, ...personaRoutes, ...pricePageRoutes];
 }
 
 async function productsSitemap(): Promise<SitemapUrlEntry[]> {

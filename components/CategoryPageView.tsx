@@ -17,6 +17,8 @@ import { categoryPageUrl } from "@/lib/categoryPagination";
 import { productDisplayName } from "@/lib/productDisplay";
 import { ViewTracker } from "@/components/ViewTracker";
 import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
+import { PricePageLinks } from "@/components/PricePageLinks";
+import { pricePagesForDbCategory } from "@/lib/pricePages";
 import { BrandLogo } from "@/components/BrandLogo";
 
 // Brand pill in "Brands Available" — fixed-height box so every logo (odd
@@ -43,6 +45,7 @@ export function CategoryPageView({
   collection: string | null;
 }) {
   const related = CATEGORIES.filter((c) => category.relatedCategorySlugs.includes(c.slug));
+  const pricePages = pricePagesForDbCategory(category.dbCategory);
 
   return (
     <main>
@@ -64,7 +67,7 @@ export function CategoryPageView({
         path={categoryPageUrl(category.slug, page, collection)}
         totalItems={filterCounts.total}
         pageOffset={(page - 1) * CATEGORY_PAGE_SIZE}
-        items={products.map((p) => ({ name: productDisplayName(p), slug: p.slug }))}
+        items={products.map((p) => ({ name: productDisplayName(p), url: `/products/${p.slug}` }))}
       />
       <CategoryPaginationLinks slug={category.slug} page={page} totalPages={totalPages} collection={collection} />
       <div className="mx-auto max-w-6xl">
@@ -183,6 +186,11 @@ export function CategoryPageView({
           ))}
         </div>
       </Reveal>
+
+      <PricePageLinks
+        links={pricePages}
+        intro={`Live ${category.name.toLowerCase()} rates in Hyderabad by grade, thickness and brand — read alongside this catalogue when you are pricing a job rather than browsing.`}
+      />
 
       {related.length > 0 ? (
         <Reveal as="section" className="px-7 py-8">

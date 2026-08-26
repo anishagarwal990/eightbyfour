@@ -15,7 +15,7 @@ export function CollectionPageSchema({
   name: string;
   path: string;
   totalItems: number;
-  items: { name: string; slug: string }[];
+  items: { name: string; url: string }[];
   /** 0-based index of the first `items` entry within the full listing (for paginated categories). */
   pageOffset: number;
 }) {
@@ -31,7 +31,7 @@ export function CollectionPageSchema({
         "@type": "ListItem",
         position: pageOffset + i + 1,
         name: item.name,
-        url: `${SITE_URL}/products/${item.slug}`,
+        url: `${SITE_URL}${item.url}`,
       })),
     },
   };

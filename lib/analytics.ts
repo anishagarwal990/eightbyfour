@@ -17,12 +17,15 @@ export type AnalyticsEventName =
   | "page_view"
   | "product_view"
   | "category_view"
+  | "price_page_view"
   | "product_search"
   | "product_filter"
   | "laminate_code_search"
   | "laminate_finish_selection"
   | "product_image_view"
   | "whatsapp_click"
+  | "quote_modal_open"
+  | "boq_file_attached"
   | "quote_request"
   | "contact_submit"
   | "phone_click";
@@ -38,6 +41,9 @@ const META_EVENT_MAP: Partial<Record<AnalyticsEventName, string>> = {
   product_search: "Search",
   laminate_code_search: "Search",
   whatsapp_click: "Contact",
+  // quote_modal_open and boq_file_attached stay GA-only: they are intent
+  // signals partway through the funnel, and mapping them to Lead would
+  // inflate Meta's conversion count with people who never submitted.
   quote_request: "Lead",
   contact_submit: "Lead",
 };

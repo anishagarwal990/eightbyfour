@@ -461,3 +461,7 @@ export function getCategoryBySlug(slug: string): CategoryConfig | undefined {
 export function categorySingularName(dbCategory: string): string {
   return dbCategory.endsWith("s") ? dbCategory.slice(0, -1) : dbCategory;
 }
+
+export function getCategoryByDbCategory(dbCategory: string): CategoryConfig | undefined {
+  return CATEGORIES.find((c) => c.dbCategory === dbCategory);
+}
