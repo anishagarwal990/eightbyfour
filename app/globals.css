@@ -315,7 +315,14 @@ textarea {
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+  /* No `touch-action: pan-x` here. It reads as "this element pans
+     horizontally" but its real effect is to forbid vertical panning on the
+     element entirely — and the SKU ticker is sticky at the top of every page,
+     full width, so a thumb that started its downward swipe anywhere on it
+     could not scroll the page at all. The default lets the browser
+     disambiguate: a horizontal drag pans the ribbon, a vertical one scrolls
+     the page, which is what a native scroller does anyway. */
+  overscroll-behavior-x: contain;
   cursor: grab;
 }
 

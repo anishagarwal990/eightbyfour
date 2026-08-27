@@ -46,16 +46,22 @@ export function HeroCarousel({ slides, labels }: { slides: React.ReactNode[]; la
     if (!track) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const left = track.clientWidth * next;
+    const from = track.scrollLeft;
     track.scrollTo({ left, behavior: smooth && !reduce ? "smooth" : "auto" });
 
     // Some environments accept `behavior: "smooth"` and then do nothing —
     // embedded webviews in particular, where it is a silent no-op and
     // prefers-reduced-motion still reports false, so there is nothing to
-    // feature-detect against. Left unchecked the carousel simply never moves.
-    // Confirm the scroll actually started; if it didn't, jump.
+    // feature-detect against. Left unchecked the carousel never moves.
+    //
+    // The check is "did it move at all", not "did it arrive". A real smooth
+    // scroll is still mid-flight at this point, and forcing the position then
+    // yanks it — or worse, snaps it out from under a thumb that has started
+    // swiping, leaving the track parked between two slides.
     window.setTimeout(() => {
-      if (!trackRef.current) return;
-      if (Math.abs(trackRef.current.scrollLeft - left) > 1) trackRef.current.scrollLeft = left;
+      const el = trackRef.current;
+      if (!el) return;
+      if (el.scrollLeft === from && from !== left) el.scrollLeft = left;
     }, 400);
   }, []);
 
