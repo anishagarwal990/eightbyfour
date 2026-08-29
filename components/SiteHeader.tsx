@@ -337,27 +337,52 @@ export function SiteHeader({
   const contactRef = useRef<HTMLDivElement>(null);
   const headerElRef = useRef<HTMLElement>(null);
   const [chromeHeight, setChromeHeight] = useState<number | null>(null);
-  const lastScrollYRef = useRef(0);
+  // Anchor for the hide/show hysteresis. Deliberately NOT "y at the previous
+  // scroll event": that reset the baseline on every event, so a slow drag or a
+  // pixel of jitter could cross the threshold in both directions within a few
+  // frames and flap the header. It only moves when the header actually flips,
+  // so travel since the last flip has to accumulate past the threshold.
+  const anchorYRef = useRef(0);
+  const tickingRef = useRef(false);
 
   useEffect(() => {
-    function handleScroll() {
+    // 24px, not 10: below roughly one wheel notch the header would toggle on
+    // scrolls too small for the visitor to have meant anything by them.
+    const FLIP_THRESHOLD = 24;
+
+    function update() {
       const y = window.scrollY;
       setScrolled(y > 8);
-      const lastY = lastScrollYRef.current;
-      lastScrollYRef.current = y;
 
       if (y <= 80) {
         setChromeHidden(false);
+        anchorYRef.current = y;
         return;
       }
-      const delta = y - lastY;
-      if (delta > 10) {
+      const delta = y - anchorYRef.current;
+      if (delta > FLIP_THRESHOLD) {
         setChromeHidden(true);
-      } else if (delta < -10) {
+        anchorYRef.current = y;
+      } else if (delta < -FLIP_THRESHOLD) {
         setChromeHidden(false);
+        anchorYRef.current = y;
       }
     }
-    handleScroll();
+
+    // Coalesced to one read per frame. The handler measures scrollY and then
+    // sets state that restyles a fixed, backdrop-blurred bar; running that on
+    // every scroll event (which can outpace frames) is work the frame budget
+    // does not have during a fling.
+    function handleScroll() {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      requestAnimationFrame(() => {
+        tickingRef.current = false;
+        update();
+      });
+    }
+
+    update();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);

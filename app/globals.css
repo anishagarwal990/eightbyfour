@@ -324,6 +324,11 @@ textarea {
      the page, which is what a native scroller does anyway. */
   overscroll-behavior-x: contain;
   cursor: grab;
+  /* The ticker's scrollLeft is written every animation frame, and it is sticky
+     and full width over a backdrop-filtered band. Containment keeps that
+     per-frame invalidation inside this box instead of letting it reach the
+     rest of the page on every scroll. */
+  contain: content;
 }
 
 .ribbon-scroll::-webkit-scrollbar {
@@ -345,10 +350,15 @@ textarea {
 }
 
 /* ---------- Hero slider ----------
-   Native horizontal scrolling, so a swipe on touch and a trackpad flick both
-   work with no JS gesture handling. Mandatory snap (not proximity, as the
-   product carousels below use) because a half-shown slide in the hero is never
-   a valid resting state. */
+   Touch gets native horizontal scrolling, so a swipe needs no JS gesture
+   handling. Mandatory snap (not proximity, as the product carousels below use)
+   because a half-shown slide in the hero is never a valid resting state.
+
+   Mouse/trackpad gets .hero-track--static instead — see HeroCarousel.tsx. A
+   horizontal scroller sitting under the cursor traps the vertical wheel, and
+   every way of handing that wheel back to the page costs the browser's own
+   scroll animation and momentum. So on those pointers there is no scroller at
+   all: the track is translated and the parent clips it. */
 .hero-track {
   display: flex;
   overflow-x: auto;
@@ -357,6 +367,25 @@ textarea {
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  transition: height var(--dur-base) var(--ease-out-soft);
+}
+
+.hero-track--static {
+  /* Visible, not hidden/clip: either of those makes this a scroll container
+     again on at least one axis. The slides below clamp their own height, and
+     the carousel's own parent clips the horizontal overflow. */
+  overflow: visible;
+  scroll-snap-type: none;
+  transition:
+    height var(--dur-base) var(--ease-out-soft),
+    transform 500ms var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-track,
+  .hero-track--static {
+    transition: none;
+  }
 }
 
 .hero-track::-webkit-scrollbar {
@@ -372,7 +401,8 @@ textarea {
      slide while its box is shorter, giving it real vertical overflow — and
      since making an element scroll horizontally forces overflow-y to compute
      as `auto`, that overflow turned the hero into a vertical scroll box that
-     swallowed the page scroll.
+     swallowed the page scroll. It also keeps the taller slide from spilling
+     down the page in .hero-track--static, where the track no longer clips.
      Clamping the slides rather than setting overflow-y: hidden on the track
      is deliberate: hiding the axis also kills `behavior: "smooth"` on this
      snap container in Chrome, so the dots and the auto-advance stopped

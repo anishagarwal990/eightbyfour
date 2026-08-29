@@ -40,14 +40,21 @@ export function AutoScrollRow({
 
     let raf: number;
     let last = performance.now();
+    let lastHoverCheck = 0;
     function tick(now: number) {
       const dt = (now - last) / 1000;
       last = now;
       // Self-heal: pointerleave can be missed (tab-switch mid-hover, DOM covered by an
       // overlay, node re-rendered under the cursor) which would otherwise leave
       // hoveringRef stuck true and freeze the ribbon forever. :hover is authoritative.
-      if (hoveringRef.current && el && !el.matches(":hover")) {
-        hoveringRef.current = false;
+      //
+      // Throttled to 4x a second rather than run every frame: matches(":hover")
+      // forces a style recalc, and this ribbon is sticky, full width and sits over
+      // a backdrop-filtered band, so paying that on every frame taxed every scroll
+      // on the site. A quarter-second of a stuck ribbon is imperceptible.
+      if (hoveringRef.current && el && now - lastHoverCheck > 250) {
+        lastHoverCheck = now;
+        if (!el.matches(":hover")) hoveringRef.current = false;
       }
       if (!draggingRef.current && !hoveringRef.current && el) {
         el.scrollLeft += speed * dt;
