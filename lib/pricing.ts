@@ -12,6 +12,11 @@ export type PriceInfo =
   | { kind: "single"; amount: number; unit: string; cashbackPct: number | null; discountPct: number | null }
   | { kind: "range"; min: number; max: number; unit: string; cashbackPct: number | null; discountPct: number | null };
 
+/** A discount stored as 0 or ≥100 is bad data, not a real rate — treat it as absent rather than let `applyDiscount` zero out or invert a price. Shared by the product-level rate on `price_table` and the per-thickness override on `VariantThickness`. */
+export function validDiscountPct(value: unknown): number | null {
+  return typeof value === "number" && value > 0 && value < 100 ? value : null;
+}
+
 export function resolvePrice(product: ProductRow): PriceInfo | null {
   const table = product.price_table;
   if (!table) return null;
@@ -40,7 +45,7 @@ export function resolvePrice(product: ProductRow): PriceInfo | null {
   };
   const unit = typeof t.unit === "string" ? t.unit : "sqft";
   const cashbackPct = typeof t.cashback_pct === "number" ? t.cashback_pct : null;
-  const discountPct = typeof t.discount_pct === "number" && t.discount_pct > 0 && t.discount_pct < 100 ? t.discount_pct : null;
+  const discountPct = validDiscountPct(t.discount_pct);
   if (typeof t.min_price === "number" && typeof t.max_price === "number") {
     return { kind: "range", min: t.min_price, max: t.max_price, unit, cashbackPct, discountPct };
   }
@@ -48,6 +53,17 @@ export function resolvePrice(product: ProductRow): PriceInfo | null {
     return { kind: "single", amount: t.starting_price, unit, cashbackPct, discountPct };
   }
   return null;
+}
+
+/**
+ * The percentage as shown to a visitor — whole numbers, never the raw stored
+ * figure. A per-thickness discount_pct is deliberately kept at full precision
+ * (see VariantThickness) so `applyDiscount` reproduces the exact rupee a
+ * supplier sheet quoted; printing that precision (e.g. "12.4749% off")
+ * would read as noise rather than a real published rate.
+ */
+export function formatDiscountPct(discountPct: number): string {
+  return `${Math.round(discountPct)}`;
 }
 
 /** Apply a fixed discount to a list price. Rounded to the rupee — nobody quotes paise on a sheet. */
@@ -110,6 +126,16 @@ export function sqftFromSizeLabel(label: string | null | undefined): number | nu
 export interface VariantThickness {
   key: string;
   label: string;
+  /**
+   * When `discount_pct` is set on this thickness, `price` is the LIST rate
+   * and the discount is this thickness's own — not the product-level one on
+   * `price_table`. Optional because a real supplier discount schedule is
+   * usually two- or three-tiered (thin gauges cut less than thick ones), so a
+   * single product-wide percentage can't reproduce every thickness's actual
+   * customer price without drift. Falls back to `price_table.discount_pct`
+   * when absent, which is the old, single-discount behaviour.
+   */
+  discount_pct?: number;
   price: number;
 }
 

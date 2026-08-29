@@ -1,5 +1,5 @@
 import type { ProductRow } from "@/lib/supabase/types";
-import { applyDiscount, displayPrice, parseVariants, resolvePrice, sqftFromSizeLabel, unitLabel, type PriceInfo } from "@/lib/pricing";
+import { applyDiscount, displayPrice, parseVariants, resolvePrice, sqftFromSizeLabel, unitLabel, validDiscountPct, type PriceInfo } from "@/lib/pricing";
 import { closestThicknessLabel, thicknessRangeLabel } from "@/lib/thickness";
 import { productDisplayName } from "@/lib/productDisplay";
 
@@ -35,6 +35,14 @@ export interface PriceRow {
    */
   focusThicknessPrice: number | null;
   /**
+   * This thickness's own discount, when the variants JSON carries one —
+   * a real discount schedule is often tiered by thickness (thin gauges cut
+   * less than thick ones), which one product-wide percentage can't represent.
+   * Null falls back to the product-level `price.discountPct` wherever this is
+   * used, which is the pre-existing single-discount behaviour.
+   */
+  focusThicknessDiscountPct: number | null;
+  /**
    * Per-sheet cost derived from a per-sq.ft rate × the sheet's own area from
    * its size label (8×4 ft = 32 sq.ft). Arithmetic on two stored values, not
    * a quoted price — the table labels it as such.
@@ -54,25 +62,35 @@ function variantSizeLabels(product: ProductRow): string[] {
   return [...new Set(variants.cores.flatMap((core) => core.sizes.map((size) => size.label)))];
 }
 
-/** Look up an exact per-thickness rate in `variants`, if this product carries one. */
-function variantPriceForThickness(product: ProductRow, focusThicknessMm: number | null): number | null {
+/**
+ * Look up the exact rate — and that thickness's own discount, if it carries
+ * one — for a page's focus thickness in `variants`. Kept as one lookup rather
+ * than two separate ones so the discount picked is always the one that
+ * belongs to the same thickness entry as the price, never a mismatched pair
+ * from two different matches.
+ */
+function variantForThickness(product: ProductRow, focusThicknessMm: number | null): { price: number; discountPct: number | null } | null {
   if (focusThicknessMm === null) return null;
   const variants = parseVariants(product.variants);
   if (!variants) return null;
-  const prices: number[] = [];
+  const matches: { price: number; discountPct: number | null }[] = [];
   for (const core of variants.cores) {
     for (const size of core.sizes) {
       for (const thickness of size.thicknesses) {
         const value = parseFloat(thickness.label);
-        if (isFinite(value) && Math.abs(value - focusThicknessMm) < 0.01) prices.push(thickness.price);
+        if (isFinite(value) && Math.abs(value - focusThicknessMm) < 0.01) {
+          matches.push({ price: thickness.price, discountPct: validDiscountPct(thickness.discount_pct) });
+        }
       }
     }
   }
-  return prices.length > 0 ? Math.min(...prices) : null;
+  if (matches.length === 0) return null;
+  return matches.reduce((min, m) => (m.price < min.price ? m : min));
 }
 
 export function toPriceRow(product: ProductRow, focusThicknessMm: number | null = null): PriceRow {
   const price = resolvePrice(product);
+  const focusThicknessVariant = variantForThickness(product, focusThicknessMm);
   const variantSizes = variantSizeLabels(product);
   const sizeLabel = product.size ?? (variantSizes.length ? variantSizes.join(", ") : null);
   // Only derive a per-sheet figure when there is exactly one sheet size to
@@ -104,9 +122,21 @@ export function toPriceRow(product: ProductRow, focusThicknessMm: number | null 
     price,
     thicknessSpan: thicknessRangeLabel(product.thicknesses),
     focusThicknessLabel: focusThicknessMm === null ? null : closestThicknessLabel(product.thicknesses, focusThicknessMm),
-    focusThicknessPrice: variantPriceForThickness(product, focusThicknessMm),
+    focusThicknessPrice: focusThicknessVariant?.price ?? null,
+    focusThicknessDiscountPct: focusThicknessVariant?.discountPct ?? null,
     perSheet,
   };
+}
+
+/**
+ * The discount that actually applies to what this row is showing: the focus
+ * thickness's own rate if it carries one, else the product-wide rate on
+ * `price_table`. Centralised here so sorting, the net price and the "X%
+ * discount applied" badge can never disagree about which number is in force.
+ */
+export function effectiveDiscountPct(row: PriceRow): number | null {
+  if (row.focusThicknessPrice !== null) return row.focusThicknessDiscountPct ?? row.price?.discountPct ?? null;
+  return row.price?.discountPct ?? null;
 }
 
 /**
@@ -116,7 +146,7 @@ export function toPriceRow(product: ProductRow, focusThicknessMm: number | null 
  * costs the customer less.
  */
 export function rowFromPrice(row: PriceRow): number | null {
-  const discount = row.price?.discountPct ?? null;
+  const discount = effectiveDiscountPct(row);
   if (row.focusThicknessPrice !== null) return applyDiscount(row.focusThicknessPrice, discount);
   if (!row.price) return null;
   return applyDiscount(row.price.kind === "range" ? row.price.min : row.price.amount, discount);
@@ -126,14 +156,14 @@ export function rowFromPrice(row: PriceRow): number | null {
 export function formatPrice(row: PriceRow): string | null {
   if (!row.price) return null;
   if (row.focusThicknessPrice !== null) {
-    return `₹${applyDiscount(row.focusThicknessPrice, row.price.discountPct)}/${unitLabel(row.price.unit)}`;
+    return `₹${applyDiscount(row.focusThicknessPrice, effectiveDiscountPct(row))}/${unitLabel(row.price.unit)}`;
   }
   return displayPrice(row.price).netLabel;
 }
 
 /** The pre-discount figure for a row, for striking through. Null when undiscounted. */
 export function formatListPrice(row: PriceRow): string | null {
-  if (!row.price?.discountPct) return null;
+  if (!row.price || !effectiveDiscountPct(row)) return null;
   if (row.focusThicknessPrice !== null) return `₹${row.focusThicknessPrice}/${unitLabel(row.price.unit)}`;
   return displayPrice(row.price).listLabel;
 }

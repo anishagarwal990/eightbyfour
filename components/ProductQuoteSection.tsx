@@ -6,7 +6,7 @@ import { QuoteRequestForm } from "@/components/QuoteRequestForm";
 import { VariantPicker } from "@/components/VariantPicker";
 import { Button, buttonClasses } from "@/components/ui/Button";
 import { OfferBox } from "@/components/OfferBox";
-import { applyDiscount, resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel } from "@/lib/pricing";
+import { applyDiscount, resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel, validDiscountPct, formatDiscountPct } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { productDisplayName } from "@/lib/productDisplay";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
@@ -64,9 +64,12 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
   }
 
   const tablePrice = resolvePrice(product);
-  // The fixed discount lives on the product's price_table, so a per-thickness
-  // variant rate has to inherit it — those rates are list prices too.
-  const discountPct = tablePrice?.discountPct ?? null;
+  // The fixed discount usually lives on the product's price_table, so a
+  // per-thickness variant rate inherits it by default — those rates are list
+  // prices too. But a real discount schedule is often tiered by thickness
+  // (thin gauges cut less than thick ones), so a thickness carrying its own
+  // discount_pct overrides the product-wide one instead of averaging over it.
+  const discountPct = (variants && validDiscountPct(selectedThickness?.discount_pct)) ?? tablePrice?.discountPct ?? null;
   const price =
     variants && selectedThickness
       ? { kind: "single" as const, amount: selectedThickness.price, unit: variants.unit, cashbackPct: null, discountPct }
@@ -138,7 +141,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               <span className="line-through">
                 {price.kind === "range" ? `₹${price.min}–${price.max}` : `₹${price.amount}`}/{unitLabel(price.unit)}
               </span>{" "}
-              <span style={{ color: "var(--burgundy)", fontWeight: 500 }}>{discountPct}% off</span>
+              <span style={{ color: "var(--burgundy)", fontWeight: 500 }}>{formatDiscountPct(discountPct)}% off</span>
             </p>
           ) : null}
           {!price ? (

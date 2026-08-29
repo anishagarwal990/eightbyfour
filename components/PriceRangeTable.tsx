@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { displayPrice } from "@/lib/pricing";
+import { displayPrice, formatDiscountPct } from "@/lib/pricing";
 import type { PriceRangeGroup } from "@/lib/priceRows";
 
 // One row per brand + collection, for catalogues where a single rate covers
@@ -48,7 +48,7 @@ export function PriceRangeTable({ groups }: { groups: PriceRangeGroup[] }) {
                     </span>
                     {group.price.discountPct ? (
                       <span className="mt-0.5 block text-xs" style={{ color: "var(--line-strong)" }}>
-                        {group.price.discountPct}% discount applied
+                        {formatDiscountPct(group.price.discountPct)}% discount applied
                       </span>
                     ) : null}
                     {group.mixedRates ? (

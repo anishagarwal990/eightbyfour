@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatListPrice, formatPrice, type PriceRow } from "@/lib/priceRows";
+import { effectiveDiscountPct, formatListPrice, formatPrice, type PriceRow } from "@/lib/priceRows";
+import { formatDiscountPct } from "@/lib/pricing";
 
 // One row per SKU. Scrolls inside its own container rather than letting a
 // six-column table push the page body sideways on a phone, which is where
@@ -53,9 +54,9 @@ export function PriceTable({ rows, focusThickness }: { rows: PriceRow[]; focusTh
                       <span className="font-medium" style={{ color: "var(--burgundy)" }}>
                         {price}
                       </span>
-                      {row.price?.discountPct ? (
+                      {effectiveDiscountPct(row) ? (
                         <span className="mt-0.5 block text-xs" style={{ color: "var(--line-strong)" }}>
-                          {row.price.discountPct}% discount applied
+                          {formatDiscountPct(effectiveDiscountPct(row)!)}% discount applied
                         </span>
                       ) : null}
                     </>
