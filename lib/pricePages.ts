@@ -1126,6 +1126,360 @@ const VIRGO_LAMINATE = laminateBrandPage({
   related: [{ label: "Virgo brand page", href: "/brands/virgo" }, ...LAMINATE_RELATED],
 });
 
+// --- Veneer pages ----------------------------------------------------------
+//
+// Veneers use the "ranges" layout for the same reason laminates do — the
+// catalogue is one house brand split into species/treatment collections
+// (Natural, Burma Teak, Exotic, Natural Smoke, Embossed…), and a leaf-by-leaf
+// table would repeat the same collection facts a few hundred times. Grouping
+// by collection answers the real question: what species are stocked, at what
+// leaf size, and roughly what they cost.
+//
+// Most veneer SKUs are quoted on request rather than carrying a stored rate,
+// so these pages are deliberately built to be useful without a full price
+// column — same as the Greenlam laminate page. The value is the specification
+// context (cut, matching, backing) that a searcher needs before the number
+// means anything.
+
+const VENEER_CROSS_SELL = [
+  { label: "Plywood", href: "/products/plywood", note: "The substrate every veneer leaf is pressed onto — MR for dry areas, BWP below the counter. Quote both together." },
+  { label: "Adhesive", href: "/products/adhesive", note: "Fevicol SH and Marine, sized to the veneered area and the substrate grade." },
+  { label: "Laminates", href: "/products/laminates", note: "Where a printed woodgrain at a fraction of the cost is the honest call for the surface." },
+  { label: "Corian / Acrylic Solid Surface", href: "/products/corian-acrylic-solid-surface", note: "Seamless counter and vanity tops to sit alongside a veneered carcass." },
+];
+
+const VENEER_COMPARISON: ComparisonBlock = {
+  heading: "Natural vs reconstituted vs engineered veneer",
+  intro:
+    "All three are real wood sliced thin. What separates them is whether the log or a process decided the grain — and that is the whole basis of the price gap.",
+  columns: ["Type", "What it is", "Grain and repeatability", "Relative cost", "Where it belongs"],
+  rows: [
+    ["Natural", "A single species sliced straight off the log", "Every leaf is different; matching across a run is a sourcing job", "Highest", "Feature walls, statement shutters, boardroom and reception joinery"],
+    ["Natural smoke / dyed", "Natural veneer fumed or dyed for a deeper, even tone", "Natural grain, controlled colour", "High", "Dark-wood looks — walnut, wenge, smoked oak — without the species cost"],
+    ["Reconstituted", "Fast-growing wood dyed, re-glued into a block and re-sliced", "Uniform, repeatable grain leaf to leaf", "Mid", "Large runs where every panel must match — hotels, retail, multi-flat projects"],
+    ["Engineered / recon teak", "Reconstituted veneer engineered to imitate a specific premium species", "Consistent 'teak' or 'oak' figure on demand", "Mid", "The teak look at a plannable price, where genuine Burma teak is out of budget"],
+  ],
+  footnote:
+    "Veneer is a finish, not a structure. Whatever leaf goes on the visible face, a balancing backer goes on the reverse or the panel will cup — the same rule as laminate.",
+};
+
+const VENEER_RELATED = [
+  { label: "Veneer price in Hyderabad", href: "/hyderabad/veneer-price" },
+  { label: "Natural veneer price", href: "/hyderabad/natural-veneer-price" },
+  { label: "Teak veneer price", href: "/hyderabad/teak-veneer-price" },
+  { label: "Veneers supplier in Hyderabad", href: "/hyderabad/veneers-supplier" },
+  { label: "Laminate vs veneer", href: "/comparisons/laminate-vs-veneer" },
+  { label: "Plywood price in Hyderabad", href: "/hyderabad/plywood-price" },
+  { label: "Laminate price in Hyderabad", href: "/hyderabad/laminate-price" },
+  { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
+];
+
+const VENEER_APPLICATIONS = [
+  { heading: "Feature walls and shutters", body: "Natural veneer on 18mm MR ply, book-matched or slip-matched across the panel run. This is where the leaf-to-leaf matching work is worth paying for and where it has to be agreed before slicing, not after." },
+  { heading: "Wardrobe and unit faces", body: "Reconstituted or natural smoke veneer where a large area must read as one continuous piece. A natural species here means living with visible variation between doors." },
+  { heading: "Reception and boardroom joinery", body: "Premium natural species — teak, walnut, oak — where the veneer is the reason the room looks expensive. Order the whole project's leaf area in one lot from one flitch." },
+  { heading: "Where a laminate is the better call", body: "High-traffic horizontals, kitchen shutters that get wiped daily, and any budget-led run where matched natural leaves cannot be justified. A woodgrain laminate is more honest there than a thin natural veneer that wears through." },
+];
+
+const VENEER_PRICE: PricePageConfig = {
+  slug: "veneer-price",
+  h1: "Veneer Price in Hyderabad",
+  metaTitle: "Veneer Price in Hyderabad",
+  metaDescription:
+    "Veneer sheet rates in Hyderabad across natural, smoked, reconstituted and Burma teak ranges — by species collection, leaf size and finish. Compare and quote your full panelling list.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Veneer is quoted by the leaf or by the square foot, and the number moves on species and matching far more than on thickness — most decorative veneer is around 0.5mm regardless of what it costs. A Burma teak leaf and a reconstituted one can differ by five times on the same panel.",
+    "The table below groups the catalogue by collection — natural species, natural smoke, exotic, reconstituted and Burma teak — with leaf size and the number of patterns in each. Where a leaf's rate is quoted on request rather than published, the row says so; nothing here is an estimate.",
+    "Two things decide a veneer quote before the rate does: how much matched area you need from one flitch, and whether the leaves are pre-laid onto ply or supplied loose. Send the panel schedule and both get priced against the actual job.",
+  ],
+  selector: { dbCategories: ["Veneers"] },
+  layout: "ranges",
+  tableNote:
+    "Rates, where shown, are per leaf or per sq.ft excluding GST and cover the collection rather than a single pattern. Matched runs from one flitch are a sourcing exercise priced against the project, not off a rate card. Click a range to browse its patterns.",
+  comparison: VENEER_COMPARISON,
+  applications: VENEER_APPLICATIONS,
+  crossSell: VENEER_CROSS_SELL,
+  related: [
+    { label: "Natural veneer price", href: "/hyderabad/natural-veneer-price" },
+    { label: "Teak veneer price", href: "/hyderabad/teak-veneer-price" },
+    { label: "Veneers supplier in Hyderabad", href: "/hyderabad/veneers-supplier" },
+    { label: "Laminate vs veneer", href: "/comparisons/laminate-vs-veneer" },
+    { label: "Veneers catalogue", href: "/products/veneers" },
+    { label: "Plywood price in Hyderabad", href: "/hyderabad/plywood-price" },
+    { label: "Laminate price in Hyderabad", href: "/hyderabad/laminate-price" },
+    { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
+  ],
+  faqs: [
+    {
+      question: "What is the price of a veneer sheet in Hyderabad?",
+      answer:
+        "It depends on the species and on how much matched area you need. The table on this page groups every veneer range we source with its leaf size and, where published, its rate — read it together with the type column, then send the panel schedule for a confirmed number.",
+    },
+    {
+      question: "Why is natural veneer more expensive than reconstituted?",
+      answer:
+        "A natural leaf is sliced straight off a log, so the grain is unrepeatable and matching a run is a sourcing job. Reconstituted veneer is re-glued and re-sliced to a uniform pattern, which makes it cheaper and easier to match but removes the natural variation.",
+    },
+    {
+      question: "Do these prices include laying the veneer onto plywood?",
+      answer:
+        "No. Veneer is quoted as the leaf; pressing it onto a substrate is a separate line. Tell us whether you want it pre-laid onto ply or supplied loose and both are priced on the quotation.",
+    },
+    {
+      question: "How much veneer do I need for a feature wall?",
+      answer:
+        "Measure the panel area, add roughly 15–20% for matching and trim waste, and order it all from one flitch in a single lot. Send the elevation and we will size the requirement so the wall reads as one continuous piece.",
+    },
+    {
+      question: "Can I order veneer, plywood and adhesive together?",
+      answer:
+        "Yes — that is the point of the catalogue. Veneer, its substrate and the adhesive quoted as one itemised list means a single delivery and one document to check against your BOQ.",
+    },
+  ],
+};
+
+const NATURAL_VENEER_PRICE: PricePageConfig = {
+  slug: "natural-veneer-price",
+  h1: "Natural Veneer Price in Hyderabad",
+  metaTitle: "Natural Veneer Price in Hyderabad",
+  metaDescription:
+    "Natural wood veneer rates in Hyderabad — single-species and smoked leaves in oak, walnut, teak and exotic figures. Compare by collection and leaf size, and quote your panelling.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Natural veneer is a single species sliced off the log, so no two leaves are identical and matching a run is the work that the price pays for. It is the finish specified when the wall or the shutter is meant to look like real wood because it is real wood.",
+    "The ranges below are the natural and natural-smoke collections in the catalogue — the smoked and dyed leaves are still natural veneer, fumed for an even, deeper tone rather than reconstituted. Reconstituted and engineered ranges sit on the main veneer price page.",
+    "Rates where published are per leaf or per sq.ft excluding GST. A matched project quantity from one flitch is priced against the schedule, not the rate card.",
+  ],
+  selector: { dbCategories: ["Veneers"], namePattern: "natural" },
+  layout: "ranges",
+  tableNote:
+    "Only natural and natural-smoke collections appear above. Rates, where shown, exclude GST and cover the collection. A matched run from a single flitch is a sourcing job quoted against the project.",
+  comparison: VENEER_COMPARISON,
+  applications: VENEER_APPLICATIONS,
+  crossSell: VENEER_CROSS_SELL,
+  related: VENEER_RELATED,
+  faqs: [
+    {
+      question: "What is the price of natural veneer in Hyderabad?",
+      answer:
+        "Natural veneer is quoted by species and by matched area rather than off a single rate. The table above lists every natural range we source with its leaf size and, where published, its rate — send the panel schedule for a confirmed figure.",
+    },
+    {
+      question: "Is smoked veneer still natural veneer?",
+      answer:
+        "Yes. Smoked and fumed veneers are natural leaves treated with heat or ammonia to darken the tone evenly. The grain is untouched — it is not a reconstituted or printed product.",
+    },
+    {
+      question: "Can natural veneer be matched across a whole room?",
+      answer:
+        "Only if the leaf area is ordered together from one flitch. Once a flitch is used up the next one differs in figure and tone, so a room-wide run has to be sourced as a single lot up front.",
+    },
+    {
+      question: "How thick is natural veneer?",
+      answer:
+        "Decorative natural veneer is typically around 0.5mm. It is a finish layer pressed onto plywood or MDF, not a material used on its own.",
+    },
+  ],
+};
+
+const TEAK_VENEER_PRICE: PricePageConfig = {
+  slug: "teak-veneer-price",
+  h1: "Teak Veneer Price in Hyderabad",
+  metaTitle: "Teak Veneer Price in Hyderabad",
+  metaDescription:
+    "Teak veneer rates in Hyderabad — genuine Burma teak leaves and engineered teak-look ranges, by leaf size and figure. Compare natural against reconstituted and quote your requirement.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Teak veneer splits into two products at very different prices: genuine Burma teak sliced off the log, and engineered veneer processed to imitate teak figure. Both are real wood; only one carries the grain, the oil content and the cost of the species.",
+    "The table below covers the Burma teak collection alongside the reconstituted and exotic ranges that give a teak look for less. Leaf sizes and pattern counts are read live from the catalogue.",
+    "Genuine teak for a full project is a sourcing exercise — the matched leaf area has to come from one flitch. Send the schedule and it is priced against the job, not a rate card.",
+  ],
+  selector: { dbCategories: ["Veneers"], namePattern: "teak" },
+  layout: "ranges",
+  tableNote:
+    "Genuine Burma teak and engineered teak-look ranges are listed together above with their leaf size. Rates where shown exclude GST. A matched teak run is quoted against the project schedule.",
+  comparison: VENEER_COMPARISON,
+  applications: [
+    { heading: "Main door and entrance joinery", body: "Genuine Burma teak, where the door is the first thing a visitor touches and the species is the point. Order the leaf area for the frame and shutter together." },
+    { heading: "Feature walls and headboards", body: "Burma teak for a statement wall; engineered teak where the same warm figure has to run across a large area without visible flitch changes." },
+    { heading: "Full-flat teak theme", body: "Engineered or reconstituted teak keeps a whole flat consistent at a plannable cost. Genuine teak across every room is a budget decision to make before the design, not after." },
+    { heading: "Where laminate is the better call", body: "Kitchen shutters and any wiped-daily surface. A teak-finish laminate outlasts a 0.5mm natural leaf in that use and costs a fraction." },
+  ],
+  crossSell: VENEER_CROSS_SELL,
+  related: VENEER_RELATED,
+  faqs: [
+    {
+      question: "What is the price of teak veneer in Hyderabad?",
+      answer:
+        "Genuine Burma teak and engineered teak-look veneer are very different numbers. The table on this page lists both with leaf sizes; send the panel area and species preference for a confirmed rate.",
+    },
+    {
+      question: "What is the difference between natural teak and engineered teak veneer?",
+      answer:
+        "Natural teak is sliced from a teak log and carries the real grain and oil. Engineered teak is fast-growing wood dyed and re-assembled to imitate teak figure — consistent and cheaper, but not the species.",
+    },
+    {
+      question: "Is Burma teak veneer available in Hyderabad?",
+      answer:
+        "Yes, through our supply network rather than off the shelf. Genuine teak for a project is sourced as a matched lot from one flitch, so it is ordered against the schedule with lead time confirmed up front.",
+    },
+    {
+      question: "How do I match teak veneer across several doors?",
+      answer:
+        "Order the full leaf area for every door in one lot from a single flitch. Buying door by door means each one differs in figure and tone.",
+    },
+  ],
+};
+
+// --- Solid surface pages ---------------------------------------------------
+//
+// Corian is DuPont's trademark; in the Indian trade it is used generically
+// for any acrylic solid surface, which is why "corian price" is a real query
+// even though the catalogue stocks Durasein, Tiara and Vivanta rather than
+// DuPont. The corian-price page targets that query honestly — it explains the
+// distinction and points at the equivalents — rather than claiming to sell a
+// brand it does not.
+
+const SOLID_SURFACE_CROSS_SELL = [
+  { label: "Laminates", href: "/products/laminates", note: "Shutter and carcass faces to run with a solid-surface counter — matched or contrasted." },
+  { label: "Plywood", href: "/products/plywood", note: "IS 710 BWP for the cabinet the counter sits on. Quote the counter and the box together." },
+  { label: "Veneers", href: "/products/veneers", note: "A real-wood carcass face under a seamless white top." },
+  { label: "Adhesive", href: "/products/adhesive", note: "Substrate and edge-build adhesives for the counter fabrication." },
+];
+
+const SOLID_SURFACE_COMPARISON: ComparisonBlock = {
+  heading: "Solid surface vs granite vs quartz vs laminate counter",
+  intro:
+    "For a kitchen or vanity counter the four options are not close substitutes — they differ on seams, repair and heat before they differ on price.",
+  columns: ["Material", "Seams", "Repairable on site", "Heat", "Relative cost"],
+  rows: [
+    ["Acrylic solid surface", "Joined invisibly — one continuous surface, integrated sink", "Yes — sanded out, no replacement", "Trivets needed; scorches under a hot pan", "Mid-high"],
+    ["Granite", "Visible seams; slab-size limited", "No — a chip or crack is permanent", "Excellent — takes a hot pan directly", "Mid"],
+    ["Quartz (engineered stone)", "Visible seams", "No", "Good, not unlimited — resin can mark", "High"],
+    ["Laminate counter (post-formed)", "Visible joins; edge is the weak point", "No — swells once the edge lets water in", "Poor", "Lowest"],
+  ],
+  footnote:
+    "Solid surface wins where a seamless run, an integrated sink or a curved edge is the point. Granite wins on raw heat resistance and outright cost. Pick the counter for the job, not the showroom sample.",
+};
+
+const SOLID_SURFACE_RELATED = [
+  { label: "Solid surface price in Hyderabad", href: "/hyderabad/solid-surface-price" },
+  { label: "Corian price in Hyderabad", href: "/hyderabad/corian-price" },
+  { label: "Solid surface supplier in Hyderabad", href: "/hyderabad/corian-acrylic-solid-surface-supplier" },
+  { label: "Laminate price in Hyderabad", href: "/hyderabad/laminate-price" },
+  { label: "Plywood price in Hyderabad", href: "/hyderabad/plywood-price" },
+  { label: "Solid surface catalogue", href: "/products/corian-acrylic-solid-surface" },
+  { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
+];
+
+const SOLID_SURFACE_APPLICATIONS = [
+  { heading: "Kitchen countertops", body: "The main use, and the one that justifies the cost: a seamless run with an integrated sink and no grout line to fail. Specify the bendable grade where the design has a curved edge or a waterfall end." },
+  { heading: "Bathroom vanity tops", body: "A one-piece top with a moulded basin and coved upstand — nothing for water to get behind. This is where solid surface outlasts a stone top with a drop-in bowl." },
+  { heading: "Reception and commercial counters", body: "Long runs joined invisibly, back-lit panels, and a surface that can be sanded back to new after years of use rather than replaced." },
+  { heading: "Where granite is the better call", body: "A budget-led kitchen, or one where hot pans land straight on the counter. Solid surface needs trivets; granite does not." },
+];
+
+const SOLID_SURFACE_PRICE: PricePageConfig = {
+  slug: "solid-surface-price",
+  h1: "Solid Surface Price in Hyderabad",
+  metaTitle: "Solid Surface Price in Hyderabad",
+  metaDescription:
+    "Acrylic solid surface rates in Hyderabad across Durasein, Tiara and Vivanta — bendable and non-bendable grades, by colour range and sheet. Compare against granite and quote your counter.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Acrylic solid surface is priced per square foot on brand, colour family and whether the sheet is the bendable grade. The finished counter costs more than the material — fabrication, edge build-up and an integrated sink are the bigger part of the number — so the per sq.ft rate is only the starting point.",
+    "The table below groups the catalogue by brand: Durasein, Tiara and Vivanta, in bendable and non-bendable grades. Plain whites and light stones sit at the bottom of the range; deep colours, sparkles and marble-look patterns sit at the top.",
+    "For a counter quote we need the run length, the number of sink cut-outs, the edge profile and whether any section curves. Send the kitchen or vanity drawing and it comes back priced as a finished top, not a stack of sheets.",
+  ],
+  selector: { dbCategories: ["Corian - Acrylic Solid Surface"] },
+  layout: "ranges",
+  tableNote:
+    "Rates above are per sq.ft excluding GST and cover the brand's colour range. Deep colours and patterned sheets carry a premium over plain whites. Fabrication into a finished counter is quoted separately against the drawing.",
+  comparison: SOLID_SURFACE_COMPARISON,
+  applications: SOLID_SURFACE_APPLICATIONS,
+  crossSell: SOLID_SURFACE_CROSS_SELL,
+  related: [
+    { label: "Corian price in Hyderabad", href: "/hyderabad/corian-price" },
+    { label: "Solid surface supplier in Hyderabad", href: "/hyderabad/corian-acrylic-solid-surface-supplier" },
+    { label: "Solid surface catalogue", href: "/products/corian-acrylic-solid-surface" },
+    { label: "Laminate price in Hyderabad", href: "/hyderabad/laminate-price" },
+    { label: "Plywood price in Hyderabad", href: "/hyderabad/plywood-price" },
+    { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
+  ],
+  faqs: [
+    {
+      question: "What is the price of solid surface in Hyderabad?",
+      answer:
+        "Per square foot, the range runs from plain whites at the bottom to patterned and deep-colour sheets at the top — the table above shows the live span by brand, excluding GST. The finished counter costs more again once fabrication, edge build-up and the sink cut-out are added.",
+    },
+    {
+      question: "What is the difference between bendable and non-bendable solid surface?",
+      answer:
+        "Bendable grade can be thermoformed around a curve — a rounded island edge, a waterfall end, a coved upstand. Non-bendable is for flat runs only and costs less. The catalogue labels each sheet by grade.",
+    },
+    {
+      question: "Is solid surface cheaper than granite?",
+      answer:
+        "Usually not, once fabrication is counted. Solid surface is chosen for the seamless joins, the integrated sink and the fact it can be sanded back to new — not to save money over granite.",
+    },
+    {
+      question: "Which solid surface brands do you supply?",
+      answer:
+        "Durasein, Tiara and Vivanta, in bendable and non-bendable grades. All three are acrylic solid surface — the same material category as Corian.",
+    },
+    {
+      question: "Can you fabricate and install the counter as well?",
+      answer:
+        "Yes. Send the kitchen or vanity drawing with the run length, sink positions and edge profile, and the quote comes back for the finished, installed top rather than the raw sheet.",
+    },
+  ],
+};
+
+const CORIAN_PRICE: PricePageConfig = {
+  slug: "corian-price",
+  h1: "Corian Price in Hyderabad",
+  metaTitle: "Corian Price in Hyderabad",
+  metaDescription:
+    "What Corian and acrylic solid surface cost in Hyderabad. Corian is DuPont's brand — see the equivalent solid surfaces we stock (Durasein, Tiara, Vivanta), their rates and the counter cost.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Corian is DuPont's trademark for acrylic solid surface — the seamless, sandable counter material with the integrated sink. In the Indian trade the name is used loosely for the whole category, the way a photocopy gets called a Xerox.",
+    "EightByFour stocks acrylic solid surface in the same material class — Durasein, Tiara and Vivanta — rather than DuPont-branded Corian. The table below shows those ranges with live per-sheet rates. If a project specification names Corian specifically, tell us and we will source against that requirement.",
+    "As with any solid surface, the per sq.ft rate is the start of the number. A finished counter — run length, sink cut-outs, edge build-up, any curved section — is quoted against the drawing.",
+  ],
+  selector: { dbCategories: ["Corian - Acrylic Solid Surface"] },
+  layout: "ranges",
+  tableNote:
+    "The ranges above are acrylic solid surface equivalent to Corian, not DuPont-branded Corian. Rates are per sq.ft excluding GST. Fabrication into a finished counter is quoted separately.",
+  comparison: SOLID_SURFACE_COMPARISON,
+  applications: SOLID_SURFACE_APPLICATIONS,
+  crossSell: SOLID_SURFACE_CROSS_SELL,
+  related: SOLID_SURFACE_RELATED,
+  faqs: [
+    {
+      question: "What does Corian cost in Hyderabad?",
+      answer:
+        "DuPont-branded Corian is sourced to order against a specification. The acrylic solid surfaces we stock as standard — Durasein, Tiara, Vivanta — are the same material class and their live per-sheet rates are in the table above; the finished counter is quoted against your drawing.",
+    },
+    {
+      question: "Is Corian the same as acrylic solid surface?",
+      answer:
+        "Corian is one brand of acrylic solid surface — DuPont's. The material category is the same across brands: an acrylic-and-mineral sheet that joins invisibly and can be sanded and repaired on site.",
+    },
+    {
+      question: "Do you sell genuine DuPont Corian?",
+      answer:
+        "We stock Durasein, Tiara and Vivanta as standard. If a project specifies DuPont Corian by name, we will source it against that requirement rather than substitute without telling you.",
+    },
+    {
+      question: "Why is a Corian-style counter more expensive than granite?",
+      answer:
+        "The sheet is comparable; the fabrication is not. Seamless joins, a moulded sink and a coved upstand are labour that a granite slab with a drop-in bowl does not need. You pay for the seamlessness.",
+    },
+  ],
+};
+
 export const PRICE_PAGES: PricePageConfig[] = [
   PLYWOOD_PRICE,
   EIGHTEEN_MM,
@@ -1143,6 +1497,11 @@ export const PRICE_PAGES: PricePageConfig[] = [
   GREENLAM_LAMINATE,
   MERINO_LAMINATE,
   VIRGO_LAMINATE,
+  VENEER_PRICE,
+  NATURAL_VENEER_PRICE,
+  TEAK_VENEER_PRICE,
+  SOLID_SURFACE_PRICE,
+  CORIAN_PRICE,
 ];
 
 export const PRICE_PAGE_SLUGS: string[] = PRICE_PAGES.map((p) => p.slug);
