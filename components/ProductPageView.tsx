@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { BrandRow, ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
-import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
+import { CATEGORIES, categorySingularName, getCategoryBySlug } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductQuoteSection } from "@/components/ProductQuoteSection";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -14,7 +14,7 @@ import { Reveal } from "@/components/Reveal";
 import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
-import { resolvePrice } from "@/lib/pricing";
+import { displayPrice, resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 import { finishCode, productImages } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
@@ -61,13 +61,46 @@ function PdfIcon() {
 
 function buildFaqs(product: ProductRow): { question: string; answer: string }[] {
   const displayName = productDisplayName(product);
-  const faqs = [
-    {
-      question: `Is ${displayName} available in Hyderabad?`,
-      answer: `Yes — EightxFour stocks ${displayName} for delivery across Hyderabad. Request a quote for current availability and lead time.`,
-    },
-    ...(product.custom_faqs || []),
-  ];
+  const code = product.sd_code;
+  // "{Brand} {Shade} {Code}" — the exact string the shade-code searches this
+  // page is built to catch ("merino 21099", "century 3917 snow glacier").
+  const codeName = code ? `${displayName} ${code}` : displayName;
+  const categoryLower = categorySingularName(product.category).toLowerCase();
+
+  const faqs: { question: string; answer: string }[] = [];
+
+  // Answers the "what is <code>" query directly and grounds the answer in the
+  // row's own fields — brand, name, finish (only when it's a per-SKU finish,
+  // not one of several the design ships in), size. Never invents a spec.
+  if (code) {
+    const finishBit = !product.finishes?.length && product.finish ? ` in a ${product.finish} finish` : "";
+    const sizeBit = product.size ? `, ${product.size}` : "";
+    faqs.push({
+      question: `What is ${displayName} ${code}?`,
+      answer: `${code} is the ${product.brand} shade code for ${product.name}, a ${categoryLower}${finishBit}${sizeBit}. EightxFour stocks it in Hyderabad — request a quote for the current rate and lead time.`,
+    });
+  }
+
+  // Local buy-intent, with the code worked in so it also catches
+  // "<shade> <code> hyderabad". Replaces the old bare availability FAQ.
+  faqs.push({
+    question: `Where can I buy ${codeName} in Hyderabad?`,
+    answer: `EightxFour supplies ${codeName} across Hyderabad with same or next-day delivery. Send your list or BOQ for a priced quote — first response in under 15 minutes during business hours.`,
+  });
+
+  // Only when there's a real rate on file — an unpriced (RFQ) SKU promising a
+  // price answer is a bounce, same reasoning as the price qualifier in
+  // buildProductTitle (lib/productSeo.ts).
+  const price = resolvePrice(product);
+  if (price) {
+    faqs.push({
+      question: `How much does ${codeName} cost in Hyderabad?`,
+      answer: `${codeName} is currently ${displayPrice(price).netLabel}, excl. GST. Rates move with the market — request a quote for today's price on your quantity.`,
+    });
+  }
+
+  faqs.push(...(product.custom_faqs || []));
+
   if (product.thicknesses?.length) {
     faqs.push({
       question: `What thicknesses does ${product.name} come in?`,
@@ -107,13 +140,18 @@ export function ProductPageView({
   // of the most useful facts on a page built around "go check the real PDF
   // for the actual shade," so it shouldn't take scrolling to find.
   const cataloguePage = product.spec_table?.find((row) => row.label === "Catalogue Page")?.value;
-  // Matches buildProductTitle's finish-in-title guard (lib/productSeo.ts) —
-  // code+finish lead the H1 for catalogues where finish is a per-SKU
-  // differentiator (Virgo-style), since that's the exact string customers
-  // search for ("6511 SF", not just "Tahiti Samoa Teak"). Falls back to the
-  // bare name everywhere else, unchanged from before.
+  // The shade code leads the H1 whenever the product has one — it's the exact
+  // string the decor-code searches use ("163", "3917 snow glacier", "21099
+  // merino"), and burying it below the name cedes those queries. When finish
+  // is a per-SKU differentiator (Virgo-style — see finishCode's guard in
+  // lib/productSeo.ts) it rides along after the code ("6511 SF — Tahiti Samoa
+  // Teak"); for multi-finish designs the code alone leads ("163 — Bay").
   const finish = finishCode(product);
-  const h1Text = product.sd_code && finish ? `${product.sd_code} ${finish} — ${product.name}` : product.name;
+  const h1Text = product.sd_code
+    ? finish
+      ? `${product.sd_code} ${finish} — ${product.name}`
+      : `${product.sd_code} — ${product.name}`
+    : product.name;
   // Cross-sell using the category's own editorial "related categories" so a
   // Laminates product doesn't get told to buy more Laminates — falls back to
   // the general Adhesives/Laminates pair for categories with none configured.
