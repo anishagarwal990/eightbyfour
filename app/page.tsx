@@ -39,10 +39,21 @@ const MERCHANDISE_FLOOR = 10;
 // a dozen decoded frames in memory.
 const IMAGES_PER_TILE = 6;
 
-// The four categories that carry the hero, deepest first. Three are surfaces
-// shot as texture; plywood is a packshot and renders contained on the neutral
-// ground rather than bleeding, which is what keeps the block quiet.
-const HERO_TILE_SLUGS = ["laminates", "veneers", "corian-acrylic-solid-surface", "plywood"];
+// The categories that carry the hero, in display order. Laminates, veneers,
+// solid surface and birch ply are surfaces shot as texture; plywood and MDF
+// are packshots and render contained on the neutral ground rather than
+// bleeding, which is what keeps the block quiet. MDF/HDHMR and birch ply sit
+// below the merchandise floor on catalogue count but are named here anyway —
+// both are high-demand searches, so `heroCategorySlugs` below force-samples
+// images for them regardless of count.
+const HERO_TILE_SLUGS = [
+  "laminates",
+  "veneers",
+  "corian-acrylic-solid-surface",
+  "plywood",
+  "mdf-and-hdhmr",
+  "birch-plywood",
+];
 
 // The full "Solid Surface / Corian" name fits a half-width tile; kept as an
 // explicit label so a later rename of the category name does not silently
@@ -63,6 +74,7 @@ const CATEGORY_BLURBS: Record<string, string> = {
   plywood: "MR, BWP and fire-retardant grades in standard 8×4 ft sheets.",
   adhesive: "Site-grade adhesives, including marine and heat-resistant grades.",
   "mdf-and-hdhmr": "MDF and HDHMR boards for shutters, mouldings and wet areas.",
+  "birch-plywood": "Imported Russian / Baltic birch in BB/BB grade — a void-free edge for exposed-ply work.",
 };
 
 export const metadata: Metadata = buildMetadata({
@@ -284,8 +296,16 @@ export default async function Home() {
   // when someone reports it. The hero and the category grid start from
   // opposite ends of the same reel so the two sections aren't showing the
   // visitor the same laminate at the same moment.
+  // Categories to build image reels for: everything merchandised, plus any
+  // hero tile that falls below the merchandise floor (MDF/HDHMR, birch ply) —
+  // those are named on demand, not on catalogue depth, and still need photos.
+  const heroOnlyCategories = HERO_TILE_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter(
+    (c): c is (typeof CATEGORIES)[number] => Boolean(c) && !merchandisable.includes(c!)
+  );
+  const reelCategories = [...merchandisable, ...heroOnlyCategories];
+
   const samples = await Promise.all(
-    merchandisable.map(async (category) => {
+    reelCategories.map(async (category) => {
       const products = await getCategorySampleProducts(category.dbCategory, 16);
       const urls = products
         .map((p) => p.main_img_url)

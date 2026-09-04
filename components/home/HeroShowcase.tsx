@@ -34,7 +34,7 @@ export interface ShowcaseBrand {
  * organising principle is the grid; the variety comes from the materials.
  */
 export function HeroShowcase({ tiles, brands, brandCount }: { tiles: ShowcaseTile[]; brands: ShowcaseBrand[]; brandCount: number }) {
-  const shown = tiles.filter((t) => t.images.length > 0).slice(0, 4);
+  const shown = tiles.filter((t) => t.images.length > 0).slice(0, 6);
   if (shown.length === 0) return null;
 
   return (
@@ -49,8 +49,8 @@ export function HeroShowcase({ tiles, brands, brandCount }: { tiles: ShowcaseTil
               <CyclingImage
                 images={tile.images}
                 alt={tile.name}
-                // The first two are above the fold on every screen; the lower
-                // pair can wait for the lazy pass.
+                // The top row is above the fold on every screen; the rows
+                // below it can wait for the lazy pass.
                 priority={i < 2}
                 sizes="(max-width: 640px) 42vw, 200px"
                 // Staggered so the four tiles don't all flip on one frame.
