@@ -38,6 +38,14 @@ const nextConfig: NextConfig = {
         destination: "/guides/mdf-vs-hdhmr",
         permanent: true,
       },
+      // The single birch SKU moved to the EightByFour house brand, leaving
+      // "Russian Birch Ply" as an empty brand page. Point the old brand URL
+      // at the category it now lives under.
+      {
+        source: "/brands/russian-birch-ply",
+        destination: "/products/birch-plywood",
+        permanent: true,
+      },
       // Legacy product slugs from before the "Propperly" brand name typo was
       // fixed (was "Properly", single p, everywhere — brand, scripts, image
       // bucket paths — before it got corrected). Google still has the old
