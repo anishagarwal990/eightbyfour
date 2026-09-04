@@ -25,11 +25,12 @@ export function OrganizationSchema() {
       postalCode: "500016",
       addressCountry: "IN",
     },
-    // Locality-level precision (Begumpet), not exact-building geocoding —
-    // free geocoders can't resolve this specific building number. Refine to
-    // rooftop-accurate coordinates once/if a Google Business Profile is
-    // verified for this address, which can geocode it precisely.
-    geo: { "@type": "GeoCoordinates", latitude: 17.446195, longitude: 78.463016 },
+    // Rooftop-accurate — matched against the "Sita Sarovar Apartments"
+    // building on Google Maps by street number (7-1-21) and PIN (500016),
+    // both exact. Was a locality-level Begumpet estimate before a Google
+    // Business Profile existed to geocode the exact building; add `sameAs`
+    // with the GBP listing URL once it's verified, for the entity link.
+    geo: { "@type": "GeoCoordinates", latitude: 17.4376923, longitude: 78.4560503 },
     telephone: PHONE_TEL,
     email: EMAIL,
     openingHoursSpecification: {
