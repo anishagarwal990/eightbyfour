@@ -22,10 +22,11 @@ export const CATEGORY_MARK_LABEL: Record<CategoryMarkSlug, string> = {
 };
 
 // The dbCategory values each sub-brand actually covers — Plywood Shop's tile
-// says "PLY & BOARDS" because Blockboard is sold under it too, so filtering
-// a brand page by this mark has to pull both categories, not just Plywood.
+// says "PLY & BOARDS" because blockboard and birch ply are sold under it too,
+// so filtering a brand page by this mark has to pull every board category,
+// not just Plywood.
 export const CATEGORY_MARK_DB_CATEGORIES: Record<CategoryMarkSlug, string[]> = {
-  plywood: ["Plywood", "Blockboard"],
+  plywood: ["Plywood", "Blockboard", "Birch Plywood"],
   laminates: ["Laminates"],
   veneers: ["Veneers"],
 };
