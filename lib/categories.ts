@@ -55,9 +55,9 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "birch-plywood",
     dbCategory: "Birch Plywood",
     name: "Birch Plywood",
-    heroTagline: "Imported Russian Birch Ply in BB/BB grade for furniture with exposed edges.",
+    heroTagline: "Imported Russian / Baltic birch in BB/BB grade for furniture with exposed edges.",
     overview:
-      "Birch plywood is a multi-ply hardwood panel built from thin birch veneers, prized for its dense, void-free cross-section — the edge itself looks finished, which is why designers reach for it on open shelving, exposed-edge furniture and Scandinavian-style joinery. EightxFour stocks imported Russian Birch Ply in BB/BB grade (both faces clean).",
+      "Birch plywood is a multi-ply hardwood panel built from thin birch veneers, prized for its dense, void-free cross-section — the edge itself looks finished, which is why designers reach for it on open shelving, exposed-edge furniture and Scandinavian-style joinery. EightxFour stocks imported Russian / Baltic birch in BB/BB grade (both faces clean).",
     buyingGuide:
       "Birch ply is heavier and stiffer than standard commercial plywood, which is what gives it a clean, chip-free edge when cut — factor that into hardware selection and transport. It's priced at a premium over commercial plywood, so it's typically specified where the edge or cross-section will actually be visible, not for hidden carcasses.",
     faqs: [
