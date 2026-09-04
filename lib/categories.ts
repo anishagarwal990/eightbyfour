@@ -149,7 +149,11 @@ export const CATEGORIES: CategoryConfig[] = [
   {
     slug: "corian-acrylic-solid-surface",
     dbCategory: "Corian - Acrylic Solid Surface",
-    name: "Corian / Acrylic Solid Surface",
+    // Leads with the generic term (higher search volume, what most buyers
+    // type) and keeps Corian for recognition. The `dbCategory` string is
+    // unchanged — it is the Supabase value and renaming it would orphan every
+    // product row.
+    name: "Solid Surface / Corian",
     heroTagline: "Durasein, Tiara and Vivanta acrylic solid surface sheets across a full shade catalogue for countertops and cladding.",
     overview:
       "Acrylic solid surface (the category Corian popularised) is a non-porous, seamlessly jointable sheet material used for kitchen countertops, wash-basin counters, wall cladding and reception desks. EightxFour stocks the Durasein, Tiara and Vivanta shade ranges — solid colours, marble-effect and textured finishes — with real shade codes you can spec against.",

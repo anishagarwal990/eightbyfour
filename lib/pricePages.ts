@@ -1231,7 +1231,7 @@ const VENEER_CROSS_SELL = [
   { label: "Plywood", href: "/products/plywood", note: "The substrate every veneer leaf is pressed onto — MR for dry areas, BWP below the counter. Quote both together." },
   { label: "Adhesive", href: "/products/adhesive", note: "Fevicol SH and Marine, sized to the veneered area and the substrate grade." },
   { label: "Laminates", href: "/products/laminates", note: "Where a printed woodgrain at a fraction of the cost is the honest call for the surface." },
-  { label: "Corian / Acrylic Solid Surface", href: "/products/corian-acrylic-solid-surface", note: "Seamless counter and vanity tops to sit alongside a veneered carcass." },
+  { label: "Solid Surface / Corian", href: "/products/corian-acrylic-solid-surface", note: "Seamless counter and vanity tops to sit alongside a veneered carcass." },
 ];
 
 const VENEER_COMPARISON: ComparisonBlock = {
