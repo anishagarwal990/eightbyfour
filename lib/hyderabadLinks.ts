@@ -47,7 +47,7 @@ export function getBespokeHyderabadPage(slug: string): BespokeHyderabadPage | un
 // Anything we don't stock or have a page for yet (e.g. REHAU) opens the quote modal instead.
 export const POPULAR_SEARCHES: LinkListEntry[] = [
   { label: "REHAU Edge Bands in Hyderabad", quotePrefill: "REHAU edge bands / laminates" },
-  { label: "Corian / Acrylic Solid Surface in Hyderabad", href: "/products/corian-acrylic-solid-surface" },
+  { label: "Solid Surface / Corian in Hyderabad", href: "/products/corian-acrylic-solid-surface" },
   { label: "HDHMR in Hyderabad", href: "/products/mdf-and-hdhmr" },
   { label: "MDF in Hyderabad", href: "/products/mdf-and-hdhmr" },
   { label: "Teak Veneer in Hyderabad", href: "/products/veneers" },

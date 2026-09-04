@@ -44,11 +44,11 @@ const IMAGES_PER_TILE = 6;
 // ground rather than bleeding, which is what keeps the block quiet.
 const HERO_TILE_SLUGS = ["laminates", "veneers", "corian-acrylic-solid-surface", "plywood"];
 
-// "Corian / Acrylic Solid Surface" truncates in a half-width tile; the tile
-// caption is shortened while the alt text and the category page keep the
-// full name.
+// The full "Solid Surface / Corian" name fits a half-width tile; kept as an
+// explicit label so a later rename of the category name does not silently
+// change the hero caption.
 const HERO_TILE_LABELS: Partial<Record<string, string>> = {
-  "corian-acrylic-solid-surface": "Solid Surface",
+  "corian-acrylic-solid-surface": "Solid Surface / Corian",
 };
 
 // Names a Hyderabad contractor recognises on sight, spanning boards,
