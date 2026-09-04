@@ -160,6 +160,7 @@ const PLYWOOD_PRICE: PricePageConfig = {
     { label: "Marine plywood price", href: "/hyderabad/marine-plywood-price" },
     { label: "Century plywood price", href: "/hyderabad/century-plywood-price" },
     { label: "Greenply plywood price", href: "/hyderabad/greenply-plywood-price" },
+    { label: "Birch plywood price", href: "/hyderabad/birch-plywood-price" },
     { label: "Plywood supplier in Hyderabad", href: "/hyderabad/plywood-supplier" },
     { label: "Plywood grades explained", href: "/guides/plywood-grades-explained" },
     { label: "Best plywood for kitchen", href: "/guides/best-plywood-for-kitchen" },
@@ -237,6 +238,7 @@ const THICKNESS_RELATED = [
   { label: "6mm plywood price", href: "/hyderabad/6mm-plywood-price" },
   { label: "MR plywood price", href: "/hyderabad/mr-plywood-price" },
   { label: "BWP plywood price", href: "/hyderabad/bwp-plywood-price" },
+  { label: "Birch plywood price", href: "/hyderabad/birch-plywood-price" },
   { label: "Plywood supplier in Hyderabad", href: "/hyderabad/plywood-supplier" },
   { label: "Estimating plywood and laminate quantities", href: "/guides/estimating-plywood-laminate-quantities" },
   { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
@@ -668,6 +670,90 @@ const GREENPLY_PLYWOOD: PricePageConfig = {
       question: "Is EightByFour an authorised Greenply dealer?",
       answer:
         "We are a supplier, not an authorised dealer or distributor. Greenply products are sourced through our supply network and quoted with the manufacturer's own certification.",
+    },
+  ],
+};
+
+// Birch plywood is graded on face quality and glue class, not on the IS
+// MR/BWR/BWP scale the rest of the plywood cluster runs on — so it gets its
+// own comparison block rather than reusing GRADE_COMPARISON, which would be
+// answering a question nobody searching "baltic birch" is asking.
+const BIRCH_COMPARISON: ComparisonBlock = {
+  heading: "Birch ply grades — B, BB, CP, C and the glue class",
+  intro:
+    "A birch panel is described by two letters (the two faces) plus a glue class. The letters set the look; the glue class sets where it can go.",
+  columns: ["Grade", "Face", "Where it belongs"],
+  rows: [
+    ["B (I)", "Near-flawless, uniform colour, no patches", "The one visible face on a display piece or a photographed interior"],
+    ["BB (II)", "Sound, colour-matched oval patches allowed, no open defects", "The standard specify-grade for exposed-edge furniture and open shelving — BB/BB means both faces"],
+    ["CP (III)", "Tight knots and discoloured patches allowed; still sound", "A face that will be painted or laminated over"],
+    ["C (IV)", "Open defects and splits allowed", "A hidden internal face or a substrate — rarely worth importing for this"],
+    ["Glue: interior (EN 314-2 class 1)", "—", "Dry interior joinery only"],
+    ["Glue: exterior / WBP (class 3)", "—", "Humid rooms, anything near water — costs more, ask for it explicitly"],
+  ],
+  footnote:
+    "\"Russian birch\" and \"Baltic birch\" describe the same product — multi-ply panels from birch grown across Russia, Belarus and the Baltic states. It is not an IS-certified Indian grade, so compare it on the grade letters and the glue class, not on a 710 mark.",
+};
+
+const BIRCH_PLYWOOD: PricePageConfig = {
+  slug: "birch-plywood-price",
+  h1: "Birch Plywood Price in Hyderabad",
+  metaTitle: "Birch Plywood Price in Hyderabad",
+  metaDescription:
+    "Russian / Baltic birch plywood rates in Hyderabad — BB/BB grade, void-free hardwood core, by thickness and sheet size. What birch costs over commercial ply and where it earns it.",
+  eyebrow: "Hyderabad price guide",
+  intro: [
+    "Birch plywood is the panel designers reach for when the edge is part of the design. The birch core has no visible voids, so a cut or routed edge looks finished without banding — which is the whole reason it costs a multiple of commercial plywood and the whole reason to use it only where that edge shows.",
+    "The Hyderabad supply is imported Russian / Baltic birch in BB/BB grade (both faces clean). It is heavier and stiffer than commercial ply, cuts chip-free, and takes a clear finish or a light stain the way an Indian hardwood-core sheet does not. The table below carries the stocked thicknesses and sheet sizes; rates are quoted on request against the sheet count.",
+    "Birch is a specify-it-where-it-shows material. Open shelving, plywood furniture with exposed edges, Scandinavian-style joinery, retail and display work — not hidden carcasses, where the premium buys nothing.",
+  ],
+  selector: { dbCategories: ["Birch Plywood"] },
+  layout: "table",
+  tableNote:
+    "Birch plywood is imported and stocked in a limited range of thicknesses and sheet sizes. Rates are quoted on request against the sheet count and the grade — everything else in the row is read live from the product record.",
+  comparison: BIRCH_COMPARISON,
+  applications: [
+    { heading: "Open shelving and exposed edges", body: "The core use. BB/BB birch, edge left raw with a clear finish. This is where the void-free cross-section pays for itself." },
+    { heading: "Plywood furniture and Scandinavian joinery", body: "Chairs, low units, bed frames where the ply edge is a design feature rather than something to hide. Factor the extra weight into the hardware." },
+    { heading: "Retail and display fit-out", body: "Fast to finish, photographs well, and holds a screw fixing in the edge far better than commercial ply — useful for demountable display joinery." },
+    { heading: "Where commercial ply is the right call", body: "Any hidden carcass, wardrobe body or back panel. Birch there is money spent on an edge nobody sees." },
+  ],
+  crossSell: PLYWOOD_CROSS_SELL,
+  related: [
+    { label: "Plywood price in Hyderabad", href: "/hyderabad/plywood-price" },
+    { label: "Birch ply vs standard plywood", href: "/comparisons/birch-ply-vs-standard-plywood" },
+    { label: "18mm plywood price", href: "/hyderabad/18mm-plywood-price" },
+    { label: "Marine plywood price", href: "/hyderabad/marine-plywood-price" },
+    { label: "Birch plywood catalogue", href: "/products/birch-plywood" },
+    { label: "Plywood supplier in Hyderabad", href: "/hyderabad/plywood-supplier" },
+    { label: "Plywood grades explained", href: "/guides/plywood-grades-explained" },
+    { label: "BOQ procurement", href: "/hyderabad/boq-procurement" },
+  ],
+  faqs: [
+    {
+      question: "What is the price of birch plywood in Hyderabad?",
+      answer:
+        "Birch is imported and quoted against the sheet count rather than published as a rate card — send the thickness, sheet size and quantity for a confirmed number. Expect a clear premium over commercial plywood of the same thickness; the void-free edge is what you are paying for.",
+    },
+    {
+      question: "Is Russian birch the same as Baltic birch plywood?",
+      answer:
+        "Yes. Both names describe multi-ply panels made from birch grown across Russia, Belarus and the Baltic states. It is not an Indian IS grade, so it is compared on the face grade (BB/BB and so on) and the glue class, not on a 710 mark.",
+    },
+    {
+      question: "Why is birch plywood more expensive than commercial plywood?",
+      answer:
+        "The birch core has no internal voids, so the cut edge looks finished without banding, it holds an edge screw, and it takes a clear finish evenly. It is imported rather than made locally. All of that sits in the price.",
+    },
+    {
+      question: "Can birch plywood be used in a kitchen or bathroom?",
+      answer:
+        "Only in the exterior / WBP glue class, and even then it is usually specified for the visible fronts and shelving rather than the wet carcass — IS 710 BWP plywood is the correct material below a sink. Standard interior-glue birch is for dry joinery.",
+    },
+    {
+      question: "What thicknesses does birch plywood come in?",
+      answer:
+        "The stocked thicknesses and sheet sizes are shown in the table above and read live from the catalogue. Birch is imported in a narrower range than commercial plywood, so confirm availability at your thickness before designing around it.",
     },
   ],
 };
@@ -1490,6 +1576,7 @@ export const PRICE_PAGES: PricePageConfig[] = [
   MARINE_PLYWOOD,
   CENTURY_PLYWOOD,
   GREENPLY_PLYWOOD,
+  BIRCH_PLYWOOD,
   HDHMR_BOARD,
   MDF_BOARD,
   LAMINATE_PRICE,
