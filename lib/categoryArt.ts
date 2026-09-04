@@ -11,7 +11,7 @@
  */
 export type ImageTreatment = "surface" | "packshot";
 
-const SURFACE_CATEGORIES = new Set(["laminates", "veneers", "corian-acrylic-solid-surface", "nfc-boards"]);
+const SURFACE_CATEGORIES = new Set(["laminates", "veneers", "corian-acrylic-solid-surface", "nfc-boards", "birch-plywood"]);
 
 export function treatmentForCategory(slug: string): ImageTreatment {
   return SURFACE_CATEGORIES.has(slug) ? "surface" : "packshot";
