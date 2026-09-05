@@ -1,0 +1,7 @@
+{
+  "traits": ["knowledgeable", "commercially sharp", "trustworthy", "modern", "concise", "premium but not pretentious", "practical", "execution-oriented"],
+  "principle": "Lead with proof and concrete benefit, not adjectives. Say what happens, not what it feels like.",
+  "avoidWords": ["leverage", "unlock", "seamlessly", "revolutionary", "game-changing", "empower", "synergy", "cutting-edge", "transformative", "robust", "scalable", "streamline"],
+  "goodExample": "Send your BOQ. Get one quote, not five.",
+  "badExample": "Unlock a seamless, revolutionary procurement experience."
+}
