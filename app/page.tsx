@@ -10,11 +10,11 @@ import { Reveal } from "@/components/Reveal";
 import { AnimatedStat } from "@/components/AnimatedStat";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buttonClasses } from "@/components/ui/Button";
-import { ManufacturerStrip } from "@/components/ManufacturerStrip";
 import { HeroCTAs } from "@/components/HeroCTAs";
 import { HeroShowcase, type ShowcaseBrand, type ShowcaseTile } from "@/components/home/HeroShowcase";
 import { HowItWorks } from "@/components/HowItWorks";
-import { MaterialDiscovery, type DiscoveryTile } from "@/components/home/MaterialDiscovery";
+import type { DiscoveryTile } from "@/components/home/MaterialDiscovery";
+import { ShopDiscovery } from "@/components/home/ShopDiscovery";
 import { CompareSlide } from "@/components/home/CompareSlide";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { isRepresentativeImage, treatmentForCategory } from "@/lib/categoryArt";
@@ -26,15 +26,6 @@ import { getTestimonials } from "@/lib/data/testimonials";
 // homepage points at these four and links to /applications for the rest.
 const HOMEPAGE_APPLICATION_SLUGS = ["modular-kitchen", "wardrobes", "commercial-spaces", "retail-stores"];
 
-// A category holding one, two or four SKUs reads as a broken tile rather than
-// as depth, and sitting it beside 2,464 laminates as an equal is a credibility
-// problem — the old grid showed seventeen categories, eleven of which had zero
-// SKUs and rendered stock photography. Ten is the floor for merchandising a
-// category here; below it the category keeps its route, its page, its
-// mega-menu entry and its place in the "Also sourced" row underneath, it just
-// isn't presented as stock you can shop.
-const MERCHANDISE_FLOOR = 10;
-
 // How many photos each category tile cycles through. Enough to read as a range
 // rather than a blink between two images, few enough that a tile isn't holding
 // a dozen decoded frames in memory.
@@ -43,10 +34,7 @@ const IMAGES_PER_TILE = 6;
 // The categories that carry the hero, in display order. Laminates, veneers,
 // solid surface and birch ply are surfaces shot as texture; plywood and MDF
 // are packshots and render contained on the neutral ground rather than
-// bleeding, which is what keeps the block quiet. MDF/HDHMR and birch ply sit
-// below the merchandise floor on catalogue count but are named here anyway —
-// both are high-demand searches, so `heroCategorySlugs` below force-samples
-// images for them regardless of count.
+// bleeding, which is what keeps the block quiet.
 const HERO_TILE_SLUGS = [
   "laminates",
   "veneers",
@@ -283,29 +271,24 @@ export default async function Home() {
     getTestimonials(),
   ]);
 
-  const merchandisable = CATEGORIES.filter((c) => (categoryCounts[c.dbCategory] || 0) >= MERCHANDISE_FLOOR).sort(
+  // Every category that actually holds stock — the shop-by-category runway
+  // (ShopDiscovery, below) shows all of these, not just the ones deep enough
+  // to have carried the old fixed-size grid's "equal visual weight" problem.
+  // A runway card is uniform width regardless of catalogue depth, so a
+  // 1-SKU category (birch ply) sitting beside a 2,464-SKU one (laminates) is
+  // the intended "we carry everything" read, not a credibility issue.
+  const stockedCategories = CATEGORIES.filter((c) => (categoryCounts[c.dbCategory] || 0) > 0).sort(
     (a, b) => (categoryCounts[b.dbCategory] || 0) - (categoryCounts[a.dbCategory] || 0)
   );
-  const alsoSourced = CATEGORIES.filter((c) => !merchandisable.includes(c)).map((c) => ({
-    slug: c.slug,
-    name: c.name,
-  }));
-
-  // A short reel of real products per merchandised category — the tiles cycle
+  // A short reel of real products per stocked category — the tiles cycle
   // through these rather than showing one fixed photo.
   //
   // Ordering is derived from the slug, not randomised: a random pick during
   // render is impure, defeats caching, and makes a bad crop unreproducible
-  // when someone reports it. The hero and the category grid start from
+  // when someone reports it. The hero and the category runway start from
   // opposite ends of the same reel so the two sections aren't showing the
   // visitor the same laminate at the same moment.
-  // Categories to build image reels for: everything merchandised, plus any
-  // hero tile that falls below the merchandise floor (MDF/HDHMR, birch ply) —
-  // those are named on demand, not on catalogue depth, and still need photos.
-  const heroOnlyCategories = HERO_TILE_SLUGS.map((slug) => CATEGORIES.find((c) => c.slug === slug)).filter(
-    (c): c is (typeof CATEGORIES)[number] => Boolean(c) && !merchandisable.includes(c!)
-  );
-  const reelCategories = [...merchandisable, ...heroOnlyCategories];
+  const reelCategories = stockedCategories;
 
   const samples = await Promise.all(
     reelCategories.map(async (category) => {
@@ -347,7 +330,7 @@ export default async function Home() {
     return sourceOnly ? { name: sourceOnly.name, slug: sourceOnly.slug, file: sourceOnly.file } : null;
   }).filter((b): b is ShowcaseBrand => b !== null);
 
-  const discoveryTiles: DiscoveryTile[] = merchandisable.map((c) => ({
+  const discoveryTiles: DiscoveryTile[] = stockedCategories.map((c) => ({
     slug: c.slug,
     name: c.name,
     count: categoryCounts[c.dbCategory] || 0,
@@ -421,6 +404,10 @@ export default async function Home() {
         />
       </section>
 
+      {/* ---------- Shop discovery — category runway + brand belt, opposite
+          directions, immediately under the hero ---------- */}
+      <ShopDiscovery categories={discoveryTiles} brands={brands} />
+
       {/* ---------- Trust Stats (thin strip, not a full beat) ---------- */}
       <Reveal className="border-t px-7 py-6" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-10 gap-y-2 text-center">
@@ -434,11 +421,6 @@ export default async function Home() {
           ))}
         </div>
       </Reveal>
-
-      <ManufacturerStrip brands={brands} />
-
-      {/* ---------- Category discovery — depth-ranked, honestly ---------- */}
-      <MaterialDiscovery tiles={discoveryTiles} sourced={alsoSourced} />
 
       {/* ---------- How It Works ---------- */}
       <HowItWorks />

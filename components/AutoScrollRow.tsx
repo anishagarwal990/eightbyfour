@@ -8,11 +8,14 @@ export function AutoScrollRow({
   trackClassName = "",
   speed = 30,
   className = "",
+  reverse = false,
 }: {
   children: React.ReactNode;
   trackClassName?: string;
   speed?: number;
   className?: string;
+  /** Scrolls right-to-left instead of left-to-right — e.g. a brand belt moving opposite a category runway above it. */
+  reverse?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -27,6 +30,10 @@ export function AutoScrollRow({
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // Reverse rails start mid-way through the doubled content and count down,
+    // so the two copies still meet seamlessly at the loop point.
+    if (reverse) el.scrollLeft = el.scrollWidth / 2;
 
     // Pointer capture can be lost without a pointerup/pointercancel ever reaching
     // this element (e.g. the cursor drifts off during a window/focus change), which
@@ -57,17 +64,26 @@ export function AutoScrollRow({
         if (!el.matches(":hover")) hoveringRef.current = false;
       }
       if (!draggingRef.current && !hoveringRef.current && el) {
-        el.scrollLeft += speed * dt;
         const half = el.scrollWidth / 2;
         const maxScroll = el.scrollWidth - el.clientWidth;
-        if (half > 0 && el.scrollLeft >= half) {
-          // Content (two copies) is wide enough to loop at the seam — the normal case.
-          el.scrollLeft -= half;
-        } else if (half > maxScroll && el.scrollLeft >= maxScroll) {
-          // Content is too narrow for the viewport to ever reach the seam — the browser
-          // clamps scrollLeft at maxScroll before we get there, which otherwise freezes
-          // the ribbon forever instead of looping. Snap back to the start instead.
-          el.scrollLeft = 0;
+        if (reverse) {
+          el.scrollLeft -= speed * dt;
+          if (half > 0 && el.scrollLeft <= 0) {
+            el.scrollLeft += half;
+          } else if (half > maxScroll && el.scrollLeft <= 0) {
+            el.scrollLeft = maxScroll;
+          }
+        } else {
+          el.scrollLeft += speed * dt;
+          if (half > 0 && el.scrollLeft >= half) {
+            // Content (two copies) is wide enough to loop at the seam — the normal case.
+            el.scrollLeft -= half;
+          } else if (half > maxScroll && el.scrollLeft >= maxScroll) {
+            // Content is too narrow for the viewport to ever reach the seam — the browser
+            // clamps scrollLeft at maxScroll before we get there, which otherwise freezes
+            // the ribbon forever instead of looping. Snap back to the start instead.
+            el.scrollLeft = 0;
+          }
         }
       }
       raf = requestAnimationFrame(tick);
@@ -79,7 +95,7 @@ export function AutoScrollRow({
       window.removeEventListener("pointercancel", clearDragging);
       window.removeEventListener("blur", clearDragging);
     };
-  }, [speed]);
+  }, [speed, reverse]);
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse" || !ref.current) return;

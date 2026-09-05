@@ -349,6 +349,14 @@ textarea {
   mask-image: linear-gradient(to right, transparent 0, black 40px, black calc(100% - 40px), transparent 100%);
 }
 
+/* Shared edge fade for the homepage discovery rails (category runway, brand
+   belt) — wider than the brand ribbon's mask since these cards are large
+   enough that a narrow fade reads as a hard clip rather than a soft edge. */
+.edge-fade-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%);
+}
+
 /* ---------- Hero slider ----------
    Touch gets native horizontal scrolling, so a swipe needs no JS gesture
    handling. Mandatory snap (not proximity, as the product carousels below use)
