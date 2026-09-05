@@ -2,6 +2,7 @@ import { listItems } from "@/lib/growth/queries";
 import { Panel, PanelHeader, EmptyState, ConfidenceTag, PriorityTag, StatusPill } from "@/components/admin/growth/ui";
 import { QuickAddForm } from "@/components/admin/growth/QuickAddForm";
 import { RunAnalysisButton } from "@/components/admin/growth/RunAnalysisButton";
+import { ScrapeCompetitorButton } from "@/components/admin/growth/ScrapeCompetitorButton";
 import type { CompetitorData, OpportunityData } from "@/lib/growth/types";
 
 export const metadata = { title: "Growth Command Center — Market Intelligence" };
@@ -35,7 +36,9 @@ export default async function MarketIntelligencePage() {
           <ul className="divide-y" style={{ borderColor: "var(--line)" }}>
             {competitors.map((c) => {
               const d = c.data as Partial<CompetitorData>;
-              const pending = c.status === "research_pending";
+              const hasStructuredFields = Boolean(
+                d.category || d.targetCustomer || d.positioning || d.pricingApproach || d.cta || d.seoPresence || d.socialPresence || d.advertisingObservations
+              );
               return (
                 <li key={c.id} className="flex flex-col gap-2 px-4 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -55,20 +58,48 @@ export default async function MarketIntelligencePage() {
                     </div>
                     <StatusPill status={c.status} />
                   </div>
-                  {pending ? (
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm" style={{ color: "var(--line-strong)" }}>
-                        Research pending — no fields filled in until a real analysis has run.
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    {d.url ? (
+                      <ScrapeCompetitorButton itemId={c.id} />
+                    ) : (
+                      <span className="text-xs" style={{ color: "var(--line-strong)" }}>
+                        Add a URL to enable Firecrawl scraping.
+                      </span>
+                    )}
+                    <RunAnalysisButton
+                      module="market_intelligence"
+                      type="COMPETITOR_ANALYSIS"
+                      title={`Analyze ${c.title}`}
+                      itemId={c.id}
+                      label="Queue deeper analysis"
+                      prompt={`Read the Firecrawl scrape already on this competitor's growth_items row (if present) plus its site directly, and fill in: positioning, pricing approach, product categories, CTA, trust signals, content strategy, SEO presence, social presence, advertising observations. Tag each fact observed/inferred/hypothesis with its source.`}
+                    />
+                  </div>
+
+                  {d.firecrawlScrape ? (
+                    <div className="border-l-2 pl-3" style={{ borderColor: "var(--line)" }}>
+                      <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--burgundy)" }}>
+                        OBSERVED — Firecrawl scrape, {new Date(d.firecrawlScrape.scrapedAt).toLocaleString("en-IN")}
                       </p>
-                      <RunAnalysisButton
-                        module="market_intelligence"
-                        type="COMPETITOR_ANALYSIS"
-                        title={`Analyze ${c.title}`}
-                        itemId={c.id}
-                        prompt={`Research ${c.title}${d.url ? ` (${d.url})` : ""}: positioning, pricing approach, product categories, CTA, trust signals, content strategy, SEO presence, social presence, advertising observations. Fill in the competitor's growth_items row with what was actually found, each fact tagged observed/inferred/hypothesis with its source.`}
-                      />
+                      {d.firecrawlScrape.title ? <p className="mt-1 text-sm font-medium">{d.firecrawlScrape.title.trim()}</p> : null}
+                      {d.firecrawlScrape.description ? (
+                        <p className="text-sm" style={{ color: "var(--line-strong)" }}>
+                          {d.firecrawlScrape.description}
+                        </p>
+                      ) : null}
+                      <details className="mt-1">
+                        <summary className="cursor-pointer text-xs underline" style={{ color: "var(--line-strong)" }}>
+                          Raw page content ({d.firecrawlScrape.markdownExcerpt.length} chars, truncated)
+                        </summary>
+                        <pre className="mt-1 max-h-48 overflow-y-auto whitespace-pre-wrap text-xs" style={{ color: "var(--line-strong)" }}>
+                          {d.firecrawlScrape.markdownExcerpt}
+                        </pre>
+                      </details>
                     </div>
-                  ) : (
+                  ) : null}
+
+                  {hasStructuredFields ? (
                     <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
                       {(
                         [
@@ -100,6 +131,12 @@ export default async function MarketIntelligencePage() {
                         </div>
                       ) : null}
                     </dl>
+                  ) : (
+                    <p className="text-sm" style={{ color: "var(--line-strong)" }}>
+                      {d.firecrawlScrape
+                        ? "Raw content scraped — structured fields (positioning, pricing approach, etc.) not filled in yet."
+                        : "Research pending — no fields filled in until a real scrape or analysis has run."}
+                    </p>
                   )}
                 </li>
               );

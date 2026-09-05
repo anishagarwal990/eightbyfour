@@ -52,6 +52,14 @@ export interface CompetitorData {
   socialPresence: string | null;
   advertisingObservations: string | null;
   opportunityForEightByFour: string | null;
+  /** Raw evidence from a real Firecrawl scrape — populated by scrapeCompetitorAction, never hand-written. The structured fields above still need a human (or a future LLM step, not wired) to read this and fill them in; a scrape alone does not populate them. */
+  firecrawlScrape?: {
+    title: string | null;
+    description: string | null;
+    markdownExcerpt: string;
+    sourceUrl: string;
+    scrapedAt: string;
+  };
 }
 
 export const EMPTY_COMPETITOR_DATA: CompetitorData = {

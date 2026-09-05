@@ -6,12 +6,14 @@ import {
   createItem,
   createTask,
   deleteItem,
+  getItem,
   updateItem,
   upsertMemory,
   type NewItemInput,
   type NewTaskInput,
 } from "@/lib/growth/queries";
-import type { GrowthMemorySection } from "@/lib/growth/types";
+import type { CompetitorData, GrowthMemorySection } from "@/lib/growth/types";
+import { isFirecrawlConfigured, scrapeUrl } from "@/lib/growth/integrations/firecrawl";
 
 // Same layered-guard model as app/admin/actions.ts: middleware + the layout
 // guard authorize the page, not the action, so every action re-checks.
@@ -80,6 +82,69 @@ export async function upsertMemoryAction(id: GrowthMemorySection, data: unknown)
     return { ok: true, message: "Business Brain updated." };
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : "Failed to save." };
+  }
+}
+
+/**
+ * Actually calls Firecrawl — the one action in this file that executes
+ * real external work instead of just queuing a growth_tasks row. Scoped
+ * narrowly: scrapes the competitor's own URL, stores the raw result under
+ * data.firecrawlScrape, and moves status to "scraped". It does not attempt
+ * to fill in category/positioning/pricingApproach/etc — no LLM is wired to
+ * turn the raw markdown into those structured fields, so they stay for a
+ * human to read the evidence and fill in.
+ */
+export async function scrapeCompetitorAction(itemId: string): Promise<ActionResult> {
+  const user = await assertAdmin();
+  if (!isFirecrawlConfigured()) {
+    return { ok: false, message: "FIRECRAWL_API_KEY is not set — cannot scrape." };
+  }
+  const item = await getItem(itemId);
+  if (!item) return { ok: false, message: "Competitor not found." };
+  const url = (item.data as Partial<CompetitorData>).url;
+  if (!url) return { ok: false, message: "Add a URL to this competitor before scraping." };
+
+  const task = await createTask({
+    type: "COMPETITOR_ANALYSIS",
+    title: `Scrape ${item.title}`,
+    module: "market_intelligence",
+    input: { url, tool: "firecrawl_scrape" },
+    related_item_id: itemId,
+  });
+
+  try {
+    const result = await scrapeUrl(url);
+    const nextData: Partial<CompetitorData> = {
+      ...(item.data as Partial<CompetitorData>),
+      firecrawlScrape: {
+        title: result.title,
+        description: result.description,
+        markdownExcerpt: result.markdown.slice(0, 4000),
+        sourceUrl: result.url,
+        scrapedAt: result.scrapedAt,
+      },
+    };
+    await updateItem(itemId, { status: "scraped", data: nextData as Record<string, unknown> });
+    await recordAudit("growth_items", itemId, { firecrawl_scrape: { url } }, user.email ?? user.id);
+
+    const supabase = await createAdminSupabaseClient();
+    await supabase
+      .from("growth_tasks")
+      .update({ status: "needs_review", output: { title: result.title, description: result.description }, updated_at: new Date().toISOString() })
+      .eq("id", task.id);
+    await supabase
+      .from("growth_integrations")
+      .update({ status: "connected", last_sync: new Date().toISOString() })
+      .eq("id", "firecrawl");
+
+    revalidatePath("/admin/growth/market-intelligence");
+    revalidatePath("/admin/growth");
+    return { ok: true, message: `Scraped ${url} — raw content saved. Read it and fill in the structured fields.` };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Scrape failed.";
+    const supabase = await createAdminSupabaseClient();
+    await supabase.from("growth_tasks").update({ status: "failed", output: { error: message }, updated_at: new Date().toISOString() }).eq("id", task.id);
+    return { ok: false, message };
   }
 }
 
