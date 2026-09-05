@@ -1,0 +1,6 @@
+[
+  { "name": "Plywala", "url": null, "status": "research_pending", "note": "URL not verified — confirm before first analysis run." },
+  { "name": "Materialogue", "url": null, "status": "research_pending", "note": "URL not verified — confirm before first analysis run." },
+  { "name": "Kyzo", "url": "https://kyzo.in", "status": "research_pending", "note": "URL verified in an earlier session's competitor teardown; no fresh evidence has been logged as a growth_items row in this codebase yet." },
+  { "name": "Aditya Plymart", "url": null, "status": "research_pending", "note": "URL not verified — confirm before first analysis run." }
+]

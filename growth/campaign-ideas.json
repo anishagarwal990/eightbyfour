@@ -1,0 +1,7 @@
+[
+  { "name": "PRICE TRANSPARENCY", "hook": "Before buying plywood, compare the price.", "status": "hypothesis" },
+  { "name": "BOQ", "hook": "Send your interior list. Get a consolidated quote.", "status": "hypothesis" },
+  { "name": "CONTRACTOR PROCUREMENT", "hook": "Executing a project locally? Let EightByFour handle material procurement.", "status": "hypothesis" },
+  { "name": "COLD PRESS", "hook": "Buying plywood + laminate? Get the sheets pressed before delivery.", "status": "hypothesis" },
+  { "name": "STUDIO", "hook": "Know the wardrobe dimensions? Get an instant estimate.", "status": "hypothesis" }
+]

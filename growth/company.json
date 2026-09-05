@@ -1,0 +1,23 @@
+{
+  "name": "EightByFour",
+  "siteBrand": "EightxFour",
+  "businessModel": "Sourcing marketplace + consolidated-quote procurement desk for interior and construction materials.",
+  "valueProposition": "Send an interior material requirement (BOQ, product list, or plain description) and get back one consolidated, compared, priced quotation instead of calling ten dealers.",
+  "categories": [
+    "Plywood", "Laminates", "MDF", "HDHMR", "Veneers", "Hardware", "Adhesives",
+    "Doors", "ACP", "Corian / Acrylic Solid Surface", "WPC / PVC boards",
+    "Louvers / Wall Panels", "Edge Banding", "Blockboard", "Birch Ply",
+    "Cement Boards", "Screws / Nails", "Stone Panels"
+  ],
+  "services": [
+    "Modular wardrobes", "Modular kitchens", "Carpenter-made furniture",
+    "Factory-made modular furniture", "Laminate cold pressing",
+    "Corian / acrylic solid surface installation", "Furniture quotation tools",
+    "Material calculators", "Project procurement", "Visualization tools",
+    "3D / exploded-view furniture estimators"
+  ],
+  "geography": ["Hyderabad, India"],
+  "stage": "Early — launched into organic search ~August 2026. See seo/baselines/decor-code-baseline-2026-09-03.md for the actual traffic baseline; do not treat any number here as current.",
+  "manufacturersSourced": "25+",
+  "skusLive": "750+"
+}

@@ -1,0 +1,30 @@
+{
+  "primaryPromise": "Send your interior requirements → receive consolidated pricing / quotation → compare → procure.",
+  "strategicInsight": "EightByFour should not compete only as an online plywood shop. The larger opportunity is to become the procurement layer for interiors — content, ads and product decisions that only reinforce 'buy plywood here' undersell the platform.",
+  "competitiveStrengths": [
+    "Strong market pricing — sourced direct from manufacturers",
+    "Transparent comparison — real rates and specs shown before contact",
+    "Multiple brands per category, compared side by side",
+    "Multi-category sourcing from one request",
+    "Consolidated procurement — one document, one delivery schedule",
+    "Local execution knowledge (Hyderabad-specific stock, sizing conventions, delivery)",
+    "Project procurement support for outstation teams",
+    "Product sourcing + Studio EightByFour services in one relationship"
+  ],
+  "positioningThemes": [
+    { "line": "Your interior procurement desk.", "status": "hypothesis" },
+    { "line": "Send the list. Compare the quote.", "status": "hypothesis" },
+    { "line": "Know what your materials should cost.", "status": "hypothesis" },
+    { "line": "One quote for your interior material requirement.", "status": "hypothesis" },
+    { "line": "Project procurement without calling ten suppliers.", "status": "hypothesis" }
+  ],
+  "customerFeelingsToEarn": [
+    "I can compare material options here.",
+    "I can see transparent or indicative pricing.",
+    "I do not have to call ten dealers.",
+    "I can send my BOQ and get one quote.",
+    "I can procure multiple brands/categories from one place.",
+    "EightByFour understands interior execution, not just e-commerce.",
+    "EightByFour can help me execute the project locally."
+  ]
+}

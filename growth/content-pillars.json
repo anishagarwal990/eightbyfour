@@ -1,0 +1,16 @@
+[
+  { "id": "material-education", "name": "Material education", "example": "Grade comparison tables (MR vs BWR vs BWP vs FR), what shade codes mean" },
+  { "id": "price-transparency", "name": "Price transparency", "example": "Hyderabad price-list pages, cost calculators" },
+  { "id": "market-comparisons", "name": "Market comparisons", "example": "Laminate vs veneer, HDHMR vs plywood" },
+  { "id": "project-procurement", "name": "Project procurement", "example": "BOQ upload flow, consolidated quote explainer" },
+  { "id": "product-comparisons", "name": "Product comparisons", "example": "Birch ply vs standard plywood" },
+  { "id": "contractor-problems", "name": "Contractor problems", "example": "Reconciling five vendor quotes, material delay risk" },
+  { "id": "homeowner-education", "name": "Homeowner education", "example": "What to check before trusting a carpenter's material quote" },
+  { "id": "studio-eightbyfour", "name": "Studio EightByFour", "example": "Wardrobe/kitchen estimator walkthroughs" },
+  { "id": "behind-the-scenes-sourcing", "name": "Behind-the-scenes sourcing", "example": "How a manufacturer relationship gets built" },
+  { "id": "product-discoveries", "name": "Product discoveries", "example": "New shade/collection additions" },
+  { "id": "case-studies", "name": "Case studies", "example": "A real consolidated-quote project, anonymised" },
+  { "id": "quote-examples", "name": "Quote examples", "example": "What a consolidated BOQ quote actually looks like" },
+  { "id": "myths", "name": "Myths", "example": "\"18mm and 19mm plywood are different products\" — no" },
+  { "id": "calculators-tools", "name": "Calculators / tools", "example": "Wardrobe cost calculator, plywood/laminate quantity estimator" }
+]
