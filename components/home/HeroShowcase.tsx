@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useState } from "react";
 import { BRAND_LOGOS } from "@/lib/brandLogos";
 import { CyclingImage } from "@/components/home/CyclingImage";
 import type { ImageTreatment } from "@/lib/categoryArt";
@@ -37,14 +41,33 @@ export function HeroShowcase({ tiles, brands, brandCount }: { tiles: ShowcaseTil
   const shown = tiles.filter((t) => t.images.length > 0).slice(0, 6);
   if (shown.length === 0) return null;
 
+  // Same hover-expand feel as Skiper UI's HoverExpand_001 (skiper52) — the
+  // hovered tile grows and lifts, its siblings recede — but scoped to a
+  // scale/shadow change rather than a width reflow, since this grid's whole
+  // point (per the note above) is that every tile stays an identical square.
+  const [hovered, setHovered] = useState<number | null>(null);
+
   return (
     <div className="w-full max-w-md text-left">
       <div className="grid grid-cols-2 gap-3">
         {shown.map((tile, i) => (
           <Link key={tile.slug} href={`/products/${tile.slug}`} className="group flex flex-col gap-2">
-            <span
+            <motion.span
               className="relative block aspect-square w-full overflow-hidden"
-              style={{ background: "var(--card)", borderRadius: "var(--radius-xs)" }}
+              style={{
+                background: "var(--card)",
+                borderRadius: "var(--radius-xs)",
+                zIndex: hovered === i ? 10 : 1,
+                boxShadow: hovered === i ? "var(--shadow-md)" : "none",
+              }}
+              onHoverStart={() => setHovered(i)}
+              onHoverEnd={() => setHovered(null)}
+              animate={{
+                scale: hovered === i ? 1.06 : hovered === null ? 1 : 0.96,
+                opacity: hovered === null || hovered === i ? 1 : 0.7,
+              }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              whileTap={{ scale: 0.98 }}
             >
               <CyclingImage
                 images={tile.images}
@@ -66,7 +89,7 @@ export function HeroShowcase({ tiles, brands, brandCount }: { tiles: ShowcaseTil
                     : "object-contain p-4"
                 }
               />
-            </span>
+            </motion.span>
             <span className="flex items-baseline justify-between gap-2">
               <span className="truncate text-[12.5px] font-medium transition-colors group-hover:text-[var(--burgundy)]">
                 {tile.label ?? tile.name}

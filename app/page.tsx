@@ -7,6 +7,7 @@ import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
+import { AnimatedStat } from "@/components/AnimatedStat";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buttonClasses } from "@/components/ui/Button";
 import { ManufacturerStrip } from "@/components/ManufacturerStrip";
@@ -85,12 +86,14 @@ export const metadata: Metadata = buildMetadata({
 });
 
 // Real, current numbers only — update alongside the data they describe.
+// The two counted stats animate up on scroll-into-view; the other two are
+// prose, not counters, so they render as plain text.
 const STATS = [
-  { value: "750+", label: "SKUs In Stock" },
-  { value: "25+", label: "Manufacturers Sourced" },
-  { value: "<15 min", label: "First Response Time" },
-  { value: "Same/Next-Day", label: "Delivery in Hyderabad" },
-];
+  { kind: "counted", value: 750, suffix: "+", label: "SKUs In Stock" },
+  { kind: "counted", value: 25, suffix: "+", label: "Manufacturers Sourced" },
+  { kind: "text", value: "<15 min", label: "First Response Time" },
+  { kind: "text", value: "Same/Next-Day", label: "Delivery in Hyderabad" },
+] as const;
 
 const OLD_WAY = [
   "Call Supplier A, describe the BOQ",
@@ -424,7 +427,7 @@ export default async function Home() {
           {STATS.map((s) => (
             <p key={s.label} className="text-sm" style={{ color: "var(--line-strong)" }}>
               <span className="serif" style={{ fontSize: "18px", color: "var(--burgundy)" }}>
-                {s.value}
+                {s.kind === "counted" ? <AnimatedStat value={s.value} suffix={s.suffix} /> : s.value}
               </span>{" "}
               <span className="tracked-caps text-xs">{s.label}</span>
             </p>
