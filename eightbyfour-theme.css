@@ -1,0 +1,60 @@
+/* EightByFour — design tokens, mapped to shadcn names for 21st.dev.
+ *
+ * The light set is lifted verbatim from app/globals.css: these are the values
+ * the site actually ships, and they are the point of publishing this.
+ *
+ * The dark set is DERIVED, not shipped. EightByFour has no dark mode — its
+ * globals.css contains zero .dark blocks — and 21st's publish endpoint refuses
+ * a theme whose dark half is empty. So it is generated: the brand hue (348.6°)
+ * and saturation (0.56) are held, and lightness is raised to 0.58, giving
+ * #d0586f. That is the first step that clears 4.5:1 against the dark ground;
+ * the shipped #6e1f2e sits at 1.9:1 there and would be unreadable as a primary.
+ *
+ * Foreground on primary flips to ink in dark mode for the same reason: white on
+ * #d0586f is 3.96:1 and fails, ink is 4.73:1 and passes.
+ */
+:root {
+  --background: #ffffff;      /* --paper */
+  --foreground: #121212;      /* --ink */
+  --card: #f6f6f6;            /* --card */
+  --card-foreground: #121212;
+  --popover: #ffffff;
+  --popover-foreground: #121212;
+  --primary: #6e1f2e;         /* --burgundy */
+  --primary-foreground: #ffffff;
+  --secondary: #f6f6f6;
+  --secondary-foreground: #4b4b4b;  /* --ink-soft, 8.7:1 on white */
+  --muted: #ececec;           /* --paper-dim */
+  --muted-foreground: #6e6e6e;      /* --ink-faint, 5.0:1 on white */
+  --accent: #6e1f2e;          /* --accent, same as primary by design */
+  --accent-foreground: #ffffff;
+  --destructive: #4f1520;     /* --burgundy-dark; the brand has no separate red */
+  --destructive-foreground: #ffffff;
+  --border: #d9d9d9;          /* --line, rgba(0,0,0,0.15) flattened on white */
+  --input: #d9d9d9;
+  --ring: #6e1f2e;
+  --radius: 2px;              /* --radius-xs — near-square, architectural */
+}
+
+.dark {
+  --background: #121212;
+  --foreground: #f4f4f4;
+  --card: #1a1a1a;
+  --card-foreground: #f4f4f4;
+  --popover: #1a1a1a;
+  --popover-foreground: #f4f4f4;
+  --primary: #d0586f;
+  --primary-foreground: #121212;
+  --secondary: #242424;
+  --secondary-foreground: #cfcfcf;
+  --muted: #242424;
+  --muted-foreground: #9a9a9a;
+  --accent: #d0586f;
+  --accent-foreground: #121212;
+  --destructive: #e0788a;
+  --destructive-foreground: #121212;
+  --border: #333333;
+  --input: #333333;
+  --ring: #d0586f;
+  --radius: 2px;
+}
