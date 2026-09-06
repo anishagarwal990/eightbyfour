@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "project": {
+    "name": "eightbyfour",
+    "productType": null,
+    "stack": [
+      "nextjs",
+      "react",
+      "tailwind-v4"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "app/globals.css"
+    ],
+    "components": [
+      "components/ui"
+    ],
+    "assets": [],
+    "instructions": []
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {
+      "--accent": {
+        "value": "#6e1f2e",
+        "source": "app/globals.css"
+      },
+      "--accent-dark": {
+        "value": "#4f1520",
+        "source": "app/globals.css"
+      },
+      "--background": {
+        "value": "var(--paper)",
+        "source": "app/globals.css"
+      },
+      "--foreground": {
+        "value": "var(--ink)",
+        "source": "app/globals.css"
+      },
+      "--color-ink": {
+        "value": "var(--ink)",
+        "source": "app/globals.css"
+      },
+      "--color-paper": {
+        "value": "var(--paper)",
+        "source": "app/globals.css"
+      },
+      "--color-paper-dim": {
+        "value": "var(--paper-dim)",
+        "source": "app/globals.css"
+      },
+      "--color-card": {
+        "value": "var(--card)",
+        "source": "app/globals.css"
+      },
+      "--color-walnut": {
+        "value": "var(--walnut)",
+        "source": "app/globals.css"
+      },
+      "--color-accent": {
+        "value": "var(--accent)",
+        "source": "app/globals.css"
+      },
+      "--color-accent-dark": {
+        "value": "var(--accent-dark)",
+        "source": "app/globals.css"
+      },
+      "--color-burgundy": {
+        "value": "var(--burgundy)",
+        "source": "app/globals.css"
+      },
+      "--color-burgundy-dark": {
+        "value": "var(--burgundy-dark)",
+        "source": "app/globals.css"
+      },
+      "--color-background": {
+        "value": "var(--background)",
+        "source": "app/globals.css"
+      },
+      "--color-foreground": {
+        "value": "var(--foreground)",
+        "source": "app/globals.css"
+      }
+    },
+    "typography": {
+      "--font-serif": {
+        "value": "var(--font-canela)",
+        "source": "app/globals.css"
+      },
+      "--font-sans": {
+        "value": "var(--font-plex)",
+        "source": "app/globals.css"
+      }
+    },
+    "spacing": {},
+    "radius": {},
+    "shadows": {
+      "--shadow-sm": {
+        "value": "0 1px 2px rgba(18, 18, 18, 0.06), 0 1px 1px rgba(18, 18, 18, 0.04)",
+        "source": "app/globals.css"
+      },
+      "--shadow-md": {
+        "value": "0 8px 24px -8px rgba(18, 18, 18, 0.16), 0 2px 8px -2px rgba(18, 18, 18, 0.08)",
+        "source": "app/globals.css"
+      },
+      "--shadow-lg": {
+        "value": "0 20px 48px -12px rgba(18, 18, 18, 0.22), 0 8px 16px -4px rgba(18, 18, 18, 0.1)",
+        "source": "app/globals.css"
+      }
+    },
+    "motion": {
+      "--ease-standard": {
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "source": "app/globals.css"
+      },
+      "--ease-out-soft": {
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "source": "app/globals.css"
+      }
+    },
+    "density": "unknown"
+  },
+  "components": {
+    "installed": [
+      "Button",
+      "Card"
+    ],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [],
+    "avoid": []
+  },
+  "decisions": [],
+  "evidence": [
+    {
+      "fact": "components.installed",
+      "source": "components/ui"
+    },
+    {
+      "fact": "design.colorMode:light",
+      "source": "app/globals.css"
+    },
+    {
+      "fact": "design.tokens",
+      "source": "app/globals.css"
+    },
+    {
+      "fact": "project.stack:nextjs",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:tailwind-v4",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-08-04T17:54:29.986Z"
+}

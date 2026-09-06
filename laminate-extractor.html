@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Laminate Shade Extractor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  :root{
+    --ink:#121212;
+    --paper:#FFFFFF;
+    --paper-dim:#F4F3F1;
+    --line:#DDDAD4;
+    --accent:#B5652F;
+    --bad:#B23B3B;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper-dim); color:var(--ink);
+    font-family:'IBM Plex Sans', Arial, sans-serif; font-size:14px;
+  }
+  header{
+    background:var(--ink); color:var(--paper); padding:16px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  header h1{font-size:18px; margin:0; font-weight:700;}
+  header p{margin:2px 0 0; font-size:12px; opacity:.7;}
+  .layout{display:flex; gap:0; min-height:calc(100vh - 62px);}
+  .side{
+    width:300px; flex:none; background:var(--paper); border-right:1px solid var(--line);
+    padding:16px; overflow-y:auto; max-height:calc(100vh - 62px); position:sticky; top:62px;
+  }
+  .main{flex:1; min-width:0; padding:16px 20px; overflow-y:auto;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#666; margin-bottom:4px;}
+  .field input, .field select{
+    width:100%; padding:7px 8px; border:1.3px solid var(--line); border-radius:4px; font-size:13px; background:var(--paper); color:var(--ink);
+  }
+  .field-row{display:flex; gap:8px;}
+  .field-row .field{flex:1;}
+  button{
+    cursor:pointer; border:1.3px solid var(--ink); background:var(--ink); color:var(--paper);
+    padding:8px 14px; border-radius:4px; font-size:13px; font-weight:600;
+  }
+  button.secondary{background:var(--paper); color:var(--ink);}
+  button.ghost{background:transparent; border-color:var(--line); color:var(--ink); font-weight:400;}
+  button:disabled{opacity:.4; cursor:not-allowed;}
+  button.small{padding:4px 8px; font-size:11.5px; font-weight:500;}
+  hr{border:none; border-top:1px solid var(--line); margin:16px 0;}
+  .drop{
+    border:2px dashed var(--line); border-radius:8px; padding:28px 14px; text-align:center; color:#777;
+    cursor:pointer; background:var(--paper);
+  }
+  .drop.drag{border-color:var(--accent); color:var(--accent); background:#FBF1EA;}
+  .drop input{display:none;}
+  .pager{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .pager .pg-input{width:64px;}
+  .stage{position:relative; display:inline-block; background:repeating-conic-gradient(#e9e7e2 0% 25%, #f4f3f1 0% 50%) 50% / 20px 20px; border:1px solid var(--line);}
+  .stage canvas{display:block; max-width:100%; height:auto;}
+  .stage svg{position:absolute; inset:0; width:100%; height:100%; cursor:crosshair;}
+  .box-rect{fill:rgba(46,125,70,0.18); stroke:#2E7D46; stroke-width:2; cursor:pointer;}
+  .box-rect.rejected{fill:rgba(178,59,59,0.10); stroke:#B23B3B; stroke-dasharray:4 3;}
+  .box-rect.captured{fill:rgba(181,101,47,0.20); stroke:var(--accent);}
+  .draw-rect{fill:rgba(30,110,210,0.15); stroke:#1E6ED2; stroke-width:2; stroke-dasharray:5 3;}
+  .code-hint{stroke:#1E6ED2; stroke-width:3; stroke-dasharray:2 3; pointer-events:stroke;}
+  .status{font-size:12px; color:#666; margin:6px 0;}
+  .progress-wrap{background:#e5e2dc; border-radius:4px; height:8px; overflow:hidden; margin:6px 0;}
+  .progress-bar{background:var(--accent); height:100%; width:0%; transition:width .15s;}
+  .section-title{font-size:12px; text-transform:uppercase; letter-spacing:.6px; font-weight:700; margin:0 0 8px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px; margin-top:12px;}
+  .shade-card{background:var(--paper); border:1.3px solid var(--line); border-radius:6px; padding:10px; position:relative;}
+  .shade-card.incomplete{border-color:var(--bad);}
+  .shade-imgs{display:flex; gap:6px; margin-bottom:8px;}
+  .shade-imgs .im{position:relative; flex:1; height:70px; border-radius:4px; overflow:hidden; background:#f0efeb; display:flex; align-items:center; justify-content:center; border:1px solid var(--line);}
+  .shade-imgs .im img{width:100%; height:100%; object-fit:cover;}
+  .shade-imgs .im.empty{color:#999; font-size:9px; text-align:center; padding:2px;}
+  .im-clear{
+    position:absolute; top:2px; right:2px; background:rgba(18,18,18,0.7); color:#fff; border:none;
+    width:15px; height:15px; border-radius:50%; font-size:10px; line-height:1; padding:0; cursor:pointer;
+  }
+  .shade-card .field{margin-bottom:6px;}
+  .shade-card .field label{font-size:9.5px;}
+  .shade-card .field input{padding:5px 6px; font-size:12px;}
+  .shade-card .row2{display:flex; gap:6px;}
+  .shade-card .row2 .field{flex:1;}
+  .shade-card .remove-x{
+    position:absolute; top:6px; right:6px; background:var(--bad); color:#fff; border:none;
+    width:20px; height:20px; border-radius:50%; font-size:12px; line-height:1; padding:0;
+  }
+  .flag{font-size:10px; color:var(--bad); margin-top:2px;}
+  .count-pill{background:var(--accent); color:#fff; border-radius:10px; padding:1px 8px; font-size:11px; font-weight:700;}
+  .sticky-top{position:sticky; top:0; background:var(--paper-dim); z-index:5; padding-bottom:8px;}
+  .capture-panel{
+    display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;
+    background:var(--paper); border:1.5px solid var(--accent); border-radius:8px; padding:12px; margin-top:4px;
+  }
+  .cp-img{width:90px; height:90px; object-fit:cover; border-radius:4px; border:1px solid var(--line); background:#f0efeb; flex:none;}
+  .cp-fields{display:flex; gap:10px; flex:1 1 220px; min-width:220px;}
+  .cp-fields .field{flex:1; margin-bottom:0;}
+  .cp-col{display:flex; flex-direction:column; gap:8px;}
+  .cp-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .cp-app-row{
+    display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+    border-top:1px dashed var(--line); padding-top:8px; margin-top:2px;
+  }
+  .cp-app-label{font-size:11px; color:#888;}
+  .cp-app-row select{padding:5px 6px; border:1.3px solid var(--line); border-radius:4px; font-size:11.5px; background:var(--paper); color:var(--ink); min-width:160px;}
+  .capture-hint{color:#888; font-size:13px; padding:14px 0; text-align:center;}
+  .empty-hint{color:#888; font-size:13px; padding:30px 10px; text-align:center;}
+  .step-num{
+    display:inline-flex; width:18px; height:18px; border-radius:50%; background:var(--ink); color:#fff;
+    align-items:center; justify-content:center; font-size:11px; margin-right:6px; flex:none;
+  }
+  details summary{cursor:pointer; font-size:12px; color:#555; margin-top:6px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Laminate Shade Extractor</h1>
+    <p>Upload a supplier PDF catalog &rarr; detect shade swatches &rarr; review &amp; export for the website. Internal tool, not linked from the public site.</p>
+  </div>
+  <div style="display:flex; gap:8px;">
+    <button class="secondary" id="btnExportCsv" disabled>Download CSV</button>
+    <button class="secondary" id="btnExportJson" disabled>Download JSON</button>
+    <button id="btnExportJs" disabled>Download JS snippet</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="side">
+
+    <div class="field">
+      <label><span class="step-num">1</span>PDF file</label>
+      <div class="drop" id="drop">
+        Drop a PDF here or click to choose
+        <input type="file" id="fileInput" accept="application/pdf">
+      </div>
+      <div class="status" id="fileStatus"></div>
+    </div>
+
+    <hr>
+
+    <div class="section-title">Defaults applied to new shades</div>
+    <div class="field">
+      <label>Brand</label>
+      <input id="defBrand" value="Surface">
+    </div>
+    <div class="field">
+      <label>Collection (auto-fills per page, editable)</label>
+      <input id="defCollection" placeholder="e.g. Matt Collection">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Finish(es) (comma sep.)</label>
+        <input id="defFinish" placeholder="e.g. Matt (MAT), Suede (SUD)">
+      </div>
+      <div class="field">
+        <label>Size</label>
+        <input id="defSize" value="8&times;4 ft (2440&times;1220mm)">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Thicknesses (comma sep.)</label>
+        <input id="defThickness" value="1.0mm">
+      </div>
+      <div class="field">
+        <label>Starting ID</label>
+        <input id="defStartId" type="number" value="130">
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="section-title">Detection</div>
+    <div class="field">
+      <label>Sensitivity (lower = stricter, fewer boxes)</label>
+      <input id="sensitivity" type="range" min="4" max="30" value="14">
+    </div>
+    <div class="field-row">
+      <button class="secondary small" id="btnRescan" style="width:100%">Re-scan this page</button>
+    </div>
+    <details open>
+      <summary>How this works</summary>
+      <div style="font-size:11.5px; color:#666; line-height:1.5; margin-top:6px;">
+        1. Green boxes are auto-detected shade swatches, with the code (and name, if the catalog prints
+        one) read automatically via OCR. Click one — or drag on the page to draw your own box around a
+        shade it missed — and a capture panel opens above the page, prefilled with what it read.<br><br>
+        2. Auto-detection only finds <b>flat-colour</b> swatches — a wood grain, marble, or other
+        textured finish has too much internal variation to pass that test, so it won't get a green box.
+        OCR still reads the code fine either way, so a short blue dashed underline marks any code found
+        with no matching box — drag your own box around the swatch just above it.<br><br>
+        3. Check/fix the code and name, then click <b>Main sheet</b> or <b>Edge band</b>. Codes aren't
+        assumed to follow any fixed prefix (SA, SD, M, etc. all work) — Main/Edge just need to share the
+        same number to combine into one shade automatically.<br><br>
+        4. <b>Application photo</b> is optional — only use it if the catalog has a lifestyle photo you
+        want attached to a shade; pick which one from the dropdown.<br><br>
+        5. Everything you've added shows up in "Collected shades" below — edit any field inline, remove
+        a bad entry, then export once you're done.
+      </div>
+    </details>
+
+    <hr>
+
+    <div class="section-title">Collected shades <span class="count-pill" id="shadeCount">0</span></div>
+    <div class="status">Scroll down to review, edit and export.</div>
+  </div>
+
+  <div class="main">
+
+    <div class="sticky-top">
+      <div class="pager">
+        <button class="ghost small" id="btnPrev">&larr; Prev</button>
+        <span>Page <input class="pg-input" id="pgInput" type="number" min="1" value="1"> of <span id="pgTotal">0</span></span>
+        <button class="ghost small" id="btnNext">Next &rarr;</button>
+        <span class="status" id="scanStatus" style="margin:0;"></span>
+      </div>
+      <div class="progress-wrap" id="progressWrap" style="display:none; max-width:400px;">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="capture-panel" id="capturePanel" style="display:none;">
+        <img class="cp-img" id="cpImg">
+        <div class="cp-fields">
+          <div class="field"><label>Code</label><input id="cpCode" placeholder="e.g. SA-109, SD 4802, 109..."></div>
+          <div class="field"><label>Name (optional)</label><input id="cpName" placeholder="defaults to code"></div>
+        </div>
+        <div class="cp-col">
+          <div class="cp-actions">
+            <button class="small" id="cpMain">Main sheet</button>
+            <button class="small secondary" id="cpEdge">Edge band</button>
+            <button class="small ghost" id="cpReject">Not a swatch — reject</button>
+            <button class="small ghost" id="cpCancel">Cancel</button>
+          </div>
+          <div class="cp-app-row">
+            <span class="cp-app-label">Optional — this crop is a lifestyle/application photo for:</span>
+            <select id="cpAppTarget"></select>
+            <button class="small ghost" id="cpApp">Add as application photo</button>
+          </div>
+        </div>
+      </div>
+      <div class="capture-hint" id="captureHint">Click a green box below, or drag to draw one, to capture a shade.</div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="empty-hint">Upload a PDF to begin.</div>
+    </div>
+
+    <hr>
+
+    <div class="section-title">Collected shades — review, edit, export</div>
+    <div class="grid" id="shadeGrid"></div>
+    <div class="empty-hint" id="shadeEmptyHint">No shades collected yet. Click a detected box on the page above to add one.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+// ---------- state ----------
+let pdfDoc = null;
+let pageCount = 0;
+let curPageNum = 1;
+let curCanvas = null;      // full-res canvas of current page
+let curScale = 2.0;
+let boxesOnPage = [];      // {id,x,y,w,h,state:'candidate'|'rejected'|'captured', label}
+let pageWords = [];        // OCR words for current page [{text,x0,y0,x1,y1}]
+let activeBox = null;      // box currently open in the capture panel, or null
+let shades = [];           // collected shade records
+let boxIdSeq = 1;
+let lastAutoCollection = "";
+let ocrWorker = null;
+
+const el = id => document.getElementById(id);
+
+// ---------- file handling ----------
+const drop = el('drop');
+const fileInput = el('fileInput');
+drop.addEventListener('click', () => fileInput.click());
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('drag');
+  if (e.dataTransfer.files[0]) loadPdf(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadPdf(e.target.files[0]); });
+
+async function loadPdf(file) {
+  el('fileStatus').textContent = "Loading " + file.name + "...";
+  const buf = await file.arrayBuffer();
+  pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+  pageCount = pdfDoc.numPages;
+  el('pgTotal').textContent = pageCount;
+  el('pgInput').max = pageCount;
+  el('fileStatus').textContent = file.name + " — " + pageCount + " pages loaded.";
+  curPageNum = 1;
+  el('pgInput').value = 1;
+  await renderAndScanPage(1);
+}
+
+// ---------- page render + detection pipeline ----------
+async function renderAndScanPage(num) {
+  curPageNum = num;
+  el('pgInput').value = num;
+  closeCapturePanel();
+  const page = await pdfDoc.getPage(num);
+  const viewport = page.getViewport({ scale: curScale });
+  const canvas = document.createElement('canvas');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  const ctx = canvas.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  curCanvas = canvas;
+
+  drawStage();
+  setStatus("Detecting swatches...");
+  boxesOnPage = detectSwatches(canvas, Number(el('sensitivity').value));
+  setStatus(boxesOnPage.length + " candidate box(es) found. Running OCR...");
+  await runPageOcr(canvas);
+  attachLabelsToBoxes();
+  drawOverlay();
+  setStatus(boxesOnPage.length + " candidate box(es) found.");
+
+  // carry collection field forward
+  const guess = guessCollectionHeading();
+  const collectionInput = el('defCollection');
+  if (guess && (collectionInput.value.trim() === "" || collectionInput.value === lastAutoCollection)) {
+    collectionInput.value = guess;
+    lastAutoCollection = guess;
+  }
+}
+
+function setStatus(msg) { el('scanStatus').textContent = msg; }
+
+function drawStage() {
+  const stage = el('stage');
+  stage.innerHTML = '';
+  stage.appendChild(curCanvas);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', `0 0 ${curCanvas.width} ${curCanvas.height}`);
+  svg.id = 'overlaySvg';
+  stage.appendChild(svg);
+  attachDrawHandlers(svg);
+}
+
+function drawOverlay() {
+  const svg = el('overlaySvg');
+  if (!svg) return;
+  [...svg.querySelectorAll('.box-rect, .code-hint')].forEach(n => n.remove());
+  boxesOnPage.forEach(b => {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', b.x); r.setAttribute('y', b.y);
+    r.setAttribute('width', b.w); r.setAttribute('height', b.h);
+    r.classList.add('box-rect');
+    if (b.state === 'rejected') r.classList.add('rejected');
+    if (b.state === 'captured') r.classList.add('captured');
+    r.addEventListener('click', (e) => { e.stopPropagation(); openCapturePanel(b); });
+    svg.appendChild(r);
+  });
+  drawCodeHints(svg);
+}
+
+// Rectangle detection only finds flat-colour swatches — a wood grain or
+// marble finish has too much internal variation to pass that test, so
+// textured swatches never get a green box. OCR has no such limitation
+// though: it reads every code on the page regardless of texture. So any
+// code-shaped line of text with no matching box gets a small dashed
+// underline, marking "there's likely an un-boxed swatch above this" —
+// drag a box there and the code is still there to reference/reuse.
+function drawCodeHints(svg) {
+  // A line is "claimed" if it sits in the label area of a box that already
+  // exists — the same geometric relationship linesBelowBox uses to read a
+  // box's own code — rather than a text match, since OCR noise means the
+  // line here and the box's stored label aren't always identical strings.
+  const isClaimed = (line) => boxesOnPage.some(b =>
+    line.y0 >= b.y + b.h - 10 && line.y0 <= b.y + b.h + 80 &&
+    line.x1 >= b.x - 20 && line.x0 <= b.x + b.w + 20
+  );
+  pageLines().forEach(line => {
+    if (!looksLikeCode(line.text) || isClaimed(line)) return;
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    el.setAttribute('x1', line.x0); el.setAttribute('x2', line.x1);
+    el.setAttribute('y1', line.y1 + 4); el.setAttribute('y2', line.y1 + 4);
+    el.classList.add('code-hint');
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = `Code "${line.text}" found here with no matching box — drag a box around the swatch above it (likely a textured finish auto-detection missed).`;
+    el.appendChild(title);
+    svg.appendChild(el);
+  });
+}
+
+function looksLikeCode(text) {
+  return /\d/.test(text) && text.length >= 2 && text.length <= 20;
+}
+
+// ---------- manual box drawing ----------
+// A new <svg> overlay is created on every page render (see drawStage), so
+// mousedown/mousemove are attached fresh each time and are discarded along
+// with the old svg. The mouseup listener stays on `window` (a drag can end
+// outside the svg), so it's installed once and reads shared draw state
+// instead of accumulating a new window listener per page navigation.
+const drawState = { drawing: null, rectEl: null, svg: null };
+
+function attachDrawHandlers(svg) {
+  drawState.svg = svg;
+  drawState.drawing = null;
+  drawState.rectEl = null;
+  svg.addEventListener('mousedown', e => {
+    const p = toSvgPoint(svg, e);
+    drawState.drawing = { x0: p.x, y0: p.y };
+    drawState.rectEl = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    drawState.rectEl.classList.add('draw-rect');
+    svg.appendChild(drawState.rectEl);
+  });
+  svg.addEventListener('mousemove', e => {
+    if (!drawState.drawing) return;
+    const p = toSvgPoint(svg, e);
+    const x = Math.min(drawState.drawing.x0, p.x), y = Math.min(drawState.drawing.y0, p.y);
+    const w = Math.abs(p.x - drawState.drawing.x0), h = Math.abs(p.y - drawState.drawing.y0);
+    drawState.rectEl.setAttribute('x', x); drawState.rectEl.setAttribute('y', y);
+    drawState.rectEl.setAttribute('width', w); drawState.rectEl.setAttribute('height', h);
+  });
+}
+
+function toSvgPoint(svg, evt) {
+  const rect = svg.getBoundingClientRect();
+  const scaleX = curCanvas.width / rect.width;
+  const scaleY = curCanvas.height / rect.height;
+  return { x: (evt.clientX - rect.left) * scaleX, y: (evt.clientY - rect.top) * scaleY };
+}
+
+window.addEventListener('mouseup', e => {
+  const { drawing, svg } = drawState;
+  if (!drawing || !svg) return;
+  const p = toSvgPoint(svg, e);
+  const x = Math.min(drawing.x0, p.x), y = Math.min(drawing.y0, p.y);
+  const w = Math.abs(p.x - drawing.x0), h = Math.abs(p.y - drawing.y0);
+  drawState.drawing = null;
+  if (drawState.rectEl) { drawState.rectEl.remove(); drawState.rectEl = null; }
+  if (w > 12 && h > 12) {
+    const guess = guessCodeAndName(x, y, w, h);
+    const b = { id: boxIdSeq++, x, y, w, h, state: 'candidate', label: guess.code, nameGuess: guess.name };
+    boxesOnPage.push(b);
+    drawOverlay();
+    openCapturePanel(b);
+  }
+});
+
+// ---------- swatch detection (flat-colour rectangle finder) ----------
+function detectSwatches(canvas, sensitivity) {
+  const W = canvas.width, H = canvas.height;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0, 0, W, H).data;
+  const block = 8; // px per grid cell
+  const cols = Math.ceil(W / block), rows = Math.ceil(H / block);
+  const flat = new Uint8Array(cols * rows); // 1 = candidate swatch cell
+
+  for (let gy = 0; gy < rows; gy++) {
+    for (let gx = 0; gx < cols; gx++) {
+      const x0 = gx * block, y0 = gy * block;
+      const x1 = Math.min(x0 + block, W), y1 = Math.min(y0 + block, H);
+      let rSum=0,gSum=0,bSum=0,n=0;
+      let rMin=255,rMax=0,gMin=255,gMax=0,bMin=255,bMax=0;
+      for (let y = y0; y < y1; y += 2) {
+        for (let x = x0; x < x1; x += 2) {
+          const i = (y * W + x) * 4;
+          const r = img[i], g = img[i+1], bch = img[i+2];
+          rSum += r; gSum += g; bSum += bch; n++;
+          if (r<rMin) rMin=r; if (r>rMax) rMax=r;
+          if (g<gMin) gMin=g; if (g>gMax) gMax=g;
+          if (bch<bMin) bMin=bch; if (bch>bMax) bMax=bch;
+        }
+      }
+      const rAvg = rSum/n, gAvg = gSum/n, bAvg = bSum/n;
+      const range = Math.max(rMax-rMin, gMax-gMin, bMax-bMin);
+      const nearWhite = rAvg > 246 && gAvg > 246 && bAvg > 246;
+      const isFlat = range <= sensitivity;
+      flat[gy*cols+gx] = (isFlat && !nearWhite) ? 1 : 0;
+    }
+  }
+
+  // connected components (4-connectivity) over grid
+  const visited = new Uint8Array(cols*rows);
+  const boxes = [];
+  for (let gy = 0; gy < rows; gy++) {
+    for (let gx = 0; gx < cols; gx++) {
+      const idx = gy*cols+gx;
+      if (!flat[idx] || visited[idx]) continue;
+      // BFS
+      let minGx=gx,maxGx=gx,minGy=gy,maxGy=gy,count=0;
+      const stack=[idx];
+      visited[idx]=1;
+      while (stack.length) {
+        const cur = stack.pop();
+        const cy = Math.floor(cur/cols), cx = cur - cy*cols;
+        count++;
+        if (cx<minGx) minGx=cx; if (cx>maxGx) maxGx=cx;
+        if (cy<minGy) minGy=cy; if (cy>maxGy) maxGy=cy;
+        const neighbors = [cur-1,cur+1,cur-cols,cur+cols];
+        for (const nb of neighbors) {
+          if (nb<0 || nb>=cols*rows) continue;
+          const nby = Math.floor(nb/cols), nbx = nb - nby*cols;
+          if (Math.abs(nbx-cx)+Math.abs(nby-cy) !== 1) continue;
+          if (flat[nb] && !visited[nb]) { visited[nb]=1; stack.push(nb); }
+        }
+      }
+      const bw = (maxGx-minGx+1), bh = (maxGy-minGy+1);
+      const fillRatio = count / (bw*bh);
+      const pxW = bw*block, pxH = bh*block;
+      const pxX = minGx*block, pxY = minGy*block;
+      if (pxW >= 40 && pxH >= 40 && fillRatio >= 0.75 && pxW <= W*0.45 && pxH <= H*0.9
+          && isIsolatedOnWhite(img, W, H, pxX, pxY, pxW, pxH)) {
+        boxes.push({
+          id: boxIdSeq++,
+          x: pxX, y: pxY, w: pxW, h: pxH,
+          state: 'candidate', label: ''
+        });
+      }
+    }
+  }
+  return boxes;
+}
+
+// Real catalog swatches sit on plain white page background; flat-coloured
+// regions found inside lifestyle photos (e.g. a painted cabinet door, or a soft
+// sky gradient) usually do not. JPEG/print compression leaves a colour "halo"
+// a few pixels past a swatch's detected edge, so the check looks at a band set
+// back from the edge (not a thin ring right against it) and only needs 3 of the
+// 4 sides to read as background before accepting a candidate.
+function isIsolatedOnWhite(img, W, H, x, y, w, h) {
+  const margin = 24, band = 10, step = 6, thresh = 228;
+  function isWhite(px, py) {
+    if (px < 0 || py < 0 || px >= W || py >= H) return true; // page edge counts as background
+    const i = (py * W + px) * 4;
+    return img[i] > thresh && img[i+1] > thresh && img[i+2] > thresh;
+  }
+  function bandScore(pointsForDepth) {
+    let total = 0, white = 0;
+    for (let d = margin; d < margin + band; d++) {
+      pointsForDepth(d).forEach(([px,py]) => { total++; if (isWhite(px,py)) white++; });
+    }
+    return total ? white / total : 1;
+  }
+  const top = bandScore(d => range(x, x+w, step).map(px => [px, y-d]));
+  const bottom = bandScore(d => range(x, x+w, step).map(px => [px, y+h-1+d]));
+  const left = bandScore(d => range(y, y+h, step).map(py => [x-d, py]));
+  const right = bandScore(d => range(y, y+h, step).map(py => [x+w-1+d, py]));
+  const scores = [top, bottom, left, right];
+  const passSides = scores.filter(s => s > 0.7).length;
+  return passSides >= 3;
+}
+function range(start, end, step) {
+  const out = [];
+  for (let v = start; v < end; v += step) out.push(v);
+  return out;
+}
+
+function cropCanvas(srcCanvas, x, y, w, h) {
+  const c = document.createElement('canvas');
+  const maxDim = 700;
+  const scale = Math.min(1, maxDim / Math.max(w, h));
+  c.width = Math.round(w*scale); c.height = Math.round(h*scale);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(srcCanvas, x, y, w, h, 0, 0, c.width, c.height);
+  return c;
+}
+
+// ---------- OCR ----------
+async function getOcrWorker() {
+  if (ocrWorker) return ocrWorker;
+  el('progressWrap').style.display = 'block';
+  ocrWorker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status && typeof m.progress === 'number') {
+        el('progressBar').style.width = Math.round(m.progress*100) + '%';
+      }
+    }
+  });
+  return ocrWorker;
+}
+
+async function runPageOcr(canvas) {
+  try {
+    const worker = await getOcrWorker();
+    const { data } = await worker.recognize(canvas);
+    pageWords = (data.words || []).map(w => ({
+      text: w.text, x0: w.bbox.x0, y0: w.bbox.y0, x1: w.bbox.x1, y1: w.bbox.y1
+    }));
+  } catch (err) {
+    console.error('OCR failed', err);
+    pageWords = [];
+  } finally {
+    el('progressWrap').style.display = 'none';
+  }
+}
+
+// Groups words into text lines by true 2D proximity (union-find over
+// pairwise gaps) rather than sorting into a sequence and scanning for jumps.
+// Two swatches placed side by side at nearly the same page height can have
+// OCR word y0 values that jitter by several pixels (font metrics, and worse
+// over a textured background like marble) — a sequential sort-then-scan
+// approach is order-dependent and can silently merge two *different*
+// swatches' codes into one line, or split one code's words apart. Proximity
+// clustering doesn't care what order the words come in, only whether their
+// boxes are actually close together.
+function clusterWordsIntoLines(words, yTol, xGap) {
+  const n = words.length;
+  const parent = Array.from({ length: n }, (_, i) => i);
+  function find(i) { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; }
+  function union(i, j) { const ri = find(i), rj = find(j); if (ri !== rj) parent[ri] = rj; }
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const a = words[i], b = words[j];
+      const yClose = Math.abs(a.y0 - b.y0) <= yTol;
+      const gap = a.x0 <= b.x0 ? (b.x0 - a.x1) : (a.x0 - b.x1);
+      if (yClose && gap <= xGap) union(i, j);
+    }
+  }
+  const groups = new Map();
+  for (let i = 0; i < n; i++) {
+    const r = find(i);
+    if (!groups.has(r)) groups.set(r, []);
+    groups.get(r).push(words[i]);
+  }
+  return [...groups.values()].map(group => {
+    group.sort((a, b) => a.x0 - b.x0);
+    return {
+      text: group.map(w => w.text).join(' ').trim(),
+      x0: Math.min(...group.map(w => w.x0)),
+      x1: Math.max(...group.map(w => w.x1)),
+      y0: Math.min(...group.map(w => w.y0)),
+      y1: Math.max(...group.map(w => w.y1)),
+    };
+  }).filter(l => l.text);
+}
+
+// Groups the OCR words directly below a box into lines, then splits those
+// lines into a code guess (the line with a digit in it — codes vary a lot
+// between suppliers: "SA-109", "SD 4802", "M-001", "109", so this doesn't
+// assume any particular prefix) and a name guess (any other line, for
+// catalogs that print a descriptive name alongside the code).
+function linesBelowBox(x, y, w, h) {
+  const marginBelow = 70, marginX = 20;
+  const candidates = pageWords.filter(word =>
+    word.y0 >= y + h - 5 && word.y0 <= y + h + marginBelow &&
+    word.x1 >= x - marginX && word.x0 <= x + w + marginX
+  );
+  return clusterWordsIntoLines(candidates, 8, 30).map(l => l.text);
+}
+
+// Same clustering, across the whole page — used to find codes with no
+// matching swatch box (see drawCodeHints), where there's no existing box to
+// search "below".
+function pageLines() {
+  return clusterWordsIntoLines(pageWords, 8, 30);
+}
+
+function guessCodeAndName(x, y, w, h) {
+  const lines = linesBelowBox(x, y, w, h);
+  const codeLine = lines.find(l => /\d/.test(l));
+  const nameLines = lines.filter(l => l !== codeLine);
+  return { code: codeLine || lines[0] || '', name: nameLines.join(' ').trim() };
+}
+
+function attachLabelsToBoxes() {
+  boxesOnPage.forEach(b => {
+    const guess = guessCodeAndName(b.x, b.y, b.w, b.h);
+    b.label = guess.code;
+    b.nameGuess = guess.name;
+  });
+}
+
+function guessCollectionHeading() {
+  // heading sits top-left of the visible half of the spread; look for the tallest word cluster in the top band
+  const band = pageWords.filter(w => w.y0 < curCanvas.height * 0.12 && w.x0 < curCanvas.width * 0.5);
+  if (!band.length) return '';
+  band.sort((a,b) => a.x0 - b.x0);
+  return band.map(w => w.text).join(' ').trim();
+}
+
+// ---------- capture panel ----------
+// Clicking any box (auto-detected or hand-drawn) opens this single panel for
+// it. You fix the code right there and click one button to add it — no
+// intermediate list to manage. It closes itself after Add/Cancel/Reject.
+function openCapturePanel(box) {
+  activeBox = box;
+  el('captureHint').style.display = 'none';
+  const panel = el('capturePanel');
+  panel.style.display = 'flex';
+  el('cpImg').src = cropCanvas(curCanvas, box.x, box.y, box.w, box.h).toDataURL('image/jpeg', 0.85);
+  el('cpCode').value = box.label || '';
+  el('cpName').value = box.nameGuess || '';
+
+  // Application photos have no printed code to auto-match, so the user picks
+  // which shade they belong to — shades from this page first (the usual case:
+  // a lifestyle photo sits on the same spread as the shade it uses), falling
+  // back to every shade collected so far.
+  const pageShades = shades.filter(s => s._page === curPageNum);
+  const choices = pageShades.length ? pageShades : shades;
+  const sel = el('cpAppTarget');
+  sel.disabled = !choices.length;
+  el('cpApp').disabled = !choices.length;
+  sel.innerHTML = choices.length
+    ? choices.map(s => {
+        const idx = shades.indexOf(s);
+        const label = [s.sdCode, s.name].filter(Boolean).join(' — ') || `Shade ${idx + 1}`;
+        return `<option value="${idx}">${escapeHtml(label)}</option>`;
+      }).join('')
+    : `<option value="">— collect a shade first —</option>`;
+}
+
+function closeCapturePanel() {
+  activeBox = null;
+  el('capturePanel').style.display = 'none';
+  el('captureHint').style.display = 'block';
+}
+
+// Codes vary by supplier — SA-109, SD 4802, M-001, SAW-717, a bare "109", etc.
+// — so there's no fixed prefix to assume. The only thing Main/Edge codes for
+// the same shade reliably share is their number, so that's the pairing key;
+// the code text itself is stored exactly as typed/read, unchanged.
+function extractNumberKey(text) {
+  const m = text.match(/(\d{1,6})/);
+  return m ? m[1] : '';
+}
+
+function cpAddAs(role) {
+  if (!activeBox) return;
+  const codeText = el('cpCode').value.trim();
+  const number = extractNumberKey(codeText);
+  // Main/Edge sharing the same code number on this page combine into one shade.
+  let target = number && shades.find(s => s._page === curPageNum && s._number === number);
+  if (!target) {
+    target = newShadeRecord();
+    target._page = curPageNum;
+    target._number = number;
+    shades.push(target);
+  }
+  const crop = el('cpImg').src;
+  const nameVal = el('cpName').value.trim();
+  if (role === 'edge') {
+    target.ebCode = codeText;
+    target.edgeImg = crop;
+  } else {
+    target.sdCode = codeText;
+    target.mainImg = crop;
+    target.name = nameVal || target.name || codeText;
+  }
+  activeBox.state = 'captured';
+  drawOverlay();
+  renderShadeGrid();
+  closeCapturePanel();
+}
+
+function cpAddApplication() {
+  if (!activeBox) return;
+  const shadeIndex = Number(el('cpAppTarget').value);
+  if (!Number.isInteger(shadeIndex) || !shades[shadeIndex]) return;
+  shades[shadeIndex].appImg = el('cpImg').src;
+  activeBox.state = 'captured';
+  drawOverlay();
+  renderShadeGrid();
+  closeCapturePanel();
+}
+
+function cpReject() {
+  if (!activeBox) return;
+  activeBox.state = 'rejected';
+  drawOverlay();
+  closeCapturePanel();
+}
+
+el('cpMain').addEventListener('click', () => cpAddAs('main'));
+el('cpEdge').addEventListener('click', () => cpAddAs('edge'));
+el('cpApp').addEventListener('click', cpAddApplication);
+el('cpReject').addEventListener('click', cpReject);
+el('cpCancel').addEventListener('click', closeCapturePanel);
+
+function newShadeRecord() {
+  return {
+    id: null,
+    category: "Laminates",
+    brand: el('defBrand').value.trim(),
+    collection: el('defCollection').value.trim(),
+    name: "",
+    sdCode: "",
+    ebCode: "",
+    finishes: el('defFinish').value.split(',').map(s=>s.trim()).filter(Boolean),
+    mood: "",
+    tone: "",
+    size: el('defSize').value.trim(),
+    thicknesses: el('defThickness').value.split(',').map(s=>s.trim()).filter(Boolean),
+    mainImg: "",
+    edgeImg: "",
+    appImg: ""
+  };
+}
+
+// ---------- shade review grid ----------
+function renderShadeGrid() {
+  el('shadeCount').textContent = shades.length;
+  const grid = el('shadeGrid');
+  grid.innerHTML = '';
+  el('shadeEmptyHint').style.display = shades.length ? 'none' : 'block';
+  shades.forEach((s, i) => {
+    const incomplete = !s.mainImg || !s.name || !s.sdCode;
+    const card = document.createElement('div');
+    card.className = 'shade-card' + (incomplete ? ' incomplete' : '');
+    card.innerHTML = `
+      <button class="remove-x" title="Remove">&times;</button>
+      <div class="shade-imgs">
+        <div class="im ${s.mainImg?'':'empty'}" data-imgk="mainImg" title="Main sheet">
+          ${s.mainImg ? `<img src="${s.mainImg}"><button class="im-clear" data-clear="mainImg">&times;</button>` : 'no main img'}
+        </div>
+        <div class="im ${s.edgeImg?'':'empty'}" data-imgk="edgeImg" title="Edge band">
+          ${s.edgeImg ? `<img src="${s.edgeImg}"><button class="im-clear" data-clear="edgeImg">&times;</button>` : 'no edge img'}
+        </div>
+        <div class="im ${s.appImg?'':'empty'}" data-imgk="appImg" title="Application photo">
+          ${s.appImg ? `<img src="${s.appImg}"><button class="im-clear" data-clear="appImg">&times;</button>` : 'no application img'}
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Name</label><input data-k="name" value="${escapeHtml(s.name)}"></div>
+        <div class="field"><label>Brand</label><input data-k="brand" value="${escapeHtml(s.brand)}"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Main code</label><input data-k="sdCode" value="${escapeHtml(s.sdCode)}"></div>
+        <div class="field"><label>Edge code</label><input data-k="ebCode" value="${escapeHtml(s.ebCode)}"></div>
+      </div>
+      <div class="field"><label>Collection</label><input data-k="collection" value="${escapeHtml(s.collection)}"></div>
+      <div class="row2">
+        <div class="field"><label>Finish(es)</label><input data-k="finishes" value="${escapeHtml(s.finishes.join(', '))}"></div>
+        <div class="field"><label>Tone</label><input data-k="tone" value="${escapeHtml(s.tone)}"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Size</label><input data-k="size" value="${escapeHtml(s.size)}"></div>
+        <div class="field"><label>Thickness(es)</label><input data-k="thicknesses" value="${escapeHtml(s.thicknesses.join(', '))}"></div>
+      </div>
+      ${incomplete ? '<div class="flag">Missing main image, name, or main code — will be excluded from export.</div>' : ''}
+    `;
+    card.querySelectorAll('input[data-k]').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const k = inp.dataset.k;
+        if (k === 'thicknesses' || k === 'finishes') s[k] = inp.value.split(',').map(v=>v.trim()).filter(Boolean);
+        else s[k] = inp.value;
+        const flagEl = card.querySelector('.flag');
+        const stillIncomplete = !s.mainImg || !s.name || !s.sdCode;
+        card.classList.toggle('incomplete', stillIncomplete);
+        if (!stillIncomplete && flagEl) flagEl.remove();
+      });
+    });
+    card.querySelector('.remove-x').addEventListener('click', () => { shades.splice(i,1); renderShadeGrid(); });
+    card.querySelectorAll('.im-clear').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        s[btn.dataset.clear] = "";
+        renderShadeGrid();
+      });
+    });
+    grid.appendChild(card);
+  });
+  updateExportButtons();
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- navigation ----------
+el('btnPrev').addEventListener('click', () => { if (curPageNum > 1) renderAndScanPage(curPageNum-1); });
+el('btnNext').addEventListener('click', () => { if (curPageNum < pageCount) renderAndScanPage(curPageNum+1); });
+el('pgInput').addEventListener('change', () => {
+  let n = Math.max(1, Math.min(pageCount, Number(el('pgInput').value)||1));
+  renderAndScanPage(n);
+});
+el('btnRescan').addEventListener('click', () => {
+  if (!curCanvas) return;
+  boxesOnPage = detectSwatches(curCanvas, Number(el('sensitivity').value));
+  attachLabelsToBoxes();
+  drawOverlay();
+  setStatus(boxesOnPage.length + " candidate box(es) found.");
+});
+
+// ---------- export ----------
+function buildExportRecords() {
+  let id = Number(el('defStartId').value) || 1;
+  return shades
+    .filter(s => s.mainImg && s.name && s.sdCode)
+    .map(s => {
+      const { _page, _number, ...rest } = s;
+      rest.id = id++;
+      return rest;
+    });
+}
+
+function updateExportButtons() {
+  const ready = buildExportRecords().length > 0;
+  el('btnExportCsv').disabled = !ready;
+  el('btnExportJson').disabled = !ready;
+  el('btnExportJs').disabled = !ready;
+}
+
+function downloadText(filename, text) {
+  const blob = new Blob([text], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function csvCell(v) {
+  if (Array.isArray(v)) v = v.join('; ');
+  v = String(v ?? '');
+  return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+}
+
+// Image data URIs are left out of the CSV — a single shade's base64 JPEG
+// easily runs past the ~32,000/50,000 character-per-cell limit in Excel and
+// Google Sheets, which silently truncates (corrupting the value) rather than
+// erroring. The CSV is for a quick spreadsheet review of codes/names/metadata;
+// the JSON/JS exports remain the complete, image-included source of truth.
+function buildCsv(records) {
+  if (!records.length) return '';
+  const columns = Object.keys(records[0]).filter(k => !['mainImg','edgeImg','appImg'].includes(k));
+  const header = [...columns, 'hasMainImg', 'hasEdgeImg', 'hasAppImg'];
+  const lines = [header.map(csvCell).join(',')];
+  records.forEach(r => {
+    const row = columns.map(k => csvCell(r[k]));
+    row.push(r.mainImg ? 'yes' : 'no', r.edgeImg ? 'yes' : 'no', r.appImg ? 'yes' : 'no');
+    lines.push(row.join(','));
+  });
+  return lines.join('\r\n');
+}
+
+el('btnExportCsv').addEventListener('click', () => {
+  const records = buildExportRecords();
+  downloadText('laminate-shades.csv', buildCsv(records));
+});
+el('btnExportJson').addEventListener('click', () => {
+  const records = buildExportRecords();
+  downloadText('laminate-shades.json', JSON.stringify(records, null, 2));
+});
+el('btnExportJs').addEventListener('click', () => {
+  const records = buildExportRecords();
+  const body = records.map(r => JSON.stringify(r)).join(',\n');
+  const snippet = `// Paste these objects into LAMINATE_PRODUCTS in index.html (before the closing "]").\nconst NEW_LAMINATE_SHADES = [\n${body}\n];\n`;
+  downloadText('laminate-shades.js', snippet);
+});
+
+// re-render defaults-driven fields when defaults change (only affects future captures, not existing)
+['defBrand','defCollection','defFinish','defSize','defThickness','defStartId'].forEach(id => {
+  el(id).addEventListener('input', () => { if (id==='defStartId') updateExportButtons(); });
+});
+el('sensitivity').addEventListener('change', () => {
+  if (!curCanvas) return;
+  boxesOnPage = detectSwatches(curCanvas, Number(el('sensitivity').value));
+  attachLabelsToBoxes();
+  drawOverlay();
+  setStatus(boxesOnPage.length + " candidate box(es) found.");
+});
+</script>
+</body>
+</html>

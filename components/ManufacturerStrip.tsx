@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AutoScrollRow } from "@/components/AutoScrollRow";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
-import { CategoryTile, CATEGORY_MARK_SLUGS } from "@/components/CategoryMark";
+import { CategoryTile, CATEGORY_MARK_SLUGS, CATEGORY_MARK_LABEL } from "@/components/CategoryMark";
 
 interface RealBrand {
   slug: string;
@@ -12,76 +12,72 @@ interface RealBrand {
   logo_url: string | null;
 }
 
-// No `w-auto`: that would override the aspect-ratio next/image derives from
-// width/height below, leaving the browser nothing to reserve layout space
-// with until each logo decodes — the CLS culprit on this ribbon. Fixed
-// height + the intrinsic aspect-ratio lets the browser compute a stable
-// width up front; object-contain handles any real logo whose true aspect
-// ratio differs from the nominal 220×56 box.
-const logoClasses =
-  "h-14 object-contain grayscale opacity-75 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100";
+// A bounded, consistently-sized box for every logo regardless of its native
+// aspect ratio — object-contain never distorts, and the box itself (not the
+// image) is what carries the card's size and hover treatment. No border or
+// card background here — this is a flowing logo belt, not a grid of tiles.
+const LOGO_BOX = "flex h-14 w-full items-center justify-center overflow-hidden";
+const LOGO_IMG = "max-h-14 max-w-full object-contain grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100";
 
-function LogoItem({ brand }: { brand: RealBrand }) {
-  if (brand.logo_url) {
-    return (
-      <Link href={`/brands/${brand.slug}`} className="flex shrink-0 items-center">
-        <Image src={brand.logo_url} alt={`${brand.name} logo`} width={220} height={56} className={logoClasses} />
-      </Link>
-    );
-  }
+const CARD =
+  "group flex w-[136px] shrink-0 flex-col items-center gap-2 text-center transition-transform duration-300 [transition-timing-function:var(--ease-out-soft)] hover:z-10 hover:-translate-y-1 hover:scale-[1.03]";
+
+function LogoCard({ href, name, logoSrc, logoFile }: { href: string; name: string; logoSrc?: string | null; logoFile?: string }) {
   return (
-    <Link
-      href={`/brands/${brand.slug}`}
-      className="serif shrink-0 whitespace-nowrap text-lg opacity-75 transition-opacity hover:opacity-100"
-    >
-      {brand.name}
+    <Link href={href} className={CARD}>
+      <span className={LOGO_BOX}>
+        {logoSrc ? (
+          <Image src={logoSrc} alt={`${name} logo`} width={220} height={56} className={LOGO_IMG} />
+        ) : logoFile ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={`/brand-logos/${logoFile}`} alt={`${name} logo`} width={220} height={56} loading="lazy" decoding="async" className={LOGO_IMG} />
+        ) : (
+          <span className="serif text-base opacity-75 transition-opacity group-hover:opacity-100">{name}</span>
+        )}
+      </span>
+      <span className="truncate text-xs font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ color: "var(--line-strong)" }}>
+        {name}
+      </span>
     </Link>
   );
 }
 
-export function ManufacturerStrip({ brands }: { brands: RealBrand[] }) {
+export function ManufacturerStrip({ brands, reverse = false }: { brands: RealBrand[]; reverse?: boolean }) {
   function renderItems(keyPrefix: string) {
     return (
       <>
         {CATEGORY_MARK_SLUGS.map((slug) => (
-          <Link key={`${keyPrefix}-eightxfour-${slug}`} href={`/brands/eightbyfour`} className="flex shrink-0 items-center">
-            <CategoryTile
-              slug={slug}
-              size={56}
-              className="grayscale opacity-75 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100"
-            />
+          <Link key={`${keyPrefix}-eightxfour-${slug}`} href={`/brands/eightbyfour`} className={CARD}>
+            <span className={LOGO_BOX}>
+              <CategoryTile
+                slug={slug}
+                size={56}
+                className="grayscale opacity-75 transition-[filter,opacity] duration-200 group-hover:grayscale-0 group-hover:opacity-100"
+              />
+            </span>
+            <span className="truncate text-xs font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100" style={{ color: "var(--line-strong)" }}>
+              {CATEGORY_MARK_LABEL[slug]}
+            </span>
           </Link>
         ))}
         {brands.map((b) => (
-          <LogoItem key={`${keyPrefix}-${b.slug}`} brand={b} />
+          <LogoCard key={`${keyPrefix}-${b.slug}`} href={`/brands/${b.slug}`} name={b.name} logoSrc={b.logo_url} />
         ))}
         {SOURCE_ONLY_BRANDS.map((m) => (
-          <Link key={`${keyPrefix}-${m.slug}`} href={`/brands/${m.slug}`} className="flex shrink-0 items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/brand-logos/${m.file}`}
-              alt={m.name}
-              width={220}
-              height={56}
-              loading="lazy"
-              decoding="async"
-              className={logoClasses}
-            />
-          </Link>
+          <LogoCard key={`${keyPrefix}-${m.slug}`} href={`/brands/${m.slug}`} name={m.name} logoFile={m.file} />
         ))}
       </>
     );
   }
 
   return (
-    <section className="py-16" aria-label="Manufacturers we source from">
-      <p className="tracked-caps px-7 text-center text-sm" style={{ color: "var(--accent)" }}>
-        Manufacturers We Source From
-      </p>
-      <AutoScrollRow className="brand-ribbon-mask mt-8" trackClassName="flex items-center gap-16 px-7" speed={45}>
-        {renderItems("a")}
+    <AutoScrollRow label="brand belt" className="edge-fade-mask" trackClassName="flex items-stretch gap-3 px-7" speed={38} reverse={reverse}>
+      {renderItems("a")}
+      {/* Loop-seam duplicate — hidden from assistive tech and out of the tab
+          order so each brand is only announced and tabbed once. */}
+      <div aria-hidden="true" inert style={{ display: "contents" }}>
         {renderItems("b")}
-      </AutoScrollRow>
-    </section>
+      </div>
+    </AutoScrollRow>
   );
 }

@@ -8,7 +8,6 @@ export const SOURCE_ONLY_BRANDS = [
   { name: "EBCO", slug: "ebco", file: "ebco.png" },
   { name: "Godrej", slug: "godrej", file: "godrej.webp" },
   { name: "Action Tesa", slug: "action-tesa", file: "action-tesa.png" },
-  { name: "BisonPanel", slug: "bisonpanel", file: "bisonpanel.webp" },
   { name: "Ozone", slug: "ozone", file: "ozone.png" },
   { name: "Dorset", slug: "dorset", file: "dorset.webp" },
   { name: "Europa", slug: "europa", file: "europa.webp" },

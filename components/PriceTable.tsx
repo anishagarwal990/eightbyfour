@@ -1,6 +1,20 @@
 import Link from "next/link";
 import { effectiveDiscountPct, formatListPrice, formatPrice, type PriceRow } from "@/lib/priceRows";
 import { formatDiscountPct } from "@/lib/pricing";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/skiper-ui/skiper101";
+
+function GlossaryHeader({ label, hint }: { label: string; hint: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger className="cursor-help underline decoration-dotted decoration-1 underline-offset-4">
+        {label}
+      </TooltipTrigger>
+      <TooltipContent>
+        <p className="max-w-[220px]">{hint}</p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 // One row per SKU. Scrolls inside its own container rather than letting a
 // six-column table push the page body sideways on a phone, which is where
@@ -12,9 +26,16 @@ export function PriceTable({ rows, focusThickness }: { rows: PriceRow[]; focusTh
         <thead>
           <tr style={{ borderBottom: "1px solid var(--line)" }}>
             <th className="px-3 py-2 text-left font-medium">Brand &amp; product</th>
-            <th className="px-3 py-2 text-left font-medium">Grade</th>
+            <th className="px-3 py-2 text-left font-medium">
+              <GlossaryHeader
+                label="Grade"
+                hint="MR = Moisture Resistant · BWP = Boiling Waterproof · BWR = Boil Water Resistant · BB/BB = both faces defect-free (birch ply)."
+              />
+            </th>
             <th className="px-3 py-2 text-left font-medium">{focusThickness ? "Thickness" : "Thickness span"}</th>
-            <th className="px-3 py-2 text-left font-medium">Sheet size</th>
+            <th className="px-3 py-2 text-left font-medium">
+              <GlossaryHeader label="Sheet size" hint="Standard sheet is 8×4 ft (96×48 in) unless noted otherwise." />
+            </th>
             <th className="px-3 py-2 text-left font-medium">Rate</th>
             <th className="px-3 py-2 text-left font-medium">Per sheet</th>
           </tr>

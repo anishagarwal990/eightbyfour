@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** Auto-scrolling horizontal row that visitors can also grab-drag (mouse) or swipe (touch) themselves. */
 export function AutoScrollRow({
@@ -8,11 +8,17 @@ export function AutoScrollRow({
   trackClassName = "",
   speed = 30,
   className = "",
+  reverse = false,
+  label = "animation",
 }: {
   children: React.ReactNode;
   trackClassName?: string;
   speed?: number;
   className?: string;
+  /** Scrolls right-to-left instead of left-to-right — e.g. a brand belt moving opposite a category runway above it. */
+  reverse?: boolean;
+  /** Names this row in the pause control's accessible label, e.g. "category ribbon". */
+  label?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
@@ -23,10 +29,36 @@ export function AutoScrollRow({
   const suppressClickRef = useRef(false);
   const pressTargetRef = useRef<Element | null>(null);
 
+  // The visitor's explicit choice via the Pause/Play button. Kept separate from
+  // the transient hover / drag / keyboard-focus pauses below — those must never
+  // change what the button reports.
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
+
+  // prefers-reduced-motion: no auto-scroll runs at all, and the pause control is
+  // not rendered (there is no motion to pause). Starts false so the first client
+  // render matches the server markup, then syncs on mount.
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (reducedMotion) return;
+
+    // Reverse rails start mid-way through the doubled content and count down,
+    // so the two copies still meet seamlessly at the loop point.
+    if (reverse) el.scrollLeft = el.scrollWidth / 2;
 
     // Pointer capture can be lost without a pointerup/pointercancel ever reaching
     // this element (e.g. the cursor drifts off during a window/focus change), which
@@ -56,18 +88,32 @@ export function AutoScrollRow({
         lastHoverCheck = now;
         if (!el.matches(":hover")) hoveringRef.current = false;
       }
-      if (!draggingRef.current && !hoveringRef.current && el) {
-        el.scrollLeft += speed * dt;
+      // Keyboard focus inside the row pauses the scroll (WCAG 2.2.2) so a focused
+      // link is never carried out from under the visitor. A DOM containment check,
+      // not :focus-within — the latter forces a style recalc every frame the way
+      // :hover does, and this loop already runs on every rail on the page.
+      const focusInside = !!el && el.contains(document.activeElement);
+      if (!pausedRef.current && !draggingRef.current && !hoveringRef.current && !focusInside && el) {
         const half = el.scrollWidth / 2;
         const maxScroll = el.scrollWidth - el.clientWidth;
-        if (half > 0 && el.scrollLeft >= half) {
-          // Content (two copies) is wide enough to loop at the seam — the normal case.
-          el.scrollLeft -= half;
-        } else if (half > maxScroll && el.scrollLeft >= maxScroll) {
-          // Content is too narrow for the viewport to ever reach the seam — the browser
-          // clamps scrollLeft at maxScroll before we get there, which otherwise freezes
-          // the ribbon forever instead of looping. Snap back to the start instead.
-          el.scrollLeft = 0;
+        if (reverse) {
+          el.scrollLeft -= speed * dt;
+          if (half > 0 && el.scrollLeft <= 0) {
+            el.scrollLeft += half;
+          } else if (half > maxScroll && el.scrollLeft <= 0) {
+            el.scrollLeft = maxScroll;
+          }
+        } else {
+          el.scrollLeft += speed * dt;
+          if (half > 0 && el.scrollLeft >= half) {
+            // Content (two copies) is wide enough to loop at the seam — the normal case.
+            el.scrollLeft -= half;
+          } else if (half > maxScroll && el.scrollLeft >= maxScroll) {
+            // Content is too narrow for the viewport to ever reach the seam — the browser
+            // clamps scrollLeft at maxScroll before we get there, which otherwise freezes
+            // the ribbon forever instead of looping. Snap back to the start instead.
+            el.scrollLeft = 0;
+          }
         }
       }
       raf = requestAnimationFrame(tick);
@@ -79,7 +125,7 @@ export function AutoScrollRow({
       window.removeEventListener("pointercancel", clearDragging);
       window.removeEventListener("blur", clearDragging);
     };
-  }, [speed]);
+  }, [speed, reverse, reducedMotion]);
 
   function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse" || !ref.current) return;
@@ -138,18 +184,41 @@ export function AutoScrollRow({
   }
 
   return (
-    <div
-      ref={ref}
-      className={`ribbon-scroll ${className}`}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={endDrag}
-      onPointerCancel={endDrag}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
-      onClickCapture={onClickCapture}
-    >
-      <div className={trackClassName}>{children}</div>
+    <div className="ribbon-row relative h-full">
+      <div
+        ref={ref}
+        className={`ribbon-scroll ${className}`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
+        onClickCapture={onClickCapture}
+      >
+        <div className={trackClassName}>{children}</div>
+      </div>
+      {!reducedMotion && (
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          aria-pressed={paused}
+          aria-label={paused ? `Resume ${label}` : `Pause ${label}`}
+          className="ribbon-pause absolute right-1.5 top-1/2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border opacity-55 transition-opacity duration-150 hover:opacity-100 focus-visible:opacity-100"
+          style={{ background: "var(--paper)", borderColor: "var(--line)", color: "var(--ink)" }}
+        >
+          {paused ? (
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" fill="currentColor">
+              <path d="M2 1.2v7.6a.4.4 0 0 0 .61.34l6.1-3.8a.4.4 0 0 0 0-.68L2.61.86A.4.4 0 0 0 2 1.2Z" />
+            </svg>
+          ) : (
+            <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" fill="currentColor">
+              <rect x="1.6" y="1" width="2.6" height="8" rx="0.5" />
+              <rect x="5.8" y="1" width="2.6" height="8" rx="0.5" />
+            </svg>
+          )}
+        </button>
+      )}
     </div>
   );
 }

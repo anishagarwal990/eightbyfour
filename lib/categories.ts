@@ -331,15 +331,15 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "cement-boards",
     dbCategory: "Cement Board",
     name: "Cement Boards",
-    heroTagline: "Fibre-cement boards for wet-area partitions and exterior cladding — catalogue coming soon.",
+    heroTagline: "Bison Panel cement-bonded particle board, 6mm to 40mm, for wet-area partitions and exterior cladding.",
     overview:
-      "Cement boards are fibre-cement panels used for wet-area partitions, exterior cladding and tile backer applications where moisture resistance and dimensional stability matter more than a fine finish.",
+      "Cement boards are fibre-cement panels used for wet-area partitions, exterior cladding and tile backer applications where moisture resistance and dimensional stability matter more than a fine finish. EightxFour stocks Bison Panel's cement-bonded particle board across eleven thicknesses, from 6mm for partitions to 40mm for structural applications.",
     buyingGuide:
-      "We're building out this catalogue with real stock and pricing. Share your thickness and quantity requirement with us in the meantime and we'll check availability across our sourcing network.",
+      "Thickness follows the application: 6-12mm suits partitions and false ceilings, 16-25mm covers flooring underlays and exterior cladding, and 30mm+ is for structural and load-bearing use. Bison's cement-bonded board ships in standard 8×4 ft sheets and doesn't need painting or additional waterproofing for most wet-area work.",
     faqs: [
       {
         question: "Do you currently stock cement board?",
-        answer: "This category is being added to our catalogue. Get in touch with your requirement and we'll confirm current availability.",
+        answer: "Yes — Bison Panel cement-bonded particle board, in thicknesses from 6mm to 40mm, standard 8×4 ft sheets. Share your quantity requirement and we'll confirm current pricing.",
       },
     ],
     applicationSlugs: ["commercial-spaces"],
