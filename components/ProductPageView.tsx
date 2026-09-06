@@ -398,7 +398,20 @@ export function ProductPageView({
                 .map(([label, value]) => (
                   <div key={label} className="flex flex-col gap-0.5 border-b py-2 text-sm" style={{ borderColor: "var(--line)" }}>
                     <dt className="text-xs" style={{ color: "var(--line-strong)" }}>{label}</dt>
-                    <dd>{value}</dd>
+                    {label === "Brand" && brand?.logo_url ? (
+                      <dd>
+                        <Image
+                          src={brand.logo_url}
+                          alt={`${value} logo`}
+                          width={140}
+                          height={40}
+                          className="object-contain"
+                          style={{ width: "auto", height: "28px" }}
+                        />
+                      </dd>
+                    ) : (
+                      <dd>{value}</dd>
+                    )}
                   </div>
                 ))}
               {(product.spec_table || []).map((row) => (

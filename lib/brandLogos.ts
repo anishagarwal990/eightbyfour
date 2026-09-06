@@ -5,6 +5,7 @@
 // we don't stock as SKUs).
 export const BRAND_LOGOS: Record<string, string> = {
   Austin: "/brand-logos/austin.png",
+  "Bison Panel": "/brand-logos/bisonpanel.webp",
   Century: "https://svjlalgrcuwyvwpxriwd.supabase.co/storage/v1/object/public/product-images/brands/century.png",
   "Century Laminates": "/brand-logos/century-laminates.jpg",
   Durasein: "/brand-logos/durasein.webp",
