@@ -1,7 +1,7 @@
 import type { ProductRow } from "@/lib/supabase/types";
 import { categorySingularName } from "@/lib/categories";
 import { productDisplayName } from "@/lib/productDisplay";
-import { resolvePrice } from "@/lib/pricing";
+import { displayPrice, resolvePrice } from "@/lib/pricing";
 
 // Board categories where the dominant search for a named SKU is a price
 // query ("century sainik 710 price"), and where the catalogue is small
@@ -44,7 +44,16 @@ export function buildProductTitle(product: ProductRow): string {
   const displayName = productDisplayName(product);
   const category = categorySingularName(product.category);
   const code = product.sd_code || product.collection;
-  const base = [displayName, code, finishCode(product), category].filter(Boolean).join(" ");
+  // Token order matches how these SKUs are actually searched — "merino 22153
+  // saga green", not "merino saga green 22153" — and the product H1, which
+  // already leads with the code ("22153 — Saga Green"). When there's a real
+  // shade code, put brand + code first, then the shade name; without one,
+  // fall back to the plain name.
+  const base = product.sd_code
+    ? [product.brand, product.sd_code, stripBrand(product.name, product.brand), finishCode(product), category]
+        .filter(Boolean)
+        .join(" ")
+    : [displayName, code, finishCode(product), category].filter(Boolean).join(" ");
   // Only where the page can actually answer the price question — a product
   // with no rate on file promising a price in its title is a bounce — and
   // only where the qualifier fits, since buildMetadata truncates past its
@@ -67,6 +76,11 @@ export function buildProductTitle(product: ProductRow): string {
  */
 export function finishCode(product: ProductRow): string | null {
   return product.finishes?.length ? null : product.finish;
+}
+
+/** `product.name` with a leading brand token removed, if present ("Wigwam Excel MR" → "MR"). */
+function stripBrand(name: string, brand: string): string {
+  return name.toLowerCase().startsWith(brand.toLowerCase()) ? name.slice(brand.length).trim() || name : name;
 }
 
 function firstSentence(text: string): string {
@@ -104,9 +118,40 @@ export function buildProductDescription(product: ProductRow): string {
     sentence = nameIdx === 0 ? `${displayName} ${code}${sentence.slice(displayName.length)}` : `${displayName} ${code} — ${sentence}`;
   }
 
-  const sizeThickness = [product.thicknesses?.[0], product.size].filter(Boolean).join(", ");
-  const withSpec = sizeThickness ? `${sentence} ${sizeThickness}.` : sentence;
+  const price = resolvePrice(product);
+  const priceLabel = price ? displayPrice(price).netLabel : null;
+  // Size trimmed to the pre-paren form ("8×4 ft") so the spec clause stays short.
+  const shortSize = product.size ? product.size.replace(/\s*\(.*\)\s*$/, "").trim() : null;
 
+  if (priceLabel) {
+    // Priced SKUs (the ones that rank but don't get clicked) lead with the
+    // price — the same figure the page, card and JSON-LD Offer show, all via
+    // resolvePrice, so it can never disagree with them. A compact spec-led
+    // opener, then as much of the real description as fits, then a close.
+    const specHead = [
+      `${displayName}${code && !displayName.includes(code) ? ` ${code}` : ""} ${categoryLower} — ${priceLabel}`,
+      product.thicknesses?.[0],
+      shortSize,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    const detail = product.description ? firstSentence(product.description) : "";
+    const close = "Check finish options, stock and delivery, or send your list for a quote.";
+    const closeShort = "See finishes, stock and delivery, or request a quote.";
+    const candidates = [
+      `${specHead}. ${detail} ${close}`.replace(/\s+/g, " ").trim(),
+      `${specHead}. ${detail}`.replace(/\s+/g, " ").trim(),
+      `${specHead}. ${close}`,
+      `${specHead}. ${closeShort}`,
+      `${specHead}.`,
+    ];
+    return candidates.find((c) => c.length <= MAX_DESCRIPTION_LENGTH) ?? `${specHead}.`;
+  }
+
+  // Unpriced (RFQ) SKUs — keep the existing description-first shape and the
+  // samples close rather than promise a price the page can't show.
+  const specs = [product.thicknesses?.[0], shortSize].filter(Boolean).join(", ");
+  const withSpec = specs ? `${sentence} ${specs}.` : sentence;
   const candidates = [`${withSpec} ${CTA_LONG}`, `${withSpec} ${CTA_SHORT}`, `${sentence} ${CTA_LONG}`, `${sentence} ${CTA_SHORT}`, sentence, CTA_LONG];
   return candidates.find((c) => c.length <= MAX_DESCRIPTION_LENGTH) ?? candidates[candidates.length - 1];
 }

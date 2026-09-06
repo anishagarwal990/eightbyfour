@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
+import { CATEGORIES, categorySeo, getCategoryBySlug } from "@/lib/categories";
 import { categoryPageUrl } from "@/lib/categoryPagination";
 import {
   getAllProductSlugs,
   getBrandsForCategory,
   getCategoryFilterCounts,
+  getCategoryPriceContext,
   getProductBySlug,
   getProductsByBrand,
   getProductsByCategoryPage,
@@ -37,11 +38,14 @@ export async function generateMetadata({
   const category = getCategoryBySlug(slug);
   if (category) {
     const { collection } = await searchParams;
-    const filterSuffix = collection ? ` — ${collection}` : "";
     const { total } = await getCategoryFilterCounts(category.dbCategory);
+    const seo = categorySeo(category);
+    // A collection filter is a real, distinct sub-listing — front the filter
+    // name so the tag isn't byte-identical to the unfiltered category page.
+    const title = collection ? `${category.name} — ${collection} (Prices & Brands)` : seo.title;
     return buildMetadata({
-      title: `${category.name}${filterSuffix} Supplier in Hyderabad — Buy ${category.name} Online`,
-      description: `${category.heroTagline} Live stock, brand options and a buying guide for ${category.name.toLowerCase()} in Hyderabad.`,
+      title,
+      description: seo.description,
       path: categoryPageUrl(category.slug, 1, collection ?? null),
       noindex: total === 0,
     });
@@ -76,10 +80,11 @@ export default async function ProductOrCategoryPage({
   const category = getCategoryBySlug(slug);
   if (category) {
     const { collection } = await searchParams;
-    const [{ products, totalPages }, brands, filterCounts] = await Promise.all([
+    const [{ products, totalPages }, brands, filterCounts, priceContext] = await Promise.all([
       getProductsByCategoryPage(category.dbCategory, { page: 1, collection: collection ?? null }),
       getBrandsForCategory(category.dbCategory),
       getCategoryFilterCounts(category.dbCategory),
+      getCategoryPriceContext(category.dbCategory),
     ]);
     return (
       <CategoryPageView
@@ -87,6 +92,7 @@ export default async function ProductOrCategoryPage({
         products={products}
         brands={brands}
         filterCounts={filterCounts}
+        priceContext={priceContext}
         page={1}
         totalPages={totalPages}
         collection={collection ?? null}

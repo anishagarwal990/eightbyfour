@@ -84,7 +84,12 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     "@context": "https://schema.org",
     "@type": "Product",
     name: productDisplayName(product),
-    sku: String(product.id),
+    // Real shade/decor code as the SKU/MPN when the row has one — that's the
+    // identifier buyers and the manufacturer actually use ("Merino 22153"),
+    // and what the decor-code searches this page targets are looking for. The
+    // internal row id stays as the fallback so every Product still has a sku.
+    sku: product.sd_code || product.eb_code || String(product.id),
+    mpn: product.sd_code || undefined,
     category: product.category,
     description: product.description || undefined,
     image: bestProductImage(product)?.src,

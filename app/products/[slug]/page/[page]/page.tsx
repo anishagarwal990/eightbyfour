@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { CATEGORIES, getCategoryBySlug } from "@/lib/categories";
+import { CATEGORIES, categorySeo, getCategoryBySlug } from "@/lib/categories";
 import { categoryPageUrl, parsePageParam } from "@/lib/categoryPagination";
 import {
   CATEGORY_PAGE_SIZE,
@@ -39,10 +39,14 @@ export async function generateMetadata({
   if (!category || !page) return {};
 
   const { collection } = await searchParams;
-  const filterSuffix = collection ? ` — ${collection}` : "";
+  const seo = categorySeo(category);
+  const scope = collection ? `${category.name} — ${collection}` : category.name;
   return buildMetadata({
-    title: `${category.name}${filterSuffix} Supplier in Hyderabad — Page ${page}`,
-    description: `${category.heroTagline} Live stock, brand options and a buying guide for ${category.name.toLowerCase()} in Hyderabad. Page ${page}.`,
+    // Self-canonical (buildMetadata canonicals to this page's own URL, not
+    // page 1) with a page-numbered title so page N never competes with the
+    // hub for the head "{category}" / "{category} price" intent.
+    title: `${scope} — Page ${page}`,
+    description: `${seo.description} Page ${page} of the ${category.name.toLowerCase()} catalogue.`,
     path: categoryPageUrl(category.slug, page, collection ?? null),
   });
 }

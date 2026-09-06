@@ -148,17 +148,41 @@ export async function getAllProductSlugsWithDates(): Promise<{ slug: string; cre
   return rows;
 }
 
+/**
+ * Contextually-related products, best match first:
+ *   1. same brand + same collection (a real "more of this range")
+ *   2. same brand + same finish
+ *   3. same brand
+ *   4. same category (fallback)
+ * All links are crawlable (rendered as ProductCard <Link>s). Two small
+ * queries — same-brand and same-category candidate pools — scored and merged
+ * in JS, rather than one ORDER BY brand slice that for a 2,400-row category
+ * never actually surfaced a same-brand item.
+ */
 export async function getRelatedProducts(product: ProductRow, limit = 4): Promise<ProductRow[]> {
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("category", product.category)
-    .neq("id", product.id)
-    .order("brand")
-    .limit(limit);
-  if (error) throw error;
-  return data;
+  const [brandRes, categoryRes] = await Promise.all([
+    supabase.from("products").select("*").eq("brand", product.brand).eq("category", product.category).neq("id", product.id).limit(40),
+    supabase.from("products").select("*").eq("category", product.category).neq("id", product.id).limit(40),
+  ]);
+  if (brandRes.error) throw brandRes.error;
+  if (categoryRes.error) throw categoryRes.error;
+
+  const score = (p: ProductRow): number => {
+    if (p.brand === product.brand && p.collection && p.collection === product.collection) return 4;
+    if (p.brand === product.brand && p.finish && p.finish === product.finish) return 3;
+    if (p.brand === product.brand) return 2;
+    return 1;
+  };
+
+  const seen = new Set<number>();
+  const merged: ProductRow[] = [];
+  for (const p of [...brandRes.data, ...categoryRes.data]) {
+    if (seen.has(p.id)) continue;
+    seen.add(p.id);
+    merged.push(p);
+  }
+  return merged.sort((a, b) => score(b) - score(a)).slice(0, limit);
 }
 
 export async function getProductsByBrand(brandName: string): Promise<ProductRow[]> {
@@ -238,6 +262,49 @@ export async function getCategorySampleProducts(dbCategory: string, limit = 10):
   const { data, error } = await supabase.from("products").select("*").eq("category", dbCategory).limit(limit);
   if (error) throw error;
   return data;
+}
+
+export interface CategoryPriceContext {
+  /** Lowest per-unit rate on file across the category, for a "from ₹X" line. Null when nothing in the category is priced. */
+  from: number | null;
+  /** Unit the floor price is quoted in (sheet / sqft / …) — from the same row. */
+  unit: string | null;
+  /** How many SKUs in the category carry a real rate, for "prices on N of M". */
+  pricedCount: number;
+  total: number;
+}
+
+// Cheap price context for a category landing page — a single grouped query
+// over the `price_table` JSON rather than pulling every row. Only reads the
+// two common single-rate shapes ({starting_price} / {min_price}); per-pack
+// array pricing (Fevicol) is rare enough to skip for a category-level floor.
+export async function getCategoryPriceContext(dbCategory: string): Promise<CategoryPriceContext> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("price_table")
+    .eq("category", dbCategory)
+    .not("price_table", "is", null);
+  if (error) throw error;
+
+  let from: number | null = null;
+  let unit: string | null = null;
+  let pricedCount = 0;
+  for (const row of data as { price_table: unknown }[]) {
+    const t = row.price_table;
+    if (!t || typeof t !== "object" || Array.isArray(t)) continue;
+    const obj = t as { starting_price?: unknown; min_price?: unknown; unit?: unknown };
+    const rate = typeof obj.starting_price === "number" ? obj.starting_price : typeof obj.min_price === "number" ? obj.min_price : null;
+    if (rate === null || rate <= 0) continue;
+    pricedCount++;
+    if (from === null || rate < from) {
+      from = rate;
+      unit = typeof obj.unit === "string" ? obj.unit : null;
+    }
+  }
+
+  const { count } = await supabase.from("products").select("*", { count: "exact", head: true }).eq("category", dbCategory);
+  return { from, unit, pricedCount, total: count ?? 0 };
 }
 
 export interface CategoryBrand {

@@ -14,6 +14,18 @@ export interface CategoryConfig {
   faqs: CategoryFaq[];
   applicationSlugs: string[];
   relatedCategorySlugs: string[];
+  /**
+   * SERP-title / H1 / description overrides. GSC shows category pages ranking
+   * ~13-28 for "{category}" and "{category} price" intent while the SKU pages
+   * below them sit at 7-10 — so the category copy leads with price + brand +
+   * spec selection (what those searches want) instead of the old rigid
+   * "{name} Supplier in Hyderabad — Buy {name} Online" pattern. Hyderabad stays
+   * in the eyebrow and the on-page overview, not stuffed into every tag.
+   * `categorySeo()` fills sensible defaults when a field is omitted.
+   */
+  seoTitle?: string;
+  seoDescription?: string;
+  h1?: string;
 }
 
 // Categories with zero live products are allowed here deliberately (see the
@@ -26,6 +38,10 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "plywood",
     dbCategory: "Plywood",
     name: "Plywood",
+    seoTitle: "Plywood Price, Grades & Brands — Buy Plywood Online",
+    seoDescription:
+      "Compare plywood prices by grade (MR, BWP, BWR, FR), thickness and brand — Century, Greenply, Green Panel, Austin and more. Transparent rates, samples and project delivery from Eight x Four.",
+    h1: "Plywood — Compare Prices, Grades & Brands",
     heroTagline: "Commercial and marine-grade plywood from Century, Austin, Green Panel and Wigwam Excel.",
     overview:
       "Plywood is the structural backbone of almost every interior project — cabinetry carcasses, wardrobe shutters, false ceilings, and furniture that needs to hold screws and hardware over decades. EightxFour sources plywood in standard 8×4 ft sheets across MR (moisture-resistant), BWP (boil-proof) and fire-retardant grades from manufacturers already trusted on Hyderabad sites, so you're choosing between real stock, not a catalogue.",
@@ -55,6 +71,10 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "birch-plywood",
     dbCategory: "Birch Plywood",
     name: "Birch Plywood",
+    seoTitle: "Birch Plywood — Price, Grades & Sheet Sizes",
+    seoDescription:
+      "Imported Russian / Baltic birch plywood in BB/BB grade, 4mm to 18mm — void-free edges for exposed-edge furniture. See prices and sheet sizes, with samples and project delivery.",
+    h1: "Birch Plywood — Prices, Grades & Sheet Sizes",
     heroTagline: "Imported Russian / Baltic birch in BB/BB grade for furniture with exposed edges.",
     overview:
       "Birch plywood is a multi-ply hardwood panel built from thin birch veneers, prized for its dense, void-free cross-section — the edge itself looks finished, which is why designers reach for it on open shelving, exposed-edge furniture and Scandinavian-style joinery. EightxFour stocks imported Russian / Baltic birch in BB/BB grade (both faces clean).",
@@ -102,6 +122,10 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "mdf-and-hdhmr",
     dbCategory: "MDF and HDHMR",
     name: "MDF and HDHMR",
+    seoTitle: "MDF & HDHMR Board — Price, Grades & Brands",
+    seoDescription:
+      "Compare MDF and HDHMR board prices by thickness and grade from Century and Green Panel — interior and moisture-resistant boards for shutters and panelling, with samples and delivery.",
+    h1: "MDF & HDHMR Board — Compare Prices & Grades",
     heroTagline: "Interior and exterior-grade MDF plus HDHMR boards from Century and Green Panel.",
     overview:
       "MDF (medium-density fibreboard) and HDHMR (high-density, high-moisture-resistant board) are engineered wood panels made from compressed wood fibres rather than veneers — which gives them a smooth, uniform surface that machines and paints cleanly. HDHMR is the denser, moisture-tolerant version, common for wardrobe shutters and profile-routed doors.",
@@ -126,6 +150,10 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "laminates",
     dbCategory: "Laminates",
     name: "Laminates",
+    seoTitle: "Laminate Sheets — Prices, Brands & Designs",
+    seoDescription:
+      "Compare laminate sheet prices, shades and finishes across Greenlam, Merino, Century and Virgo. 2,400+ designs with real shade codes, samples and project delivery from Eight x Four.",
+    h1: "Laminate Sheets — Compare Prices, Brands & Designs",
     heroTagline: "Decorative laminate sheets across finishes and thicknesses for cabinetry and wall surfaces.",
     overview:
       "Laminates are the visible finish layer on most modular furniture — bonded onto plywood, MDF or HDHMR to give cabinetry, wardrobes and panelling their final texture and colour. EightxFour's laminate catalogue spans matte, glossy, textured and wood-grain finishes across the thicknesses used in Hyderabad fabrication.",
@@ -154,6 +182,10 @@ export const CATEGORIES: CategoryConfig[] = [
     // unchanged — it is the Supabase value and renaming it would orphan every
     // product row.
     name: "Solid Surface / Corian",
+    seoTitle: "Acrylic Solid Surface — Prices, Shades & Brands",
+    seoDescription:
+      "Compare acrylic solid surface sheet prices and shades across Durasein, Tiara and Vivanta — solid, marble-effect and textured finishes for countertops and cladding, with samples and delivery.",
+    h1: "Solid Surface / Corian — Compare Prices & Shades",
     heroTagline: "Durasein, Tiara and Vivanta acrylic solid surface sheets across a full shade catalogue for countertops and cladding.",
     overview:
       "Acrylic solid surface (the category Corian popularised) is a non-porous, seamlessly jointable sheet material used for kitchen countertops, wash-basin counters, wall cladding and reception desks. EightxFour stocks the Durasein, Tiara and Vivanta shade ranges — solid colours, marble-effect and textured finishes — with real shade codes you can spec against.",
@@ -178,6 +210,10 @@ export const CATEGORIES: CategoryConfig[] = [
     slug: "veneers",
     dbCategory: "Veneers",
     name: "Veneers",
+    seoTitle: "Wood Veneers — Types, Designs & Pricing",
+    seoDescription:
+      "Natural, engineered, smoked and exotic wood veneers — 490+ designs across nine ranges. See species, grain and sheet sizes, request pricing and get project delivery from Eight x Four.",
+    h1: "Wood Veneers — Types, Designs & Grain",
     heroTagline: "Natural, dyed and embossed veneers — EightxFour's largest catalogue by shade and species.",
     overview:
       "Veneer is a thin slice of real wood bonded onto a substrate, used wherever a project calls for genuine wood grain without the cost or movement risk of solid timber — panelling, doors, reception counters and feature walls. This is EightxFour's deepest catalogue: natural species veneers, dyed veneers in editorial colourways, and embossed textures, sourced and quality-checked for Hyderabad fabrication.",
@@ -468,4 +504,27 @@ export function categorySingularName(dbCategory: string): string {
 
 export function getCategoryByDbCategory(dbCategory: string): CategoryConfig | undefined {
   return CATEGORIES.find((c) => c.dbCategory === dbCategory);
+}
+
+export interface CategorySeo {
+  title: string;
+  description: string;
+  h1: string;
+}
+
+/**
+ * Search-intent title / H1 / description for a category listing page. Uses the
+ * per-category overrides in CategoryConfig where set, and otherwise a generic
+ * price + brand + spec pattern — never the old "{name} Supplier in Hyderabad —
+ * Buy {name} Online" boilerplate. The " | Eight x Four" suffix is added by
+ * buildMetadata()/the layout title template, so it isn't included here.
+ */
+export function categorySeo(category: CategoryConfig): CategorySeo {
+  return {
+    title: category.seoTitle ?? `${category.name} — Prices, Brands & Specs`,
+    description:
+      category.seoDescription ??
+      `Compare ${category.name.toLowerCase()} prices, brands and specifications on one page. ${category.heroTagline} Samples and project delivery from Eight x Four.`,
+    h1: category.h1 ?? `${category.name} — Compare Prices, Brands & Specs`,
+  };
 }

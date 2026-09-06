@@ -7,6 +7,7 @@ import type { ShadeEntry } from "@/components/ShadeFinishPicker";
 import { CATEGORIES } from "@/lib/categories";
 import { isCategoryMarkSlug, CATEGORY_MARK_DB_CATEGORIES } from "@/components/CategoryMark";
 import { buildMetadata } from "@/lib/seo";
+import { brandSeoDescription, brandSeoTitle } from "@/lib/brandSeo";
 import { brandPagePath } from "@/lib/brandPagination";
 import { BrandPageView, getBrandFaqs } from "@/components/BrandPageView";
 import { SOURCE_ONLY_BRANDS, getSourceOnlyBrandBySlug } from "@/lib/source-only-brands";
@@ -22,16 +23,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
   if (brand) {
-    const isEightByFour = brand.slug === "eightbyfour";
+    const dbCategories = await getBrandCategories(brand.name);
     return buildMetadata({
-      title: isEightByFour
-        ? "EightxFour Products in Hyderabad — Downloads & Pricing"
-        : `${brand.name} Dealer in Hyderabad — Products, Downloads & Pricing`,
-      description:
-        brand.overview ||
-        (isEightByFour
-          ? "EightxFour's own product line in Hyderabad — request trade pricing and delivery."
-          : `${brand.name} products available through EightxFour in Hyderabad — request trade pricing and delivery.`),
+      title: brandSeoTitle(brand.name, dbCategories),
+      description: brandSeoDescription(brand.name, dbCategories, brand.overview),
       path: brandPagePath(brand.slug, 1),
       image: brand.logo_url || undefined,
     });

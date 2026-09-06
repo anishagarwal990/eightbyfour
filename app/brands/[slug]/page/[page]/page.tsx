@@ -5,6 +5,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { brandPagePath, parsePageParam } from "@/lib/brandPagination";
 import { CATEGORY_PAGE_SIZE, getProductsByBrandPage } from "@/lib/data/products";
 import { buildMetadata } from "@/lib/seo";
+import { brandSeoDescription, brandSeoTitle } from "@/lib/brandSeo";
 import { BrandPageView, getBrandFaqs } from "@/components/BrandPageView";
 import { isCategoryMarkSlug, CATEGORY_MARK_DB_CATEGORIES } from "@/components/CategoryMark";
 
@@ -28,11 +29,13 @@ export async function generateMetadata({ params }: { params: Promise<RouteParams
   const page = parsePageParam(rawPage);
   if (!brand || !page) return {};
 
+  const dbCategories = await getBrandCategories(brand.name);
   return buildMetadata({
-    title: `${brand.name} Dealer in Hyderabad — Page ${page}`,
-    description:
-      brand.overview ||
-      `${brand.name} products available through EightxFour in Hyderabad — request trade pricing and delivery. Page ${page}.`,
+    // Self-canonical (its own /page/N URL) + page-numbered title so a deep
+    // page never competes with the brand hub for the head "{brand} {category}"
+    // intent — see BrandPageView's lean rendering for page > 1.
+    title: brandSeoTitle(brand.name, dbCategories, page),
+    description: brandSeoDescription(brand.name, dbCategories, brand.overview, page),
     path: brandPagePath(brand.slug, page),
     image: brand.logo_url || undefined,
   });
