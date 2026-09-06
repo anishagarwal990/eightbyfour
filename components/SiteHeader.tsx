@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SearchBar } from "@/components/SearchBar";
@@ -48,6 +48,58 @@ const PRODUCTS_MENU_COLUMNS = [
   categories: col.slugs.map((slug) => CATEGORIES.find((c) => c.slug === slug)!).filter(Boolean),
 }));
 
+// Shared open/close plumbing for the hover mega-menus. The panels still show on
+// CSS :hover / :focus-within (untouched, so hover keeps working before hydration
+// and if JS is slow); this only tracks that state for `aria-expanded` and lets
+// Escape force the panel shut. `suppressed` is an inline style, which always
+// beats the CSS visibility utilities, so Escape closes the panel even while the
+// pointer is still hovering it — cleared again on the next mouse-enter or focus.
+//
+// Modelled as a disclosure, not an ARIA menu: the panels hold ordinary
+// navigation links with ordinary Tab behaviour, so `aria-haspopup="menu"` would
+// promise an application-style menu widget (arrow-key roving over menuitems)
+// that does not exist here. The trigger points at its panel with
+// aria-expanded + aria-controls instead.
+function useMegaMenu() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const panelId = useId();
+  const [hoverOpen, setHoverOpen] = useState(false);
+  const [focusOpen, setFocusOpen] = useState(false);
+  const [suppressed, setSuppressed] = useState(false);
+  const open = (hoverOpen || focusOpen) && !suppressed;
+
+  const containerProps = {
+    ref: containerRef,
+    onMouseEnter: () => {
+      setHoverOpen(true);
+      setSuppressed(false);
+    },
+    onMouseLeave: () => {
+      setHoverOpen(false);
+      setSuppressed(false);
+    },
+    onFocus: () => setFocusOpen(true),
+    onBlur: (e: React.FocusEvent<HTMLDivElement>) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+        setFocusOpen(false);
+        setSuppressed(false);
+      }
+    },
+    onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === "Escape" && (hoverOpen || focusOpen)) {
+        setSuppressed(true);
+        containerRef.current?.querySelector<HTMLElement>("[data-menu-trigger]")?.focus();
+      }
+    },
+  };
+
+  const panelHiddenStyle: React.CSSProperties = suppressed
+    ? { visibility: "hidden", opacity: 0, pointerEvents: "none" }
+    : {};
+
+  return { open, panelId, containerProps, panelHiddenStyle };
+}
+
 function ProductsMegaMenu({
   active,
   counts,
@@ -58,11 +110,15 @@ function ProductsMegaMenu({
   brands: BrandMenuEntry[];
 }) {
   const totalProducts = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  const { open, panelId, containerProps, panelHiddenStyle } = useMegaMenu();
 
   return (
-    <div className="group relative">
+    <div className="group relative" {...containerProps}>
       <Link
         href="/products"
+        data-menu-trigger
+        aria-expanded={open}
+        aria-controls={panelId}
         className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
       >
         Products
@@ -75,6 +131,8 @@ function ProductsMegaMenu({
         />
       </Link>
       <div
+        id={panelId}
+        style={panelHiddenStyle}
         className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[900px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
@@ -182,10 +240,15 @@ function ProductsMegaMenu({
 }
 
 function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenuEntry[] }) {
+  const { open, panelId, containerProps, panelHiddenStyle } = useMegaMenu();
+
   return (
-    <div className="group relative">
+    <div className="group relative" {...containerProps}>
       <Link
         href="/brands"
+        data-menu-trigger
+        aria-expanded={open}
+        aria-controls={panelId}
         className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
       >
         Brands
@@ -198,6 +261,8 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
         />
       </Link>
       <div
+        id={panelId}
+        style={panelHiddenStyle}
         className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[620px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
@@ -255,10 +320,15 @@ function BrandsMegaMenu({ active, brands }: { active: boolean; brands: BrandMenu
 }
 
 function HyderabadMegaMenu({ active }: { active: boolean }) {
+  const { open, panelId, containerProps, panelHiddenStyle } = useMegaMenu();
+
   return (
-    <div className="group relative">
+    <div className="group relative" {...containerProps}>
       <Link
         href="/hyderabad"
+        data-menu-trigger
+        aria-expanded={open}
+        aria-controls={panelId}
         className="group/link relative py-1 transition-colors duration-200 hover:text-[var(--burgundy)]"
       >
         Hyderabad
@@ -271,6 +341,8 @@ function HyderabadMegaMenu({ active }: { active: boolean }) {
         />
       </Link>
       <div
+        id={panelId}
+        style={panelHiddenStyle}
         className="invisible absolute left-0 top-full z-30 max-h-[calc(100vh-140px)] w-[700px] max-w-[calc(100vw-3.5rem)] translate-y-2 overflow-y-auto opacity-0 transition-[opacity,visibility,transform] duration-200 [transition-timing-function:var(--ease-out-soft)] group-hover:visible group-hover:translate-y-1 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-1 group-focus-within:opacity-100"
       >
         <div
@@ -444,7 +516,11 @@ export function SiteHeader({
             background: scrolled ? "rgba(255,255,255,0.72)" : transparentAtRest ? "rgba(255,255,255,0.55)" : "var(--paper)",
           }}
         >
-          <Link href="/" className="transition-opacity duration-150 hover:opacity-75">
+          <Link
+            href="/"
+            aria-label="EightxFour — home"
+            className="transition-opacity duration-150 hover:opacity-75"
+          >
             <SiteBrandMark scrolled={scrolled} />
           </Link>
           <nav className="hidden items-center justify-center gap-5 text-sm lg:flex" aria-label="Primary">

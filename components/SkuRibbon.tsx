@@ -31,10 +31,9 @@ export function SkuRibbon({ counts }: { counts: Record<string, number> }) {
   }));
 
   if (categories.length === 0) return null;
-  const items = [...categories, ...categories];
 
   return (
-    <div
+    <nav
       className="sticky top-0 z-30"
       style={{
         height: "var(--sku-ribbon-h)",
@@ -44,11 +43,24 @@ export function SkuRibbon({ counts }: { counts: Record<string, number> }) {
       }}
       aria-label="Browse by category"
     >
-      <AutoScrollRow className="sku-ribbon-mask h-full" trackClassName="flex h-full items-center gap-6 px-4" speed={45}>
-        {items.map((c, i) => (
+      <AutoScrollRow
+        label="category ribbon"
+        className="sku-ribbon-mask h-full"
+        trackClassName="flex h-full items-center gap-6 px-4"
+        speed={45}
+      >
+        {categories.map((c, i) => (
           <CategoryItem key={`${c.slug}-${i}`} category={c} />
         ))}
+        {/* Second copy exists only to make the scroll loop seamless — hidden from
+            assistive tech and taken out of the tab order so it is not read or
+            tabbed through twice. */}
+        <div aria-hidden="true" inert style={{ display: "contents" }}>
+          {categories.map((c, i) => (
+            <CategoryItem key={`clone-${c.slug}-${i}`} category={c} />
+          ))}
+        </div>
       </AutoScrollRow>
-    </div>
+    </nav>
   );
 }

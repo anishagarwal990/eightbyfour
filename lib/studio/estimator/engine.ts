@@ -32,8 +32,8 @@ import {
   SHUTTER_CORES,
   SHUTTER_FABRICATION_RATE_PER_SQFT,
   SHUTTER_FINISHES,
-} from "./config.ts";
-import type { EstimateBucket, WardrobeEstimate, WardrobeEstimateInput } from "./types.ts";
+} from "./config";
+import type { EstimateBucket, WardrobeEstimate, WardrobeEstimateInput } from "./types";
 
 const find = <T extends { id: string }>(list: T[], id: string, label: string): T => {
   const hit = list.find((x) => x.id === id);

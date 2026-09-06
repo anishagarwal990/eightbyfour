@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import type { SearchEntry } from "@/lib/search-index";
@@ -11,7 +11,14 @@ export function SearchBar() {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState<SearchEntry[] | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  // True once the visitor has moved the highlight with the arrow keys. Enter
+  // then selects that option; without it Enter still goes to the full results
+  // page (the long-standing behaviour — a bare Enter should show everything
+  // that matched, not jump to one fuzzy guess).
+  const [keyboardActive, setKeyboardActive] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listboxId = useId();
+  const optionId = (i: number) => `${listboxId}-option-${i}`;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -34,10 +41,12 @@ export function SearchBar() {
   }
 
   const results = query.trim() && fuse ? fuse.search(query, { limit: 50 }).map((r) => r.item) : [];
+  const listboxOpen = open && query.trim().length > 0 && results.length > 0;
 
   function goTo(url: string) {
     setOpen(false);
     setQuery("");
+    setKeyboardActive(false);
     router.push(url);
   }
 
@@ -45,6 +54,12 @@ export function SearchBar() {
     <div ref={containerRef} className="relative w-full max-w-xs">
       <input
         type="search"
+        role="combobox"
+        aria-label="Search products, brands, guides"
+        aria-autocomplete="list"
+        aria-expanded={listboxOpen}
+        aria-controls={listboxOpen ? listboxId : undefined}
+        aria-activedescendant={listboxOpen && keyboardActive ? optionId(activeIndex) : undefined}
         placeholder="Search products, brands, guides…"
         value={query}
         onFocus={() => {
@@ -54,37 +69,57 @@ export function SearchBar() {
         onChange={(e) => {
           setQuery(e.target.value);
           setActiveIndex(0);
+          setKeyboardActive(false);
         }}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown" && results.length) {
             e.preventDefault();
+            setOpen(true);
+            setKeyboardActive(true);
             setActiveIndex((i) => Math.min(i + 1, results.length - 1));
           } else if (e.key === "ArrowUp" && results.length) {
             e.preventDefault();
+            setKeyboardActive(true);
             setActiveIndex((i) => Math.max(i - 1, 0));
           } else if (e.key === "Enter") {
             e.preventDefault();
-            // Enter always goes to the full results page — jumping straight
-            // to one fuzzy match hid everything else that also matched.
-            if (query.trim()) goTo(`/search?q=${encodeURIComponent(query.trim())}`);
+            if (listboxOpen && keyboardActive && results[activeIndex]) {
+              // A specific suggestion was arrowed to — go straight there.
+              goTo(results[activeIndex].url);
+            } else if (query.trim()) {
+              // Otherwise the full results page, as before.
+              goTo(`/search?q=${encodeURIComponent(query.trim())}`);
+            }
           } else if (e.key === "Escape") {
             setOpen(false);
           }
         }}
-        className="w-full rounded-full border px-4 py-1.5 text-sm transition-colors placeholder:text-[rgba(110,31,46,0.55)] focus:outline-none focus:border-[var(--burgundy)]"
+        className="w-full rounded-full border px-4 py-1.5 text-sm transition-colors placeholder:text-[rgba(110,31,46,0.55)] focus-visible:border-[var(--burgundy)]"
         style={{ borderColor: "rgba(110,31,46,0.35)", background: "rgba(110,31,46,0.04)", color: "var(--burgundy)" }}
       />
-      {open && query.trim() && results.length > 0 ? (
+      {listboxOpen ? (
         <ul
+          id={listboxId}
+          role="listbox"
+          aria-label="Search suggestions"
           className="absolute left-0 right-0 top-full z-30 mt-1 max-h-96 overflow-y-auto rounded-sm border shadow-[var(--shadow-lg)]"
           style={{ borderColor: "var(--line)", background: "var(--paper)" }}
         >
           {results.map((r, i) => (
-            <li key={`${r.type}-${r.url}`}>
+            <li
+              key={`${r.type}-${r.url}`}
+              id={optionId(i)}
+              role="option"
+              aria-selected={i === activeIndex}
+            >
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => goTo(r.url)}
-                onMouseEnter={() => setActiveIndex(i)}
+                onMouseEnter={() => {
+                  setActiveIndex(i);
+                  setKeyboardActive(false);
+                }}
                 className="flex w-full items-center justify-between gap-3 px-4 py-2 text-left text-sm"
                 style={{ background: i === activeIndex ? "var(--card)" : "transparent" }}
               >

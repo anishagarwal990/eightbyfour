@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,11 +19,17 @@ const LINKS = [
   { href: "/saved", label: "Saved Products" },
 ];
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /** Mobile-only hamburger + slide-in drawer. The desktop hover mega-menus in
     SiteHeader don't work on touch at all, so below `lg` this is the entire nav. */
 export function MobileMenu() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   // `open` can only ever become true via a click handler, which never runs
   // during SSR — so by the time it's true, document.body is guaranteed to
   // exist for the portal below. No separate "mounted" effect needed.
@@ -39,14 +45,54 @@ export function MobileMenu() {
 
   useEffect(() => {
     if (!open) return;
+
+    // Remember what had focus so it can be restored when the drawer closes.
+    // Both captured now, at open time, so the cleanup isn't reading a ref whose
+    // node may have changed.
+    const trigger = triggerRef.current;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement
+      );
+      if (focusables.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panel.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !panel.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
     }
+
     document.addEventListener("keydown", handleKey);
     document.body.style.overflow = "hidden";
+
+    // Move focus into the drawer once it's painted.
+    const raf = requestAnimationFrame(() => closeButtonRef.current?.focus());
+
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
+      cancelAnimationFrame(raf);
+      // Restore focus to the hamburger (falling back to whatever was focused
+      // when the drawer opened).
+      const restoreTo = trigger ?? previouslyFocused;
+      restoreTo?.focus?.();
     };
   }, [open]);
 
@@ -55,11 +101,16 @@ export function MobileMenu() {
       <button
         type="button"
         aria-label="Close menu"
+        tabIndex={-1}
         onClick={() => setOpen(false)}
         className="modal-backdrop absolute inset-0"
         style={{ background: "rgba(18,18,18,0.4)" }}
       />
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
         className="modal-panel absolute inset-y-0 right-0 flex w-[86%] max-w-sm flex-col overflow-y-auto"
         style={{ background: "var(--paper)" }}
       >
@@ -68,6 +119,7 @@ export function MobileMenu() {
             Menu
           </p>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close menu"
@@ -127,9 +179,11 @@ export function MobileMenu() {
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open menu"
+        aria-haspopup="dialog"
         aria-expanded={open}
         className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-[5px] lg:hidden"
       >

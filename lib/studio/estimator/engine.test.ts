@@ -10,9 +10,9 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { estimateWardrobe } from "./engine.ts";
-import type { WardrobeEstimateInput } from "./types.ts";
-import { CARCASS_FINISH, GEOMETRY, OVERHEADS } from "./config.ts";
+import { estimateWardrobe } from "./engine";
+import type { WardrobeEstimateInput } from "./types";
+import { CARCASS_FINISH, GEOMETRY, OVERHEADS } from "./config";
 
 const base: WardrobeEstimateInput = {
   widthFt: 8,

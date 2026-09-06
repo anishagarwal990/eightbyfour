@@ -71,9 +71,13 @@ export function ManufacturerStrip({ brands, reverse = false }: { brands: RealBra
   }
 
   return (
-    <AutoScrollRow className="edge-fade-mask" trackClassName="flex items-stretch gap-3 px-7" speed={38} reverse={reverse}>
+    <AutoScrollRow label="brand belt" className="edge-fade-mask" trackClassName="flex items-stretch gap-3 px-7" speed={38} reverse={reverse}>
       {renderItems("a")}
-      {renderItems("b")}
+      {/* Loop-seam duplicate — hidden from assistive tech and out of the tab
+          order so each brand is only announced and tabbed once. */}
+      <div aria-hidden="true" inert style={{ display: "contents" }}>
+        {renderItems("b")}
+      </div>
     </AutoScrollRow>
   );
 }

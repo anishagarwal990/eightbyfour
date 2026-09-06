@@ -53,9 +53,13 @@ export function CategoryFlow({ tiles }: { tiles: DiscoveryTile[] }) {
   }
 
   return (
-    <AutoScrollRow className="edge-fade-mask" trackClassName="flex items-stretch gap-4 px-7" speed={34}>
+    <AutoScrollRow label="category runway" className="edge-fade-mask" trackClassName="flex items-stretch gap-4 px-7" speed={34}>
       {renderItems("a")}
-      {renderItems("b")}
+      {/* Loop-seam duplicate — hidden from assistive tech and out of the tab
+          order so each category is only announced and tabbed once. */}
+      <div aria-hidden="true" inert style={{ display: "contents" }}>
+        {renderItems("b")}
+      </div>
     </AutoScrollRow>
   );
 }
