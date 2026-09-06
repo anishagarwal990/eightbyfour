@@ -73,12 +73,14 @@ export const metadata: Metadata = buildMetadata({
   path: "/",
 });
 
-// Real, current numbers only — update alongside the data they describe.
-// The two counted stats animate up on scroll-into-view; the other two are
-// prose, not counters, so they render as plain text.
-const STATS = [
-  { kind: "counted", value: 750, suffix: "+", label: "SKUs In Stock" },
-  { kind: "counted", value: 25, suffix: "+", label: "Manufacturers Sourced" },
+// Rounds up to the nearest `step` — the two counted stats below show a live
+// total, not the exact row count, so the number reads as a round "at least
+// this many" figure and doesn't need editing every time a product is added.
+function roundUpTo(value: number, step: number): number {
+  return Math.ceil(value / step) * step;
+}
+
+const TEXT_STATS = [
   { kind: "text", value: "<15 min", label: "First Response Time" },
   { kind: "text", value: "Same/Next-Day", label: "Delivery in Hyderabad" },
 ] as const;
@@ -271,6 +273,16 @@ export default async function Home() {
     getTestimonials(),
   ]);
 
+  // Live totals, rounded up so the homepage stat doesn't need a manual edit
+  // every time a product or brand is added — see roundUpTo() above.
+  const totalSkuCount = Object.values(categoryCounts).reduce((sum, n) => sum + n, 0);
+  const totalManufacturerCount = brands.length + SOURCE_ONLY_BRANDS.length;
+  const stats = [
+    { kind: "counted", value: roundUpTo(totalSkuCount, 50), suffix: "+", label: "SKUs In Stock" },
+    { kind: "counted", value: roundUpTo(totalManufacturerCount, 5), suffix: "+", label: "Manufacturers Sourced" },
+    ...TEXT_STATS,
+  ] as const;
+
   // Every category that actually holds stock — the shop-by-category runway
   // (ShopDiscovery, below) shows all of these, not just the ones deep enough
   // to have carried the old fixed-size grid's "equal visual weight" problem.
@@ -411,7 +423,7 @@ export default async function Home() {
       {/* ---------- Trust Stats (thin strip, not a full beat) ---------- */}
       <Reveal className="border-t px-7 py-6" style={{ borderColor: "var(--line)" }}>
         <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-10 gap-y-2 text-center">
-          {STATS.map((s) => (
+          {stats.map((s) => (
             <p key={s.label} className="text-sm" style={{ color: "var(--line-strong)" }}>
               <span className="serif" style={{ fontSize: "18px", color: "var(--burgundy)" }}>
                 {s.kind === "counted" ? <AnimatedStat value={s.value} suffix={s.suffix} /> : s.value}
