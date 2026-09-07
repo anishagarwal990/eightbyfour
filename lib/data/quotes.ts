@@ -17,6 +17,7 @@ import {
   type OptionResult,
 } from "@/lib/quote-math";
 import type { PricingBasis, RateInputMode } from "@/lib/rate-book";
+import { buildCustomerQuote } from "@/lib/customer-quote";
 import { isUuid } from "@/lib/uuid";
 
 // ------------------------------------------------------------- engine glue --
@@ -56,6 +57,7 @@ export interface QuoteListRow {
   ref: string;
   status: string;
   current_version: number;
+  sent_at: string | null;
   updated_at: string;
   created_at: string;
   inquiry_id: string;
@@ -72,11 +74,11 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
   const { data, error } = await supabase
     .from("quotes")
     .select(
-      `id, ref, status, current_version, updated_at, created_at, inquiry_id,
+      `id, ref, status, current_version, sent_at, updated_at, created_at, inquiry_id,
        inquiries(ref, name),
        customers(name),
        quote_versions(id, version_no, frozen_at,
-         quote_options(id,
+         quote_options(*,
            quote_items(pricing_basis, quantity, sheet_area_sqft, gst_rate, rate_input_mode, entered_rate, line_discount, manual_amount)))`
     )
     .order("updated_at", { ascending: false });
@@ -97,8 +99,9 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
     inquiry_id: string;
     inquiries: { ref: string; name: string | null } | { ref: string; name: string | null }[] | null;
     customers: { name: string | null } | { name: string | null }[] | null;
+    sent_at: string | null;
     quote_versions: (Pick<QuoteVersionRow, "id" | "version_no" | "frozen_at"> & {
-      quote_options: { id: string; quote_items: Partial<QuoteItemRow>[] }[];
+      quote_options: (QuoteOptionRow & { quote_items: Partial<QuoteItemRow>[] })[];
     })[];
   };
 
@@ -110,7 +113,7 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
     const current = versions[0];
     const optionTotals = (current?.quote_options ?? []).map((o) => {
       const lines = (o.quote_items ?? []).map((it) => computeLine(lineInputForItem(it as QuoteItemRow)));
-      return computeOption({ lines, chargesGstRate: 18 }).grandTotal;
+      return computeOption(optionInputForOption(o, lines)).grandTotal;
     });
     const range = quoteValueRange(optionTotals);
     return {
@@ -118,6 +121,7 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
       ref: q.ref,
       status: q.status,
       current_version: q.current_version,
+      sent_at: q.sent_at ?? null,
       updated_at: q.updated_at,
       created_at: q.created_at,
       inquiry_id: q.inquiry_id,
@@ -162,7 +166,7 @@ export interface QuoteBuilderData {
   enquiry: InquiryRow;
   customer: CustomerRow | null;
   enquiryItems: InquiryItemRow[];
-  versions: Pick<QuoteVersionRow, "id" | "version_no" | "status" | "frozen_at" | "label">[];
+  versions: Pick<QuoteVersionRow, "id" | "version_no" | "status" | "frozen_at" | "label" | "sent_at">[];
   version: QuoteVersionRow;
   /** frozen version — the builder renders read-only. */
   readOnly: boolean;
@@ -235,12 +239,26 @@ export async function getQuoteBuilderData(quoteId: string, versionNo?: number): 
       status: v.status,
       frozen_at: v.frozen_at,
       label: v.label,
+      sent_at: v.sent_at,
     })),
     version,
     readOnly: version.frozen_at != null,
     options,
     valueRange: quoteValueRange(options.map((o) => o.totals.grandTotal)),
   };
+}
+
+// --------------------------------------------------------- customer quote --
+
+/**
+ * The customer-facing DTO for one quote version. Thin wrapper over
+ * getQuoteBuilderData + buildCustomerQuote — the DTO is where internal fields
+ * are dropped. Used by the admin preview page and the PDF route.
+ */
+export async function getCustomerQuote(quoteId: string, versionNo?: number) {
+  const data = await getQuoteBuilderData(quoteId, versionNo);
+  if (!data) return null;
+  return { dto: buildCustomerQuote(data), quote: data.quote, inquiryId: data.enquiry.id };
 }
 
 // ---------------------------------------------------- catalogue product search --

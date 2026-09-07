@@ -734,3 +734,89 @@ export async function markQuoteReady(quoteId: string): Promise<QuoteActionResult
   revalidatePath(`/admin/enquiries/${quote.inquiry_id}`);
   return { ok: true, message: `${quote.ref} V${version.version_no} marked ready. Enquiry moved to Quote ready.` };
 }
+
+// ---------------------------------------------------- terms / validity --
+
+export async function updateQuoteTerms(quoteId: string, formData: FormData): Promise<QuoteActionResult> {
+  const user = await assertAdmin();
+  const supabase = await createAdminSupabaseClient();
+  const loaded = await loadDraftVersion(supabase, quoteId);
+  if ("error" in loaded) return { ok: false, message: loaded.error };
+
+  const { TERM_FIELDS } = await import("@/lib/customer-quote");
+  const terms: Record<string, string> = {};
+  for (const f of TERM_FIELDS) {
+    const v = str(formData, `term_${f}`);
+    if (v) terms[f] = v;
+  }
+
+  const quoteDate = str(formData, "quote_date");
+  const validUntil = str(formData, "valid_until");
+
+  const { error } = await supabase
+    .from("quote_versions")
+    .update({
+      terms,
+      quote_date: quoteDate,
+      valid_until: validUntil,
+    })
+    .eq("id", loaded.version.id);
+  if (error) return { ok: false, message: error.message };
+
+  void user;
+  revalidatePath(`/admin/quotes/${quoteId}`);
+  revalidatePath(`/admin/quotes/${quoteId}/preview`);
+  return { ok: true, message: "Terms saved." };
+}
+
+// --------------------------------------------------------- mark sent --
+
+export async function markQuoteSent(quoteId: string, formData: FormData): Promise<QuoteActionResult> {
+  const user = await assertAdmin();
+  const supabase = await createAdminSupabaseClient();
+
+  const { data: quote, error: qErr } = await supabase
+    .from("quotes")
+    .select("id, ref, status, inquiry_id, current_version")
+    .eq("id", quoteId)
+    .maybeSingle();
+  if (qErr) return { ok: false, message: qErr.message };
+  if (!quote) return { ok: false, message: "Quote not found." };
+  if (quote.status !== "READY") {
+    return { ok: false, message: `Quote is ${quote.status} — mark it ready first.` };
+  }
+
+  const { error } = await supabase.rpc("mark_quote_sent", { p_quote_id: quoteId });
+  if (error) return { ok: false, message: `Mark sent failed: ${error.message}` };
+
+  // Optional follow-up, using the Slice 1 follow-up system (no second architecture).
+  const days = num(formData, "followup_days");
+  if (days != null && days >= 0) {
+    const { followupDateFor } = await import("@/lib/enquiry");
+    const dueAt = new Date(followupDateFor(days)).toISOString();
+    const { error: fErr } = await supabase.from("followups").insert({
+      inquiry_id: quote.inquiry_id,
+      due_at: dueAt,
+      note: `Follow up on quote ${quote.ref} (sent ${new Date().toLocaleDateString("en-IN")}).`,
+      created_by: user.id,
+    });
+    if (!fErr) {
+      await supabase.from("inquiries").update({ next_followup_at: dueAt, updated_by: user.id }).eq("id", quote.inquiry_id);
+      await supabase.from("inquiry_activity").insert({
+        inquiry_id: quote.inquiry_id,
+        kind: "FOLLOWUP_ADDED",
+        summary: `Follow-up scheduled for ${new Date(dueAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} after sending ${quote.ref}.`,
+        entity_type: "quote",
+        entity_id: quoteId,
+        actor_email: user.email ?? user.id,
+        actor_id: user.id,
+      });
+    }
+  }
+
+  revalidatePath(`/admin/quotes/${quoteId}`);
+  revalidatePath(`/admin/quotes/${quoteId}/preview`);
+  revalidatePath("/admin/quotes");
+  revalidatePath(`/admin/enquiries/${quote.inquiry_id}`);
+  return { ok: true, message: `${quote.ref} marked sent. Enquiry moved to Quote sent.` };
+}

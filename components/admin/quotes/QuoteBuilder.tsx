@@ -14,7 +14,9 @@ import {
   saveQuoteItem,
   setPricingDisplay,
   updateOptionCharges,
+  updateQuoteTerms,
 } from "@/app/(admin)/admin/quotes/actions";
+import { DEFAULT_QUOTE_TERMS, TERM_FIELDS, TERM_LABELS, mergeTerms } from "@/lib/customer-quote";
 import {
   GST_RATES,
   PRICING_BASES,
@@ -96,12 +98,14 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
             <span
               className="rounded-full px-2 py-0.5 text-[11px] font-medium"
               style={
-                quote.status === "READY"
-                  ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
-                  : { background: "var(--card)", color: "var(--line-strong)" }
+                quote.status === "SENT"
+                  ? { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" }
+                  : quote.status === "READY"
+                    ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
+                    : { background: "var(--card)", color: "var(--line-strong)" }
               }
             >
-              {quote.status === "READY" ? "Ready" : "Draft"}
+              {quote.status === "SENT" ? "Sent" : quote.status === "READY" ? "Ready" : "Draft"}
             </span>
           </div>
           <p className="mt-0.5 text-xs" style={{ color: "var(--line-strong)" }}>
@@ -136,7 +140,7 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
 
       {readOnly ? (
         <p className="rounded-md border px-3 py-2 text-xs" style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}>
-          V{version.version_no} is finalised and read-only. Its amounts will never change.
+          V{version.version_no} is finalised and read-only{version.sent_at ? " and was sent to the customer" : ""}. Its amounts will never change.
           {versions[0].version_no === version.version_no ? " Create a new version to revise." : " A newer version exists."}
         </p>
       ) : (
@@ -266,6 +270,9 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
         )
       ) : null}
 
+      {/* -------- commercial terms -------- */}
+      {!readOnly ? <TermsEditor quoteId={quote.id} version={version} run={run} pending={pending} /> : null}
+
       {/* -------- actions -------- */}
       <div className="mt-2 flex flex-wrap items-center gap-2 border-t pt-3" style={{ borderColor: "var(--line)" }}>
         {!readOnly ? (
@@ -281,7 +288,29 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
             </button>
             <MarkReadyButton quoteId={quote.id} run={run} pending={pending} />
           </>
-        ) : null}
+        ) : (
+          <>
+            <Link
+              href={`/admin/quotes/${quote.id}/preview?v=${version.version_no}`}
+              className="rounded-md px-4 py-1.5 text-sm font-medium"
+              style={{ background: "var(--burgundy)", color: "var(--paper)" }}
+            >
+              Preview customer quote
+            </Link>
+            <a
+              href={`/admin/quotes/${quote.id}/pdf?v=${version.version_no}`}
+              className="rounded-md border px-4 py-1.5 text-sm"
+              style={{ borderColor: "var(--line)" }}
+            >
+              Download PDF
+            </a>
+            {version.sent_at ? (
+              <span className="text-xs" style={{ color: "var(--line-strong)" }}>
+                Sent {new Date(version.sent_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}
+              </span>
+            ) : null}
+          </>
+        )}
         <NewVersionButton quoteId={quote.id} run={run} pending={pending} canRevise={versions[0].version_no === version.version_no} />
       </div>
     </div>
@@ -736,6 +765,72 @@ export function AddOptionForm({
         <button type="button" onClick={onDone} className="text-xs" style={{ color: "var(--line-strong)" }}>Cancel</button>
       </div>
     </form>
+  );
+}
+
+// ----------------------------------------------------- commercial terms --
+
+function TermsEditor({
+  quoteId,
+  version,
+  run,
+  pending,
+}: {
+  quoteId: string;
+  version: QuoteBuilderData["version"];
+  run: ReturnType<typeof useAction>["run"];
+  pending: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const terms = mergeTerms(version.terms);
+
+  return (
+    <div className="rounded-md border" style={{ borderColor: "var(--line)" }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between px-3 py-2 text-sm"
+      >
+        <span className="font-medium">Commercial terms &amp; dates</span>
+        <span className="text-xs" style={{ color: "var(--line-strong)" }}>{open ? "Hide" : "Edit"}</span>
+      </button>
+      {open ? (
+        <form
+          action={(fd) => run(() => updateQuoteTerms(quoteId, fd), { onSuccess: () => setOpen(false) })}
+          className="flex flex-col gap-2 border-t px-3 py-3"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <Labeled label="Quote date">
+              <input type="date" name="quote_date" defaultValue={version.quote_date ?? ""} className={FIELD} style={FS} />
+            </Labeled>
+            <Labeled label="Valid until">
+              <input type="date" name="valid_until" defaultValue={version.valid_until ?? ""} className={FIELD} style={FS} />
+            </Labeled>
+          </div>
+          {TERM_FIELDS.map((f) => (
+            <Labeled key={f} label={TERM_LABELS[f]}>
+              <textarea
+                name={`term_${f}`}
+                defaultValue={terms[f]}
+                placeholder={DEFAULT_QUOTE_TERMS[f]}
+                rows={2}
+                className={FIELD}
+                style={FS}
+              />
+            </Labeled>
+          ))}
+          <button
+            type="submit"
+            disabled={pending}
+            className="self-start rounded-md px-3 py-1 text-sm font-medium disabled:opacity-50"
+            style={{ background: "var(--burgundy)", color: "var(--paper)" }}
+          >
+            Save terms
+          </button>
+        </form>
+      ) : null}
+    </div>
   );
 }
 

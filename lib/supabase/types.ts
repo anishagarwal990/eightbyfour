@@ -220,6 +220,8 @@ export interface QuoteRow {
   customer_id: string | null;
   status: string;
   current_version: number;
+  sent_at: string | null;
+  sent_by: string | null;
   created_at: string;
   updated_at: string;
   created_by: string | null;
@@ -238,6 +240,10 @@ export interface QuoteVersionRow {
   tax_assumption: string;
   revision_reason: string | null;
   frozen_at: string | null;
+  sent_at: string | null;
+  sent_by: string | null;
+  quote_date: string | null;
+  valid_until: string | null;
   created_at: string;
   created_by: string | null;
 }

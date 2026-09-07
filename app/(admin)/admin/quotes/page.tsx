@@ -34,6 +34,7 @@ export default async function QuotesPage() {
               <th className={TH}>Version</th>
               <th className={TH}>Value range</th>
               <th className={TH}>Status</th>
+              <th className={TH}>Last sent</th>
               <th className={TH}>Updated</th>
               <th className={TH}>Age</th>
             </tr>
@@ -61,14 +62,17 @@ export default async function QuotesPage() {
                     <span
                       className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium"
                       style={
-                        q.status === "READY"
-                          ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
-                          : { background: "var(--card)", color: "var(--line-strong)" }
+                        q.status === "SENT"
+                          ? { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" }
+                          : q.status === "READY"
+                            ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
+                            : { background: "var(--card)", color: "var(--line-strong)" }
                       }
                     >
-                      {q.status === "READY" ? "Ready" : "Draft"}
+                      {q.status === "SENT" ? "Sent" : q.status === "READY" ? "Ready" : "Draft"}
                     </span>
                   </td>
+                  <td className={TD} style={{ color: "var(--line-strong)" }}>{q.sent_at ? shortDate(q.sent_at) : "—"}</td>
                   <td className={TD} style={{ color: "var(--line-strong)" }}>{shortDate(q.updated_at)}</td>
                   <td className={TD} style={{ color: "var(--line-strong)" }}>{ageInDays(q.created_at)}d</td>
                 </tr>
@@ -76,7 +80,7 @@ export default async function QuotesPage() {
             })}
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-3 py-8 text-center" style={{ color: "var(--line-strong)" }}>
+                <td colSpan={10} className="px-3 py-8 text-center" style={{ color: "var(--line-strong)" }}>
                   No quotes yet. Open an enquiry and click “Create quote”.
                 </td>
               </tr>
