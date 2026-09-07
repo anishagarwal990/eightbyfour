@@ -6,6 +6,7 @@ import { MiniConfigurator } from "@/components/studio/MiniConfigurator";
 import { SpecPriceDemo } from "@/components/studio/SpecPriceDemo";
 import { MaterialLadder } from "@/components/studio/MaterialLadder";
 import { PriceComposition } from "@/components/studio/PriceComposition";
+import { StartingPoints } from "@/components/studio/StartingPoints";
 import { buildMetadata } from "@/lib/seo";
 import { STUDIO_ASSURANCES, STUDIO_SERVICES } from "@/lib/studio/services";
 import { inr } from "@/lib/studio/format";
@@ -128,6 +129,27 @@ export default function StudioLandingPage() {
           </Reveal>
           <div className="mt-8">
             <MaterialLadder />
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------------------------------------- where to start -- */}
+      <section className="border-b" style={{ borderColor: "var(--studio-line)" }}>
+        <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-7">
+          <Reveal>
+            <p className="tracked-caps text-[10px]" style={{ color: "var(--ink-faint)" }}>
+              Not sure where to start
+            </p>
+            <h2 className="serif mt-2 max-w-[26ch] text-[clamp(26px,3.6vw,42px)] leading-[1.08]">
+              Four sensible places to begin, and why.
+            </h2>
+            <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              Real material combinations priced on the same 8′ × 8′ wardrobe, so they compare. Change anything once
+              you are inside.
+            </p>
+          </Reveal>
+          <div className="mt-8">
+            <StartingPoints />
           </div>
         </div>
       </section>
@@ -531,6 +553,87 @@ export default function StudioLandingPage() {
               />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------- professional -- */}
+      <section className="border-b" style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)" }}>
+        <div className="mx-auto grid max-w-[1280px] gap-10 px-4 py-14 sm:px-7 lg:grid-cols-[1.05fr_minmax(0,400px)]">
+          <Reveal>
+            <p className="tracked-caps text-[10px]" style={{ color: "var(--ink-faint)" }}>
+              For professionals
+            </p>
+            <h2 className="serif mt-2 max-w-[22ch] text-[clamp(26px,3.6vw,42px)] leading-[1.08]">
+              Building more than one?
+            </h2>
+            <p className="mt-3 max-w-[58ch] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              The same specification, repeated across units, with the materials bought through EightByFour and the
+              fabrication and installation run by Studio. One partner for the board and the work.
+            </p>
+
+            <ul className="mt-6 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+              {[
+                "One written specification, held across every unit",
+                "Priced from your BOQ or drawings, line by line",
+                "Materials sourced through the EightByFour catalogue",
+                "Factory fabrication or site carpentry, per unit type",
+                "Installation and handover by the studio's own team",
+                "Repeat rollouts against the same approved spec",
+              ].map((line) => (
+                <li key={line} className="flex gap-2 text-[13.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+                  <span aria-hidden="true" style={{ color: "var(--burgundy)" }}>
+                    —
+                  </span>
+                  {line}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-7 flex flex-wrap gap-2.5">
+              <Link
+                href="/studio/project-execution"
+                className="rounded-[3px] px-5 py-3 text-[14px] font-semibold text-white transition-colors"
+                style={{ background: "var(--burgundy)" }}
+              >
+                Send drawings or a BOQ
+              </Link>
+              <Link
+                href="/contact"
+                className="rounded-[3px] border px-5 py-3 text-[14px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
+                style={{ borderColor: "var(--studio-line-strong)" }}
+              >
+                Discuss a project
+              </Link>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="rounded-[3px] p-5 shadow-[var(--shadow-sm)]" style={{ background: "var(--paper)" }}>
+              <p className="tracked-caps text-[10px]" style={{ color: "var(--ink-faint)" }}>
+                Work of this kind
+              </p>
+              <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
+                {[
+                  "Office workstations",
+                  "Storage walls",
+                  "Retail fixtures",
+                  "Reception counters",
+                  "Office pantries",
+                  "Hostel furniture",
+                  "Apartment wardrobes",
+                  "Store rollouts",
+                ].map((x) => (
+                  <li key={x} className="text-[13px]" style={{ color: "var(--ink-soft)" }}>
+                    {x}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 border-t pt-3 text-[12px] leading-snug" style={{ borderColor: "var(--studio-line)", color: "var(--ink-faint)" }}>
+                Send what you have — a drawing set, a BOQ, a material schedule, or a photograph of a handwritten list.
+                Studio prices the materials and the execution separately, so you can take either half.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </section>
 

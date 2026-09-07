@@ -250,7 +250,7 @@ export function FurnitureViewer({
               type="button"
               onClick={() => setShowShutters((s) => !s)}
               aria-pressed={!showShutters}
-              className="rounded-[3px] border px-3 py-2 text-[12.5px] transition-colors"
+              className="min-h-11 rounded-[3px] border px-3 text-[12.5px] transition-colors"
               style={{
                 borderColor: showShutters ? "var(--studio-line)" : "var(--burgundy)",
                 color: showShutters ? "var(--ink-soft)" : "var(--burgundy)",
@@ -442,7 +442,7 @@ function Toggle({ on, onClick, children }: { on: boolean; onClick: () => void; c
       type="button"
       onClick={onClick}
       aria-pressed={on}
-      className="rounded-[3px] border px-3 py-2 text-[12.5px] transition-colors"
+      className="min-h-11 rounded-[3px] border px-3 text-[12.5px] transition-colors"
       style={{
         borderColor: on ? "var(--burgundy)" : "var(--studio-line)",
         color: on ? "var(--burgundy)" : "var(--ink-soft)",

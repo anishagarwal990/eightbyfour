@@ -139,7 +139,11 @@ export function WardrobeEstimator() {
         </section>
 
         <section className="mb-8">
-          <StepHeading step="Build" title="Build method" />
+          <StepHeading
+            step="Build"
+            title="How it gets built"
+            hint="Both routes are priced the same today. What differs is the lead time, how much work happens in your home, and how the panel edges are finished."
+          />
           <div className="max-w-[280px]">
             <Segmented
               value={input.buildMethod}

@@ -402,8 +402,20 @@ export interface BuildMethod {
   labourRatePerSqft: number;
 }
 
+/**
+ * ⚠️ BOTH RATES ARE IDENTICAL ON PURPOSE.
+ *
+ * We have no quotations yet, and inventing a difference between site carpentry
+ * and factory work would be fabricating the exact number a customer would most
+ * reasonably ask us to justify. Until three real quotations exist for each, the
+ * build-method choice is a genuine product decision (lead time, site
+ * disruption, edge-banding quality) that happens not to move the price — and
+ * the UI says so rather than implying otherwise.
+ *
+ * See docs/STUDIO-PRICING-VALIDATION.md §7.
+ */
 export const BUILD_METHODS: BuildMethod[] = [
-  { id: "carpenter", label: "Carpenter", sub: "Made at site", labourRatePerSqft: 600 },
+  { id: "carpenter", label: "Carpenter", sub: "Made at your site", labourRatePerSqft: 600 },
   { id: "factory", label: "Factory", sub: "Machined, then fitted", labourRatePerSqft: 600 },
 ];
 
