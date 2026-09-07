@@ -45,8 +45,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="flex flex-wrap items-center justify-between gap-3 border-b px-6 py-3" style={{ borderColor: "var(--line)" }}>
           <div className="flex items-center gap-5">
             <Link href="/admin" className="serif text-lg">
-              Catalogue admin
+              EightxFour admin
             </Link>
+            <nav className="flex items-center gap-4 text-xs" aria-label="Admin sections">
+              <Link href="/admin" className="hover:opacity-70">
+                Catalogue
+              </Link>
+              <Link href="/admin/enquiries" className="hover:opacity-70">
+                Enquiries
+              </Link>
+            </nav>
             <Link href="/" className="text-xs hover:opacity-70" style={{ color: "var(--line-strong)" }}>
               View site
             </Link>
