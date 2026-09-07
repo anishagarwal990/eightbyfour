@@ -216,7 +216,12 @@ export function QuotePanel({
 
 /**
  * Mobile counterpart: a sticky bar that shows the number at all times and
- * expands into the full quote. Sits above the site's own mobile CTA bar.
+ * expands into the full quote.
+ *
+ * It sits flush to the bottom because the site's own mobile CTA bar stands
+ * down on every route that renders this one (see MobileStickyCTA). Two stacked
+ * bars cost ~118px of an 812px phone — a sixth of the screen — to offer a
+ * WhatsApp quote underneath a screen that is already quoting.
  */
 export function MobileQuoteBar({ quote, contextLabel }: { quote: Quote; contextLabel?: string }) {
   const [open, setOpen] = useState(false);
@@ -266,7 +271,7 @@ export function MobileQuoteBar({ quote, contextLabel }: { quote: Quote; contextL
   return (
     <>
       <div
-        className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 border-t lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
         style={{ borderColor: "var(--studio-line-strong)", background: "var(--paper)" }}
       >
         <button

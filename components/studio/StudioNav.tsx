@@ -34,7 +34,7 @@ export function StudioNav() {
           </span>
         </Link>
 
-        <nav className="option-rail flex-1 py-2" aria-label="Studio services">
+        <nav className="option-rail flex-1" aria-label="Studio services">
           {STUDIO_SERVICES.map((s) => {
             const href = `/studio/${s.slug}`;
             const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -42,14 +42,14 @@ export function StudioNav() {
               <Link
                 key={s.slug}
                 href={href}
-                className="relative shrink-0 whitespace-nowrap px-2 py-1 text-[12.5px] transition-colors hover:text-[var(--burgundy)]"
+                className="relative flex min-h-11 shrink-0 items-center whitespace-nowrap px-2 text-[12.5px] transition-colors hover:text-[var(--burgundy)]"
                 style={{ color: active ? "var(--burgundy)" : "var(--ink-soft)", fontWeight: active ? 600 : 400 }}
               >
                 {s.navLabel}
                 {active ? (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-2 -bottom-[9px] h-[2px]"
+                    className="absolute inset-x-2 bottom-0 h-[2px]"
                     style={{ background: "var(--burgundy)" }}
                   />
                 ) : null}

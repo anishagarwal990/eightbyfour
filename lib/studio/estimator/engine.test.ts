@@ -15,6 +15,7 @@ import type { WardrobeEstimateInput } from "./types.ts";
 import { CARCASS_FINISH, CARCASS_MATERIALS, GEOMETRY, OVERHEADS, SHUTTER_CORES } from "./config.ts";
 import { boardSwatch } from "./swatches.ts";
 import { toEstimateInput } from "./adapter.ts";
+import { REFERENCE_WARDROBE } from "./reference.ts";
 import { quickPrice, toCatalogueSpec } from "./quickPrice.ts";
 import { DEFAULT_CONFIG, type FurnitureConfig } from "../furniture.ts";
 
@@ -433,4 +434,57 @@ test("a kitchen is not forced through the wardrobe model", () => {
   const kitchen = quickPrice({ ...DEFAULT_CONFIG, typeId: "kitchen" });
   assert.equal(kitchen.engine, "general");
   assert.ok(kitchen.total > 0);
+});
+
+// -------------------------------------- the landing page tells the truth ---
+
+test("landing page, quick estimator and visual designer open on the same price", () => {
+  // The regression this branch exists to prevent. All three surfaces start
+  // from REFERENCE_WARDROBE, so this asserts the shared constant is actually
+  // shared rather than three copies that happen to agree today.
+  const quick = estimateWardrobe(REFERENCE_WARDROBE);
+
+  // The visual designer holds the same wardrobe in catalogue vocabulary. Its
+  // carcass has no catalogue product, so the designer's own default board is
+  // the adapter fallback — which must round-trip to the same board.
+  const designer = estimateWardrobe(
+    toEstimateInput({
+      widthFt: REFERENCE_WARDROBE.widthFt,
+      heightFt: REFERENCE_WARDROBE.heightFt,
+      depthFt: REFERENCE_WARDROBE.depthFt,
+      method: REFERENCE_WARDROBE.buildMethod,
+      carcassId: "__no-such-board__",
+      shutterId: "hdhmr",
+      finishId: "lam-1",
+      hardwareId: "premium",
+    })
+  );
+
+  assert.equal(designer.finalTotal, quick.finalTotal);
+  for (const g of quick.publicGroups) {
+    const same = designer.publicGroups.find((x) => x.key === g.key);
+    assert.equal(same?.total, g.total, g.label);
+  }
+});
+
+test("no wardrobe anywhere is priced by the general per-sheet estimator", () => {
+  // priceFurniture still serves TV units, vanities and the rest. It must never
+  // serve a wardrobe again, on any route.
+  const asFurniture: FurnitureConfig = { ...DEFAULT_CONFIG, typeId: "wardrobe" };
+  assert.equal(quickPrice(asFurniture).engine, "wardrobe");
+  for (const carcassId of ["particle", "mdf", "hdhmr", "commercial-ply", "bwp-ply", "unknown"]) {
+    assert.equal(quickPrice({ ...asFurniture, carcassId }).engine, "wardrobe");
+  }
+});
+
+test("the reference wardrobe is a specification we can actually stand behind", () => {
+  // Guards the constant itself: a default nobody checked is how a landing page
+  // ends up quoting a board we do not sell or a finish that makes no sense.
+  const m = CARCASS_MATERIALS.find((x) => x.id === REFERENCE_WARDROBE.carcassMaterialId);
+  assert.ok(m, "reference carcass is not a real board");
+  const core = SHUTTER_CORES.find((x) => x.id === REFERENCE_WARDROBE.shutterCoreId);
+  assert.ok(core, "reference shutter core is not a real board");
+  // A raw core must carry a real finish; a prelam core must not be charged one.
+  if (core.prelaminated) assert.equal(REFERENCE_WARDROBE.shutterFinishId, "prelam");
+  else assert.notEqual(REFERENCE_WARDROBE.shutterFinishId, "prelam");
 });

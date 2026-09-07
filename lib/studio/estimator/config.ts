@@ -22,6 +22,9 @@
 
 import { CARCASS_OPTIONS, SHEET_SQFT, SHUTTER_OPTIONS } from "../catalogue.ts";
 
+/** How a per-sheet catalogue price becomes a per-sq-ft rate, said in words. */
+export const SHEET_SQFT_NOTE = `One 8′ × 4′ sheet = ${SHEET_SQFT} sq ft`;
+
 /** Where a number came from. Surfaced to the customer, not just to us. */
 export type RateSource = "catalogue" | "assumption";
 

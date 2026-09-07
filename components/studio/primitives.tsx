@@ -275,6 +275,23 @@ export function OptionRail({ children, cols = 4 }: { children: ReactNode; cols?:
   );
 }
 
+/**
+ * A rail that stays horizontal at every width, with a fading trailing edge so
+ * it is visibly scrollable. Use where the options are few and comparable —
+ * OptionRail is the one that becomes a grid on wider screens.
+ */
+export function ScrollRail({ children, ariaLabel }: { children: ReactNode; ariaLabel: string }) {
+  return (
+    <div
+      className="option-rail -mx-4 px-4 pb-1"
+      role="group"
+      aria-label={ariaLabel}
+    >
+      {children}
+    </div>
+  );
+}
+
 /** The indicative-price disclaimer. Used everywhere a number is shown. */
 export function IndicativeNote({ className = "" }: { className?: string }) {
   return (

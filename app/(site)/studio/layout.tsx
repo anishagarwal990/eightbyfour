@@ -48,7 +48,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
               <Link
                 key={s.slug}
                 href={`/studio/${s.slug}`}
-                className="flex items-baseline gap-2 border-b py-2 text-[13px] transition-colors hover:text-[var(--burgundy)]"
+                className="flex min-h-11 items-center gap-2 border-b text-[13px] transition-colors hover:text-[var(--burgundy)]"
                 style={{ borderColor: "var(--studio-line)" }}
               >
                 <span className="metric text-[10px]" style={{ color: "var(--ink-faint)" }}>

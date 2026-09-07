@@ -19,6 +19,7 @@ import {
 import { estimateWardrobe } from "@/lib/studio/estimator/engine";
 import type { WardrobeEstimateInput } from "@/lib/studio/estimator/types";
 import { FURNITURE_TYPES } from "@/lib/studio/furniture";
+import { REFERENCE_WARDROBE } from "@/lib/studio/estimator/reference";
 import { toQuote } from "@/lib/studio/estimator/toQuote";
 import { MaterialSwap } from "./MaterialSwap";
 import { MobileQuoteBar } from "./QuotePanel";
@@ -48,25 +49,11 @@ import { Segmented, Stepper } from "./primitives";
  * display maths anywhere in this file.
  */
 
-const DEFAULT_INPUT: WardrobeEstimateInput = {
-  widthFt: DIMENSIONS.defaultWidthFt,
-  heightFt: DIMENSIONS.defaultHeightFt,
-  depthFt: DIMENSIONS.defaultDepthFt,
-  buildMethod: "factory",
-  carcassMaterialId: "bwr-ply",
-  carcassFinishId: "laminate",
-  shutterSystem: "board",
-  shutterCoreId: "hdhmr",
-  shutterFinishId: "laminate",
-  aluProfileId: "natural",
-  glassTypeId: "clear",
-  hardwarePackageId: "standard",
-};
 
 type RowId = "size" | "carcass" | "shutters" | "hardware" | "build";
 
 export function WardrobeEstimator() {
-  const [input, setInput] = useState<WardrobeEstimateInput>(DEFAULT_INPUT);
+  const [input, setInput] = useState<WardrobeEstimateInput>(REFERENCE_WARDROBE);
   const [open, setOpen] = useState<RowId | null>(null);
   const [lastChange, setLastChange] = useState<{ label: string; amount: number } | null>(null);
 
@@ -346,6 +333,21 @@ export function WardrobeEstimator() {
                 {inr(estimate.shutters.ratePerSqft)}/sq ft ={" "}
                 {estimate.shutters.components.map((c) => `${c.label} ₹${c.ratePerSqft}`).join(" + ")}
               </p>
+
+              {/* Not every number on this screen is equally certain, and
+                  showing them in identical type implies they are. Board and
+                  laminate rates come from products we actually stock; an
+                  aluminium profile and a glass panel do not yet have supplier
+                  quotations behind them, so this one says what it is. */}
+              {input.shutterSystem === "aluminium-glass" ? (
+                <p
+                  className="mt-2 rounded-[3px] border px-3 py-2 text-[11.5px] leading-snug"
+                  style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)", color: "var(--ink-soft)" }}
+                >
+                  <span className="font-semibold">Indicative profile and glass allowance.</span> The final rate is
+                  verified against the profile system and glass you choose, before a quotation is issued.
+                </p>
+              ) : null}
             </SpecRow>
 
             <SpecRow

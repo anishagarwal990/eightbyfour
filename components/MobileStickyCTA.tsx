@@ -6,6 +6,18 @@ import { PHONE_TEL } from "@/lib/contact";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { trackEvent } from "@/lib/analytics";
 
+/**
+ * Routes whose own sticky bar replaces this one — every Studio surface that
+ * renders MobileQuoteBar. Kept as patterns rather than a prop because the bar
+ * is mounted in the site layout, far from the components that decide.
+ */
+const CONFIGURATOR_ROUTES: RegExp[] = [
+  /^\/studio\/custom-furniture\/[^/]+/,
+  /^\/studio\/kitchen/,
+  /^\/studio\/solid-surface/,
+  /^\/studio\/laminate-pressing/,
+];
+
 /** Thumb-friendly bottom bar for the audiences most likely to be on mobile
     (carpenters, contractors) — always-visible instead of buried in a menu. */
 export function MobileStickyCTA() {
@@ -17,6 +29,13 @@ export function MobileStickyCTA() {
   // forms' save buttons — and "WhatsApp us for a quote" makes no sense to
   // someone editing the catalogue.
   if (pathname?.startsWith("/admin")) return null;
+
+  // Studio's configurators carry their own sticky bar with the live price and
+  // a quote action. Stacking this one under it costs ~118px of a 812px phone —
+  // a sixth of the screen — to say "WhatsApp us for a quote" beneath a screen
+  // that is already quoting. The configurator's bar wins on those routes; the
+  // rest of Studio (landing, service pages) keeps this one.
+  if (pathname && CONFIGURATOR_ROUTES.some((r) => r.test(pathname))) return null;
 
   return (
     <div

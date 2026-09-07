@@ -494,6 +494,15 @@ textarea {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
+
+  /*
+   * Exempt: the rail's edge fade is driven by scroll position, not by time.
+   * Nothing moves on its own — it tracks the user's own finger — and killing
+   * it would remove the only cue that the rail has more in it.
+   */
+  .studio .option-rail {
+    animation-duration: auto !important;
+  }
 }
 
 .studio canvas {
@@ -577,6 +586,40 @@ textarea {
   flex: 0 0 auto;
   scroll-snap-align: start;
 }
+
+/*
+ * A rail that scrolls with no visible scrollbar looks like a rail that ends.
+ * The mask fades the trailing edge only while there is actually more to reach:
+ * `animation-timeline: scroll()` drives it from scroll position, and the
+ * @supports fallback simply leaves the fade on, which is the safe direction to
+ * be wrong in — a hint that something continues, on a rail that does.
+ *
+ * It lives on the base class so EVERY rail gets the affordance; the grid
+ * variant removes it above 640px, where the options are laid out in full and
+ * there is nothing left to scroll to.
+ */
+.option-rail {
+  --rail-fade: 26px;
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--rail-fade)), transparent 100%);
+}
+@supports (animation-timeline: scroll(self inline)) {
+  .option-rail {
+    animation: rail-fade-end linear both;
+    animation-timeline: scroll(self inline);
+    animation-range: contain;
+  }
+  @keyframes rail-fade-end {
+    to {
+      --rail-fade: 0px;
+    }
+  }
+}
+@property --rail-fade {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
 @media (min-width: 640px) {
   .option-rail--grid {
     display: grid;
@@ -589,5 +632,9 @@ textarea {
   }
   .option-rail--grid > * {
     width: auto;
+  }
+  .option-rail--grid {
+    mask-image: none;
+    animation: none;
   }
 }
