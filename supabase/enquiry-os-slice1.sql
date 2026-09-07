@@ -135,6 +135,13 @@ alter table public.inquiries add constraint inquiries_source_check check (
   source is null or source in ('WHATSAPP', 'WEBSITE', 'PHONE', 'WALK_IN', 'REFERRAL', 'OTHER')
 );
 
+-- The only insert path that omits `source` is the public website form — the
+-- admin action always sets it explicitly. Defaulting to WEBSITE keeps new
+-- website enquiries labelled without the form needing to know the column
+-- exists. (Caught in post-migration testing: the backfill labelled the seven
+-- historical rows, but a fresh submission was landing with source = NULL.)
+alter table public.inquiries alter column source set default 'WEBSITE';
+
 alter table public.inquiries drop constraint if exists inquiries_priority_check;
 alter table public.inquiries add constraint inquiries_priority_check check (
   priority is null or priority in ('LOW', 'NORMAL', 'HIGH', 'URGENT')
