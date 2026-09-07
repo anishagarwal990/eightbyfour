@@ -4,8 +4,8 @@
  * the layout changes.
  */
 
-import { generateRuns, layoutOptions } from "./layout";
-import { newId } from "./cabinets";
+import { generateRuns, layoutOptions } from "./layout.ts";
+import { newId } from "./cabinets.ts";
 import {
   type ApplianceChoice,
   type Brief,
@@ -14,7 +14,7 @@ import {
   type Opening,
   type Room,
   type WallId,
-} from "./types";
+} from "./types.ts";
 
 export const DEFAULT_APPLIANCES: ApplianceChoice[] = [
   { kind: "fridge", variantId: "double", widthMm: 700 },

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { CARCASS_OPTIONS, FINISH_OPTIONS, HARDWARE_TIERS } from "@/lib/studio/catalogue";
-import { DEFAULT_CONFIG, priceFurniture, type FurnitureConfig } from "@/lib/studio/furniture";
+import { DEFAULT_CONFIG, type FurnitureConfig } from "@/lib/studio/furniture";
+import { quickPrice } from "@/lib/studio/estimator/quickPrice";
 import { delta, inr } from "@/lib/studio/format";
 
 /**
@@ -49,7 +50,13 @@ const SWAPS: Swap[] = [
     id: "method",
     from: "Carpenter made",
     to: "Factory modular",
-    because: "Four-side edge banding and CNC sizing cost more in the panel and less in the three weeks of site work.",
+    // Reads "no change" on purpose. We have no factory quotations yet, so the
+    // two routes carry the same labour rate — and inventing a difference would
+    // fabricate the exact number a customer would ask us to justify. The copy
+    // says what actually differs instead of implying a price gap that is not
+    // in the model. See docs/STUDIO-PRICING-VALIDATION.md.
+    because:
+      "Priced the same today. What changes is the lead time, how many weeks of work happen inside your home, and how the panel edges are finished.",
     patch: { method: "factory" },
   },
 ];
@@ -57,12 +64,13 @@ const SWAPS: Swap[] = [
 export function SpecPriceDemo() {
   const [applied, setApplied] = useState<string[]>([]);
 
-  const baseTotal = useMemo(() => priceFurniture(BASE).total, []);
+  // The reference wardrobe, priced by the same engine as everywhere else.
+  const baseTotal = useMemo(() => quickPrice(BASE).total, []);
   const config = useMemo(
     () => SWAPS.filter((s) => applied.includes(s.id)).reduce<FurnitureConfig>((c, s) => ({ ...c, ...s.patch }), BASE),
     [applied]
   );
-  const total = useMemo(() => priceFurniture(config).total, [config]);
+  const total = useMemo(() => quickPrice(config).total, [config]);
 
   const finishLabel = FINISH_OPTIONS.find((f) => f.id === config.finishId)!.label;
   const hardwareLabel = HARDWARE_TIERS.find((h) => h.id === config.hardwareId)!.label;
@@ -79,7 +87,7 @@ export function SpecPriceDemo() {
               (c, s) => ({ ...c, ...s.patch }),
               BASE
             );
-            const d = priceFurniture(nextConfig).total - total;
+            const d = quickPrice(nextConfig).total - total;
             return (
               <button
                 key={swap.id}

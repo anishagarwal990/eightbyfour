@@ -11,8 +11,8 @@
  * interrogate is a layout they cannot trust.
  */
 
-import { defaultInternals, getCabinetType, makeInternals, newId } from "./cabinets";
-import { variantOf } from "./appliances";
+import { defaultInternals, getCabinetType, makeInternals, newId } from "./cabinets.ts";
+import { variantOf } from "./appliances.ts";
 import {
   K,
   WALL_IDS,
@@ -23,7 +23,7 @@ import {
   type PlacedCabinet,
   type Room,
   type WallId,
-} from "./types";
+} from "./types.ts";
 
 /** Usable run length on a wall, i.e. the wall minus its door openings. */
 export function wallLength(room: Room, wall: WallId): number {

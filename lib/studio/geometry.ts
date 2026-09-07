@@ -13,7 +13,7 @@
  * from the back (0) to the front face (depth).
  */
 
-import type { FurnitureArchetype, LayoutPresetSpec } from "./archetypes";
+import type { FurnitureArchetype, LayoutPresetSpec } from "./archetypes.ts";
 
 // ------------------------------------------------------------------ model ---
 

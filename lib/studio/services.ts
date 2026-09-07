@@ -1,4 +1,4 @@
-import type { StudioService } from "./types";
+import type { StudioService } from "./types.ts";
 
 /**
  * The service registry. Order here is the order everywhere — nav, homepage

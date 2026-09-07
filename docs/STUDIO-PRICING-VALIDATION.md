@@ -113,8 +113,12 @@ node scripts/studio-pricing-sanity.ts
 Run `node scripts/studio-pricing-sanity.ts`.
 
 1. **Build method does not change the price.** Carpenter and factory both total
-   ₹1,05,523 on the default wardrobe. The UI offers it as a real decision. Either
-   the rates must diverge or the UI must stop implying a cost difference.
+   ₹1,05,523 on the default wardrobe. The UI offers it as a real decision.
+   Copy on both the estimator and the `/studio` spec/price demo now states that
+   the two routes are priced the same today and describes what actually differs
+   (lead time, weeks of work in the home, edge finishing), rather than implying
+   a cost gap the model does not contain. That is a holding position: the rates
+   still need to diverge on real quotations.
 2. **No economies of scale.** ₹1,649/sqft at 6′, 8′, 10′ and 12′ — identical.
    Every cost is purely linear in elevation area. Real jobs have fixed setup,
    delivery and measurement costs that should amortise across a bigger unit.
@@ -126,6 +130,20 @@ Run `node scripts/studio-pricing-sanity.ts`.
    data, so it may be correct — but it makes the ladder read oddly.
 6. **Service is 45% of a prelam PB wardrobe** (₹48,000 of ₹73,376) and 43% of a
    BWP one. Sanity-check that ratio against real jobs.
+7. **The catalogue cannot express the default carcass.** BWR Plywood is the
+   estimator's default board, but no catalogue product maps to it — so a
+   specification coming from the visual designer or the hero configurator can
+   never select it, and the adapter's fallback is the only route to it. The
+   consequence a customer sees: the hero on `/studio` opens on a BWP Plywood
+   wardrobe (₹1,11,495) and the wardrobe page opens on a BWR Plywood one
+   (₹1,05,523). Both numbers are correct for the specification shown beside
+   them — they are the same engine — but the two front doors start from
+   different wardrobes.
+
+   **Decision needed, and it is a commercial one, not a code one:** either
+   catalogue a real BWR plywood product, or change the estimator's default to a
+   board we actually stock. Not fixed unilaterally because it moves the
+   headline number on the flagship page.
 
 ## Migration path for the other furniture types
 

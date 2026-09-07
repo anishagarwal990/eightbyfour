@@ -9,7 +9,7 @@
  * left in the input can never reach the total.
  */
 
-import type { BuildMethodId, ShutterSystemId } from "./config";
+import type { BuildMethodId, ShutterSystemId } from "./config.ts";
 
 export interface WardrobeEstimateInput {
   widthFt: number;

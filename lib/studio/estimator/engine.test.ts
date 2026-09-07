@@ -14,6 +14,9 @@ import { estimateWardrobe } from "./engine.ts";
 import type { WardrobeEstimateInput } from "./types.ts";
 import { CARCASS_FINISH, CARCASS_MATERIALS, GEOMETRY, OVERHEADS, SHUTTER_CORES } from "./config.ts";
 import { boardSwatch } from "./swatches.ts";
+import { toEstimateInput } from "./adapter.ts";
+import { quickPrice, toCatalogueSpec } from "./quickPrice.ts";
+import { DEFAULT_CONFIG, type FurnitureConfig } from "../furniture.ts";
 
 const base: WardrobeEstimateInput = {
   widthFt: 8,
@@ -399,4 +402,35 @@ test("choosing a prelaminated board removes the carcass finish entirely", () => 
     const finish = e.buckets.find((b) => b.key === "carcassFinish");
     assert.ok((finish?.total ?? 0) > 0, `${m.id} was not charged a carcass finish`);
   }
+});
+
+// ------------------------------------------------------- one price, always ---
+// The whole point of the branch. Three screens price a wardrobe from catalogue
+// ids; a customer who sees one number in the hero and a different one on the
+// product page has learned that neither is real.
+
+test("every screen that prices a wardrobe from catalogue ids gets the same number", () => {
+  const specs: FurnitureConfig[] = [
+    DEFAULT_CONFIG,
+    { ...DEFAULT_CONFIG, carcassId: "hdhmr" },
+    { ...DEFAULT_CONFIG, finishId: "acrylic-matt" },
+    { ...DEFAULT_CONFIG, hardwareId: "luxury" },
+    { ...DEFAULT_CONFIG, method: "factory" },
+    { ...DEFAULT_CONFIG, width: 12, height: 10, carcassId: "particle", shutterId: "particle" },
+  ];
+  for (const spec of specs) {
+    const hero = quickPrice(spec);
+    const viaEngine = estimateWardrobe(toEstimateInput(toCatalogueSpec(spec)));
+    assert.equal(hero.engine, "wardrobe");
+    assert.equal(hero.total, viaEngine.finalTotal, JSON.stringify(spec));
+    assert.equal(hero.ratePerSqft, viaEngine.finalRatePerSqft);
+  }
+});
+
+test("a kitchen is not forced through the wardrobe model", () => {
+  // Deliberate: elevation area x rate is the wrong shape for base runs, a
+  // countertop and a plumbing wall. Kitchen keeps its own engine.
+  const kitchen = quickPrice({ ...DEFAULT_CONFIG, typeId: "kitchen" });
+  assert.equal(kitchen.engine, "general");
+  assert.ok(kitchen.total > 0);
 });

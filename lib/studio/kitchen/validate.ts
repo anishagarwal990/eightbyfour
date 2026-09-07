@@ -7,11 +7,11 @@
  * one without being told.
  */
 
-import { getCabinetType } from "./cabinets";
-import { variantOf } from "./appliances";
-import { placements } from "./geometry";
-import { freeSpans } from "./layout";
-import { K, type KitchenProject } from "./types";
+import { getCabinetType } from "./cabinets.ts";
+import { variantOf } from "./appliances.ts";
+import { placements } from "./geometry.ts";
+import { freeSpans } from "./layout.ts";
+import { K, type KitchenProject } from "./types.ts";
 
 export type IssueLevel = "warning" | "note";
 

@@ -1,6 +1,6 @@
 /** Appliance variants, sized the way they are actually sold in India. */
 
-import type { ApplianceKind } from "./types";
+import type { ApplianceKind } from "./types.ts";
 
 export interface ApplianceVariant {
   id: string;

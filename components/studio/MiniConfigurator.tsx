@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CARCASS_OPTIONS, FINISH_OPTIONS } from "@/lib/studio/catalogue";
-import { DEFAULT_CONFIG, FURNITURE_TYPES, priceFurniture, type BuildMethod, type FurnitureConfig } from "@/lib/studio/furniture";
+import { DEFAULT_CONFIG, FURNITURE_TYPES, type BuildMethod, type FurnitureConfig } from "@/lib/studio/furniture";
+import { quickPrice } from "@/lib/studio/estimator/quickPrice";
 import { delta, inr } from "@/lib/studio/format";
 import { Segmented, Stepper, Swatch } from "./primitives";
 
@@ -21,11 +22,13 @@ export function MiniConfigurator() {
   const [config, setConfig] = useState<FurnitureConfig>(DEFAULT_CONFIG);
   const [last, setLast] = useState<{ label: string; amount: number } | null>(null);
 
-  const quote = useMemo(() => priceFurniture(config), [config]);
+  // Same entry point the product page and the visual designer use, so the
+  // hero can never quote a number the next screen contradicts.
+  const quote = useMemo(() => quickPrice(config), [config]);
 
   function apply(patch: Partial<FurnitureConfig>, label: string) {
     const next = { ...config, ...patch };
-    const diff = priceFurniture(next).total - quote.total;
+    const diff = quickPrice(next).total - quote.total;
     setConfig(next);
     setLast(diff === 0 ? null : { label, amount: diff });
   }
@@ -151,7 +154,7 @@ export function MiniConfigurator() {
             </p>
             <p className="metric text-[32px] leading-none">{inr(quote.total)}</p>
             <p className="metric mt-1 text-[11px]" style={{ color: "var(--ink-faint)" }}>
-              {inr(quote.rate!.amount)} per sq ft · materials, fabrication, installation and delivery
+              {inr(quote.ratePerSqft)} per sq ft · materials, fabrication, installation and delivery
             </p>
           </div>
           {last ? (

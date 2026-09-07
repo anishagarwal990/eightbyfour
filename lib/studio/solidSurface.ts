@@ -1,5 +1,5 @@
-import { SURFACE_OPTIONS } from "./catalogue";
-import type { Quote, QuoteGroup, QuoteLine } from "./types";
+import { SURFACE_OPTIONS } from "./catalogue.ts";
+import type { Quote, QuoteGroup, QuoteLine } from "./types.ts";
 
 /**
  * Acrylic solid surface pricing.

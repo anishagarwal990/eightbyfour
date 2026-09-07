@@ -1,5 +1,5 @@
-import { BALANCING_LAMINATES, PRESS_BOARDS, PRESS_LAMINATES } from "./catalogue";
-import type { Quote, QuoteGroup, QuoteLine } from "./types";
+import { BALANCING_LAMINATES, PRESS_BOARDS, PRESS_LAMINATES } from "./catalogue.ts";
+import type { Quote, QuoteGroup, QuoteLine } from "./types.ts";
 
 /**
  * Laminate pressing — the most literal connection between the shop and the

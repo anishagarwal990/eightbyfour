@@ -65,17 +65,29 @@ const safe = (map: Record<string, string>, id: string, list: { id: string }[], f
   return mapped && list.some((o) => o.id === mapped) ? mapped : fallback;
 };
 
-/** What the designer drew, in the shape the visual configurator holds it. */
-export interface VisualWardrobeState {
+/**
+ * A specification written in catalogue vocabulary — everything the price needs
+ * and nothing else.
+ *
+ * Kept separate from VisualWardrobeState because three screens now speak
+ * catalogue ids (the hero configurator, the spec/price demo and the visual
+ * designer) and only one of them has geometry to count. Requiring a layout
+ * from the two that have none would be a lie in the type.
+ */
+export interface CatalogueSpec {
   widthFt: number;
   heightFt: number;
   depthFt: number;
   method: "carpenter" | "factory";
-  /** Catalogue ids, as the designer's material pickers produce them. */
+  /** Catalogue ids, as the material pickers produce them. */
   carcassId: string;
   shutterId: string;
   finishId: string;
   hardwareId: string;
+}
+
+/** What the designer drew, in the shape the visual configurator holds it. */
+export interface VisualWardrobeState extends CatalogueSpec {
   accessoryIds: string[];
   /** Counted from the geometry — see lib/studio/geometry.ts. */
   counts: LayoutCounts;
@@ -115,7 +127,7 @@ export const FIT_OUT_RATES = {
  * Note what is deliberately NOT passed through: the catalogue's internal
  * finish and its per-sheet board rates. The commercial model owns those.
  */
-export function toEstimateInput(state: VisualWardrobeState): WardrobeEstimateInput {
+export function toEstimateInput(state: CatalogueSpec): WardrobeEstimateInput {
   const carcassMaterialId = safe(CARCASS_FROM_CATALOGUE, state.carcassId, CARCASS_MATERIALS, "bwr-ply");
   const carcass = CARCASS_MATERIALS.find((m) => m.id === carcassMaterialId)!;
   const shutterCoreId = safe(SHUTTER_CORE_FROM_CATALOGUE, state.shutterId, SHUTTER_CORES, "hdhmr");

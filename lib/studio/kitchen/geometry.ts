@@ -9,9 +9,9 @@
  * (0) towards the S wall, y is up from the floor. Millimetres.
  */
 
-import { getCabinetType } from "./cabinets";
-import { variantOf } from "./appliances";
-import { K, type CabinetRun, type KitchenProject, type PlacedCabinet, type Tier, type WallId } from "./types";
+import { getCabinetType } from "./cabinets.ts";
+import { variantOf } from "./appliances.ts";
+import { K, type CabinetRun, type KitchenProject, type PlacedCabinet, type Tier, type WallId } from "./types.ts";
 
 export type BoxRole =
   | "carcass"

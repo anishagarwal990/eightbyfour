@@ -10,7 +10,7 @@
  * Millimetres throughout. Feet are an entry and display unit only.
  */
 
-import type { BuildMethod } from "../furniture";
+import type { BuildMethod } from "../furniture.ts";
 
 // ------------------------------------------------------------------- room ---
 

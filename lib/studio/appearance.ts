@@ -12,8 +12,8 @@
  * reason someone pays for one over the other.
  */
 
-import { CARCASS_OPTIONS, FINISH_OPTIONS, INTERNAL_FINISH_OPTIONS, SHUTTER_OPTIONS } from "./catalogue";
-import type { SurfaceGroup } from "./geometry";
+import { CARCASS_OPTIONS, FINISH_OPTIONS, INTERNAL_FINISH_OPTIONS, SHUTTER_OPTIONS } from "./catalogue.ts";
+import type { SurfaceGroup } from "./geometry.ts";
 
 export interface SurfaceAppearance {
   color: string;

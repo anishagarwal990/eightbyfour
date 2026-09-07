@@ -18,12 +18,12 @@ import {
   INTERNAL_FINISH_OPTIONS,
   SHEET_SQFT,
   SHUTTER_OPTIONS,
-} from "../catalogue";
-import type { Quote, QuoteGroup, QuoteLine } from "../types";
-import { KITCHEN_ACCESSORIES, getCabinetType } from "./cabinets";
-import { placements } from "./geometry";
-import { runLength } from "./layout";
-import type { KitchenProject } from "./types";
+} from "../catalogue.ts";
+import type { Quote, QuoteGroup, QuoteLine } from "../types.ts";
+import { KITCHEN_ACCESSORIES, getCabinetType } from "./cabinets.ts";
+import { placements } from "./geometry.ts";
+import { runLength } from "./layout.ts";
+import type { KitchenProject } from "./types.ts";
 
 const MM2_PER_SQFT = 92903;
 const sqft = (mm2: number) => mm2 / MM2_PER_SQFT;

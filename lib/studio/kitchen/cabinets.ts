@@ -8,7 +8,7 @@
  * pricing and BOQ layers need.
  */
 
-import { K, type CabinetRole, type Internal, type InternalKind, type Tier } from "./types";
+import { K, type CabinetRole, type Internal, type InternalKind, type Tier } from "./types.ts";
 
 export interface CabinetType {
   id: string;

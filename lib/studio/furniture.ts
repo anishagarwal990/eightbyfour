@@ -7,9 +7,9 @@ import {
   SHEET_SQFT,
   SHUTTER_OPTIONS,
   type Accessory,
-} from "./catalogue";
-import type { LayoutCounts } from "./geometry";
-import type { Quote, QuoteGroup, QuoteLine } from "./types";
+} from "./catalogue.ts";
+import type { LayoutCounts } from "./geometry.ts";
+import type { Quote, QuoteGroup, QuoteLine } from "./types.ts";
 
 /**
  * The Custom Furniture pricing engine.

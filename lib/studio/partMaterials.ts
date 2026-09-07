@@ -17,8 +17,8 @@ import {
   HARDWARE_TIERS,
   INTERNAL_FINISH_OPTIONS,
   SHUTTER_OPTIONS,
-} from "./catalogue";
-import type { Panel, SurfaceGroup } from "./geometry";
+} from "./catalogue.ts";
+import type { Panel, SurfaceGroup } from "./geometry.ts";
 
 export interface PartMaterial {
   /** "Carcass", "Shutters" — the part of the build, not the panel. */
