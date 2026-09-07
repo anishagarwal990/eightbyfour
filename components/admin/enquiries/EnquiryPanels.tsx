@@ -8,7 +8,7 @@ import {
   completeFollowup,
   updateEnquiryDetails,
   updateRequirement,
-} from "@/app/admin/enquiries/actions";
+} from "@/app/(admin)/admin/enquiries/actions";
 import { RequirementEditor } from "@/components/admin/enquiries/RequirementEditor";
 import {
   ENQUIRY_PRIORITIES,

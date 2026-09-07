@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Instrument_Sans } from "next/font/google";
 import localFont from "next/font/local";
-import "./globals.css";
+import "../globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SkuRibbon } from "@/components/SkuRibbon";
@@ -42,10 +42,10 @@ const generalSans = localFont({
   variable: "--font-body",
   display: "swap",
   src: [
-    { path: "./fonts/GeneralSans-400.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/GeneralSans-500.woff2", weight: "500", style: "normal" },
-    { path: "./fonts/GeneralSans-600.woff2", weight: "600", style: "normal" },
-    { path: "./fonts/GeneralSans-700.woff2", weight: "700", style: "normal" },
+    { path: "../fonts/GeneralSans-400.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/GeneralSans-500.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/GeneralSans-600.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/GeneralSans-700.woff2", weight: "700", style: "normal" },
   ],
 });
 

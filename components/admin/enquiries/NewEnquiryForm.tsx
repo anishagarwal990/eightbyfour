@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { createEnquiry } from "@/app/admin/enquiries/actions";
+import { createEnquiry } from "@/app/(admin)/admin/enquiries/actions";
 import { CustomerPicker } from "@/components/admin/enquiries/CustomerPicker";
 import { RequirementEditor } from "@/components/admin/enquiries/RequirementEditor";
 import { ENQUIRY_PRIORITIES, ENQUIRY_SOURCES, ENQUIRY_STATUSES, sourceLabel, statusLabel } from "@/lib/enquiry";
