@@ -8,6 +8,7 @@ import type {
   InquiryRow,
 } from "@/lib/supabase/types";
 import { ENQUIRY_STATUSES } from "@/lib/enquiry";
+import { isUuid } from "@/lib/uuid";
 
 export const ENQUIRY_PAGE_SIZE = 50;
 
@@ -129,6 +130,9 @@ export interface EnquiryDetail {
 }
 
 export async function getEnquiryDetail(id: string): Promise<EnquiryDetail | null> {
+  // Postgres errors on a malformed uuid rather than returning no rows, so a
+  // bad param would 500 instead of 404 without this.
+  if (!isUuid(id)) return null;
   const supabase = await createAdminSupabaseClient();
   const { data: enquiry, error } = await supabase.from("inquiries").select("*").eq("id", id).maybeSingle();
   if (error) throw error;

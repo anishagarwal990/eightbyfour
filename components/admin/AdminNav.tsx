@@ -24,7 +24,7 @@ const SECTIONS: NavSection[] = [
     title: "Operations",
     items: [
       { label: "Enquiries", href: "/admin/enquiries" },
-      { label: "Quotes", href: "/admin/quotes", soon: true },
+      { label: "Quotes", href: "/admin/quotes" },
       { label: "Orders", href: "/admin/orders", soon: true },
     ],
   },
@@ -32,7 +32,7 @@ const SECTIONS: NavSection[] = [
     title: "Catalogue",
     items: [
       { label: "Products", href: "/admin" },
-      { label: "Suppliers", href: "/admin/suppliers", soon: true },
+      { label: "Rate Book", href: "/admin/rates" },
     ],
   },
 ];

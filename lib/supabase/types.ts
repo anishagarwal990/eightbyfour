@@ -180,3 +180,133 @@ export interface FollowupRow {
   completed_by: string | null;
 }
 
+
+// ---------------------------------------------------------------- Slice 2 --
+// Rate Book + quotes. See supabase/enquiry-os-slice2.sql.
+
+export interface QuoteRateRow {
+  id: string;
+  product_id: number | null;
+  category: string | null;
+  brand: string | null;
+  product_name: string | null;
+  range_name: string | null;
+  thickness: string | null;
+  grade: string | null;
+  finish: string | null;
+  size: string | null;
+  pricing_basis: string;
+  sheet_width_ft: number | null;
+  sheet_length_ft: number | null;
+  sheet_area_sqft: number | null;
+  rate: number;
+  rate_input_mode: string;
+  gst_rate: number;
+  warranty_text: string | null;
+  notes: string | null;
+  effective_from: string;
+  effective_to: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  updated_by: string | null;
+}
+
+export interface QuoteRow {
+  id: string;
+  ref: string;
+  inquiry_id: string;
+  customer_id: string | null;
+  status: string;
+  current_version: number;
+  created_at: string;
+  updated_at: string;
+  created_by: string | null;
+  updated_by: string | null;
+}
+
+export interface QuoteVersionRow {
+  id: string;
+  quote_id: string;
+  version_no: number;
+  status: string;
+  label: string | null;
+  pricing_display: string;
+  customer_snapshot: unknown;
+  terms: unknown;
+  tax_assumption: string;
+  revision_reason: string | null;
+  frozen_at: string | null;
+  created_at: string;
+  created_by: string | null;
+}
+
+export interface QuoteOptionRow {
+  id: string;
+  quote_version_id: string;
+  label: string;
+  brand: string | null;
+  range_name: string | null;
+  warranty_text: string | null;
+  customer_notes: string | null;
+  sort_order: number;
+  option_discount: number;
+  freight: number;
+  freight_taxable: boolean;
+  loading_unloading: number;
+  loading_taxable: boolean;
+  packing: number;
+  packing_taxable: boolean;
+  other_charges: number;
+  other_taxable: boolean;
+  charges_gst_rate: number;
+  round_off: number | null;
+  totals_snapshot: unknown;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface QuoteItemRow {
+  id: string;
+  quote_option_id: string;
+  enquiry_item_id: string | null;
+  sort_order: number;
+  rate_book_id: string | null;
+  product_id: number | null;
+  match_state: string;
+  description: string | null;
+  category: string | null;
+  brand: string | null;
+  product_name: string | null;
+  range_name: string | null;
+  thickness: string | null;
+  grade: string | null;
+  finish: string | null;
+  size: string | null;
+  quantity: number;
+  unit: string;
+  pricing_basis: string;
+  sheet_width_ft: number | null;
+  sheet_length_ft: number | null;
+  sheet_area_sqft: number | null;
+  pricing_quantity: number;
+  gst_rate: number;
+  rate_input_mode: string;
+  entered_rate: number | null;
+  rate_book_rate_snapshot: number | null;
+  rate_book_mode_snapshot: string | null;
+  is_overridden: boolean;
+  base_rate_ex_gst: number | null;
+  rate_incl_gst: number | null;
+  line_discount: number;
+  manual_amount: number | null;
+  taxable_amount: number;
+  gst_amount: number;
+  amount_incl_gst: number;
+  warranty_text: string | null;
+  customer_note: string | null;
+  internal_note: string | null;
+  created_at: string;
+  updated_at: string;
+}

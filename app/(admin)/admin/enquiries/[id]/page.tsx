@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEnquiryDetail, signAttachmentUrls } from "@/lib/data/enquiries";
+import { getQuoteByEnquiry } from "@/lib/data/quotes";
 import { ageInDays, isOverdue, sourceLabel } from "@/lib/enquiry";
 import { StatusPill } from "@/components/admin/enquiries/StatusPill";
 import {
@@ -28,6 +29,7 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
   if (!detail) notFound();
 
   const { enquiry, customer, items, attachments, activity, followups } = detail;
+  const existingQuote = await getQuoteByEnquiry(enquiry.id);
   // Private bucket — every attachment link is a fresh short-lived signed URL,
   // minted per render. Nothing here is publicly reachable.
   const signed = await signAttachmentUrls(attachments.map((a) => a.storage_path));
@@ -51,18 +53,24 @@ export default async function EnquiryDetailPage({ params }: { params: Promise<{ 
             {sourceLabel(enquiry.source)} · received {stamp(enquiry.created_at)} · {ageInDays(enquiry.created_at)}d old
           </p>
         </div>
-        {/* Reserved for Slice 2. Disabled rather than hidden so the workflow's
-            next step is visible, and deliberately not wired to anything —
-            there is no quote layer yet to fake. */}
-        <button
-          type="button"
-          disabled
-          title="Quote builder arrives in the next slice"
-          className="cursor-not-allowed rounded-md border px-3 py-1.5 text-sm opacity-50"
-          style={{ borderColor: "var(--line)" }}
-        >
-          Create quote
-        </button>
+        {existingQuote ? (
+          <Link
+            href={`/admin/quotes/${existingQuote.id}`}
+            className="rounded-md border px-3 py-1.5 text-sm"
+            style={{ borderColor: "var(--burgundy)", color: "var(--burgundy)" }}
+          >
+            Open quote {existingQuote.ref}
+          </Link>
+        ) : (
+          <Link
+            prefetch={false}
+            href={`/admin/quotes/new?inquiry=${enquiry.id}`}
+            className="rounded-md px-3 py-1.5 text-sm font-medium"
+            style={{ background: "var(--burgundy)", color: "var(--paper)" }}
+          >
+            Create quote
+          </Link>
+        )}
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
