@@ -62,6 +62,12 @@ export const GEOMETRY = {
 export interface CarcassMaterial {
   id: string;
   label: string;
+  /**
+   * The trade shorthand, for places where the full name will not fit — a
+   * comparison row, a chip. Written down rather than derived, because
+   * abbreviating "MR / Commercial Plywood" by rule produces nonsense.
+   */
+  short: string;
   /** ₹ per sq ft of purchased board. */
   ratePerSqft: number;
   source: RateSource;
@@ -89,13 +95,18 @@ export interface CarcassMaterial {
 }
 
 /**
- * Ordered cheapest to dearest. That order is the product: a customer scans it
- * as a ladder and stops where their budget stops.
+ * The boards we will build a carcass from.
+ *
+ * Roughly cheapest to dearest, but nothing depends on the array order — every
+ * screen that shows a ladder sorts for itself, because the useful order is not
+ * always the board rate. A prelaminated board is dearer per sq ft and cheaper
+ * installed, since it removes the laminating entirely.
  */
 export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "prelam-pb",
     label: "Prelaminated Particle Board",
+    short: "Prelam PB",
     ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "particle"),
     source: "catalogue",
     catalogueId: "particle",
@@ -111,6 +122,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "mdf",
     label: "MDF",
+    short: "MDF",
     ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "mdf"),
     source: "catalogue",
     catalogueId: "mdf",
@@ -126,6 +138,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "prelam-mdf",
     label: "Prelaminated MDF",
+    short: "Prelam MDF",
     ratePerSqft: 62,
     source: "assumption",
     catalogueHref: "/products/mdf-and-hdhmr",
@@ -140,6 +153,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "mr-ply",
     label: "MR / Commercial Plywood",
+    short: "MR Ply",
     ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "commercial-ply"),
     source: "catalogue",
     catalogueId: "commercial-ply",
@@ -155,6 +169,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "hdhmr",
     label: "HDHMR",
+    short: "HDHMR",
     ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "hdhmr"),
     source: "catalogue",
     catalogueId: "hdhmr",
@@ -170,6 +185,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "bwr-ply",
     label: "BWR Plywood",
+    short: "BWR Ply",
     ratePerSqft: 80,
     source: "assumption",
     catalogueHref: "/products/plywood",
@@ -184,6 +200,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "bwp-ply",
     label: "BWP Plywood",
+    short: "BWP Ply",
     ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "bwp-ply"),
     source: "catalogue",
     catalogueId: "bwp-ply",
@@ -199,6 +216,7 @@ export const CARCASS_MATERIALS: CarcassMaterial[] = [
   {
     id: "fr-ply",
     label: "FR Plywood",
+    short: "FR Ply",
     ratePerSqft: 105,
     source: "assumption",
     catalogueHref: "/products/plywood",
@@ -251,6 +269,8 @@ export const SHUTTER_SYSTEMS: ShutterSystem[] = [
 export interface ShutterCore {
   id: string;
   label: string;
+  /** Trade shorthand, for rows too narrow for the full name. */
+  short: string;
   /** ₹ per sq ft of shutter face. */
   ratePerSqft: number;
   source: RateSource;
@@ -265,6 +285,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "prelam-pb",
     label: "Prelaminated Particle Board",
+    short: "Prelam PB",
     ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "particle"),
     source: "catalogue",
     catalogueId: "particle",
@@ -275,6 +296,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "mdf",
     label: "MDF",
+    short: "MDF",
     ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "mdf"),
     source: "catalogue",
     catalogueId: "mdf",
@@ -285,6 +307,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "prelam-mdf",
     label: "Prelaminated MDF",
+    short: "Prelam MDF",
     ratePerSqft: 66,
     source: "assumption",
     catalogueHref: "/products/mdf-and-hdhmr",
@@ -294,6 +317,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "blockboard",
     label: "Blockboard",
+    short: "Blockboard",
     ratePerSqft: 78,
     source: "assumption",
     catalogueHref: "/products/blockboards",
@@ -303,6 +327,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "hdhmr",
     label: "HDHMR",
+    short: "HDHMR",
     ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "hdhmr"),
     source: "catalogue",
     catalogueId: "hdhmr",
@@ -313,6 +338,7 @@ export const SHUTTER_CORES: ShutterCore[] = [
   {
     id: "plywood",
     label: "Plywood",
+    short: "Plywood",
     ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "ply"),
     source: "catalogue",
     catalogueId: "ply",

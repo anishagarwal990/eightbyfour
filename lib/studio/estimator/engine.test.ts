@@ -12,7 +12,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { estimateWardrobe } from "./engine.ts";
 import type { WardrobeEstimateInput } from "./types.ts";
-import { CARCASS_FINISH, GEOMETRY, OVERHEADS } from "./config.ts";
+import { CARCASS_FINISH, CARCASS_MATERIALS, GEOMETRY, OVERHEADS, SHUTTER_CORES } from "./config.ts";
+import { boardSwatch } from "./swatches.ts";
 
 const base: WardrobeEstimateInput = {
   widthFt: 8,
@@ -322,5 +323,80 @@ test("no NaN or negative money reaches a quote", () => {
     assert.ok(Number.isFinite(e.finalRatePerSqft) && e.finalRatePerSqft > 0);
     for (const g of e.publicGroups) assert.ok(Number.isFinite(g.total) && g.total > 0, g.label);
     for (const b of e.buckets) assert.ok(Number.isFinite(b.total) && b.total >= 0, b.label);
+  }
+});
+
+// ------------------------------------------------- presentation contracts ---
+// The summary screen shows a board name in a narrow row and a colour chip
+// beside it. Both are per-board data, so both can be forgotten when a board is
+// added. These tests fail on the day that happens rather than on the day a
+// customer sees a blank name or a grey chip that means nothing.
+
+test("every board and shutter core carries a short name", () => {
+  for (const m of CARCASS_MATERIALS) {
+    assert.ok(m.short && m.short.length > 0, `${m.id} has no short name`);
+    assert.ok(m.short.length <= 12, `${m.id} short name "${m.short}" will not fit a spec row`);
+  }
+  for (const c of SHUTTER_CORES) {
+    assert.ok(c.short && c.short.length > 0, `${c.id} has no short name`);
+    assert.ok(c.short.length <= 12, `${c.id} short name "${c.short}" will not fit a spec row`);
+  }
+});
+
+test("every board has a real swatch, not the neutral fallback", () => {
+  const NEUTRAL = "#c9b79c";
+  const seen = new Map<string, string>();
+  for (const m of CARCASS_MATERIALS) {
+    const s = boardSwatch(m.id);
+    assert.match(s.from, /^#[0-9a-f]{6}$/i, `${m.id} swatch is not a colour`);
+    assert.match(s.to, /^#[0-9a-f]{6}$/i, `${m.id} swatch end is not a colour`);
+    assert.notEqual(s.from.toLowerCase(), NEUTRAL, `${m.id} fell through to the neutral swatch`);
+    // Two boards sharing a colour would make the swap list unreadable.
+    const clash = seen.get(s.from.toLowerCase());
+    assert.equal(clash, undefined, `${m.id} shares a swatch with ${clash}`);
+    seen.set(s.from.toLowerCase(), m.id);
+  }
+});
+
+test("the material swap list prices every board against the same wardrobe", () => {
+  // What the swap UI does, asserted directly: one field substituted, nothing
+  // else, and the current board's row is a zero delta by construction.
+  const current = estimateWardrobe(base).finalTotal;
+  for (const m of CARCASS_MATERIALS) {
+    const swapped = estimateWardrobe({ ...base, carcassMaterialId: m.id });
+    assert.equal(swapped.elevationAreaSqft, estimateWardrobe(base).elevationAreaSqft);
+    if (m.id === base.carcassMaterialId) assert.equal(swapped.finalTotal - current, 0);
+  }
+  // Cheapest board must not price above the dearest — the ladder is the product.
+  const sorted = [...CARCASS_MATERIALS].sort((a, b) => a.ratePerSqft - b.ratePerSqft);
+  const first = estimateWardrobe({ ...base, carcassMaterialId: sorted[0].id }).finalTotal;
+  const last = estimateWardrobe({ ...base, carcassMaterialId: sorted[sorted.length - 1].id }).finalTotal;
+  assert.ok(first < last, "the cheapest board does not produce the cheapest wardrobe");
+});
+
+test("board rate order and installed-price order are genuinely different", () => {
+  // Pinned deliberately. The swap list sorts by total precisely BECAUSE these
+  // two orders disagree; if a rate change ever made them agree, the comment
+  // explaining the sort would be wrong and this test says so.
+  const byRate = [...CARCASS_MATERIALS].sort((a, b) => a.ratePerSqft - b.ratePerSqft).map((m) => m.id);
+  const byTotal = [...CARCASS_MATERIALS]
+    .map((m) => ({ id: m.id, total: estimateWardrobe({ ...base, carcassMaterialId: m.id }).finalTotal }))
+    .sort((a, b) => a.total - b.total)
+    .map((r) => r.id);
+  assert.notDeepEqual(byRate, byTotal);
+});
+
+test("choosing a prelaminated board removes the carcass finish entirely", () => {
+  // What the swap list applies for a pre-finished board, and why its number is
+  // lower than a cheaper raw board's.
+  for (const m of CARCASS_MATERIALS.filter((x) => x.prelaminated)) {
+    const e = estimateWardrobe({ ...base, carcassMaterialId: m.id });
+    const finish = e.buckets.find((b) => b.key === "carcassFinish");
+    assert.equal(finish?.total ?? 0, 0, `${m.id} was charged a carcass finish`);
+  }
+  for (const m of CARCASS_MATERIALS.filter((x) => !x.prelaminated)) {
+    const e = estimateWardrobe({ ...base, carcassMaterialId: m.id });
+    const finish = e.buckets.find((b) => b.key === "carcassFinish");
+    assert.ok((finish?.total ?? 0) > 0, `${m.id} was not charged a carcass finish`);
   }
 });

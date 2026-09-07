@@ -479,6 +479,23 @@ textarea {
    one-finger drag scrolls the page instead of rotating the model. three.js
    sets touch-action inline and re-sets it to `auto` across re-renders, so a
    plain rule loses to the inline value: !important is the narrow exception. */
+/*
+ * Studio animates several things with inline transitions — the price-DNA bars
+ * grow, the delta chip appears. Inline styles cannot be overridden from a
+ * stylesheet without !important, so this is stated once here rather than
+ * guarded in every component that animates.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .studio *,
+  .studio *::before,
+  .studio *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .studio canvas {
   touch-action: none !important;
 }
