@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { findCustomers } from "@/app/admin/enquiries/actions";
+import { useEffect, useId, useState } from "react";
 import type { CustomerRow } from "@/lib/supabase/types";
 
 const FIELD = "w-full rounded border px-2 py-1.5 text-sm";
@@ -23,9 +22,8 @@ export function CustomerPicker() {
   const [term, setTerm] = useState("");
   const [results, setResults] = useState<CustomerRow[]>([]);
   const [picked, setPicked] = useState<CustomerRow | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [pending, setPending] = useState(false);
   const listId = useId();
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Only the debounced fetch writes results; the "nothing to show" case is
   // derived below rather than set from inside the effect, which would be a
@@ -35,18 +33,31 @@ export function CustomerPicker() {
 
   useEffect(() => {
     if (!searchable) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      startTransition(async () => {
-        try {
-          setResults(await findCustomers(term));
-        } catch {
+    // AbortController rather than a `stale` flag: it also cancels the request
+    // itself when the operator keeps typing, instead of letting a superseded
+    // lookup run to completion.
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setPending(true);
+      try {
+        const response = await fetch(`/admin/enquiries/customers?q=${encodeURIComponent(term)}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`Customer search failed: ${response.status}`);
+        const body = (await response.json()) as { customers: CustomerRow[] };
+        setResults(body.customers ?? []);
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("customer search failed", error);
           setResults([]);
         }
-      });
+      } finally {
+        setPending(false);
+      }
     }, 250);
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      controller.abort();
+      clearTimeout(timer);
     };
   }, [term, searchable]);
 
@@ -119,7 +130,7 @@ export function CustomerPicker() {
             ))}
           </ul>
         ) : null}
-        {isPending ? (
+        {pending ? (
           <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px]" style={{ color: "var(--line-strong)" }}>
             …
           </span>

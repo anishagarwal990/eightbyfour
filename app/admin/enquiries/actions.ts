@@ -441,10 +441,3 @@ export async function updateEnquiryDetails(inquiryId: string, formData: FormData
   revalidatePath(`/admin/enquiries/${inquiryId}`);
   return { ok: true, message: "Details saved." };
 }
-
-/** Customer lookup for the create form's picker. Read-only, admin-gated. */
-export async function findCustomers(term: string) {
-  await assertAdmin();
-  const { searchCustomers } = await import("@/lib/data/enquiries");
-  return searchCustomers(term);
-}

@@ -116,22 +116,33 @@ export interface RequirementSpec {
 
 /**
  * Whether a requirement line is specific enough to price without going back to
- * the customer. Intentionally a low bar: a quantity, a unit, and *something*
- * identifying the material — a thickness, a named product, or a category.
+ * the customer: a quantity, a unit, and something that actually *specifies*
+ * the material.
  *
- * "19mm x 45 sheets" passes. "Liner x 50 sheets" does not, because nothing on
- * the row says what liner. The system flags that; it never fills it in.
+ * The subtlety is the thickness column, which staff use as a catch-all ("19mm"
+ * on one line, "Liner" on the next). A dimensional value there is a real spec;
+ * a bare word is only a name, and a name alone cannot be priced — which liner,
+ * in what material, at what thickness? So a non-dimensional thickness has to be
+ * backed by a product, brand, category or material before the line counts as
+ * complete.
  *
- * This is the suggested default only — `specification_complete` is stored per
- * row so staff can override in either direction after talking to the customer.
+ *   "19mm"  x 45 sheets                  -> complete   (dimensional)
+ *   "Liner" x 50 sheets                  -> INCOMPLETE (name only)
+ *   "Liner" x 50 sheets, material "HDF"  -> complete
+ *
+ * The system flags the gap; it never fills it in. This is the suggested
+ * default only — `specification_complete` is stored per row so staff can
+ * override either way once they have spoken to the customer.
  */
 export function isSpecificationComplete(item: RequirementSpec): boolean {
   const hasQuantity = item.quantity !== null && item.quantity > 0;
   const hasUnit = !!item.unit?.trim();
-  const identifiesMaterial = Boolean(
-    item.thickness?.trim() || item.requested_product?.trim() || item.category?.trim() || item.material?.trim()
+  // A digit is what separates "19mm" / "0.8" / "8x4" from "Liner".
+  const dimensionalThickness = /\d/.test(item.thickness ?? "");
+  const namedElsewhere = Boolean(
+    item.requested_product?.trim() || item.category?.trim() || item.material?.trim() || item.requested_brand?.trim()
   );
-  return hasQuantity && hasUnit && identifiesMaterial;
+  return hasQuantity && hasUnit && (dimensionalThickness || namedElsewhere);
 }
 
 /** Human summary of a requirement line for dense table cells. */
@@ -170,12 +181,22 @@ export const FOLLOWUP_PRESETS: { label: string; days: number | null }[] = [
   { label: "Custom", days: null },
 ];
 
-/** 10:00 local on the target day — a follow-up due "today" means this morning's call list, not this instant. */
+/**
+ * 10:00 local on the target day, as a `YYYY-MM-DDTHH:mm` wall-clock string —
+ * a follow-up due "today" means this morning's call list, not this instant.
+ *
+ * Deliberately NOT toISOString(): that converts to UTC, and a `datetime-local`
+ * input reads its value as local wall-clock. Feeding it UTC shifted every
+ * preset by the timezone offset — "Tomorrow" rendered as 04:30 in IST instead
+ * of 10:00. The value is parsed back as local time on submit, which is what
+ * turns it into the correct instant.
+ */
 export function followupDateFor(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
   d.setHours(10, 0, 0, 0);
-  return d.toISOString();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 const IMAGE_TYPES = /^image\//;

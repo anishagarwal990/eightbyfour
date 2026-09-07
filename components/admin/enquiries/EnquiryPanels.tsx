@@ -89,7 +89,7 @@ export function FollowupPanel({
   openFollowups: { id: string; due_at: string; note: string | null }[];
 }) {
   const { run, note, isPending } = useAction();
-  const [dueAt, setDueAt] = useState(() => followupDateFor(1).slice(0, 16));
+  const [dueAt, setDueAt] = useState(() => followupDateFor(1));
 
   return (
     <div className="flex flex-col gap-3">
@@ -125,7 +125,7 @@ export function FollowupPanel({
             <button
               key={preset.label}
               type="button"
-              onClick={() => setDueAt(followupDateFor(preset.days as number).slice(0, 16))}
+              onClick={() => setDueAt(followupDateFor(preset.days as number))}
               className="rounded-full border px-2.5 py-0.5 text-xs"
               style={{ borderColor: "var(--line)" }}
             >

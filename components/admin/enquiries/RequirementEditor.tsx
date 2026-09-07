@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { ENQUIRY_UNITS, isSpecificationComplete } from "@/lib/enquiry";
 import type { InquiryItemRow } from "@/lib/supabase/types";
 
@@ -24,9 +24,9 @@ interface Draft {
   specOverride: boolean | null;
 }
 
-function emptyDraft(unit: string): Draft {
+function emptyDraft(unit: string, key: string): Draft {
   return {
-    key: Math.random().toString(36).slice(2),
+    key,
     thickness: "",
     quantity: "",
     unit,
@@ -101,8 +101,21 @@ function draftSpec(draft: Draft) {
  * and validation — no JSON blob, no client-side "save" round trip.
  */
 export function RequirementEditor({ initialItems = [] }: { initialItems?: InquiryItemRow[] }) {
+  // Row keys come off a useId() prefix plus a monotonic counter, never
+  // Math.random(): the initial rows are rendered on the server too, and random
+  // keys made the server and client markup disagree (hydration mismatch on
+  // data-row).
+  const baseId = useId();
+  const BLANK_ROWS = 3;
+  // Seeded from props at mount rather than reconciled during render — reading
+  // or writing a ref while rendering is exactly what react-hooks/refs forbids.
+  const nextKey = useRef(initialItems.length > 0 ? initialItems.length : BLANK_ROWS);
+  const makeKey = () => `${baseId}-row-${nextKey.current++}`;
+
   const [drafts, setDrafts] = useState<Draft[]>(() =>
-    initialItems.length > 0 ? initialItems.map(fromRow) : [emptyDraft("sheets"), emptyDraft("sheets"), emptyDraft("sheets")]
+    initialItems.length > 0
+      ? initialItems.map(fromRow)
+      : Array.from({ length: BLANK_ROWS }, (_, i) => emptyDraft("sheets", `${baseId}-row-${i}`))
   );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -114,7 +127,7 @@ export function RequirementEditor({ initialItems = [] }: { initialItems?: Inquir
   function addRow(afterKey?: string) {
     // Inherit the unit from the row above — a sheet list is all sheets.
     const previous = afterKey ? drafts.find((d) => d.key === afterKey) : drafts[drafts.length - 1];
-    const next = emptyDraft(previous?.unit || "sheets");
+    const next = emptyDraft(previous?.unit || "sheets", makeKey());
     setDrafts((prev) => [...prev, next]);
     // Focus the new row's first field once React has committed it.
     requestAnimationFrame(() => {
@@ -123,7 +136,7 @@ export function RequirementEditor({ initialItems = [] }: { initialItems?: Inquir
   }
 
   function removeRow(key: string) {
-    setDrafts((prev) => (prev.length === 1 ? [emptyDraft(prev[0].unit)] : prev.filter((d) => d.key !== key)));
+    setDrafts((prev) => (prev.length === 1 ? [emptyDraft(prev[0].unit, makeKey())] : prev.filter((d) => d.key !== key)));
   }
 
   function toggleExpanded(key: string) {
@@ -163,7 +176,11 @@ export function RequirementEditor({ initialItems = [] }: { initialItems?: Inquir
           <tbody>
             {drafts.map((draft, index) => {
               const spec = draftSpec(draft);
-              const hasContent = Object.values(spec).some((v) => v !== null && v !== "");
+              // `unit` is pre-filled (inherited from the row above), so an
+              // untouched row would otherwise look "filled" and get flagged
+              // incomplete before anyone has typed in it. Judge emptiness on
+              // the fields the operator actually enters.
+              const hasContent = Object.entries(spec).some(([field, value]) => field !== "unit" && value !== null && value !== "");
               const computed = isSpecificationComplete(spec);
               const complete = draft.specOverride ?? computed;
               const isOpen = expanded.has(draft.key);
