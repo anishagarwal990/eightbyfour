@@ -270,18 +270,17 @@ export function buildCustomerQuote(data: QuoteBuilderData): CustomerQuote {
   };
 }
 
-/** wa.me deep link + prefilled message. Attachment is manual — the PDF cannot
- *  be attached to a wa.me link without the WhatsApp Business API. */
-export function whatsappShareLink(quote: CustomerQuote): string | null {
-  const digits = (quote.customer.phone ?? "").replace(/[^0-9]/g, "");
-  if (digits.length < 10) return null;
-  const phone = digits.length === 10 ? `91${digits}` : digits;
-  const msg =
+/** Prefilled WhatsApp message for this quote. Pure text — number
+ *  normalisation and the wa.me link live in lib/phone.ts (whatsAppLink), which
+ *  refuses a number it cannot safely reach. The PDF is attached manually; a
+ *  wa.me link cannot carry an attachment without the WhatsApp Business API. */
+export function whatsappMessage(quote: CustomerQuote): string {
+  return (
     `Hi ${quote.customer.name},\n\n` +
     `Please find our quotation ${quote.ref} for your requirement. ` +
     `We have included the requested alternatives for your comparison.\n\n` +
-    `Regards,\nEightByFour`;
-  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    `Regards,\nEightByFour`
+  );
 }
 
 export function pdfFileName(quote: CustomerQuote): string {

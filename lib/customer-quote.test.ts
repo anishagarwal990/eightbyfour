@@ -5,7 +5,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildCustomerQuote, pdfFileName, whatsappShareLink } from "./customer-quote.ts";
+import { buildCustomerQuote, pdfFileName, whatsappMessage } from "./customer-quote.ts";
 import { mergeTerms, defaultValidUntil, DEFAULT_QUOTE_TERMS } from "./customer-quote.ts";
 import { computeLine, computeOption } from "./quote-math.ts";
 
@@ -187,7 +187,9 @@ test("mergeTerms + defaultValidUntil", () => {
 test("pdf filename + whatsapp link are customer-clean", () => {
   const dto = buildCustomerQuote(fixture());
   assert.equal(pdfFileName(dto), "EightByFour-Quotation-Q-TEST-V1.pdf");
-  const wa = whatsappShareLink(dto);
-  assert.ok(wa.startsWith("https://wa.me/919703739918?text="));
-  assert.ok(!wa.includes("uuid"));
+  const msg = whatsappMessage(dto);
+  assert.ok(msg.includes("Q-TEST"));
+  assert.ok(msg.includes("Ravi Constructions"));
+  assert.ok(!msg.toLowerCase().includes("uuid"));
+  assert.ok(!msg.includes("rate_book"));
 });

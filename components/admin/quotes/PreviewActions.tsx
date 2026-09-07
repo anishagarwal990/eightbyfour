@@ -69,7 +69,11 @@ export function PreviewActions({
           >
             Open WhatsApp
           </a>
-        ) : null}
+        ) : (
+          <span className="rounded-md border px-3 py-1.5 text-sm opacity-50" style={{ borderColor: "var(--line)" }} title="No WhatsApp-reachable number on file for this customer">
+            WhatsApp — no valid number
+          </span>
+        )}
 
         {status === "READY" ? (
           <button

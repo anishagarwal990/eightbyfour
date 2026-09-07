@@ -28,10 +28,18 @@ import {
   type PricingBasis,
 } from "@/lib/rate-book";
 import { computeLine, formatINR, formatINR0, formatRate } from "@/lib/quote-math";
+import { quoteDisplayStatus, type QuoteTone } from "@/lib/quote-status";
 import { useAction } from "./useAction";
 
 const FIELD = "w-full rounded border px-2 py-1 text-sm";
 const FS = { borderColor: "var(--line)", background: "var(--paper)" } as const;
+const BUILDER_TONE: Record<QuoteTone, { background: string; color: string }> = {
+  draft: { background: "var(--card)", color: "var(--line-strong)" },
+  ready: { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" },
+  sent: { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" },
+  revision: { background: "color-mix(in srgb, #b8860b 16%, var(--paper))", color: "#7a5b00" },
+};
+
 const TH = "px-2 py-1.5 text-left font-medium whitespace-nowrap";
 const TD = "px-2 py-1.5 align-top";
 
@@ -53,6 +61,17 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
   const { quote, enquiry, customer, versions, version, readOnly, options, valueRange, enquiryItems } = data;
   const { pending, result, run } = useAction();
   const inclusive = version.pricing_display === "INCL_GST";
+  const display = quoteDisplayStatus(
+    quote.status,
+    versions.map((v) => ({ version_no: v.version_no, status: v.status, frozen_at: v.frozen_at, sent_at: v.sent_at }))
+  );
+  const viewingLabel = version.sent_at
+    ? "Sent"
+    : version.frozen_at
+      ? "Frozen"
+      : version.status === "READY"
+        ? "Ready"
+        : "Draft";
 
   // Requirement rows, aligned across options by enquiry_item_id.
   const requirementRows = useMemo(() => {
@@ -97,25 +116,29 @@ export function QuoteBuilder({ data }: { data: QuoteBuilderData }) {
             <h1 className="serif text-lg">{quote.ref}</h1>
             <span
               className="rounded-full px-2 py-0.5 text-[11px] font-medium"
-              style={
-                quote.status === "SENT"
-                  ? { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" }
-                  : quote.status === "READY"
-                    ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
-                    : { background: "var(--card)", color: "var(--line-strong)" }
-              }
+              style={BUILDER_TONE[display.tone]}
             >
-              {quote.status === "SENT" ? "Sent" : quote.status === "READY" ? "Ready" : "Draft"}
+              {display.label}
             </span>
           </div>
           <p className="mt-0.5 text-xs" style={{ color: "var(--line-strong)" }}>
-            {customer?.name ?? enquiry.name}
-            {customer?.company ? ` · ${customer.company}` : ""} · {options.length} option{options.length === 1 ? "" : "s"} ·{" "}
+            Viewing: V{version.version_no} · {viewingLabel} ·{" "}
+            {display.lastSent && display.lastSent.versionNo !== version.version_no ? (
+              <>
+                Previously sent: V{display.lastSent.versionNo} ·{" "}
+                {new Date(display.lastSent.at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })} ·{" "}
+              </>
+            ) : null}
+            {options.length} option{options.length === 1 ? "" : "s"} ·{" "}
             {valueRange
               ? valueRange.min === valueRange.max
                 ? formatINR0(valueRange.min)
                 : `${formatINR0(valueRange.min)} – ${formatINR0(valueRange.max)} (alternatives, not a total)`
               : "no priced options yet"}
+          </p>
+          <p className="mt-0.5 text-xs" style={{ color: "var(--line-strong)" }}>
+            {customer?.name ?? enquiry.name}
+            {customer?.company ? ` · ${customer.company}` : ""}
           </p>
         </div>
 

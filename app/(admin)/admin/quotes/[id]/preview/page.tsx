@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getCustomerQuote } from "@/lib/data/quotes";
-import { whatsappShareLink, pdfFileName } from "@/lib/customer-quote";
+import { whatsappMessage, pdfFileName } from "@/lib/customer-quote";
+import { whatsAppLink } from "@/lib/phone";
 import { CustomerQuoteView } from "@/components/admin/quotes/CustomerQuoteView";
 import { PreviewActions } from "@/components/admin/quotes/PreviewActions";
 
@@ -40,7 +41,7 @@ export default async function QuotePreviewPage({
 
   const vParam = versionNo ? `?v=${versionNo}` : "";
   const pdfHref = `/admin/quotes/${id}/pdf${versionNo ? `?v=${versionNo}` : ""}`;
-  const wa = whatsappShareLink(dto);
+  const wa = whatsAppLink(dto.customer.phone, whatsappMessage(dto));
 
   return (
     <main className="px-6 py-5">

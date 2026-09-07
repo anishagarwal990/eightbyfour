@@ -3,11 +3,19 @@ import type { Metadata } from "next";
 import { listQuotes } from "@/lib/data/quotes";
 import { ageInDays } from "@/lib/rate-book";
 import { quoteValueRange, valueRangeLabel } from "@/lib/quote-math";
+import type { QuoteTone } from "@/lib/quote-status";
 
 export const metadata: Metadata = { title: "Quotes" };
 
 const TH = "px-2.5 py-1.5 text-left font-medium whitespace-nowrap";
 const TD = "px-2.5 py-1.5 align-top";
+
+const TONE_STYLE: Record<QuoteTone, { background: string; color: string }> = {
+  draft: { background: "var(--card)", color: "var(--line-strong)" },
+  ready: { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" },
+  sent: { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" },
+  revision: { background: "color-mix(in srgb, #b8860b 16%, var(--paper))", color: "#7a5b00" },
+};
 
 function shortDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
@@ -61,18 +69,16 @@ export default async function QuotesPage() {
                   <td className={TD}>
                     <span
                       className="inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium"
-                      style={
-                        q.status === "SENT"
-                          ? { background: "color-mix(in srgb, var(--burgundy) 12%, var(--paper))", color: "var(--burgundy)" }
-                          : q.status === "READY"
-                            ? { background: "color-mix(in srgb, #1a7f4b 14%, var(--paper))", color: "#136138" }
-                            : { background: "var(--card)", color: "var(--line-strong)" }
-                      }
+                      style={TONE_STYLE[q.display.tone]}
                     >
-                      {q.status === "SENT" ? "Sent" : q.status === "READY" ? "Ready" : "Draft"}
+                      {q.display.label}
                     </span>
                   </td>
-                  <td className={TD} style={{ color: "var(--line-strong)" }}>{q.sent_at ? shortDate(q.sent_at) : "—"}</td>
+                  <td className={TD} style={{ color: "var(--line-strong)" }}>
+                    {q.display.lastSent
+                      ? `V${q.display.lastSent.versionNo} · ${shortDate(q.display.lastSent.at)}`
+                      : "—"}
+                  </td>
                   <td className={TD} style={{ color: "var(--line-strong)" }}>{shortDate(q.updated_at)}</td>
                   <td className={TD} style={{ color: "var(--line-strong)" }}>{ageInDays(q.created_at)}d</td>
                 </tr>

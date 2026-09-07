@@ -18,6 +18,7 @@ import {
 } from "@/lib/quote-math";
 import type { PricingBasis, RateInputMode } from "@/lib/rate-book";
 import { buildCustomerQuote } from "@/lib/customer-quote";
+import { quoteDisplayStatus, type QuoteDisplay } from "@/lib/quote-status";
 import { isUuid } from "@/lib/uuid";
 
 // ------------------------------------------------------------- engine glue --
@@ -67,6 +68,8 @@ export interface QuoteListRow {
   version_count: number;
   value_min: number | null;
   value_max: number | null;
+  /** Operator-facing status that distinguishes a revision from a first draft. */
+  display: QuoteDisplay;
 }
 
 export async function listQuotes(): Promise<QuoteListRow[]> {
@@ -77,7 +80,7 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
       `id, ref, status, current_version, sent_at, updated_at, created_at, inquiry_id,
        inquiries(ref, name),
        customers(name),
-       quote_versions(id, version_no, frozen_at,
+       quote_versions(id, version_no, status, frozen_at, sent_at,
          quote_options(*,
            quote_items(pricing_basis, quantity, sheet_area_sqft, gst_rate, rate_input_mode, entered_rate, line_discount, manual_amount)))`
     )
@@ -100,7 +103,7 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
     inquiries: { ref: string; name: string | null } | { ref: string; name: string | null }[] | null;
     customers: { name: string | null } | { name: string | null }[] | null;
     sent_at: string | null;
-    quote_versions: (Pick<QuoteVersionRow, "id" | "version_no" | "frozen_at"> & {
+    quote_versions: (Pick<QuoteVersionRow, "id" | "version_no" | "status" | "frozen_at" | "sent_at"> & {
       quote_options: (QuoteOptionRow & { quote_items: Partial<QuoteItemRow>[] })[];
     })[];
   };
@@ -131,6 +134,15 @@ export async function listQuotes(): Promise<QuoteListRow[]> {
       version_count: versions.length,
       value_min: range?.min ?? null,
       value_max: range?.max ?? null,
+      display: quoteDisplayStatus(
+        q.status,
+        versions.map((v) => ({
+          version_no: v.version_no,
+          status: v.status,
+          frozen_at: v.frozen_at,
+          sent_at: v.sent_at,
+        }))
+      ),
     };
   });
 }
