@@ -99,6 +99,66 @@ export function BrandPageView({
   const certifications = [...new Set(products.flatMap((p) => p.certifications || []))].slice(0, 6);
   const pricePages = pricePagesForBrandSlug(brand.slug);
 
+  // Page 2+ of a brand catalogue is a slice of the same hub. It self-canonicals
+  // to its own /page/N URL, but re-serving the whole hero + overview + FAQ +
+  // "shop by category" + price-page block is what lets a deep page outrank
+  // /brands/{slug} for "{brand} {category}" — the exact pattern flagged in the
+  // SEO brief. Lean pages carry only what a crawler needs to reach their
+  // products, plus a link back up to the hub.
+  const lean = page > 1;
+
+  // "Merino Laminates" when the brand sells one category, "Century Products"
+  // when it spans several. EightxFour is the site's own line, not a third
+  // party it "deals".
+  const definedCategoryConfigs = relatedCategoryConfigs.filter((c): c is CategoryConfig => !!c);
+  const brandHubHeading =
+    brand.slug === "eightbyfour"
+      ? "EightxFour Products"
+      : definedCategoryConfigs.length === 1
+        ? `${brand.name} ${definedCategoryConfigs[0].name}`
+        : `${brand.name} Products`;
+
+  if (lean) {
+    return (
+      <main>
+        <BreadcrumbSchema
+          items={[
+            { name: "Home", path: "/" },
+            { name: "Brands", path: "/brands" },
+            { name: brand.name, path: `/brands/${brand.slug}` },
+          ]}
+        />
+        <BrandPaginationLinks slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
+        <div className="mx-auto max-w-6xl">
+          <div className="px-7 pt-4">
+            <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Brands", href: "/brands" }, { label: brand.name }]} />
+          </div>
+          <section className="px-7 py-8">
+            <p className="tracked-caps text-xs" style={{ color: "var(--accent)" }}>
+              {brand.name} · Page {page} of {totalPages}
+            </p>
+            <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
+              {brand.name} Products — Page {page}
+            </h1>
+            <p className="mt-2">
+              <Link href={`/brands/${brand.slug}`} className="text-sm underline" style={{ color: "var(--burgundy)" }}>
+                ← All {brand.name} products
+              </Link>
+            </p>
+          </section>
+          <section className="px-7 pb-10">
+            <Reveal stagger className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {products.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </Reveal>
+            <BrandPagination slug={brand.slug} page={page} totalPages={totalPages} category={categoryFilter} />
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   // EightByFour spans five categories under three sub-brands — with no
   // ?category= filter picked, group the page's products back into their
   // sections (Plywood Shop, Laminates, Veneers, plus any category with no
@@ -157,10 +217,12 @@ export function BrandPageView({
             {brand.name} · Hyderabad
           </p>
           <h1 className="serif mt-2" style={{ fontSize: "var(--fs-h1)", lineHeight: "var(--lh-tight)" }}>
-            {/* EightxFour is the site's own brand, not a third party it "deals" —
-                every other brand on this template is external, so only this one
-                needs different copy. */}
-            {brand.slug === "eightbyfour" ? "EightxFour Products in Hyderabad" : `${brand.name} Dealer in Hyderabad`}
+            {/* Leads with what the brand actually sells (its dominant category)
+                rather than "Dealer in Hyderabad" — matches the page title and
+                the "{brand} {category}" / "{brand} {category} price" intent
+                those pages are trying to rank for. The eyebrow above and the
+                FAQ below carry the Hyderabad/delivery signal. */}
+            {brandHubHeading}
           </h1>
           {brand.overview ? (
             <p className="mt-4 max-w-2xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>

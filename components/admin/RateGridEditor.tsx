@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { parsePercentCell, parseRateCell, type RateGridRow } from "@/lib/catalogue/rateGrid";
-import { saveProductRates, type SaveResult } from "@/app/admin/actions";
+import { saveProductRates, type SaveResult } from "@/app/(admin)/admin/actions";
 import { Button } from "@/components/ui/Button";
 
 const CELL_CLASS = "w-32 rounded-md border px-2 py-1 text-sm";

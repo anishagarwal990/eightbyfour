@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ProductRow } from "@/lib/supabase/types";
 import { EDITABLE_FIELDS, toCell } from "@/lib/catalogue/fields";
-import { saveProductFields, type SaveResult } from "@/app/admin/actions";
+import { saveProductFields, type SaveResult } from "@/app/(admin)/admin/actions";
 import { Button } from "@/components/ui/Button";
 
 const INPUT_CLASS = "w-full rounded-md border px-3 py-2 text-sm";
