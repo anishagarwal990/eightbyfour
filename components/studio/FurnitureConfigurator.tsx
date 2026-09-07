@@ -140,7 +140,7 @@ export function FurnitureConfigurator({ initialTypeId }: { initialTypeId?: strin
               <button
                 type="button"
                 onClick={() => setShowCompare((v) => !v)}
-                className="shrink-0 rounded-[3px] border px-3 py-1.5 text-[12px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
+                className="shrink-0 min-h-11 rounded-[3px] border px-3 text-[12px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
                 style={{ borderColor: "var(--studio-line)" }}
               >
                 {showCompare ? "Hide comparison" : "Compare both"}

@@ -1,22 +1,36 @@
 /**
- * Wardrobe estimator — V1 pricing configuration.
+ * Wardrobe estimator — pricing configuration.
  *
- * This is the ONLY place rupee assumptions live. Nothing in the engine or the
- * UI hardcodes a rate; every number a quote is built from is here, so a quote
- * can always be traced back to one edited row.
+ * The ONLY place rupee assumptions live. Nothing in the engine or the UI
+ * hardcodes a rate, so any quote traces back to one edited row here.
  *
- * ⚠️  EVERY VALUE BELOW IS AN EDITABLE V1 ASSUMPTION, not a confirmed
- *     commercial rate. They are the worked-example figures from the estimator
- *     brief. Replace them with real numbers before this drives anything
- *     customer-facing. When this eventually comes from an admin backend, this
- *     file becomes the shape of that payload — keep it a plain data object.
+ * ── RATE PROVENANCE ────────────────────────────────────────────────────────
+ * Every rate carries a `source`, and the UI surfaces it. There are two:
  *
- * Units:
- *   - board / laminate "ratePerSqft" and "ratePerSheet" are ₹.
- *   - all "*RatePerSqft" that feed the final buckets are ₹ per sq ft of
- *     ELEVATION area (width × height), except shutter rates which are ₹ per
- *     sq ft of SHUTTER area (elevation × shutterAreaMultiplier).
+ *   "catalogue"  — derived from a real EightByFour product in
+ *                  lib/studio/catalogue.ts (₹ per 8×4 sheet ÷ 32 sq ft).
+ *                  Changing the catalogue changes the estimate.
+ *
+ *   "assumption" — a working figure we have set ourselves. NOT a validated
+ *                  commercial rate. These are what a customer-facing estimate
+ *                  rests on until they are replaced, which is why every
+ *                  estimate is labelled indicative.
+ *
+ * When this moves to an admin backend, this file becomes the payload shape —
+ * keep it plain data.
  */
+
+import { CARCASS_OPTIONS, SHEET_SQFT, SHUTTER_OPTIONS } from "../catalogue.ts";
+
+/** Where a number came from. Surfaced to the customer, not just to us. */
+export type RateSource = "catalogue" | "assumption";
+
+/** ₹ per sq ft from a catalogue product's ₹-per-sheet rate. */
+function fromCatalogue(list: { id: string; rate: number }[], id: string): number {
+  const hit = list.find((o) => o.id === id);
+  if (!hit) throw new Error(`estimator config: no catalogue product "${id}"`);
+  return Math.round((hit.rate / SHEET_SQFT) * 10) / 10;
+}
 
 // --------------------------------------------------------------- geometry ---
 
@@ -50,25 +64,152 @@ export interface CarcassMaterial {
   label: string;
   /** ₹ per sq ft of purchased board. */
   ratePerSqft: number;
+  source: RateSource;
+  /** The catalogue product this rate came from, when source is "catalogue". */
+  catalogueId?: string;
+  /** Where the customer can go and read about the actual product. */
+  catalogueHref: string;
   /**
-   * True for boards that ship already decorated (prelam MDF, prelam particle
-   * board). When true the carcass-finish bucket is skipped entirely and the
-   * UI says so — it is never a silent ₹0 laminate line.
+   * True for boards that ship already decorated. The carcass-finish bucket is
+   * then skipped entirely and the UI says so — never a silent ₹0.
    */
   prelaminated: boolean;
-  /** One line a homeowner can read. */
-  note: string;
+
+  // --- what a customer needs in order to choose, not marketing ---
+  /** One line, no jargon. */
+  plain: string;
+  /** 1–5. Relative within this list only; not an absolute industry rating. */
+  moisture: number;
+  durability: number;
+  /** How many finishes this board will take. */
+  finishFlex: number;
+  bestFor: string;
+  /** The honest caveat. Every board has one. */
+  watchFor: string;
 }
 
+/**
+ * Ordered cheapest to dearest. That order is the product: a customer scans it
+ * as a ladder and stops where their budget stops.
+ */
 export const CARCASS_MATERIALS: CarcassMaterial[] = [
-  { id: "mdf", label: "MDF", ratePerSqft: 55, prelaminated: false, note: "Smooth and flat. Dry areas only." },
-  { id: "hdhmr", label: "HDHMR", ratePerSqft: 70, prelaminated: false, note: "Denser, moisture-resistant. Holds screws well." },
-  { id: "mr-ply", label: "MR / Commercial Ply", ratePerSqft: 65, prelaminated: false, note: "Standard interior grade for bedrooms and dry storage." },
-  { id: "bwr-ply", label: "BWR Plywood", ratePerSqft: 80, prelaminated: false, note: "Boiling-water-resistant bonding. The usual wardrobe default." },
-  { id: "bwp-ply", label: "BWP Plywood", ratePerSqft: 95, prelaminated: false, note: "Boiling-water-proof. Worth it in kitchens and bathrooms." },
-  { id: "fr-ply", label: "FR Plywood", ratePerSqft: 105, prelaminated: false, note: "Fire-retardant grade. Often required in commercial fit-outs." },
-  { id: "prelam-mdf", label: "Prelaminated MDF", ratePerSqft: 62, prelaminated: true, note: "Ships pre-finished. No separate carcass laminate." },
-  { id: "prelam-pb", label: "Prelaminated Particle Board", ratePerSqft: 42, prelaminated: true, note: "Lowest cost. Ships pre-finished. Dry areas only." },
+  {
+    id: "prelam-pb",
+    label: "Prelaminated Particle Board",
+    ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "particle"),
+    source: "catalogue",
+    catalogueId: "particle",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: true,
+    plain: "Chipboard that arrives with its decorative surface already on it.",
+    moisture: 1,
+    durability: 2,
+    finishFlex: 1,
+    bestFor: "Economical factory-made furniture in dry rooms.",
+    watchFor: "Standing water will swell it. Keep it out of kitchens and bathrooms.",
+  },
+  {
+    id: "mdf",
+    label: "MDF",
+    ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "mdf"),
+    source: "catalogue",
+    catalogueId: "mdf",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: false,
+    plain: "Dense engineered board with a very flat, smooth face.",
+    moisture: 2,
+    durability: 3,
+    finishFlex: 5,
+    bestFor: "Shutters and anywhere a perfectly flat painted or laminated face matters.",
+    watchFor: "Holds screws less well than plywood. Not for wet areas.",
+  },
+  {
+    id: "prelam-mdf",
+    label: "Prelaminated MDF",
+    ratePerSqft: 62,
+    source: "assumption",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: true,
+    plain: "MDF that arrives already finished, so no separate laminate is needed.",
+    moisture: 2,
+    durability: 3,
+    finishFlex: 1,
+    bestFor: "Clean factory-made carcasses where the inside finish is decided up front.",
+    watchFor: "The finish is fixed at the factory — you cannot change it later.",
+  },
+  {
+    id: "mr-ply",
+    label: "MR / Commercial Plywood",
+    ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "commercial-ply"),
+    source: "catalogue",
+    catalogueId: "commercial-ply",
+    catalogueHref: "/products/plywood",
+    prelaminated: false,
+    plain: "Standard interior-grade plywood. Moisture-resistant, not waterproof.",
+    moisture: 2,
+    durability: 3,
+    finishFlex: 4,
+    bestFor: "Bedroom wardrobes and dry storage where budget matters.",
+    watchFor: "The glue is not rated for prolonged damp. Avoid sink and bathroom runs.",
+  },
+  {
+    id: "hdhmr",
+    label: "HDHMR",
+    ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "hdhmr"),
+    source: "catalogue",
+    catalogueId: "hdhmr",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: false,
+    plain: "High-density board built to resist moisture better than ordinary MDF.",
+    moisture: 4,
+    durability: 4,
+    finishFlex: 5,
+    bestFor: "Kitchens and anywhere you want a machined edge and a flat face together.",
+    watchFor: "Heavier than plywood, so long unsupported shelves need care.",
+  },
+  {
+    id: "bwr-ply",
+    label: "BWR Plywood",
+    ratePerSqft: 80,
+    source: "assumption",
+    catalogueHref: "/products/plywood",
+    prelaminated: false,
+    plain: "Boiling-water-resistant plywood — the common step up for furniture meant to last.",
+    moisture: 4,
+    durability: 4,
+    finishFlex: 4,
+    bestFor: "Long-life wardrobes and general cabinetry.",
+    watchFor: "Grade and brand vary a lot at this level. The certification matters.",
+  },
+  {
+    id: "bwp-ply",
+    label: "BWP Plywood",
+    ratePerSqft: fromCatalogue(CARCASS_OPTIONS, "bwp-ply"),
+    source: "catalogue",
+    catalogueId: "bwp-ply",
+    catalogueHref: "/products/plywood",
+    prelaminated: false,
+    plain: "Boiling-waterPROOF plywood. The most water-tolerant board in normal use.",
+    moisture: 5,
+    durability: 5,
+    finishFlex: 4,
+    bestFor: "Kitchen base units, bathroom vanities, anything near water.",
+    watchFor: "You are paying for the bonding. In a dry bedroom it is often more than you need.",
+  },
+  {
+    id: "fr-ply",
+    label: "FR Plywood",
+    ratePerSqft: 105,
+    source: "assumption",
+    catalogueHref: "/products/plywood",
+    prelaminated: false,
+    plain: "Fire-retardant plywood — slows flame spread rather than stopping it.",
+    moisture: 4,
+    durability: 5,
+    finishFlex: 4,
+    bestFor: "Offices, retail and commercial fit-outs where the brief requires it.",
+    watchFor: "Usually specified because a regulation asks for it, not for daily performance.",
+  },
 ];
 
 // -------------------------------------------------- carcass finish (V1) ---
@@ -110,18 +251,75 @@ export const SHUTTER_SYSTEMS: ShutterSystem[] = [
 export interface ShutterCore {
   id: string;
   label: string;
+  /** ₹ per sq ft of shutter face. */
   ratePerSqft: number;
-  /** Prelam cores default the finish to "prelam" (₹0) but can still take one. */
+  source: RateSource;
+  catalogueId?: string;
+  catalogueHref: string;
+  /** Prelam cores default the finish to "none" but can still take one later. */
   prelaminated: boolean;
+  plain: string;
 }
 
 export const SHUTTER_CORES: ShutterCore[] = [
-  { id: "mdf", label: "MDF", ratePerSqft: 85, prelaminated: false },
-  { id: "hdhmr", label: "HDHMR", ratePerSqft: 100, prelaminated: false },
-  { id: "plywood", label: "Plywood", ratePerSqft: 110, prelaminated: false },
-  { id: "blockboard", label: "Blockboard", ratePerSqft: 95, prelaminated: false },
-  { id: "prelam-mdf", label: "Prelaminated MDF", ratePerSqft: 95, prelaminated: true },
-  { id: "prelam-pb", label: "Prelaminated Particle Board", ratePerSqft: 70, prelaminated: true },
+  {
+    id: "prelam-pb",
+    label: "Prelaminated Particle Board",
+    ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "particle"),
+    source: "catalogue",
+    catalogueId: "particle",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: true,
+    plain: "Cheapest front. Arrives finished, so nothing else is applied to it.",
+  },
+  {
+    id: "mdf",
+    label: "MDF",
+    ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "mdf"),
+    source: "catalogue",
+    catalogueId: "mdf",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: false,
+    plain: "The flattest face of the lot. What most painted and acrylic fronts start as.",
+  },
+  {
+    id: "prelam-mdf",
+    label: "Prelaminated MDF",
+    ratePerSqft: 66,
+    source: "assumption",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: true,
+    plain: "MDF with the finish already on it. No separate finishing step.",
+  },
+  {
+    id: "blockboard",
+    label: "Blockboard",
+    ratePerSqft: 78,
+    source: "assumption",
+    catalogueHref: "/products/blockboards",
+    prelaminated: false,
+    plain: "Timber battens between veneers. Light and stiff over a long span.",
+  },
+  {
+    id: "hdhmr",
+    label: "HDHMR",
+    ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "hdhmr"),
+    source: "catalogue",
+    catalogueId: "hdhmr",
+    catalogueHref: "/products/mdf-and-hdhmr",
+    prelaminated: false,
+    plain: "Handles damp better than MDF and machines just as cleanly.",
+  },
+  {
+    id: "plywood",
+    label: "Plywood",
+    ratePerSqft: fromCatalogue(SHUTTER_OPTIONS, "ply"),
+    source: "catalogue",
+    catalogueId: "ply",
+    catalogueHref: "/products/plywood",
+    prelaminated: false,
+    plain: "Strongest screw hold. The usual choice where a shutter is heavy or tall.",
+  },
 ];
 
 export interface ShutterFinish {

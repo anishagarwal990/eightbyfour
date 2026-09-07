@@ -19,6 +19,8 @@ import {
 import { estimateWardrobe } from "@/lib/studio/estimator/engine";
 import type { WardrobeEstimateInput } from "@/lib/studio/estimator/types";
 import { FURNITURE_TYPES } from "@/lib/studio/furniture";
+import { toQuote } from "@/lib/studio/estimator/toQuote";
+import { MobileQuoteBar } from "./QuotePanel";
 import { Segmented, StepHeading, Stepper } from "./primitives";
 
 /**
@@ -55,6 +57,12 @@ export function WardrobeEstimator() {
   const [lastChange, setLastChange] = useState<{ label: string; amount: number } | null>(null);
 
   const estimate = useMemo(() => estimateWardrobe(input), [input]);
+  // The mobile bar reuses the shared quote panel, so the phone and the desktop
+  // panel are the same numbers rendered by the same component.
+  const quote = useMemo(
+    () => toQuote(estimate, input, `Wardrobe — ${input.widthFt}′ × ${input.heightFt}′ × ${input.depthFt}′`),
+    [estimate, input]
+  );
 
   /** Apply a patch and record what it did to the headline, for the delta chip. */
   function apply(patch: Partial<WardrobeEstimateInput>, label: string) {
@@ -147,7 +155,7 @@ export function WardrobeEstimator() {
         <section className="mb-8">
           <StepHeading step="01" title="Carcass" hint="The box behind the doors. What it is made of decides how long it lasts." />
           <ChipGrid
-            options={CARCASS_MATERIALS.map((m) => ({ id: m.id, label: m.label, sub: m.note }))}
+            options={CARCASS_MATERIALS.map((m) => ({ id: m.id, label: m.label, sub: m.plain }))}
             value={input.carcassMaterialId}
             onChange={(id) => apply({ carcassMaterialId: id }, CARCASS_MATERIALS.find((m) => m.id === id)!.label)}
           />
@@ -314,7 +322,7 @@ export function WardrobeEstimator() {
             type="button"
             onClick={() => setShowBreakdown((v) => !v)}
             aria-expanded={showBreakdown}
-            className="flex w-full items-center justify-between px-4 py-3 text-left text-[12.5px] font-semibold transition-colors hover:bg-[var(--stone-deep)]"
+            className="flex min-h-11 w-full items-center justify-between px-4 py-3 text-left text-[12.5px] font-semibold transition-colors hover:bg-[var(--stone-deep)]"
           >
             View price breakdown
             <span className="text-[11px] transition-transform" style={{ color: "var(--ink-faint)", transform: showBreakdown ? "rotate(180deg)" : undefined }} aria-hidden="true">
@@ -325,20 +333,20 @@ export function WardrobeEstimator() {
             <div className="px-4 pb-3">
               <table className="w-full border-collapse text-[12px]">
                 <tbody>
-                  {estimate.buckets.map((b) => (
-                    <tr key={b.key} className="border-t" style={{ borderColor: "var(--studio-line)" }}>
+                  {estimate.publicGroups.map((g) => (
+                    <tr key={g.key} className="border-t" style={{ borderColor: "var(--studio-line)" }}>
                       <td className="py-1.5 pr-2 align-top">
-                        <span className="block font-medium leading-tight">{b.label}</span>
-                        {b.detail ? (
+                        <span className="block font-medium leading-tight">{g.label}</span>
+                        {g.lines && g.lines.length > 1 ? (
                           <span className="mt-0.5 block text-[10.5px] leading-snug" style={{ color: "var(--ink-faint)" }}>
-                            {b.detail}
+                            {g.lines.map((l) => l.label).join(" · ")}
                           </span>
                         ) : null}
                       </td>
                       <td className="metric whitespace-nowrap py-1.5 text-right align-top" style={{ color: "var(--ink-soft)" }}>
-                        {inr(b.ratePerSqft)}/sq ft
+                        {inr(g.total / estimate.elevationAreaSqft)}/sq ft
                       </td>
-                      <td className="metric whitespace-nowrap py-1.5 pl-2 text-right align-top">{inr(b.total)}</td>
+                      <td className="metric whitespace-nowrap py-1.5 pl-2 text-right align-top">{inr(g.total)}</td>
                     </tr>
                   ))}
                   <tr className="border-t-2" style={{ borderColor: "var(--studio-line-strong)" }}>
@@ -349,8 +357,8 @@ export function WardrobeEstimator() {
                 </tbody>
               </table>
               <p className="mt-2 text-[10.5px] leading-snug" style={{ color: "var(--ink-faint)" }}>
-                Every rate above comes from one editable configuration file. This is a V1 estimate on assumed rates —
-                not a quotation.
+                Board rates come from the EightByFour catalogue. Fabrication and service rates are our current working
+                figures and are confirmed before production.
               </p>
             </div>
           ) : null}
@@ -365,11 +373,13 @@ export function WardrobeEstimator() {
             Continue configuration <span aria-hidden="true">→</span>
           </Link>
           <p className="mt-3 text-[11px] leading-snug" style={{ color: "var(--ink-faint)" }}>
-            Materials, fabrication, hardware, labour, miscellaneous and margin, composed from your selections. Final
-            pricing is confirmed after a site measurement.
+            Indicative from your current selections. Final dimensions and live material rates are confirmed before
+            production.
           </p>
         </div>
       </aside>
+
+      <MobileQuoteBar quote={quote} contextLabel="Your indicative estimate" />
     </div>
   );
 }

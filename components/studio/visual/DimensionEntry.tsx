@@ -65,7 +65,7 @@ export function UnitSwitcher({
             aria-label={u.label}
             onClick={() => onChange(u.id)}
             className={`flex items-center rounded-[2px] font-medium transition-colors ${
-              compact ? "min-h-8 px-2 text-[11px]" : "min-h-11 px-3 text-[11.5px]"
+              compact ? "min-h-11 px-2.5 text-[11px]" : "min-h-11 px-3 text-[11.5px]"
             }`}
             style={{
               background: active ? "var(--paper)" : "transparent",

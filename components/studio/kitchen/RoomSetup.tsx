@@ -117,7 +117,7 @@ export function RoomSetup({
                 key={kind}
                 type="button"
                 onClick={() => onRoom({ ...room, openings: [...room.openings, newOpening("N", kind)] })}
-                className="min-h-9 rounded-[3px] border px-2.5 text-[12px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
+                className="min-h-11 rounded-[3px] border px-2.5 text-[12px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
                 style={{ borderColor: "var(--studio-line)" }}
               >
                 + {kind}
@@ -222,7 +222,7 @@ export function RoomSetup({
                               : [...appliances, { kind: spec.kind, variantId: v.id, widthMm: v.widthMm }]
                           )
                         }
-                        className="min-h-9 rounded-[3px] border px-2.5 text-[12px] transition-colors"
+                        className="min-h-11 rounded-[3px] border px-2.5 text-[12px] transition-colors"
                         style={{
                           borderColor: active ? "var(--burgundy)" : "var(--studio-line)",
                           color: active ? "var(--burgundy)" : "var(--ink-soft)",
@@ -298,7 +298,7 @@ export function RoomSetup({
                     priorities: on ? brief.priorities.filter((x) => x !== p.id) : [...brief.priorities, p.id],
                   })
                 }
-                className="min-h-9 rounded-[3px] border px-2.5 text-[12px] transition-colors"
+                className="min-h-11 rounded-[3px] border px-2.5 text-[12px] transition-colors"
                 style={{
                   borderColor: on ? "var(--burgundy)" : "var(--studio-line)",
                   color: on ? "var(--burgundy)" : "var(--ink-soft)",

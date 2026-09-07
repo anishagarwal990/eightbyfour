@@ -36,6 +36,25 @@ export interface WardrobeEstimateInput {
   hardwarePackageId: string;
 }
 
+/**
+ * A customer-facing group on the quote.
+ *
+ * Deliberately NOT the same shape as the internal buckets. The engine keeps
+ * margin and miscellaneous as separate buckets because our accounting needs
+ * them; a customer reading a quotation should see commercial groups, not our
+ * cost structure. The total is identical either way — only the grouping
+ * differs, never the number.
+ */
+export interface QuoteGroupPublic {
+  key: string;
+  label: string;
+  total: number;
+  /** Which internal bucket keys rolled into this group, for traceability. */
+  from: string[];
+  /** Sub-lines, where itemising helps the customer. */
+  lines?: { label: string; detail?: string; total: number }[];
+}
+
 /** One line in the transparent breakdown. */
 export interface EstimateBucket {
   /** Stable key, e.g. "carcassCore". */
@@ -89,8 +108,23 @@ export interface WardrobeEstimate {
   miscellaneous: { ratePerSqft: number; total: number };
   margin: { ratePerSqft: number; total: number };
 
-  /** Every bucket, in display order. Headline total === sum of these totals. */
+  /** INTERNAL. Every bucket, in display order. Sums to finalTotal. */
   buckets: EstimateBucket[];
+
+  /**
+   * CUSTOMER-FACING. The same money, grouped the way a quotation reads.
+   * Sums to exactly the same finalTotal as `buckets`.
+   */
+  publicGroups: QuoteGroupPublic[];
+
+  /** Fit-out the visual designer added on top of the base specification. */
+  additions: { key: string; label: string; detail: string; total: number }[];
+
+  /**
+   * True when any rate feeding this estimate is an unvalidated assumption
+   * rather than a live catalogue product. Drives the honesty line in the UI.
+   */
+  hasAssumedRates: boolean;
 
   /** ₹ per sq ft of elevation, all buckets. */
   finalRatePerSqft: number;

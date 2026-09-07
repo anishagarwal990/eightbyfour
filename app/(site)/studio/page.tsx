@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Reveal } from "@/components/Reveal";
 import { MiniConfigurator } from "@/components/studio/MiniConfigurator";
 import { SpecPriceDemo } from "@/components/studio/SpecPriceDemo";
+import { MaterialLadder } from "@/components/studio/MaterialLadder";
+import { PriceComposition } from "@/components/studio/PriceComposition";
 import { buildMetadata } from "@/lib/seo";
 import { STUDIO_ASSURANCES, STUDIO_SERVICES } from "@/lib/studio/services";
 import { inr } from "@/lib/studio/format";
@@ -65,43 +67,89 @@ export default function StudioLandingPage() {
               Studio EightxFour · Fabrication. Installation. Execution.
             </p>
             <h1 className="serif mt-4 text-[clamp(38px,5.4vw,68px)] leading-[1.03] tracking-[-0.02em]">
-              From sheet
+              Built around
               <br />
-              to space.
+              your room.
             </h1>
             <p className="mt-5 max-w-[56ch] text-[16px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-              EightByFour sells the material. Studio EightxFour turns it into furniture, counters and finished
-              interiors. Configure what you need, choose how it gets built, and see an indicative price — with the
-              boards, laminates and hardware named — before you speak to anyone.
+              Custom furniture, priced the way it is actually built. Give Studio your dimensions, choose the board,
+              the fronts and the hardware, and watch the estimate move with every decision — with every material
+              named. No package, no consultation required to see a number.
             </p>
             <div className="mt-7 flex flex-wrap gap-2.5">
               <Link
-                href="/studio/custom-furniture"
+                href="/studio/custom-furniture/wardrobe/design"
                 className="rounded-[3px] px-5 py-3 text-[14px] font-semibold text-white transition-colors"
                 style={{ background: "var(--burgundy)" }}
               >
-                Explore services
+                Design your furniture
               </Link>
               <Link
-                href="/studio/project-execution"
+                href="/studio/custom-furniture/wardrobe"
                 className="rounded-[3px] border px-5 py-3 text-[14px] transition-colors hover:border-[var(--burgundy)] hover:text-[var(--burgundy)]"
                 style={{ borderColor: "var(--studio-line-strong)" }}
               >
-                Upload drawing / BOQ
+                Get an instant estimate
               </Link>
             </div>
+            <p className="mt-4 text-[13px]" style={{ color: "var(--ink-soft)" }}>
+              Planning a kitchen?{" "}
+              <Link href="/studio/kitchen" className="font-semibold underline decoration-[var(--studio-line-strong)] underline-offset-2 transition-colors hover:text-[var(--burgundy)]" style={{ color: "var(--burgundy)" }}>
+                Start from the room
+              </Link>
+            </p>
             <p className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px]" style={{ color: "var(--ink-faint)" }}>
-              <span>Configure. Compare. Execute.</span>
-              <span className="hidden sm:block" aria-hidden="true">
-                ·
-              </span>
-              <span>No consultation required to see a number.</span>
+              <span>One unit or a hundred.</span>
+              <span className="hidden sm:block" aria-hidden="true">·</span>
+              <span>Homes, offices, retail.</span>
             </p>
           </Reveal>
 
           <Reveal strong>
             <MiniConfigurator />
           </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------ materials -- */}
+      <section className="border-b" style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)" }}>
+        <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-7">
+          <Reveal>
+            <p className="tracked-caps text-[10px]" style={{ color: "var(--ink-faint)" }}>
+              Start with the board
+            </p>
+            <h2 className="serif mt-2 max-w-[24ch] text-[clamp(26px,3.6vw,42px)] leading-[1.08]">
+              Every board we build with, and what each one is actually for.
+            </h2>
+            <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              This is the decision that moves the price most, and the one customers are usually asked to take on
+              trust. Cheapest first.
+            </p>
+          </Reveal>
+          <div className="mt-8">
+            <MaterialLadder />
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------------------------------------- price composition -- */}
+      <section className="border-b" style={{ borderColor: "var(--studio-line)" }}>
+        <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-7">
+          <Reveal>
+            <p className="tracked-caps text-[10px]" style={{ color: "var(--ink-faint)" }}>
+              Where the number comes from
+            </p>
+            <h2 className="serif mt-2 max-w-[26ch] text-[clamp(26px,3.6vw,42px)] leading-[1.08]">
+              A price is composed, not quoted at you.
+            </h2>
+            <p className="mt-3 max-w-[62ch] text-[15px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+              Carcass, finish, shutters, hardware and the work to build and fit it. Change one and only that group
+              moves — try it below.
+            </p>
+          </Reveal>
+          <div className="mt-8">
+            <PriceComposition />
+          </div>
         </div>
       </section>
 

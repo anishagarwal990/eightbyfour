@@ -169,7 +169,11 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.id)}
-            className={`flex-1 rounded-[2px] ${size === "sm" ? "px-2.5 py-1.5" : "px-3 py-2"} text-center transition-[background-color,color,box-shadow] duration-200`}
+            /* min-h-11 keeps the 44px touch floor even when an option has no
+               sub-label — without it a two-word segmented control collapsed to
+               27px, which is under the floor on every configurator that uses
+               one. */
+            className={`flex min-h-11 flex-1 flex-col justify-center rounded-[2px] ${size === "sm" ? "px-2.5 py-1.5" : "px-3 py-2"} text-center transition-[background-color,color,box-shadow] duration-200`}
             style={{
               background: active ? "var(--paper)" : "transparent",
               boxShadow: active ? "var(--shadow-sm)" : undefined,

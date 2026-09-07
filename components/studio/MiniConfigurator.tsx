@@ -59,7 +59,7 @@ export function MiniConfigurator() {
                   type="button"
                   onClick={() => apply({ typeId: id, ...t.defaults }, t.label)}
                   aria-pressed={active}
-                  className="rounded-[2px] border px-2.5 py-1.5 text-[12.5px] transition-colors"
+                  className="min-h-11 rounded-[2px] border px-2.5 text-[12.5px] transition-colors"
                   style={{
                     borderColor: active ? "var(--burgundy)" : "var(--studio-line)",
                     background: active ? "color-mix(in srgb, var(--burgundy) 8%, var(--paper))" : "var(--paper)",
@@ -103,7 +103,7 @@ export function MiniConfigurator() {
                   type="button"
                   onClick={() => apply({ carcassId: id }, o.label)}
                   aria-pressed={active}
-                  className="rounded-[2px] border p-1.5 text-left transition-colors"
+                  className="min-h-11 rounded-[2px] border p-1.5 text-left transition-colors"
                   style={{
                     borderColor: active ? "var(--burgundy)" : "var(--studio-line)",
                     boxShadow: active ? "inset 0 0 0 1px var(--burgundy)" : undefined,
@@ -128,7 +128,7 @@ export function MiniConfigurator() {
                   type="button"
                   onClick={() => apply({ finishId: id }, o.label)}
                   aria-pressed={active}
-                  className="rounded-[2px] border p-1.5 text-left transition-colors"
+                  className="min-h-11 rounded-[2px] border p-1.5 text-left transition-colors"
                   style={{
                     borderColor: active ? "var(--burgundy)" : "var(--studio-line)",
                     boxShadow: active ? "inset 0 0 0 1px var(--burgundy)" : undefined,

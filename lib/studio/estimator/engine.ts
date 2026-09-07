@@ -32,8 +32,8 @@ import {
   SHUTTER_CORES,
   SHUTTER_FABRICATION_RATE_PER_SQFT,
   SHUTTER_FINISHES,
-} from "./config";
-import type { EstimateBucket, WardrobeEstimate, WardrobeEstimateInput } from "./types";
+} from "./config.ts";
+import type { EstimateBucket, QuoteGroupPublic, WardrobeEstimate, WardrobeEstimateInput } from "./types.ts";
 
 const find = <T extends { id: string }>(list: T[], id: string, label: string): T => {
   const hit = list.find((x) => x.id === id);
@@ -44,7 +44,18 @@ const find = <T extends { id: string }>(list: T[], id: string, label: string): T
 /** Round money to whole rupees. Rates are kept unrounded until the total. */
 const rupees = (n: number): number => Math.round(n);
 
-export function estimateWardrobe(input: WardrobeEstimateInput): WardrobeEstimate {
+/** Fit-out the visual designer adds on top of the base specification. */
+export interface EstimateAddition {
+  key: string;
+  label: string;
+  detail: string;
+  total: number;
+}
+
+export function estimateWardrobe(
+  input: WardrobeEstimateInput,
+  additions: EstimateAddition[] = []
+): WardrobeEstimate {
   const elevationAreaSqft = input.widthFt * input.heightFt;
   const area = elevationAreaSqft; // shorthand — every bucket is priced against elevation
 
@@ -156,8 +167,78 @@ export function estimateWardrobe(input: WardrobeEstimateInput): WardrobeEstimate
     { key: "margin", label: "Margin", ratePerSqft: OVERHEADS.marginRatePerSqft, total: marginTotal },
   ];
 
+  for (const add of additions) {
+    buckets.push({
+      key: add.key,
+      label: add.label,
+      ratePerSqft: add.total / area,
+      total: add.total,
+      detail: add.detail,
+    });
+  }
+
   const finalTotal = buckets.reduce((s, b) => s + b.total, 0);
   const finalRatePerSqft = finalTotal / area;
+
+  // --- customer-facing grouping ------------------------------------------
+  // Same money, read the way a quotation reads. Miscellaneous and margin are
+  // real internal buckets but they are our cost structure, not the customer's
+  // line items — they belong inside the service the customer is buying.
+  const bucket = (k: string) => buckets.find((b) => b.key === k)?.total ?? 0;
+  const groupTotal = (keys: string[]) => keys.reduce((s, k) => s + bucket(k), 0);
+
+  const additionTotal = additions.reduce((s, a) => s + a.total, 0);
+
+  const publicGroups: QuoteGroupPublic[] = [
+    {
+      key: "materials",
+      label: "Carcass & finish",
+      total: groupTotal(["carcassCore", "carcassFinish"]),
+      from: ["carcassCore", "carcassFinish"],
+      lines: [
+        { label: carcassLabel, detail: `${carcassSheets} sheets of ${GEOMETRY.sheetAreaSqft} sq ft`, total: carcassTotal },
+        ...(carcassFinishTotal > 0
+          ? [{ label: "Carcass laminate", detail: "Internal and external faces", total: carcassFinishTotal }]
+          : []),
+      ],
+    },
+    {
+      key: "shutters",
+      label: "Shutters",
+      total: bucket("shutters"),
+      from: ["shutters"],
+      lines: shutterComponents.map((c) => ({
+        label: c.label,
+        detail: `₹${c.ratePerSqft} per sq ft`,
+        total: Math.round(shutterAreaSqft * c.ratePerSqft),
+      })),
+    },
+    { key: "hardware", label: "Hardware", total: bucket("hardware"), from: ["hardware"] },
+    {
+      key: "service",
+      label: "Fabrication & installation",
+      total: groupTotal(["labour", "miscellaneous", "margin"]),
+      from: ["labour", "miscellaneous", "margin"],
+    },
+    ...(additionTotal > 0
+      ? [
+          {
+            key: "fitout",
+            label: "Fit-out & accessories",
+            total: additionTotal,
+            from: additions.map((a) => a.key),
+            lines: additions.map((a) => ({ label: a.label, detail: a.detail, total: a.total })),
+          },
+        ]
+      : []),
+  ].filter((g) => g.total > 0);
+
+  // Any assumed rate anywhere means the whole estimate is indicative.
+  const hasAssumedRates =
+    carcass.source === "assumption" ||
+    (input.shutterSystem === "board" &&
+      SHUTTER_CORES.find((c) => c.id === input.shutterCoreId)?.source === "assumption") ||
+    true; // labour, overheads and finishes are all assumptions today
 
   return {
     elevationAreaSqft,
@@ -186,6 +267,9 @@ export function estimateWardrobe(input: WardrobeEstimateInput): WardrobeEstimate
     miscellaneous: { ratePerSqft: OVERHEADS.miscellaneousRatePerSqft, total: miscTotal },
     margin: { ratePerSqft: OVERHEADS.marginRatePerSqft, total: marginTotal },
     buckets,
+    publicGroups,
+    additions,
+    hasAssumedRates,
     finalRatePerSqft,
     finalTotal,
   };

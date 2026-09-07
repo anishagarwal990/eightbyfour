@@ -27,6 +27,9 @@ import {
   type FurnitureConfig,
 } from "@/lib/studio/furniture";
 import { feetToMm, formatLength, mmToFeet, type LengthUnit } from "@/lib/studio/units";
+import { estimateWardrobe } from "@/lib/studio/estimator/engine";
+import { layoutAdditions, toEstimateInput } from "@/lib/studio/estimator/adapter";
+import { toQuote } from "@/lib/studio/estimator/toQuote";
 import { MobileQuoteBar, QuotePanel } from "./QuotePanel";
 import { OptionCard, OptionRail, Segmented, StepHeading } from "./primitives";
 import { DimensionEntry } from "./visual/DimensionEntry";
@@ -52,6 +55,9 @@ const PANELS: { id: Panel; label: string }[] = [
   { id: "fronts", label: "Fronts" },
   { id: "materials", label: "Materials" },
 ];
+
+/** Feet, trimmed of a pointless trailing .0. */
+const round1 = (n: number) => (Number.isInteger(n) ? n : Math.round(n * 10) / 10);
 
 export function VisualFurnitureConfigurator({ typeId = "wardrobe" }: { typeId?: string }) {
   const type = getFurnitureType(typeId);
@@ -104,11 +110,63 @@ export function VisualFurnitureConfigurator({ typeId = "wardrobe" }: { typeId?: 
     [config, dims, counts]
   );
 
-  const quote = useMemo(() => priceFurniture(pricedConfig), [pricedConfig]);
+  /**
+   * ONE PRICE TRUTH.
+   *
+   * A wardrobe is priced by the shared commercial model — the same seven
+   * buckets the quick estimator uses — with the fit-out the customer drew
+   * added on top as its own visible lines. Before this, the designer and the
+   * estimator disagreed by about 16% on an identical wardrobe, which is a
+   * reason not to believe either of them.
+   *
+   * Every other furniture type still uses the older per-type engine until it
+   * gets a commercial model of its own.
+   */
+  const isWardrobe = config.typeId === "wardrobe";
+
+  const quote = useMemo(() => {
+    if (!isWardrobe) return priceFurniture(pricedConfig);
+    const state = {
+      widthFt: pricedConfig.width,
+      heightFt: pricedConfig.height,
+      depthFt: pricedConfig.depth,
+      method: pricedConfig.method,
+      carcassId: pricedConfig.carcassId,
+      shutterId: pricedConfig.shutterId,
+      finishId: pricedConfig.finishId,
+      hardwareId: pricedConfig.hardwareId,
+      accessoryIds: pricedConfig.accessoryIds,
+      counts,
+    };
+    const input = toEstimateInput(state);
+    const estimate = estimateWardrobe(input, layoutAdditions(state, pricedConfig.width * pricedConfig.height));
+    return toQuote(estimate, input, `${type.label} — ${round1(pricedConfig.width)}′ × ${round1(pricedConfig.height)}′ × ${round1(pricedConfig.depth)}′`);
+  }, [isWardrobe, pricedConfig, counts, type.label]);
+
+  const priceOf = useCallback(
+    (cfg: FurnitureConfig) => {
+      if (cfg.typeId !== "wardrobe") return priceFurniture(cfg).total;
+      const state = {
+        widthFt: cfg.width,
+        heightFt: cfg.height,
+        depthFt: cfg.depth,
+        method: cfg.method,
+        carcassId: cfg.carcassId,
+        shutterId: cfg.shutterId,
+        finishId: cfg.finishId,
+        hardwareId: cfg.hardwareId,
+        accessoryIds: cfg.accessoryIds,
+        counts,
+      };
+      const input = toEstimateInput(state);
+      return estimateWardrobe(input, layoutAdditions(state, cfg.width * cfg.height)).finalTotal;
+    },
+    [counts]
+  );
 
   const deltaFor = useCallback(
-    (patch: Partial<FurnitureConfig>) => priceFurniture({ ...pricedConfig, ...patch }).total - quote.total,
-    [pricedConfig, quote.total]
+    (patch: Partial<FurnitureConfig>) => priceOf({ ...pricedConfig, ...patch }) - quote.total,
+    [pricedConfig, quote.total, priceOf]
   );
   const deltaProps = (patch: Partial<FurnitureConfig>, active: boolean) => {
     if (active) return { deltaLabel: "Selected", deltaTone: "neutral" as const };

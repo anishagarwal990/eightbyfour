@@ -208,7 +208,7 @@ export function KitchenStudio() {
                       aria-checked={active}
                       title={v.hint}
                       onClick={() => setView(v.id)}
-                      className="flex min-h-9 items-center rounded-[2px] px-2.5 text-[12px] font-semibold transition-[background-color,color,box-shadow] duration-200"
+                      className="flex min-h-11 items-center rounded-[2px] px-2.5 text-[12px] font-semibold transition-[background-color,color,box-shadow] duration-200"
                       style={{
                         background: active ? "var(--paper)" : "transparent",
                         boxShadow: active ? "var(--shadow-sm)" : undefined,
@@ -300,7 +300,7 @@ export function KitchenStudio() {
                         type="button"
                         aria-pressed={active}
                         onClick={() => setElevationWall(w)}
-                        className="min-h-9 rounded-[3px] border px-2.5 text-[12px] transition-colors"
+                        className="min-h-11 rounded-[3px] border px-2.5 text-[12px] transition-colors"
                         style={{
                           borderColor: active ? "var(--burgundy)" : "var(--studio-line)",
                           color: active ? "var(--burgundy)" : "var(--ink-soft)",
@@ -333,7 +333,7 @@ export function KitchenStudio() {
                   <button
                     type="button"
                     onClick={() => setResetKey((k) => k + 1)}
-                    className="min-h-9 rounded-[3px] border px-2.5 text-[12px]"
+                    className="min-h-11 rounded-[3px] border px-2.5 text-[12px]"
                     style={{ borderColor: "var(--studio-line)", color: "var(--ink-soft)" }}
                   >
                     Reset view
@@ -350,7 +350,7 @@ export function KitchenStudio() {
                   <button
                     type="button"
                     onClick={() => setResetKey((k) => k + 1)}
-                    className="min-h-9 rounded-[3px] border px-2.5 text-[12px]"
+                    className="min-h-11 rounded-[3px] border px-2.5 text-[12px]"
                     style={{ borderColor: "var(--studio-line)", color: "var(--ink-soft)" }}
                   >
                     Reset view

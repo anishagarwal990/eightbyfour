@@ -436,3 +436,141 @@ textarea {
   scroll-snap-align: start;
 }
 
+
+/* ---------- Studio EightxFour ----------
+   The services layer is a branded environment INSIDE EightByFour, not a
+   separate design language: same burgundy, same two faces, same near-square
+   corners, and — like the rest of the site — a white ground. Scoped to
+   .studio so nothing here can leak into the catalogue.
+
+   NOTE: this block was an uncommitted working-tree edit that a tree reset
+   wiped; the studio components at HEAD reference every token below. Restored
+   verbatim from the session that built them. */
+.studio {
+  --stone: var(--paper); /* page ground — white */
+  --stone-deep: var(--card); /* alternating section + chip fill — #f6f6f6 */
+  --sand: var(--paper-dim); /* toggle tracks, insets — #ececec */
+  --ink-soft: #4b4b4b; /* 8.7:1 on white */
+  --ink-faint: #6e6e6e; /* 5.0:1 on white, 4.7:1 on --stone-deep */
+  --studio-line: var(--line); /* rgba(0,0,0,0.15) hairline — same as the shop */
+  --studio-line-strong: var(--line-strong);
+
+  /* Semantic colours beyond the brand palette, contrast-checked on --paper. */
+  --positive: #2f6b46; /* a price going down — 6.3:1 */
+  --service-water: #3b6ea5; /* windows, supply and waste on the plan */
+  --service-water-ink: #2f5a86; /* the same at text weight — 6.9:1 */
+  --service-power: #c9971a; /* electrical points */
+  --service-power-ink: #8a6608; /* the same at text weight — 5.4:1 */
+
+  background: var(--stone);
+}
+
+/* Tailwind v4 preflight sets `cursor: default` on <button>; the Studio
+   configurators use raw buttons by design (swatches + price deltas, not
+   button chrome), so one scoped rule covers all of them. */
+.studio :is(button, [role="button"], summary):not(:disabled) {
+  cursor: pointer;
+}
+.studio :is(button, [role="button"]):disabled {
+  cursor: not-allowed;
+}
+
+/* The 3D configurator canvas must own touch gestures — without this a
+   one-finger drag scrolls the page instead of rotating the model. three.js
+   sets touch-action inline and re-sets it to `auto` across re-renders, so a
+   plain rule loses to the inline value: !important is the narrow exception. */
+.studio canvas {
+  touch-action: none !important;
+}
+
+/* An architect's setting-out grid behind hero and configurator blocks. */
+.studio-grid {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+}
+.studio-rule {
+  border-top: 1px solid var(--studio-line);
+}
+
+/* Material swatch — a two-stop gradient with a slight sheen, standing in for
+   photography we do not have. */
+.swatch {
+  position: relative;
+  overflow: hidden;
+  background-image: linear-gradient(140deg, var(--sw-from), var(--sw-to));
+}
+.swatch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0) 42%, rgba(0, 0, 0, 0.1) 100%);
+}
+
+/* Price figures swap instantly (never counted up) and the block gives one
+   quick pulse so the eye is told where the change landed. */
+@keyframes price-pulse {
+  0% {
+    background-color: color-mix(in srgb, var(--burgundy) 16%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.price-pulse {
+  animation: price-pulse 620ms var(--ease-out-soft);
+}
+
+/* Mobile estimate sheet — slides up from the bottom. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.sheet-panel {
+  animation: sheet-in 320ms var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .price-pulse,
+  .sheet-panel {
+    animation: none;
+  }
+}
+
+/* Option rail: a horizontal scroller on touch, a wrapping grid of --rail-cols
+   from the sm breakpoint up. One set of children, one set of buttons in the
+   a11y tree. */
+.option-rail {
+  display: flex;
+  gap: 0.625rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.option-rail::-webkit-scrollbar {
+  display: none;
+}
+.option-rail > * {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  .option-rail--grid {
+    display: grid;
+    grid-template-columns: repeat(var(--rail-cols, 4), minmax(0, 1fr));
+    overflow: visible;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .option-rail--grid > * {
+    width: auto;
+  }
+}

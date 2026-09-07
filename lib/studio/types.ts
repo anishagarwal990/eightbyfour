@@ -48,7 +48,7 @@ export interface QuoteLine {
   catalogueHref?: string;
 }
 
-export type QuoteGroupKey = "materials" | "fabrication" | "installation" | "delivery";
+export type QuoteGroupKey = "materials" | "fabrication" | "installation" | "delivery" | "shutters" | "hardware" | "service" | "fitout";
 
 export interface QuoteGroup {
   key: QuoteGroupKey;
