@@ -9,6 +9,8 @@ import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { EMAIL, PHONE_DISPLAY, PHONE_TEL } from "@/lib/contact";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 
+// No Studio entry — it is behind the admin sign-in until it opens. See
+// app/(site)/studio/layout.tsx.
 const LINKS = [
   { href: "/products", label: "All Products" },
   { href: "/brands", label: "Brands" },

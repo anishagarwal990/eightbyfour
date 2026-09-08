@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { SignOutButton } from "@/components/admin/SignOutButton";
 import { StudioNav } from "@/components/studio/StudioNav";
+import { requireAdmin } from "@/lib/supabase/admin-server";
 import { STUDIO_SERVICES } from "@/lib/studio/services";
 
 /**
@@ -7,8 +11,55 @@ import { STUDIO_SERVICES } from "@/lib/studio/services";
  * separate site: the master header, footer and mobile CTA above this all stay.
  * What this layout adds is the studio ground (.studio), the service nav and a
  * closing band that hands the visitor back to the catalogue.
+ *
+ * ACCESS: not public yet. middleware.ts turns anonymous visitors away at the
+ * door; this is the authorization check, because being signed in to the
+ * Supabase project is not the same as being on the admin allowlist. Same
+ * reasoning — and the same `requireAdmin()` — as the catalogue admin.
+ *
+ * Why it is gated at all: every configurator under here quotes real rupees
+ * from rates that have not been validated against a single supplier
+ * quotation (docs/STUDIO-PRICING-VALIDATION.md). A number a stranger can
+ * screenshot is a number we can be held to.
  */
-export default function StudioLayout({ children }: { children: React.ReactNode }) {
+
+// Every page below reads the session, so none of them can be statically
+// rendered. Declared rather than left to inference so a future page that
+// forgets to read cookies is not silently cached and served to anyone.
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  // Belt and braces with robots.ts: a crawler that reaches these only ever
+  // gets a login redirect, but a gated page must never be an indexable one.
+  robots: { index: false, follow: false },
+};
+
+export default async function StudioLayout({ children }: { children: React.ReactNode }) {
+  const check = await requireAdmin();
+
+  if (!check.ok) {
+    // Signed out should already have been caught by middleware; if the
+    // matcher is ever wrong, fail closed here rather than render.
+    if (check.reason === "signed-out") redirect("/admin/login?next=/studio");
+
+    return (
+      <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+        <h1 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+          Studio is not open yet
+        </h1>
+        <p className="mt-3 text-sm" style={{ color: "var(--line-strong)" }}>
+          {check.message}
+        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <SignOutButton />
+          <Link href="/" className="text-sm underline">
+            Back to the catalogue
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <div className="studio flex-1">
       <StudioNav />

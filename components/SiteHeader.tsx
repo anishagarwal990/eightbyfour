@@ -18,6 +18,10 @@ import { MobileMenu } from "@/components/MobileMenu";
 // Comparisons left the top bar — one route holding two documents was taking
 // the same nav weight as the whole catalogue. It stays reachable from /guides,
 // the footer and the sitemap, so no route or link equity is lost.
+// Studio EightxFour is deliberately absent: it is behind the admin sign-in
+// until its pricing is validated (see app/(site)/studio/layout.tsx). A public
+// nav item pointing at a login wall is worse than no nav item. Restore this
+// when Studio opens.
 const NAV_LINKS = [
   { href: "/applications", label: "Applications" },
   { href: "/guides", label: "Guides" },
