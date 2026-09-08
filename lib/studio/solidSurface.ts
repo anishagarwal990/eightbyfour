@@ -76,6 +76,9 @@ export const BACKSPLASH = [
   { id: "full", label: "Full-height splashback", detail: "Counter to underside of wall units.", rateFt: 2350 },
 ];
 
+/** Where the solid surface sheet comes from — us, or the customer. */
+export type SurfaceMaterialSource = "eightbyfour" | "own";
+
 export interface SurfaceConfig {
   applicationId: string;
   surfaceId: string;
@@ -86,6 +89,7 @@ export interface SurfaceConfig {
   backsplashId: string;
   /** Site seaming and fitting, vs supply of a fabricated top only. */
   installation: boolean;
+  materialSource: SurfaceMaterialSource;
 }
 
 export const DEFAULT_SURFACE_CONFIG: SurfaceConfig = {
@@ -97,13 +101,28 @@ export const DEFAULT_SURFACE_CONFIG: SurfaceConfig = {
   cutoutIds: ["sink", "hob", "tap"],
   backsplashId: "upstand",
   installation: true,
+  materialSource: "eightbyfour",
 };
 
 /** A standard solid surface sheet: 12 ft × 30 in. */
 const SHEET_RUN_FT = 12;
 const SHEET_DEPTH_IN = 30;
-const SEAM_RATE = 4200; // per joint — routed, glued, sanded flat and polished
-const FAB_RATE_PER_RUN_FT = 620; // cutting, edge build-up prep, polishing
+
+/**
+ * Fabrication is one number, not a stack of per-item charges.
+ *
+ * Everything the workshop does to turn sheets into a finished top — cutting,
+ * routing, every seam, every cut-out, the edge build-up, the coved upstand,
+ * polishing — is billed at ₹130 per sq ft of finished surface, or ₹2,600 per
+ * sheet consumed, whichever is higher. The per-sheet floor covers the small
+ * job where a nearly-whole sheet is used for a short run.
+ *
+ * The edge profile, cut-outs and backsplash are still chosen — they define the
+ * job and the drawing — they just do not each carry their own line.
+ */
+const FAB_RATE_PER_SQFT = 130;
+const FAB_FLOOR_PER_SHEET = 2600;
+
 const INSTALL_RATE_PER_RUN_FT = 340;
 const SITE_MINIMUM = 6500;
 const DELIVERY = 2400;
@@ -120,24 +139,35 @@ export function priceSurface(config: SurfaceConfig): Quote {
   const stripsPerSheet = Math.max(1, Math.floor(SHEET_DEPTH_IN / app.depthIn));
   const runFtPerSheet = SHEET_RUN_FT * stripsPerSheet;
 
-  const edgeBuildupFt = edge.id.startsWith("buildup") || edge.id === "waterfall" ? config.runFt : 0;
+  const own = config.materialSource === "own";
+
+  // Finished surface area: the counter itself, plus a full-height splashback
+  // (a real second surface) or the small return of a coved upstand.
+  const counterAreaSqFt = config.runFt * (app.depthIn / 12);
+  const splashAreaSqFt =
+    splash.id === "full" ? config.runFt * 2 : splash.id === "upstand" ? config.runFt * (4 / 12) : 0;
+  const finishedAreaSqFt = counterAreaSqFt + splashAreaSqFt;
+
   const splashRunFt = splash.rateFt > 0 ? config.runFt : 0;
-  // Build-up strips and splashbacks are cut from the same sheets.
-  const effectiveRunFt = config.runFt + edgeBuildupFt * 0.25 + splashRunFt * (splash.id === "full" ? 0.9 : 0.18);
+  const effectiveRunFt = config.runFt + splashRunFt * (splash.id === "full" ? 0.9 : 0.18);
 
   const sheetCount = Math.max(1, Math.ceil(effectiveRunFt / runFtPerSheet));
   const sheetRate = Math.round(surface.rate * thickness.factor);
 
-  // One seam per sheet joint in the visible run.
-  const seams = Math.max(0, Math.ceil(config.runFt / SHEET_RUN_FT) - 1) + (app.id === "kitchen" && config.runFt > 8 ? 1 : 0);
+  const chosenCutouts = CUTOUTS.filter((c) => config.cutoutIds.includes(c.id));
 
-  const materialLines: QuoteLine[] = [
-    {
+  const materialLines: QuoteLine[] = [];
+
+  if (!own) {
+    materialLines.push({
       label: `${surface.brand} ${surface.label}`,
       detail: `${thickness.label} · ${surface.shade} · ${sheetCount} sheet${sheetCount > 1 ? "s" : ""} × ₹${sheetRate.toLocaleString("en-IN")}`,
       amount: sheetCount * sheetRate,
       catalogueHref: "/products/corian-acrylic-solid-surface",
-    },
+    });
+  }
+
+  materialLines.push(
     {
       label: "Two-part adhesive & colour-matched filler",
       detail: `${sheetCount} sheet${sheetCount > 1 ? "s" : ""} · colour matched to ${surface.shade}`,
@@ -149,42 +179,32 @@ export function priceSurface(config: SurfaceConfig): Quote {
       detail: `${Math.round(config.runFt)} running ft × ₹280 — ply sub-top and brackets`,
       amount: Math.round(config.runFt * 280),
       catalogueHref: "/products/plywood",
-    },
+    }
+  );
+
+  // One fabrication line: ₹130 per finished sq ft, or ₹2,600 per sheet,
+  // whichever is higher. Edge, cut-outs, seams and splashback are all in it.
+  const fabByArea = Math.round(finishedAreaSqFt * FAB_RATE_PER_SQFT);
+  const fabBySheet = sheetCount * FAB_FLOOR_PER_SHEET;
+  const fabAmount = Math.max(fabByArea, fabBySheet);
+  const fabByFloor = fabBySheet > fabByArea;
+
+  const scopeParts = [
+    "cutting, routing & polishing",
+    `${edge.label.toLowerCase()} edge`,
+    ...chosenCutouts.map((c) => c.label.toLowerCase()),
+    ...(splash.rateFt > 0 ? [splash.label.toLowerCase()] : []),
   ];
 
   const fabricationLines: QuoteLine[] = [
     {
-      label: "Cutting, routing & polishing",
-      detail: `${Math.round(config.runFt)} running ft × ₹${FAB_RATE_PER_RUN_FT} × ${app.complexity.toFixed(2)} (${app.label.toLowerCase()})`,
-      amount: Math.round(config.runFt * FAB_RATE_PER_RUN_FT * app.complexity),
-    },
-    {
-      label: `${edge.label} edge`,
-      detail: `${Math.round(config.runFt)} running ft × ₹${edge.rate}`,
-      amount: Math.round(config.runFt * edge.rate),
+      label: "Fabrication",
+      detail: fabByFloor
+        ? `${sheetCount} sheet${sheetCount > 1 ? "s" : ""} × ₹${FAB_FLOOR_PER_SHEET.toLocaleString("en-IN")} (per-sheet minimum) — ${scopeParts.join(", ")}`
+        : `${finishedAreaSqFt.toFixed(1)} sq ft × ₹${FAB_RATE_PER_SQFT} — ${scopeParts.join(", ")}`,
+      amount: fabAmount,
     },
   ];
-
-  if (seams > 0) {
-    fabricationLines.push({
-      label: "Seamless joints",
-      detail: `${seams} joint${seams > 1 ? "s" : ""} × ₹${SEAM_RATE.toLocaleString("en-IN")} — routed, bonded, sanded flat`,
-      amount: seams * SEAM_RATE,
-    });
-  }
-
-  const chosenCutouts = CUTOUTS.filter((c) => config.cutoutIds.includes(c.id));
-  for (const cut of chosenCutouts) {
-    fabricationLines.push({ label: cut.label, detail: cut.detail, amount: cut.rate });
-  }
-
-  if (splash.rateFt > 0) {
-    fabricationLines.push({
-      label: splash.label,
-      detail: `${Math.round(config.runFt)} running ft × ₹${splash.rateFt}`,
-      amount: Math.round(config.runFt * splash.rateFt),
-    });
-  }
 
   const installationLines: QuoteLine[] = config.installation
     ? [
@@ -193,7 +213,7 @@ export function priceSurface(config: SurfaceConfig): Quote {
           detail: `${Math.round(config.runFt)} running ft × ₹${INSTALL_RATE_PER_RUN_FT}`,
           amount: Math.max(SITE_MINIMUM, Math.round(config.runFt * INSTALL_RATE_PER_RUN_FT)),
         },
-        { label: "Site seaming & final polish", detail: "Joints finished in place, not in the workshop.", amount: seams > 0 ? 3200 : 1800 },
+        { label: "Site seaming & final polish", detail: "Joints finished in place, not in the workshop.", amount: sheetCount > 1 ? 3200 : 1800 },
       ]
     : [{ label: "Supply only", detail: "Fabricated top collected or delivered — fitting by others.", amount: 0 }];
 
@@ -213,8 +233,8 @@ export function priceSurface(config: SurfaceConfig): Quote {
   return {
     title: `${app.label} — ${config.runFt} running ft`,
     spec: [
-      `${config.runFt} ft run · ${app.depthIn}″ deep`,
-      `${surface.brand} ${surface.label}`,
+      `${config.runFt} ft run · ${app.depthIn}″ deep · ${finishedAreaSqFt.toFixed(1)} sq ft`,
+      own ? `${surface.brand} ${surface.label} — supplied by you` : `${surface.brand} ${surface.label}`,
       thickness.label,
       edge.label,
       ...chosenCutouts.map((c) => c.label),

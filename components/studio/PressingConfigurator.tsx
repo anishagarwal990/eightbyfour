@@ -1,18 +1,29 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BALANCING_LAMINATES, PRESS_BOARDS, PRESS_LAMINATES } from "@/lib/studio/catalogue";
 import { inr } from "@/lib/studio/format";
-import { DEFAULT_PRESS_CONFIG, boardOnlyTotal, pricePressing, type PressConfig, type PressSides } from "@/lib/studio/pressing";
+import {
+  selectionLabel,
+  selectionPriceNote,
+  type MaterialSelection,
+} from "@/lib/studio/materialSelection";
+import {
+  DEFAULT_PRESS_CONFIG,
+  boardOnlyTotal,
+  pricePressing,
+  type PressConfig,
+  type PressMaterialSource,
+  type PressSides,
+} from "@/lib/studio/pressing";
+import { MaterialPicker } from "./MaterialPicker";
 import { MobileQuoteBar, QuotePanel } from "./QuotePanel";
-import { OptionCard, OptionRail, Segmented, StepHeading, Stepper, Swatch } from "./primitives";
+import { Segmented, StepHeading, Stepper } from "./primitives";
 
 /**
- * Laminate pressing reads as a bundle builder, not a services form: board plus
- * laminate plus laminate plus pressing equals a finished panel, laid out in
- * that order with a running product preview. It is the most direct expression
- * of the whole platform thesis, so it looks like commerce rather than like a
- * quotation request.
+ * Laminate pressing: board + laminate + laminate + pressing = a finished
+ * panel. The board and both laminates are picked from the real catalogue
+ * (MaterialPicker) rather than a five-item shortlist — the whole point of the
+ * service is that it runs on the same stock the shop sells.
  */
 export function PressingConfigurator() {
   const [config, setConfig] = useState<PressConfig>(DEFAULT_PRESS_CONFIG);
@@ -21,30 +32,53 @@ export function PressingConfigurator() {
 
   const set = <K extends keyof PressConfig>(k: K, v: PressConfig[K]) => setConfig((c) => ({ ...c, [k]: v }));
 
-  const board = PRESS_BOARDS.find((b) => b.id === config.boardId)!;
-  const front = PRESS_LAMINATES.find((l) => l.id === config.frontLaminateId)!;
-  const back = BALANCING_LAMINATES.find((l) => l.id === config.backLaminateId)!;
   const perSheet = quote.rate!.amount;
+  const own = config.materialSource === "own";
+  const backSel: MaterialSelection =
+    config.backLaminate.kind === "same-as-front" ? config.frontLaminate : config.backLaminate;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
       <div className="min-w-0">
+        {/* Whose board and laminate. The pressing charge is identical either
+            way — only the material lines on the quote change. */}
+        <div className="mb-6 max-w-[420px]">
+          <Segmented<PressMaterialSource>
+            value={config.materialSource}
+            onChange={(v) => set("materialSource", v)}
+            label="Board and laminate"
+            options={[
+              { id: "eightbyfour", label: "Buy here" },
+              { id: "own", label: "I'll supply my own" },
+            ]}
+          />
+          {own ? (
+            <p className="mt-2 text-[12px] leading-snug" style={{ color: "var(--ink-faint)" }}>
+              Bring the board and laminate sheets (8′ × 4′) to the workshop, or we collect them. You are charged for the
+              press work, the press-grade adhesive, any trimming and delivery — nothing for material.
+            </p>
+          ) : null}
+        </div>
+
         {/* The bundle line — board + front + back + press = panel. */}
         <div
           className="mb-8 grid items-center gap-3 rounded-[3px] border p-4 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]"
           style={{ borderColor: "var(--studio-line-strong)", background: "var(--paper)" }}
         >
-          <BundleCell caption="Board" title={`${board.brand} ${board.label}`} sub={board.thickness} from={board.swatch} to={board.swatchTo} />
+          <BundleCell caption="Board" title={own ? "Yours" : selectionLabel(config.board)} muted={own} />
           <Operator symbol="+" />
-          <BundleCell caption="Front laminate" title={`${front.brand} ${front.code}`} sub={front.label} from={front.swatch} to={front.swatchTo} />
+          <BundleCell caption="Front laminate" title={own ? "Yours" : selectionLabel(config.frontLaminate)} muted={own} />
           <Operator symbol="+" />
           <BundleCell
             caption={config.sides === "double" ? "Back laminate" : "Back"}
-            title={config.sides === "double" ? `${back.brand} ${back.code}` : "Unpressed"}
-            sub={config.sides === "double" ? back.thickness : "Single side only"}
-            from={config.sides === "double" ? back.swatch : "#dcd6cb"}
-            to={config.sides === "double" ? back.swatchTo : "#c4bdb0"}
-            muted={config.sides !== "double"}
+            title={
+              config.sides === "double"
+                ? own
+                  ? "Yours"
+                  : selectionLabel(backSel)
+                : "Unpressed"
+            }
+            muted={own || config.sides !== "double"}
           />
           <Operator symbol="=" />
           <div
@@ -54,7 +88,7 @@ export function PressingConfigurator() {
             aria-live="polite"
           >
             <p className="tracked-caps text-[9px]" style={{ color: "var(--burgundy)" }}>
-              Finished panel
+              {quote.pendingNote ? "From" : "Finished panel"}
             </p>
             <p className="metric mt-1 text-[22px] leading-none">{inr(perSheet)}</p>
             <p className="text-[11px]" style={{ color: "var(--ink-soft)" }}>
@@ -63,55 +97,73 @@ export function PressingConfigurator() {
           </div>
         </div>
 
+        {/* 01 — board */}
         <section className="mb-8">
-          <StepHeading step="01" title="Choose the board" hint="Anything you would buy from the catalogue anyway." />
-          <OptionRail cols={5}>
-            {PRESS_BOARDS.map((b) => (
-              <OptionCard
-                key={b.id}
-                compact
-                active={b.id === config.boardId}
-                onClick={() => set("boardId", b.id)}
-                label={b.label}
-                sub={`${b.brand} · ${b.thickness}`}
-                meta={`₹${b.rate.toLocaleString("en-IN")}/sheet`}
-                swatch={b.swatch}
-                swatchTo={b.swatchTo}
-                logo={b.logo}
-                deltaLabel={b.id === config.boardId ? "Selected" : undefined}
-              />
-            ))}
-          </OptionRail>
+          <StepHeading
+            step="01"
+            title="Board"
+            hint={
+              own
+                ? "Pick the thickness you are sending so the press is set to the right gap. Not charged."
+                : "Search the full catalogue — every plywood, MDF and HDHMR board we stock. Filter by brand, grade and thickness."
+            }
+          />
+          <MaterialPicker
+            kind="board"
+            needsThickness
+            title="Board"
+            value={config.board}
+            onChange={(b) => set("board", b)}
+          />
         </section>
 
-        <section className="mb-8">
-          <StepHeading step="02" title="Front laminate" hint="The visible face. Shade codes are the real ones from the catalogue." />
-          <OptionRail cols={5}>
-            {PRESS_LAMINATES.map((l) => (
-              <OptionCard
-                key={l.id}
-                compact
-                active={l.id === config.frontLaminateId}
-                onClick={() => set("frontLaminateId", l.id)}
-                label={l.label}
-                sub={`${l.brand} · ${l.code}`}
-                meta={`₹${l.rate.toLocaleString("en-IN")}/sheet`}
-                swatch={l.swatch}
-                swatchTo={l.swatchTo}
-                logo={l.logo}
-                deltaLabel={l.id === config.frontLaminateId ? "Selected" : undefined}
-              />
-            ))}
-          </OptionRail>
-        </section>
+        {/* 02 — front laminate */}
+        {own ? (
+          <section className="mb-8">
+            <StepHeading step="02" title="Laminate" hint="You bring it — front and back." />
+            <div
+              className="flex items-start gap-2.5 rounded-[3px] border p-3.5"
+              style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)" }}
+            >
+              <span
+                className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                style={{ background: "var(--positive)" }}
+                aria-hidden="true"
+              >
+                <svg width="9" height="9" viewBox="0 0 12 12">
+                  <path d="M1.5 6.4 4.3 9.2 10.5 3" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <p className="text-[12.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+                Send your front and back laminate sheets (8′ × 4′) with the boards. Mark which face is which, or tell us
+                at drop-off. If a face is short, we can supply a balancing laminate — priced then, not now.
+              </p>
+            </div>
+          </section>
+        ) : (
+          <section className="mb-8">
+            <StepHeading
+              step="02"
+              title="Front laminate"
+              hint="The visible face. Search 2,400+ shades by name or code, or enter one that only exists in a sample book."
+            />
+            <MaterialPicker
+              kind="laminate"
+              title="Front laminate"
+              value={config.frontLaminate}
+              onChange={(l) => set("frontLaminate", l)}
+            />
+          </section>
+        )}
 
+        {/* 03 — pressing sides + back laminate */}
         <section className="mb-8">
           <StepHeading
             step="03"
             title="Pressing"
             hint="Pressing one face only pulls the panel towards that side as it cures. A balancing laminate on the reverse is what keeps it flat."
           />
-          <div className="grid items-start gap-3 sm:grid-cols-[220px_1fr]">
+          <div className="max-w-[240px]">
             <Segmented<PressSides>
               value={config.sides}
               onChange={(v) => set("sides", v)}
@@ -121,31 +173,32 @@ export function PressingConfigurator() {
                 { id: "double", label: "Double side" },
               ]}
             />
-            {config.sides === "double" ? (
-              <OptionRail cols={3}>
-                {BALANCING_LAMINATES.map((l) => (
-                  <OptionCard
-                    key={l.id}
-                    compact
-                    active={l.id === config.backLaminateId}
-                    onClick={() => set("backLaminateId", l.id)}
-                    label={l.label}
-                    sub={l.id === "bal-match" ? "Matches the front face" : `${l.brand} · ${l.thickness}`}
-                    swatch={l.swatch}
-                    swatchTo={l.swatchTo}
-                    deltaLabel={l.id === config.backLaminateId ? "Selected" : undefined}
-                  />
-                ))}
-              </OptionRail>
-            ) : (
-              <p className="self-center text-[12.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
-                Single-side pressing is fine for panels that are fixed flat against a wall or a carcass. For shutters
-                and any free-standing panel, press both sides.
-              </p>
-            )}
           </div>
+
+          {config.sides === "double" && own ? (
+            <p className="mt-3 text-[12.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+              Send a back laminate for every board. A plain balancing laminate is enough — its only job is to keep the
+              panel flat as it cures.
+            </p>
+          ) : config.sides === "double" ? (
+            <div className="mt-3">
+              <MaterialPicker
+                kind="laminate"
+                title="Back laminate"
+                allowSameAsFront
+                value={config.backLaminate}
+                onChange={(l) => set("backLaminate", l)}
+              />
+            </div>
+          ) : (
+            <p className="mt-3 text-[12.5px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+              Single-side pressing is fine for panels fixed flat against a wall or a carcass. For shutters and any
+              free-standing panel, press both sides.
+            </p>
+          )}
         </section>
 
+        {/* 04 — quantity & finishing */}
         <section className="mb-8">
           <StepHeading step="04" title="Quantity & finishing" />
           <div className="grid gap-2.5 sm:grid-cols-3">
@@ -190,14 +243,47 @@ export function PressingConfigurator() {
         </section>
 
         <div className="rounded-[3px] border p-4" style={{ borderColor: "var(--studio-line)", background: "var(--paper)" }}>
-          <p className="text-[13.5px] font-semibold">
-            The boards alone would be {inr(boardOnly)}. Pressed, finished and delivered: {inr(quote.total)}.
-          </p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-            The difference is the laminate you were going to buy anyway, plus {inr(quote.groups.find((g) => g.key === "fabrication")!.subtotal)} of
-            pressing. Against site pressing, what you are actually buying is a flat panel, no curing time on site, and
-            no adhesive on your floor.
-          </p>
+          {own ? (
+            <>
+              <p className="text-[13.5px] font-semibold">
+                Pressing only: {inr(quote.total)} for {config.quantity} sheets — {inr(perSheet)} per sheet.
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                You supply the board and laminate. This covers the hot press, press-grade adhesive,
+                {config.cutToSize || config.edgeBand ? " trimming," : ""} and delivery within Hyderabad. Against
+                pressing on site: a flat panel, no curing time, no adhesive on your floor.
+              </p>
+            </>
+          ) : boardOnly > 0 ? (
+            <>
+              <p className="text-[13.5px] font-semibold">
+                The boards alone would be {inr(boardOnly)}. Pressed, finished and delivered: {inr(quote.total)}
+                {quote.pendingNote ? "+" : ""}.
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                The difference is the laminate you were going to buy anyway, plus{" "}
+                {inr(quote.groups.find((g) => g.key === "fabrication")!.subtotal)} of pressing. Against site pressing,
+                what you are buying is a flat panel, no curing time on site, and no adhesive on your floor.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[13.5px] font-semibold">
+                Pressing, finished and delivered: {inr(quote.total)}
+                {quote.pendingNote ? "+" : ""}.
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                {quote.pendingNote
+                  ? "The board or a laminate you picked has no published rate — those are confirmed on your order and added to this."
+                  : "A hot press applies even pressure and even glue across the whole sheet at once. A site press applies neither."}
+              </p>
+            </>
+          )}
+          {selectionPriceNote(config.board) && !own ? (
+            <p className="mt-2 text-[11px]" style={{ color: "var(--ink-faint)" }}>
+              Board: {selectionPriceNote(config.board)}. Exact rate confirmed for your thickness on order.
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -212,31 +298,13 @@ export function PressingConfigurator() {
   );
 }
 
-function BundleCell({
-  caption,
-  title,
-  sub,
-  from,
-  to,
-  muted,
-}: {
-  caption: string;
-  title: string;
-  sub: string;
-  from: string;
-  to?: string;
-  muted?: boolean;
-}) {
+function BundleCell({ caption, title, muted }: { caption: string; title: string; muted?: boolean }) {
   return (
     <div style={{ opacity: muted ? 0.5 : 1 }}>
       <p className="tracked-caps text-[9px]" style={{ color: "var(--ink-faint)" }}>
         {caption}
       </p>
-      <Swatch from={from} to={to} className="mt-1.5 h-10 w-full" />
       <p className="mt-1.5 text-[12.5px] font-semibold leading-tight">{title}</p>
-      <p className="text-[11px] leading-tight" style={{ color: "var(--ink-faint)" }}>
-        {sub}
-      </p>
     </div>
   );
 }

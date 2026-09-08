@@ -108,6 +108,48 @@ node scripts/studio-pricing-sanity.ts
 
 ---
 
+## 9. Laminate pressing
+`lib/studio/pressing.ts`
+
+| Variable | Current | Status | Validation needed |
+|---|---|---|---|
+| Hot press | ₹340 per sheet face | **UNVALIDATED** | Charged the same whether the board and laminate are bought here or the customer brings them. |
+| Press-grade adhesive | ₹190 per face | **UNVALIDATED** | Always charged — it is applied in the workshop, not brought by the customer. |
+| Cut to size | ₹26/ft × ~28 ft/sheet | **UNVALIDATED** | |
+| Edge banding | ₹42/ft × ~34 ft/sheet | **UNVALIDATED** | |
+| Delivery | ₹1,600 + ₹140/sheet | **UNVALIDATED** | |
+
+**Bring-your-own board + laminate** (`materialSource: "own"`): board, front and back laminate lines are dropped; press work, adhesive, trimming and delivery are unchanged. The FAQ always said this was allowed — the configurator can now price it.
+
+**Material now comes from the live catalogue**, not a 5-item shortlist
+(`lib/studio/materialCatalogue.ts`, `/api/studio/materials`). Two consequences
+worth knowing before anyone reads a pressing total as final:
+
+| Case | What the quote does |
+|---|---|
+| Board with a rate | Boards are priced per **sq ft as a range across thicknesses** — there is no per-thickness rate on most rows. The sheet figure is the bottom of that range × 32 sq ft, shown as **"from ₹X — confirmed for your thickness"**. |
+| Laminate with a rate | `price_table.starting_price` is already per sheet. Used directly. |
+| No rate on file | ~150 of 1,000 sampled laminates and several boards have `price_table: null`. The line is **₹0** with "rate confirmed on your order", and the quote carries a `pendingNote`. |
+| Entered by hand | Same as above — always ₹0 and pending. |
+
+**The total is therefore "everything priced so far", not a quotation**, whenever
+`pendingNote` is set. The estimate panel says so; the bundle headline switches
+from "Finished panel" to "From".
+
+## 10. Solid surface
+`lib/studio/solidSurface.ts`
+
+| Variable | Current | Status | Validation needed |
+|---|---|---|---|
+| Fabrication | max(₹130 × finished sq ft, ₹2,600 × sheets) | **BUSINESS-STATED** | Owner's rule. One line — covers cutting, every seam, every cut-out, edge build-up, splashback, polishing. Edge/cut-out/backsplash choices no longer carry their own charge. |
+| Site fitting | ₹340/run ft, min ₹6,500 | **UNVALIDATED** | The ₹6,500 site minimum makes small supply-here jobs (e.g. a 3  ft vanity + a full sheet) read high — flagged, not changed. |
+| Substrate & brackets | ₹280/run ft | **UNVALIDATED** | Still charged in bring-your-own mode — it is EightByFour ply, not the customer's. |
+| Adhesive & filler | ₹1,450/sheet | **UNVALIDATED** | Always charged — colour-matched in the workshop. |
+| Delivery | ₹2,400 + ₹400/sheet | **UNVALIDATED** | |
+
+**Bring-your-own sheet** (`materialSource: "own"`): the Corian/HIMACS/Staron sheet line is dropped; fabrication, fitting and delivery are unchanged. "No compulsion to buy the surface from us."
+
+
 ## Findings from the sanity matrix
 
 Run `node scripts/studio-pricing-sanity.ts`.

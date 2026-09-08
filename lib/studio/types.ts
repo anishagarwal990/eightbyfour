@@ -66,4 +66,10 @@ export interface Quote {
   total: number;
   /** Per-unit-of-measure rate, for comparison across configurations. */
   rate?: { amount: number; unit: string };
+  /**
+   * Set when a chosen material has no rate on file (or was entered by hand):
+   * those lines sit at ₹0 and the total is "everything priced so far". The
+   * string is shown to the customer so the number is never mistaken for final.
+   */
+  pendingNote?: string;
 }

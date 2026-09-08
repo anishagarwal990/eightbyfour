@@ -1,4 +1,5 @@
-import { BALANCING_LAMINATES, PRESS_BOARDS, PRESS_LAMINATES } from "./catalogue.ts";
+import type { MaterialSelection } from "./materialSelection.ts";
+import { selectionLabel, selectionSheetPrice } from "./materialSelection.ts";
 import type { Quote, QuoteGroup, QuoteLine } from "./types.ts";
 
 /**
@@ -7,32 +8,67 @@ import type { Quote, QuoteGroup, QuoteLine } from "./types.ts";
  * the third thing, which is putting them together properly under a press
  * before they reach a site.
  *
- * The output is deliberately a per-finished-panel price as well as a total:
- * it is the number a carpenter compares against pressing it himself.
+ * The board and both laminates are now real catalogue selections
+ * (MaterialSelection), not ids into a hand-picked list. A selection can carry
+ * a per-sheet rate, carry none ("rate on request"), or be entered by hand —
+ * the last two produce a ₹0 material line and a `pendingNote` on the quote so
+ * the total is never read as final.
+ *
+ * The output is a per-finished-panel price as well as a total: it is the
+ * number a carpenter compares against pressing it himself.
  */
 
 export type PressSides = "single" | "double";
 
+/**
+ * Where the board and laminate come from.
+ *  - "eightbyfour": priced as material lines on the quote.
+ *  - "own": the customer brings both to the workshop. Only the press work,
+ *    the press-grade adhesive, any trimming and delivery are charged.
+ */
+export type PressMaterialSource = "eightbyfour" | "own";
+
 export interface PressConfig {
-  boardId: string;
-  frontLaminateId: string;
-  backLaminateId: string;
+  board: MaterialSelection;
+  frontLaminate: MaterialSelection;
+  /** May be `{ kind: "same-as-front" }`. */
+  backLaminate: MaterialSelection;
   sides: PressSides;
   quantity: number;
   /** Cut the pressed sheet down to panel sizes before delivery. */
   cutToSize: boolean;
   /** Apply edge banding to the cut panels. */
   edgeBand: boolean;
+  materialSource: PressMaterialSource;
 }
 
 export const DEFAULT_PRESS_CONFIG: PressConfig = {
-  boardId: "bwp-ply-19",
-  frontLaminateId: "gl-5347",
-  backLaminateId: "bal-08",
+  board: {
+    kind: "catalogue",
+    slug: "century-sainik-710-ply",
+    name: "Century Sainik 710",
+    brand: "Century",
+    label: "Century · Century Sainik 710 · 19mm",
+    thickness: "19mm",
+    sheetPrice: { amount: Math.round(43 * 32), from: true },
+    href: "/products/century-sainik-710-ply",
+  },
+  frontLaminate: {
+    kind: "catalogue",
+    slug: "merino-14603-huron-lowa-walnut",
+    name: "Merino Huron Lowa Walnut",
+    brand: "Merino",
+    label: "Merino · Huron Lowa Walnut",
+    thickness: "1 mm",
+    sheetPrice: { amount: 1300, from: false },
+    href: "/products/merino-14603-huron-lowa-walnut",
+  },
+  backLaminate: { kind: "same-as-front" },
   sides: "double",
   quantity: 10,
   cutToSize: false,
   edgeBand: false,
+  materialSource: "eightbyfour",
 };
 
 const PRESS_RATE_PER_SIDE = 340; // hot press, per 8×4 sheet face
@@ -44,40 +80,55 @@ const BAND_FT_PER_SHEET = 34;
 const DELIVERY_BASE = 1600;
 const DELIVERY_PER_SHEET = 140;
 
-export function pricePressing(config: PressConfig): Quote {
-  const board = PRESS_BOARDS.find((b) => b.id === config.boardId) ?? PRESS_BOARDS[0];
-  const front = PRESS_LAMINATES.find((l) => l.id === config.frontLaminateId) ?? PRESS_LAMINATES[0];
-  const backOption = BALANCING_LAMINATES.find((l) => l.id === config.backLaminateId) ?? BALANCING_LAMINATES[0];
-  // "Same as front" is priced at the front laminate's own rate.
-  const back = backOption.rate === 0 ? { ...backOption, rate: front.rate, brand: front.brand, code: front.code } : backOption;
+/** Resolve a "same as front" back-laminate to the actual front selection. */
+function resolveBack(config: PressConfig): MaterialSelection {
+  return config.backLaminate.kind === "same-as-front" ? config.frontLaminate : config.backLaminate;
+}
 
+export function pricePressing(config: PressConfig): Quote {
   const qty = Math.max(1, Math.round(config.quantity));
   const sideCount = config.sides === "double" ? 2 : 1;
+  const ownMaterial = config.materialSource === "own";
+  const back = resolveBack(config);
 
-  const materialLines: QuoteLine[] = [
-    {
-      label: `${board.brand} ${board.label}`,
-      detail: `${board.thickness} · ${qty} sheets × ₹${board.rate.toLocaleString("en-IN")}`,
-      amount: qty * board.rate,
-      catalogueHref: board.catalogue,
-    },
-    {
-      label: `${front.brand} ${front.label} — front face`,
-      detail: `${front.code} · ${front.thickness} · ${qty} sheets × ₹${front.rate.toLocaleString("en-IN")}`,
-      amount: qty * front.rate,
-      catalogueHref: "/products/laminates",
-    },
-  ];
+  const materialLines: QuoteLine[] = [];
+  let pending = false;
 
-  if (sideCount === 2) {
-    materialLines.push({
-      label: `${back.brand} ${back.label} — back face`,
-      detail: `${back.code} · ${back.thickness} · ${qty} sheets × ₹${back.rate.toLocaleString("en-IN")}`,
-      amount: qty * back.rate,
-      catalogueHref: "/products/laminates",
-    });
+  if (!ownMaterial) {
+    const faces: { role: string; sel: MaterialSelection }[] = [
+      { role: "board", sel: config.board },
+      { role: "front face", sel: config.frontLaminate },
+      ...(sideCount === 2 ? [{ role: "back face", sel: back }] : []),
+    ];
+
+    for (const { role, sel } of faces) {
+      const rate = selectionSheetPrice(sel);
+      const noun = role === "board" ? "" : ` — ${role}`;
+      if (rate === null) {
+        pending = true;
+        materialLines.push({
+          label: `${selectionLabel(sel)}${noun}`,
+          detail: `${qty} sheets · rate confirmed on your order`,
+          amount: 0,
+          catalogueHref: catalogueHrefOf(sel),
+        });
+      } else {
+        // A board's catalogue rate is a per-sq-ft range across its thicknesses,
+        // so the sheet figure is the bottom of that range — "from", and
+        // confirmed for the actual thickness on the order.
+        const isFrom = sel.kind === "catalogue" && sel.sheetPrice?.from === true;
+        materialLines.push({
+          label: `${selectionLabel(sel)}${noun}`,
+          detail: `${qty} sheets × ${isFrom ? "from " : ""}₹${rate.toLocaleString("en-IN")}${isFrom ? " — confirmed for your thickness" : ""}`,
+          amount: qty * rate,
+          catalogueHref: catalogueHrefOf(sel),
+        });
+      }
+    }
   }
 
+  // Press-grade adhesive is applied in the workshop under controlled spread
+  // and open time — part of the press, not something the customer brings.
   materialLines.push({
     label: "Press-grade adhesive",
     detail: `${qty * sideCount} faces × ₹${ADHESIVE_PER_SIDE}`,
@@ -114,31 +165,47 @@ export function pricePressing(config: PressConfig): Quote {
   ];
 
   const groups: QuoteGroup[] = ([
-    { key: "materials", label: "Materials", lines: materialLines, subtotal: 0 },
+    { key: "materials", label: ownMaterial ? "Consumables" : "Materials", lines: materialLines, subtotal: 0 },
     { key: "fabrication", label: "Pressing", lines: fabricationLines, subtotal: 0 },
     { key: "delivery", label: "Delivery", lines: deliveryLines, subtotal: 0 },
   ] satisfies QuoteGroup[]).map((g) => ({ ...g, subtotal: g.lines.reduce((s, l) => s + l.amount, 0) }));
 
   const total = groups.reduce((s, g) => s + g.subtotal, 0);
+  const boardLabel = selectionLabel(config.board);
 
   return {
-    title: `${qty} × pressed panel — ${board.thickness} ${board.brand} ${board.label}`,
+    title: ownMaterial
+      ? `${qty} × pressing — ${config.sides} side`
+      : `${qty} × pressed panel — ${boardLabel}`,
     spec: [
-      `${board.brand} ${board.label} ${board.thickness}`,
-      `Front: ${front.brand} ${front.code}`,
-      sideCount === 2 ? `Back: ${back.brand} ${back.code}` : "Single side",
+      ownMaterial ? "Board & laminate supplied by you" : `Board: ${boardLabel}`,
+      ownMaterial ? "" : `Front: ${selectionLabel(config.frontLaminate)}`,
+      sideCount === 2 ? (ownMaterial ? "Double side" : `Back: ${selectionLabel(back)}`) : "Single side",
       `${qty} sheets, 8′ × 4′`,
       config.cutToSize ? "Cut to size" : "Full sheets",
       config.edgeBand ? "Edge banded" : "No banding",
-    ],
+    ].filter(Boolean),
     groups,
     total,
-    rate: { amount: Math.round(total / qty), unit: "per finished sheet" },
+    rate: { amount: Math.round(total / qty), unit: ownMaterial ? "per sheet pressed" : "per finished sheet" },
+    pendingNote: pending
+      ? "One or more chosen materials have no rate on file — those lines are ₹0 here and confirmed on your order."
+      : undefined,
   };
 }
 
-/** What the same board would cost unpressed — the honest comparison. */
+function catalogueHrefOf(sel: MaterialSelection): string | undefined {
+  return sel.kind === "catalogue" ? sel.href : undefined;
+}
+
+/**
+ * What the same board would cost unpressed — the honest comparison shown in
+ * the bundle flow. Meaningless when the customer supplies the board or the
+ * board has no rate, so it returns 0 and the UI drops the comparison.
+ */
 export function boardOnlyTotal(config: PressConfig): number {
-  const board = PRESS_BOARDS.find((b) => b.id === config.boardId) ?? PRESS_BOARDS[0];
-  return Math.max(1, Math.round(config.quantity)) * board.rate;
+  if (config.materialSource === "own") return 0;
+  const rate = selectionSheetPrice(config.board);
+  if (rate === null) return 0;
+  return Math.max(1, Math.round(config.quantity)) * rate;
 }

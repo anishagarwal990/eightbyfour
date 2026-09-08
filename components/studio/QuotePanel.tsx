@@ -108,6 +108,14 @@ export function QuotePanel({
         </div>
         <p className="metric mt-0.5 text-[38px] leading-none">{inr(quote.total)}</p>
         {compareNote}
+        {quote.pendingNote ? (
+          <p
+            className="mt-2 rounded-[2px] px-2 py-1.5 text-[11px] leading-snug"
+            style={{ background: "var(--stone-deep)", color: "var(--ink-soft)" }}
+          >
+            {quote.pendingNote}
+          </p>
+        ) : null}
       </div>
 
       <div className="border-t" style={{ borderColor: "var(--studio-line)" }}>

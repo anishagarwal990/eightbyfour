@@ -12,6 +12,7 @@ import {
   THICKNESSES,
   priceSurface,
   type SurfaceConfig,
+  type SurfaceMaterialSource,
 } from "@/lib/studio/solidSurface";
 import { MobileQuoteBar, QuotePanel } from "./QuotePanel";
 import { OptionCard, OptionRail, Segmented, StepHeading, Stepper } from "./primitives";
@@ -37,10 +38,30 @@ export function SurfaceConfigurator() {
   const app = SURFACE_APPLICATIONS.find((a) => a.id === config.applicationId)!;
   const material = quote.groups.find((g) => g.key === "materials")!.subtotal;
   const work = quote.total - material;
+  const own = config.materialSource === "own";
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10">
       <div className="min-w-0">
+        {/* Whose sheet. Fabrication and fitting are charged the same either
+            way — only the sheet line changes. */}
+        <div className="mb-6 max-w-[420px]">
+          <Segmented<SurfaceMaterialSource>
+            value={config.materialSource}
+            onChange={(v) => set("materialSource", v)}
+            label="Solid surface sheet"
+            options={[
+              { id: "eightbyfour", label: "Buy here" },
+              { id: "own", label: "I'll supply my own" },
+            ]}
+          />
+          <p className="mt-2 text-[12px] leading-snug" style={{ color: "var(--ink-faint)" }}>
+            {own
+              ? "Bring your Corian, HIMACS, Staron or other acrylic sheets to the workshop. You are charged for fabrication, fitting and delivery — nothing for the sheet."
+              : "Fabrication is ₹130 per finished sq ft, or ₹2,600 per sheet, whichever is higher — edge, cut-outs, seams and splashback all included."}
+          </p>
+        </div>
+
         <section className="mb-8">
           <StepHeading step="01" title="What are you surfacing?" />
           <OptionRail cols={3}>
@@ -142,7 +163,11 @@ export function SurfaceConfigurator() {
         </section>
 
         <section className="mb-8">
-          <StepHeading step="03" title="Surface" hint="Sheet from the EightByFour catalogue — brand, shade code and all." />
+          <StepHeading
+            step="03"
+            title="Surface"
+            hint={own ? "Which sheet you are bringing — so the filler and seams are colour matched." : "Sheet from the EightByFour catalogue — brand, shade code and all."}
+          />
           <OptionRail cols={5}>
             {SURFACE_OPTIONS.map((s) => (
               <OptionCard
@@ -155,7 +180,9 @@ export function SurfaceConfigurator() {
                 swatch={s.swatch}
                 swatchTo={s.swatchTo}
                 logo={s.logo}
-                {...deltaProps({ surfaceId: s.id }, s.id === config.surfaceId)}
+                {...(own
+                  ? { deltaLabel: s.id === config.surfaceId ? "Selected" : undefined }
+                  : deltaProps({ surfaceId: s.id }, s.id === config.surfaceId))}
               />
             ))}
           </OptionRail>
@@ -168,7 +195,11 @@ export function SurfaceConfigurator() {
         </section>
 
         <section className="mb-8">
-          <StepHeading step="04" title="Edge profile" hint="What the front edge looks like — and how thick the counter appears." />
+          <StepHeading
+            step="04"
+            title="Edge profile"
+            hint="What the front edge looks like — and how thick the counter appears. Included in fabrication, not charged per foot."
+          />
           <OptionRail cols={5}>
             {EDGE_PROFILES.map((e) => (
               <OptionCard
@@ -178,15 +209,14 @@ export function SurfaceConfigurator() {
                 onClick={() => set("edgeId", e.id)}
                 label={e.label}
                 sub={e.detail}
-                meta={`₹${e.rate}/run ft`}
-                {...deltaProps({ edgeId: e.id }, e.id === config.edgeId)}
+                deltaLabel={e.id === config.edgeId ? "Selected" : undefined}
               />
             ))}
           </OptionRail>
         </section>
 
         <section className="mb-8">
-          <StepHeading step="05" title="Cut-outs" hint="Each one is cut, polished and reinforced. This is the honest reason two counters of the same size differ." />
+          <StepHeading step="05" title="Cut-outs" hint="Each one is cut, polished and reinforced. Included in fabrication — the price follows the finished area, not a per-hole charge." />
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {CUTOUTS.map((c) => {
               const active = config.cutoutIds.includes(c.id);
@@ -219,9 +249,6 @@ export function SurfaceConfigurator() {
                       {c.detail}
                     </span>
                   </span>
-                  <span className="metric shrink-0 text-[12px]" style={{ color: "var(--ink-soft)" }}>
-                    {inr(c.rate)}
-                  </span>
                 </button>
               );
             })}
@@ -229,7 +256,7 @@ export function SurfaceConfigurator() {
         </section>
 
         <section className="mb-8">
-          <StepHeading step="06" title="Backsplash" hint="A coved upstand removes the silicone joint where the counter meets the wall." />
+          <StepHeading step="06" title="Backsplash" hint="A coved upstand removes the silicone joint where the counter meets the wall. A full-height splashback adds its own area." />
           <OptionRail cols={3}>
             {BACKSPLASH.map((b) => (
               <OptionCard
@@ -246,13 +273,28 @@ export function SurfaceConfigurator() {
         </section>
 
         <div className="rounded-[3px] border p-4" style={{ borderColor: "var(--studio-line)", background: "var(--paper)" }}>
-          <p className="text-[13.5px] font-semibold">
-            On this counter, {Math.round((work / quote.total) * 100)}% of the cost is work, not sheet.
-          </p>
-          <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
-            Material is {inr(material)} of {inr(quote.total)}. Everything else is cutting, edge build-up, seaming,
-            cut-outs and fitting — which is why a counter quote that only names a brand tells you almost nothing.
-          </p>
+          {own ? (
+            <>
+              <p className="text-[13.5px] font-semibold">
+                Fabrication and fitting on this counter: {inr(work)}.
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                You supply the sheet. This covers cutting, every seam and cut-out, the edge build-up, the splashback,
+                polishing, fitting and delivery — ₹130 per finished sq ft, or ₹2,600 per sheet, whichever is higher.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[13.5px] font-semibold">
+                On this counter, {Math.round((work / quote.total) * 100)}% of the cost is work, not sheet.
+              </p>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed" style={{ color: "var(--ink-soft)" }}>
+                Material is {inr(material)} of {inr(quote.total)}. Everything else is fabrication and fitting, billed at
+                ₹130 per finished sq ft or ₹2,600 per sheet, whichever is higher — which is why a counter quote that only
+                names a brand tells you almost nothing.
+              </p>
+            </>
+          )}
         </div>
       </div>
 
