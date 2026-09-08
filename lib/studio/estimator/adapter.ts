@@ -18,7 +18,13 @@
 
 import { ACCESSORIES } from "../catalogue.ts";
 import type { LayoutCounts } from "../geometry.ts";
-import { CARCASS_MATERIALS, SHUTTER_CORES, SHUTTER_FINISHES } from "./config.ts";
+import {
+  CARCASS_MATERIALS,
+  SHUTTER_CORES,
+  SHUTTER_FINISHES,
+  type CarcassMaterial,
+  type ShutterCore,
+} from "./config.ts";
 import type { WardrobeEstimateInput } from "./types.ts";
 
 /**
@@ -43,6 +49,32 @@ const SHUTTER_CORE_FROM_CATALOGUE: Record<string, string> = {
   hdhmr: "hdhmr",
   ply: "plywood",
 };
+
+/**
+ * The estimator shutter core a catalogue shutter option maps to.
+ *
+ * Exported so the designer can ask "is this front pre-finished?" without
+ * re-implementing the mapping — the answer drives whether it shows a finish
+ * picker or a "nothing else is applied" note, and that must never disagree
+ * with what the engine actually charges.
+ */
+export function catalogueShutterCore(catalogueShutterId: string): ShutterCore {
+  const id = safe(SHUTTER_CORE_FROM_CATALOGUE, catalogueShutterId, SHUTTER_CORES, "hdhmr");
+  return SHUTTER_CORES.find((c) => c.id === id)!;
+}
+
+/**
+ * The estimator carcass material a catalogue carcass option maps to.
+ *
+ * A prelaminated board is decorated on BOTH faces, so it carries its own
+ * inside and outside finish — the engine already prices the carcass finish
+ * bucket at ₹0 for it. The designer asks this to know whether to show an
+ * interior-finish picker at all.
+ */
+export function catalogueCarcassMaterial(catalogueCarcassId: string): CarcassMaterial {
+  const id = safe(CARCASS_FROM_CATALOGUE, catalogueCarcassId, CARCASS_MATERIALS, "bwr-ply");
+  return CARCASS_MATERIALS.find((m) => m.id === id)!;
+}
 
 /**
  * Catalogue finish id → estimator shutter finish id.

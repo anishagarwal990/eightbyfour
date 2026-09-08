@@ -28,7 +28,12 @@ import {
 } from "@/lib/studio/furniture";
 import { feetToMm, formatLength, mmToFeet, type LengthUnit } from "@/lib/studio/units";
 import { estimateWardrobe } from "@/lib/studio/estimator/engine";
-import { layoutAdditions, toEstimateInput } from "@/lib/studio/estimator/adapter";
+import {
+  catalogueCarcassMaterial,
+  catalogueShutterCore,
+  layoutAdditions,
+  toEstimateInput,
+} from "@/lib/studio/estimator/adapter";
 import { toQuote } from "@/lib/studio/estimator/toQuote";
 import { MobileQuoteBar, QuotePanel } from "./QuotePanel";
 import { OptionCard, OptionRail, Segmented, StepHeading } from "./primitives";
@@ -123,6 +128,17 @@ export function VisualFurnitureConfigurator({ typeId = "wardrobe" }: { typeId?: 
    * gets a commercial model of its own.
    */
   const isWardrobe = config.typeId === "wardrobe";
+
+  // A pre-finished shutter board arrives decorated — the wardrobe engine
+  // charges nothing more for a finish, so the finish picker would only invite
+  // a choice that does not move the price or the model. Wardrobe only: other
+  // types still price the finish through the per-type engine.
+  const shutterIsPrefinished = isWardrobe && catalogueShutterCore(config.shutterId).prelaminated;
+
+  // A prelaminated carcass board arrives decorated on both faces — inside and
+  // out. The engine already prices its finish bucket at ₹0, so an interior
+  // finish picker would offer a choice that is neither applied nor charged.
+  const carcassIsPrefinished = isWardrobe && catalogueCarcassMaterial(config.carcassId).prelaminated;
 
   const quote = useMemo(() => {
     if (!isWardrobe) return priceFurniture(pricedConfig);
@@ -487,41 +503,89 @@ export function VisualFurnitureConfigurator({ typeId = "wardrobe" }: { typeId?: 
 
               <section>
                 <StepHeading step="Finish" title="What you actually see and touch." hint="Changes the model as you pick." />
-                <OptionRail cols={3}>
-                  {FINISH_OPTIONS.map((o) => (
-                    <OptionCard
-                      key={o.id}
-                      compact
-                      active={o.id === config.finishId}
-                      onClick={() => set("finishId", o.id)}
-                      label={o.label}
-                      sub={`${o.brand} · ${o.spec}`}
-                      swatch={o.swatch}
-                      swatchTo={o.swatchTo}
-                      logo={o.logo}
-                      {...deltaProps({ finishId: o.id }, o.id === config.finishId)}
-                    />
-                  ))}
-                </OptionRail>
+                {shutterIsPrefinished ? (
+                  <div
+                    className="flex items-start gap-2.5 rounded-[3px] border p-3.5"
+                    style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)" }}
+                  >
+                    <span
+                      className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                      style={{ background: "var(--positive)" }}
+                      aria-hidden="true"
+                    >
+                      <svg width="9" height="9" viewBox="0 0 12 12">
+                        <path d="M1.5 6.4 4.3 9.2 10.5 3" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="text-[13px] font-semibold">Pre-finished front</p>
+                      <p className="mt-0.5 text-[12px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+                        The shutter board you chose arrives decorated. No separate finish is applied or priced — pick a
+                        different shutter board above to choose a finish.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <OptionRail cols={3}>
+                    {FINISH_OPTIONS.map((o) => (
+                      <OptionCard
+                        key={o.id}
+                        compact
+                        active={o.id === config.finishId}
+                        onClick={() => set("finishId", o.id)}
+                        label={o.label}
+                        sub={`${o.brand} · ${o.spec}`}
+                        swatch={o.swatch}
+                        swatchTo={o.swatchTo}
+                        logo={o.logo}
+                        {...deltaProps({ finishId: o.id }, o.id === config.finishId)}
+                      />
+                    ))}
+                  </OptionRail>
+                )}
               </section>
 
               <section>
                 <StepHeading step="Interiors" title="Inside the compartments." />
-                <OptionRail cols={4}>
-                  {INTERNAL_FINISH_OPTIONS.map((o) => (
-                    <OptionCard
-                      key={o.id}
-                      compact
-                      active={o.id === config.internalId}
-                      onClick={() => set("internalId", o.id)}
-                      label={o.label}
-                      sub={o.spec}
-                      swatch={o.swatch}
-                      swatchTo={o.swatchTo}
-                      {...deltaProps({ internalId: o.id }, o.id === config.internalId)}
-                    />
-                  ))}
-                </OptionRail>
+                {carcassIsPrefinished ? (
+                  <div
+                    className="flex items-start gap-2.5 rounded-[3px] border p-3.5"
+                    style={{ borderColor: "var(--studio-line)", background: "var(--stone-deep)" }}
+                  >
+                    <span
+                      className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full"
+                      style={{ background: "var(--positive)" }}
+                      aria-hidden="true"
+                    >
+                      <svg width="9" height="9" viewBox="0 0 12 12">
+                        <path d="M1.5 6.4 4.3 9.2 10.5 3" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <div>
+                      <p className="text-[13px] font-semibold">Inside matches the board</p>
+                      <p className="mt-0.5 text-[12px] leading-snug" style={{ color: "var(--ink-soft)" }}>
+                        A pre-finished carcass board is decorated on both faces, so the compartments are already
+                        finished — nothing extra is applied or priced. Pick a raw carcass board to choose an interior.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <OptionRail cols={4}>
+                    {INTERNAL_FINISH_OPTIONS.map((o) => (
+                      <OptionCard
+                        key={o.id}
+                        compact
+                        active={o.id === config.internalId}
+                        onClick={() => set("internalId", o.id)}
+                        label={o.label}
+                        sub={o.spec}
+                        swatch={o.swatch}
+                        swatchTo={o.swatchTo}
+                        {...deltaProps({ internalId: o.id }, o.id === config.internalId)}
+                      />
+                    ))}
+                  </OptionRail>
+                )}
               </section>
 
               <section>
