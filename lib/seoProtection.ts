@@ -1,6 +1,4 @@
-import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import snapshot from "../seo/opportunities/latest.json" with { type: "json" };
 import type { OpportunityBucket } from "./seoOpportunity.ts";
 
 // Search-performance safety tiers for product titles — built from the
@@ -57,17 +55,21 @@ export function classifyProductTiers(rows: OpportunitySnapshotRow[]): Map<string
   return map;
 }
 
-// Read via fs rather than a JSON import — this module is loaded both by
-// Next (webpack/Turbopack, which is fine with a JSON import) and directly by
-// `node --test` (which needs an import attribute Node's stripped-types mode
-// doesn't carry through a relative .ts re-export), so fs.readFileSync is the
-// one loading path that works in both without a build step.
-function loadSnapshot(): OpportunitySnapshot {
-  const path = join(dirname(fileURLToPath(import.meta.url)), "..", "seo", "opportunities", "latest.json");
-  return JSON.parse(readFileSync(path, "utf8"));
-}
-
-export const SEO_OPPORTUNITY_SNAPSHOT: OpportunitySnapshot = loadSnapshot();
+// A static JSON import, NOT fs.readFileSync. The bundler inlines the snapshot
+// into every server chunk that needs it, so there is no file to find at
+// request time.
+//
+// The earlier readFileSync version worked in dev and in build-time prerenders
+// (the repo is on disk for both) and threw ENOENT on Vercel for every page
+// rendered per request, because the JSON was never in the function's traced
+// files. productSeo imports this module, so every category, brand, collection
+// and paginated listing page returned HTTP 500 while product pages — all
+// prerendered — looked fine.
+//
+// `with { type: "json" }` is what lets `node --test` load it as well, which was
+// the only reason fs was used. Do not reintroduce a runtime file read here
+// without also listing the file in next.config.ts outputFileTracingIncludes.
+export const SEO_OPPORTUNITY_SNAPSHOT: OpportunitySnapshot = snapshot as OpportunitySnapshot;
 
 const SLUG_TIERS = classifyProductTiers(SEO_OPPORTUNITY_SNAPSHOT.rows);
 
