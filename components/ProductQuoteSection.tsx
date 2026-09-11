@@ -8,8 +8,9 @@ import { Button, buttonClasses } from "@/components/ui/Button";
 import { OfferBox } from "@/components/OfferBox";
 import { applyDiscount, resolvePrice, unitLabel, parseVariants, firstSize, firstThickness, sqftFromSizeLabel, validDiscountPct, formatDiscountPct } from "@/lib/pricing";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { productDisplayName } from "@/lib/productDisplay";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import { trackEvent } from "@/lib/analytics";
+import { useQuoteModal } from "@/context/QuoteModalContext";
 
 function WhatsAppIcon() {
   return (
@@ -29,8 +30,18 @@ function WhatsAppIcon() {
   );
 }
 
-export function ProductQuoteSection({ product }: { product: ProductRow }) {
+const CTA_LOCATION = "product_price_box";
+
+export function ProductQuoteSection({
+  product,
+  displayTitle,
+}: {
+  product: ProductRow;
+  /** "Merino 22153 Saga Green" — what the visitor searched for; used in the WhatsApp message and the quote list. */
+  displayTitle: string;
+}) {
   const [expanded, setExpanded] = useState(false);
+  const { openModal } = useQuoteModal();
   const variants = parseVariants(product.variants);
 
   const defaultCore = variants?.cores[0];
@@ -45,10 +56,20 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
   const selectedSize = selectedCore?.sizes.find((s) => s.key === sizeKey) ?? defaultSize;
   const selectedThickness = selectedSize?.thicknesses.find((t) => t.key === thicknessKey) ?? defaultThickness;
 
+  const eventContext = {
+    product_id: product.id,
+    product_slug: product.slug,
+    product_name: product.name,
+    category: product.category,
+    brand: product.brand,
+    product_code: product.sd_code,
+  };
+
   if (expanded) {
     return (
       <QuoteRequestForm
         product={product}
+        ctaLocation={CTA_LOCATION}
         variantSelection={
           variants && selectedCore && selectedSize && selectedThickness
             ? {
@@ -88,6 +109,10 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
       : null;
   const cashbackPct = tablePrice?.cashbackPct ?? null;
 
+  // A priced SKU already shows its list rate, so the next question is the
+  // project rate; an unpriced one leads with the question the visitor has.
+  const primaryLabel = price ? "Get Project Pricing" : "Get Today's Price";
+
   return (
     <div
       className="flex flex-col gap-5 rounded-2xl p-6 shadow-[var(--shadow-md)]"
@@ -114,7 +139,7 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
       >
         <div>
           <p className="tracked-caps text-[11px] font-medium" style={{ color: "color-mix(in srgb, var(--burgundy) 75%, var(--ink))" }}>
-            Starting
+            {price ? "Starting" : "Price"}
           </p>
           {price ? (
             <p
@@ -149,7 +174,12 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
               Price on Request
             </p>
           ) : null}
-          <p className="mt-1.5 text-xs" style={{ color: "var(--line-strong)" }}>
+          <p className="mt-1.5 text-sm font-medium" style={{ color: "var(--ink)" }}>
+            {price
+              ? "Project quantities? Better pricing on bulk and multi-sheet orders."
+              : "Today's rate depends on quantity, finish and delivery location."}
+          </p>
+          <p className="mt-1 text-xs" style={{ color: "var(--line-strong)" }}>
             Receive a personalized commercial quotation in under 15 minutes.
           </p>
         </div>
@@ -178,20 +208,51 @@ export function ProductQuoteSection({ product }: { product: ProductRow }) {
             </p>
           </div>
         ) : null}
-        <div className="grid grid-cols-2 gap-3">
-          <Button type="button" variant="primary" onClick={() => setExpanded(true)} className="w-full">
-            Request a Quote
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => {
+              // The inline form is this page's quote modal — without this the
+              // product page's main CTA never showed up in the open → submit funnel.
+              trackEvent("quote_modal_open", {
+                source: primaryLabel,
+                cta_location: CTA_LOCATION,
+                form: "inline",
+                price_shown: price ? 1 : 0,
+                ...eventContext,
+              });
+              setExpanded(true);
+            }}
+            className="w-full"
+          >
+            {primaryLabel}
           </Button>
           <WhatsAppTrackedLink
-            href={buildWhatsAppUrl(`Hi, I'm interested in ${productDisplayName(product)}. Can you share pricing and availability?`)}
-            source="product_quote_section"
-            context={{ product_id: product.id, product_name: product.name, category: product.category, brand: product.brand, product_code: product.sd_code }}
+            href={buildWhatsAppUrl(`Hi, I'd like today's price for ${displayTitle}. Quantity: `)}
+            source={CTA_LOCATION}
+            context={{ ...eventContext, cta_location: CTA_LOCATION }}
             className={buttonClasses("secondary", "md", "w-full")}
           >
             <WhatsAppIcon />
-            WhatsApp
+            WhatsApp for Quote
           </WhatsAppTrackedLink>
         </div>
+        <button
+          type="button"
+          onClick={() =>
+            openModal(
+              displayTitle,
+              "Attach your BOQ or material list — every line is priced, and brands can be compared on one quote.",
+              "Upload BOQ",
+              { cta_location: "product_price_box_boq", ...eventContext }
+            )
+          }
+          className="text-left text-sm underline underline-offset-2"
+          style={{ color: "var(--burgundy)" }}
+        >
+          Have a BOQ or a full material list? Get one project quote →
+        </button>
         {cashbackPct ? <OfferBox cashbackPct={cashbackPct} /> : null}
       </div>
     </div>

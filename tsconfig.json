@@ -20,7 +20,12 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    // Needed by the SEO pure-logic modules under lib/ (productSeo.ts,
+    // productRelations.ts, rangeSummary.ts, seoProtection.ts…), which import
+    // each other with an explicit .ts extension so the same files load
+    // unchanged under plain `node --test`, without the Next toolchain.
+    "allowImportingTsExtensions": true
   },
   "include": [
     "next-env.d.ts",

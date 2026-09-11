@@ -82,7 +82,11 @@ function roundUpTo(value: number, step: number): number {
 
 const TEXT_STATS = [
   { kind: "text", value: "<15 min", label: "First Response Time" },
-  { kind: "text", value: "Same/Next-Day", label: "Delivery in Hyderabad" },
+  // Was "Same/Next-Day" — a blanket delivery-speed guarantee across a
+  // catalogue with no verified stock data behind it (see
+  // docs/SEO-SEARCH-GROWTH.md §0.4). "Fast" still says the business is quick
+  // without promising a specific turnaround for every SKU.
+  { kind: "text", value: "Fast", label: "Hyderabad Delivery" },
 ] as const;
 
 const OLD_WAY = [
@@ -278,7 +282,10 @@ export default async function Home() {
   const totalSkuCount = Object.values(categoryCounts).reduce((sum, n) => sum + n, 0);
   const totalManufacturerCount = brands.length + SOURCE_ONLY_BRANDS.length;
   const stats = [
-    { kind: "counted", value: roundUpTo(totalSkuCount, 50), suffix: "+", label: "SKUs In Stock" },
+    // "SKUs In Stock" asserted real-time availability this count doesn't back
+    // — it's a row count from `products`, not verified inventory. "SKUs in
+    // Catalogue" says exactly what the number actually is.
+    { kind: "counted", value: roundUpTo(totalSkuCount, 50), suffix: "+", label: "SKUs in Catalogue" },
     { kind: "counted", value: roundUpTo(totalManufacturerCount, 5), suffix: "+", label: "Manufacturers Sourced" },
     ...TEXT_STATS,
   ] as const;

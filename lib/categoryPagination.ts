@@ -1,10 +1,15 @@
 // Shared URL-building for paginated/filtered category pages, so the route
 // files (canonical/rel=next/prev/redirects) and the view components
-// (filter chips, pager links) can't drift out of sync on the URL shape.
+// (filter chips, pager links, sitemap) can't drift out of sync on the URL shape.
 //
 // Canonical page-1 URL:            /products/{slug}
 // Canonical page-N URL (N > 1):    /products/{slug}/page/{N}
-// With a collection filter:        …?collection={name|"other"}
+// Collection with a landing page:  /products/{slug}/collections/{landing}[/page/{N}]
+// Any other collection filter:     …?collection={name|"other"} — a UX filter
+//                                  whose canonical is the category page itself
+//                                  (see lib/collectionLandings.ts).
+
+import { collectionLandingPath, getCollectionLanding } from "./collectionLandings.ts";
 
 export function categoryPagePath(slug: string, page: number): string {
   return page <= 1 ? `/products/${slug}` : `/products/${slug}/page/${page}`;
@@ -24,8 +29,16 @@ function encodeURIComponentStrict(value: string): string {
 }
 
 export function categoryPageUrl(slug: string, page: number, collection?: string | null): string {
+  const landing = getCollectionLanding(slug, collection);
+  if (landing) return collectionLandingPath(landing, page);
   const path = categoryPagePath(slug, page);
   return collection ? `${path}?collection=${encodeURIComponentStrict(collection)}` : path;
+}
+
+/** First value of a query param — a repeated `?collection=a&collection=b` arrives as an array. Blank means absent. */
+export function firstSearchParam(value: string | string[] | undefined): string | null {
+  const v = Array.isArray(value) ? value[0] : value;
+  return v && v.trim() ? v : null;
 }
 
 export function parsePageParam(raw: string | undefined): number | null {

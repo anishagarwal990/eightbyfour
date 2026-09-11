@@ -18,7 +18,9 @@ test("page N>1 category URL adds /page/N", () => {
 });
 
 test("collection filter is appended as ?collection= and encoded stably", () => {
-  assert.equal(categoryPageUrl("veneers", 1, "Natural Veneer"), "/products/veneers?collection=Natural%20Veneer");
+  // "Exotic Veneer" has no landing page (15 SKUs, under the landing threshold),
+  // so it stays a filter — landing collections are covered in collectionLandings.test.ts.
+  assert.equal(categoryPageUrl("veneers", 1, "Exotic Veneer"), "/products/veneers?collection=Exotic%20Veneer");
   // apostrophes are escaped (not left literal) so canonical and hrefs match byte-for-byte
   assert.equal(
     categoryPageUrl("laminates", 2, "The Master's Wood Grains"),

@@ -2,9 +2,10 @@ import { statSync } from "fs";
 import { join } from "path";
 import { SITE_URL } from "@/lib/seo";
 import { CATEGORIES } from "@/lib/categories";
-import { categoryPagePath, categoryPageUrl } from "@/lib/categoryPagination";
+import { categoryPagePath } from "@/lib/categoryPagination";
+import { COLLECTION_LANDINGS, collectionLandingPath, isLandingIndexable, MIN_LANDING_SKUS } from "@/lib/collectionLandings";
 import { brandPagePath } from "@/lib/brandPagination";
-import { CATEGORY_PAGE_SIZE, getAllProductSlugsWithDates, getCategoryFilterCounts } from "@/lib/data/products";
+import { CATEGORY_PAGE_SIZE, getAllProductSlugsWithDates, getCatalogueFreshness, getCategoryFilterCounts } from "@/lib/data/products";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
 import { getAllSlugs, getContentMtime } from "@/lib/mdx";
 import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
@@ -36,16 +37,49 @@ export async function getSitemapEntries(id: SitemapId): Promise<SitemapUrlEntry[
   }
 }
 
+/**
+ * A source file's mtime as a lastmod — or no lastmod at all when the file
+ * isn't on disk. This sitemap renders at request time, and a missing source
+ * file must never take the whole sitemap down: the old hard-coded
+ * `app/hyderabad/...` path stopped existing when the public site moved into
+ * the app/(site) route group, and /sitemap/content.xml has returned HTTP 500
+ * in production ever since — every guide, price page and Hyderabad page
+ * missing from the sitemap Search Console reads.
+ */
+function fileMtime(...segments: string[]): Date | undefined {
+  try {
+    return statSync(join(process.cwd(), ...segments)).mtime;
+  } catch {
+    return undefined;
+  }
+}
+
+function contentSlugs(type: "applications" | "guides" | "comparisons" | "hyderabad"): string[] {
+  try {
+    return getAllSlugs(type);
+  } catch (error) {
+    // content/ is traced into the sitemap's server bundle (next.config.ts
+    // outputFileTracingIncludes); if it ever isn't, say so rather than 500.
+    console.error(`sitemap: could not read content/${type}`, error);
+    return [];
+  }
+}
+
 function contentSitemap(): SitemapUrlEntry[] {
   const staticRoutes = ["", "/products", "/brands", "/applications", "/guides", "/comparisons", "/hyderabad", "/contact", "/about"].map(
     (path) => ({ url: `${SITE_URL}${path}`, lastModified: new Date() })
   );
 
   const contentRoutes = (["applications", "guides", "comparisons", "hyderabad"] as const).flatMap((type) =>
-    getAllSlugs(type).map((slug) => ({
-      url: `${SITE_URL}/${type}/${slug}`,
-      lastModified: getContentMtime(type, slug),
-    }))
+    contentSlugs(type).map((slug) => {
+      let lastModified: Date | undefined;
+      try {
+        lastModified = getContentMtime(type, slug);
+      } catch {
+        lastModified = undefined;
+      }
+      return { url: `${SITE_URL}/${type}/${slug}`, lastModified };
+    })
   );
 
   // Bespoke /hyderabad pages that use a page.tsx template instead of MDX —
@@ -54,13 +88,13 @@ function contentSitemap(): SitemapUrlEntry[] {
   // forgotten here.
   const personaRoutes = BESPOKE_HYDERABAD_PAGES.map(({ slug }) => ({
     url: `${SITE_URL}/hyderabad/${slug}`,
-    lastModified: statSync(join(process.cwd(), "app", "hyderabad", slug, "page.tsx")).mtime,
+    lastModified: fileMtime("app", "(site)", "hyderabad", slug, "page.tsx"),
   }));
 
-  // Data-driven Hyderabad price pages — served by app/hyderabad/[slug]/page.tsx
+  // Data-driven Hyderabad price pages — served by app/(site)/hyderabad/[slug]/page.tsx
   // from lib/pricePages.ts rather than from an MDX file, so their real
   // per-page signal is that config file's own mtime.
-  const pricePagesMtime = statSync(join(process.cwd(), "lib", "pricePages.ts")).mtime;
+  const pricePagesMtime = fileMtime("lib", "pricePages.ts");
   const pricePageRoutes = PRICE_PAGE_SLUGS.map((slug) => ({
     url: `${SITE_URL}/hyderabad/${slug}`,
     lastModified: pricePagesMtime,
@@ -78,54 +112,63 @@ async function productsSitemap(): Promise<SitemapUrlEntry[]> {
 }
 
 async function categoriesSitemap(): Promise<SitemapUrlEntry[]> {
-  const categoryFilterCounts = await Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory)));
+  const [categoryFilterCounts, freshness] = await Promise.all([
+    Promise.all(CATEGORIES.map((c) => getCategoryFilterCounts(c.dbCategory))),
+    getCatalogueFreshness(),
+  ]);
 
   // Every paginated page of every category, not just page 1 — that's what
   // makes the full catalogue crawlable/indexable beyond the first 60 products.
   // Categories with zero live products are noindexed by app/products/[slug]/page.tsx
   // (buildMetadata's `noindex: total === 0`) — skip them here too, or page 1
   // of an empty category leaks into the sitemap as a noindexed URL.
+  // lastModified is the category's latest product edit — a real signal,
+  // unlike a timestamp that moves on every crawl.
   const categoryRoutes = CATEGORIES.flatMap((c, i) => {
     const total = categoryFilterCounts[i].total;
     if (total === 0) return [];
     const totalPages = Math.ceil(total / CATEGORY_PAGE_SIZE);
+    const lastModified = freshness.byCategory.get(c.dbCategory);
     return Array.from({ length: totalPages }, (_, idx) => ({
       url: `${SITE_URL}${categoryPagePath(c.slug, idx + 1)}`,
-      lastModified: new Date(),
+      lastModified,
     }));
   });
 
-  // Collection-filtered variant of every category page (e.g.
-  // /products/laminates?collection=HPL) — these are real, indexable,
-  // linked-from pages (CategoryFilterBar chips) that were previously left
-  // out of the sitemap entirely.
-  const categoryCollectionRoutes = CATEGORIES.flatMap((c, i) => {
-    const filterCounts = categoryFilterCounts[i];
-    const collectionNames = [...filterCounts.collections.map((coll) => coll.name), ...(filterCounts.otherCount > 0 ? ["other"] : [])];
-    return collectionNames.flatMap((name) => {
-      const count = name === "other" ? filterCounts.otherCount : filterCounts.collections.find((coll) => coll.name === name)!.count;
-      const totalPages = Math.max(1, Math.ceil(count / CATEGORY_PAGE_SIZE));
-      return Array.from({ length: totalPages }, (_, idx) => ({
-        url: `${SITE_URL}${categoryPageUrl(c.slug, idx + 1, name)}`,
-        lastModified: new Date(),
-      }));
-    });
+  // Collection landing pages only (/products/{category}/collections/{range}).
+  // Every other ?collection= filter canonicalises to its category — see
+  // lib/collectionLandings.ts — and a sitemap lists canonical URLs only.
+  // Ranges that have dropped below the landing threshold, or are marked
+  // `indexable: false` (the quality gate — see lib/collectionLandings.ts),
+  // are noindexed by their route, so they're left out here too.
+  const landingRoutes = COLLECTION_LANDINGS.flatMap((landing) => {
+    if (!isLandingIndexable(landing)) return [];
+    const index = CATEGORIES.findIndex((c) => c.slug === landing.categorySlug);
+    if (index === -1) return [];
+    const count = categoryFilterCounts[index].collections.find((c) => c.name === landing.collection)?.count ?? 0;
+    if (count < MIN_LANDING_SKUS) return [];
+    const lastModified = freshness.byCollection.get(`${CATEGORIES[index].dbCategory}|${landing.collection}`);
+    return Array.from({ length: Math.ceil(count / CATEGORY_PAGE_SIZE) }, (_, idx) => ({
+      url: `${SITE_URL}${collectionLandingPath(landing, idx + 1)}`,
+      lastModified,
+    }));
   });
 
-  return [...categoryRoutes, ...categoryCollectionRoutes];
+  return [...categoryRoutes, ...landingRoutes];
 }
 
 async function brandsSitemap(): Promise<SitemapUrlEntry[]> {
-  const brands = await getAllBrandsWithCounts();
+  const [brands, freshness] = await Promise.all([getAllBrandsWithCounts(), getCatalogueFreshness()]);
 
   // Every paginated page of every brand, same rationale as categoryRoutes.
-  // Paginated pages (page 2+) are a slice of the same brand catalogue, so
-  // they share the brand row's created_at rather than getting their own.
+  // lastModified is the brand's latest product edit, falling back to the
+  // brand row's own created_at.
   const brandRoutes = brands.flatMap((b) => {
     const totalPages = Math.max(1, Math.ceil(b.productCount / CATEGORY_PAGE_SIZE));
+    const lastModified = freshness.byBrand.get(b.name) ?? new Date(b.created_at);
     return Array.from({ length: totalPages }, (_, idx) => ({
       url: `${SITE_URL}${brandPagePath(b.slug, idx + 1)}`,
-      lastModified: new Date(b.created_at),
+      lastModified,
     }));
   });
 

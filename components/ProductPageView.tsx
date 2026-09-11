@@ -1,13 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import type { BrandRow, ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
-import { CATEGORIES, categorySingularName, getCategoryBySlug } from "@/lib/categories";
-import { ProductCard } from "@/components/ProductCard";
+import type { ProductRelations } from "@/lib/productRelations";
+import { CATEGORIES, getCategoryByDbCategory } from "@/lib/categories";
+import { collectionLandingPath, getCollectionLanding } from "@/lib/collectionLandings";
+import { BRAND_GUIDE_SLUGS, CATEGORY_COMPARISON_SLUGS, CATEGORY_GUIDE_SLUGS } from "@/lib/brandGuides";
+import { getContent } from "@/lib/mdx";
 import { ProductQuoteSection } from "@/components/ProductQuoteSection";
 import { ProductGallery } from "@/components/ProductGallery";
 import { LikeCommentWidget } from "@/components/LikeCommentWidget";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs";
 import { BrandLogo } from "@/components/BrandLogo";
 import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMark";
 import { Reveal } from "@/components/Reveal";
@@ -15,20 +19,16 @@ import { BreadcrumbSchema } from "@/components/schema/BreadcrumbSchema";
 import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ProductSchema } from "@/components/schema/ProductSchema";
 import { displayPrice, resolvePrice } from "@/lib/pricing";
-import { productDisplayName } from "@/lib/productDisplay";
-import { finishCode, productImages } from "@/lib/productSeo";
+import { buildProductHeading, isNamedCollection, productFinishLabels, productIdentity, productImages, productTypeWord } from "@/lib/productSeo";
 import { OfferBox } from "@/components/OfferBox";
 import { PricePageLinks } from "@/components/PricePageLinks";
 import { pricePagesForDbCategory } from "@/lib/pricePages";
 import { ViewTracker } from "@/components/ViewTracker";
-
-const CATEGORY_SLUG_BY_DB: Record<string, string> = Object.fromEntries(
-  CATEGORIES.map((c) => [c.dbCategory, c.slug])
-);
-
-function categorySlugFor(dbCategory: string): string | undefined {
-  return CATEGORY_SLUG_BY_DB[dbCategory];
-}
+import { ProductExplore } from "@/components/ProductExplore";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buttonClasses } from "@/components/ui/Button";
 
 function CheckIcon() {
   return (
@@ -59,43 +59,66 @@ function PdfIcon() {
   );
 }
 
-function buildFaqs(product: ProductRow): { question: string; answer: string }[] {
-  const displayName = productDisplayName(product);
-  const code = product.sd_code;
-  // "{Brand} {Shade} {Code}" — the exact string the shade-code searches this
-  // page is built to catch ("merino 21099", "century 3917 snow glacier").
-  const codeName = code ? `${displayName} ${code}` : displayName;
-  const categoryLower = categorySingularName(product.category).toLowerCase();
+/**
+ * The guides that answer this buyer's next question — the brand's own guide
+ * (Merino/Greenlam finishes, Wigwam calibration) plus its category's (grades,
+ * moisture, care). Replaces links that used to be hand-placed on a few
+ * brands' pages only.
+ */
+function guideLinksFor(product: ProductRow, brandSlug: string | undefined): { href: string; label: string }[] {
+  const links: { href: string; label: string }[] = [];
+  const guideSlugs = [...new Set([...(brandSlug ? (BRAND_GUIDE_SLUGS[brandSlug] ?? []) : []), ...(CATEGORY_GUIDE_SLUGS[product.category] ?? [])])];
+  for (const slug of guideSlugs) {
+    const entry = getContent("guides", slug);
+    if (entry) links.push({ href: `/guides/${slug}`, label: entry.frontmatter.title });
+  }
+  for (const slug of CATEGORY_COMPARISON_SLUGS[product.category] ?? []) {
+    const entry = getContent("comparisons", slug);
+    if (entry) links.push({ href: `/comparisons/${slug}`, label: entry.frontmatter.title });
+  }
+  return links.slice(0, 3);
+}
 
+function buildFaqs(product: ProductRow, identity: string): { question: string; answer: string }[] {
+  const code = product.sd_code;
+  const typeLower = productTypeWord(product).toLowerCase();
   const faqs: { question: string; answer: string }[] = [];
 
   // Answers the "what is <code>" query directly and grounds the answer in the
   // row's own fields — brand, name, finish (only when it's a per-SKU finish,
   // not one of several the design ships in), size. Never invents a spec.
   if (code) {
-    const finishBit = !product.finishes?.length && product.finish ? ` in a ${product.finish} finish` : "";
+    const ownFinish = !product.finishes?.length ? productFinishLabels(product)[0] : undefined;
+    const finishBit = ownFinish ? ` in a ${ownFinish} finish` : "";
     const sizeBit = product.size ? `, ${product.size}` : "";
     faqs.push({
-      question: `What is ${displayName} ${code}?`,
-      answer: `${code} is the ${product.brand} shade code for ${product.name}, a ${categoryLower}${finishBit}${sizeBit}. EightxFour stocks it in Hyderabad — request a quote for the current rate and lead time.`,
+      question: `What is ${identity}?`,
+      answer: `${code} is the ${product.brand} shade code for ${product.name || "this design"}, a ${typeLower}${finishBit}${sizeBit}. EightxFour supplies it in Hyderabad — request a quote for today's rate and lead time.`,
     });
   }
 
   // Local buy-intent, with the code worked in so it also catches
-  // "<shade> <code> hyderabad". Replaces the old bare availability FAQ.
+  // "<shade> <code> hyderabad". No stock/delivery-speed guarantee — we don't
+  // hold verified inventory data per SKU, so the promise here is a quote and
+  // a confirmed availability/delivery timeline, not a stock claim.
   faqs.push({
-    question: `Where can I buy ${codeName} in Hyderabad?`,
-    answer: `EightxFour supplies ${codeName} across Hyderabad with same or next-day delivery. Send your list or BOQ for a priced quote — first response in under 15 minutes during business hours.`,
+    question: `Where can I buy ${identity} in Hyderabad?`,
+    answer: `EightxFour supplies ${identity} across Hyderabad — request a quote and we'll confirm current availability and delivery timeline against your quantity. Send your list or BOQ for a priced quote; first response in under 15 minutes during business hours.`,
   });
 
-  // Only when there's a real rate on file — an unpriced (RFQ) SKU promising a
-  // price answer is a bounce, same reasoning as the price qualifier in
-  // buildProductTitle (lib/productSeo.ts).
+  // A priced SKU quotes its rate; an unpriced one says plainly that it is
+  // priced on request and why — still an answer to "<code> price", never a
+  // borrowed or estimated number.
   const price = resolvePrice(product);
   if (price) {
     faqs.push({
-      question: `How much does ${codeName} cost in Hyderabad?`,
-      answer: `${codeName} is currently ${displayPrice(price).netLabel}, excl. GST. Rates move with the market — request a quote for today's price on your quantity.`,
+      question: `How much does ${identity} cost in Hyderabad?`,
+      answer: `${identity} is currently ${displayPrice(price).netLabel}, excl. GST. Rates move with the market — request a quote for today's price on your quantity; project quantities are priced as one order.`,
+    });
+  } else {
+    faqs.push({
+      question: `What is the price of ${identity}?`,
+      answer: `${identity} is priced on request — the rate depends on quantity, finish, thickness and delivery location, so we confirm today's price against your requirement. Orders spanning several products or brands are quoted together as one project.`,
     });
   }
 
@@ -104,7 +127,7 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
   if (product.thicknesses?.length) {
     faqs.push({
       question: `What thicknesses does ${product.name} come in?`,
-      answer: `${displayName} is available in ${product.thicknesses.join(", ")}.`,
+      answer: `${identity} is available in ${product.thicknesses.join(", ")}.`,
     });
   }
   if (product.warranty) {
@@ -118,40 +141,41 @@ function buildFaqs(product: ProductRow): { question: string; answer: string }[] 
 
 export function ProductPageView({
   product,
-  relatedProducts,
+  relations,
   ratings,
   brand,
-  brandProducts,
 }: {
   product: ProductRow;
-  relatedProducts: ProductRow[];
+  relations: ProductRelations;
   ratings?: ProductRatingSummary;
   brand?: BrandRow | null;
-  brandProducts?: ProductRow[];
 }) {
-  const categorySlug = categorySlugFor(product.category);
-  const categoryConfig = categorySlug ? getCategoryBySlug(categorySlug) : undefined;
+  const categoryConfig = getCategoryByDbCategory(product.category);
   const categoryMarkSlug = categoryMarkForDbCategory(product.category);
   const price = resolvePrice(product);
   const images = productImages(product);
-  const faqs = buildFaqs(product);
-  // Surfaced next to the shade code up top rather than buried in the specs
-  // table further down — the page number in the source catalogue PDF is one
-  // of the most useful facts on a page built around "go check the real PDF
-  // for the actual shade," so it shouldn't take scrolling to find.
+  // "Merino 22153 Saga Green Laminate" — brand, code, shade and type in the
+  // H1, the same string as the title's lead and the schema name. The shade
+  // code still sits right after the brand, where code searches look for it.
+  const heading = buildProductHeading(product);
+  const identity = productIdentity(product);
+  const faqs = buildFaqs(product, identity);
+  const finishLabels = productFinishLabels(product);
+  const collectionLanding = categoryConfig ? getCollectionLanding(categoryConfig.slug, product.collection) : undefined;
+  const guideLinks = guideLinksFor(product, brand?.slug);
+  // Surfaced up top rather than buried in the specs table further down — the
+  // page number in the source catalogue PDF is one of the most useful facts
+  // on a page built around "go check the real PDF for the actual shade".
   const cataloguePage = product.spec_table?.find((row) => row.label === "Catalogue Page")?.value;
-  // The shade code leads the H1 whenever the product has one — it's the exact
-  // string the decor-code searches use ("163", "3917 snow glacier", "21099
-  // merino"), and burying it below the name cedes those queries. When finish
-  // is a per-SKU differentiator (Virgo-style — see finishCode's guard in
-  // lib/productSeo.ts) it rides along after the code ("6511 SF — Tahiti Samoa
-  // Teak"); for multi-finish designs the code alone leads ("163 — Bay").
-  const finish = finishCode(product);
-  const h1Text = product.sd_code
-    ? finish
-      ? `${product.sd_code} ${finish} — ${product.name}`
-      : `${product.sd_code} — ${product.name}`
-    : product.name;
+  const eventContext = {
+    product_id: product.id,
+    product_slug: product.slug,
+    product_name: product.name,
+    brand: product.brand,
+    category: product.category,
+    product_code: product.sd_code,
+  };
+
   // Cross-sell using the category's own editorial "related categories" so a
   // Laminates product doesn't get told to buy more Laminates — falls back to
   // the general Adhesives/Laminates pair for categories with none configured.
@@ -161,13 +185,64 @@ export function ProductPageView({
   const frequentlyBoughtWith =
     crossSellCategories.length > 0
       ? crossSellCategories
-      : CATEGORIES.filter((c) => (c.slug === "adhesive" || c.slug === "laminates") && c.slug !== categorySlug);
-  const breadcrumbPaths = [
-    { name: "Home", path: "/" },
-    { name: "Products", path: "/products" },
-    ...(categoryConfig ? [{ name: categoryConfig.name, path: `/products/${categoryConfig.slug}` }] : []),
-    { name: product.name, path: `/products/${product.slug}` },
+      : CATEGORIES.filter((c) => (c.slug === "adhesive" || c.slug === "laminates") && c.slug !== categoryConfig?.slug);
+
+  // One trail for both the visible breadcrumb and its BreadcrumbList, so the
+  // two can never disagree: Home › Products › Laminates › Merino › Merino 22153 Saga Green.
+  const crumbs: Crumb[] = [
+    { label: "Home", href: "/" },
+    { label: "Products", href: "/products" },
+    ...(categoryConfig ? [{ label: categoryConfig.name, href: `/products/${categoryConfig.slug}` }] : []),
+    ...(brand ? [{ label: brand.name, href: `/brands/${brand.slug}` }] : []),
+    { label: identity },
   ];
+
+  // The first screen answers what a code-searcher came for: what it is, whose
+  // it is, which code/finish/size, and whether it can be priced and sourced.
+  // Only fields the row actually has.
+  const linkStyle = { color: "var(--burgundy)" };
+  const glance: [string, ReactNode][] = (
+    [
+      [
+        "Brand",
+        brand ? (
+          <Link href={`/brands/${brand.slug}`} className="underline-offset-2 hover:underline" style={linkStyle}>
+            {brand.name}
+          </Link>
+        ) : (
+          product.brand
+        ),
+      ],
+      ["Shade code", product.sd_code],
+      [finishLabels.length > 1 ? "Finishes" : "Finish", finishLabels.join(", ") || null],
+      [product.category === "Adhesive" ? "Pack sizes" : "Thickness", product.thicknesses?.join(", ") || null],
+      ["Sheet size", product.size],
+      ["Grade", product.grade],
+      [
+        "Range",
+        isNamedCollection(product) ? (
+          collectionLanding ? (
+            <Link href={collectionLandingPath(collectionLanding)} className="underline-offset-2 hover:underline" style={linkStyle}>
+              {product.collection}
+            </Link>
+          ) : (
+            product.collection
+          )
+        ) : null,
+      ],
+      ["Catalogue page", cataloguePage ?? null],
+      [
+        "Category",
+        categoryConfig ? (
+          <Link href={`/products/${categoryConfig.slug}`} className="underline-offset-2 hover:underline" style={linkStyle}>
+            {categoryConfig.name}
+          </Link>
+        ) : (
+          product.category
+        ),
+      ],
+    ] as [string, ReactNode][]
+  ).filter(([, value]) => value !== null && value !== undefined && value !== "");
 
   return (
     <main>
@@ -175,38 +250,33 @@ export function ProductPageView({
         event="product_view"
         dedupeKey={product.slug}
         params={{
-          product_id: product.id,
-          product_name: product.name,
-          category: product.category,
-          brand: product.brand,
-          product_code: product.sd_code,
+          ...eventContext,
           finish: product.finish,
+          price_shown: price ? 1 : 0,
         }}
       />
-      <BreadcrumbSchema items={breadcrumbPaths} />
+      <BreadcrumbSchema items={crumbs.map((c) => ({ name: c.label, path: c.href ?? `/products/${product.slug}` }))} />
       <FaqSchema faqs={faqs} />
       <ProductSchema product={product} ratings={ratings} />
       <div className="mx-auto max-w-6xl">
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Products", href: "/products" },
-          ...(categoryConfig ? [{ label: categoryConfig.name, href: `/products/${categoryConfig.slug}` }] : []),
-          { label: product.name },
-        ]}
-      />
+      <Breadcrumbs items={crumbs} />
 
       {/* Plain section, not <Reveal> — this is always above the fold on load, so
           gating it behind an IntersectionObserver just delays the page's most
           important content (title, price, CTA) for no benefit. The entrance
           animation still plays via the hardcoded is-visible class, it just
           isn't scroll-gated. */}
-      <section className="reveal-strong is-visible grid grid-cols-1 gap-8 px-7 py-8 lg:grid-cols-2">
-        <div className="lg:sticky lg:top-24 lg:self-start">
+      {/* On a phone this reads identity → swatch → price: the H1 and the
+          at-a-glance facts sit above the gallery and the price box right
+          below it, instead of a full screen of image before the page says
+          what it is. Desktop keeps the gallery left with both blocks beside
+          it. */}
+      <section className="reveal-strong is-visible grid grid-cols-1 gap-x-8 gap-y-6 px-7 py-8 lg:grid-cols-2">
+        <div className="order-2 lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:sticky lg:top-24 lg:self-start">
           <ProductGallery images={images} productId={product.id} productName={product.name} />
         </div>
 
-        <div>
+        <div className="order-1 lg:order-none lg:col-start-2 lg:row-start-1">
           {product.brand === "EightByFour" && categoryMarkSlug ? (
             <CategoryTile slug={categoryMarkSlug} size={40} />
           ) : (
@@ -214,7 +284,7 @@ export function ProductPageView({
           )}
           <div className="mt-2 flex items-start justify-between gap-3">
             <h1 className="serif" style={{ fontSize: "var(--fs-h1)" }}>
-              {h1Text}
+              {heading}
             </h1>
             {product.catalogue_url ? (
               <a
@@ -230,55 +300,54 @@ export function ProductPageView({
               </a>
             ) : null}
           </div>
-          <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
-            {product.category} in Hyderabad · {product.size || "Standard sheet size"}
-          </p>
-          {product.sd_code || cataloguePage ? (
-            <p className="mt-1 text-sm font-medium" style={{ color: "var(--burgundy)" }}>
-              {product.sd_code ? <>Shade Code: {product.sd_code}</> : null}
-              {product.sd_code && cataloguePage ? " · " : null}
-              {cataloguePage ? <>Catalogue Page {cataloguePage}</> : null}
+
+          <dl className="mt-3 grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3" aria-label="Product at a glance">
+            {glance.map(([label, value]) => (
+              <div key={label} className="min-w-0">
+                <dt className="text-xs" style={{ color: "var(--line-strong)" }}>
+                  {label}
+                </dt>
+                <dd className="break-words font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          {relations.otherFinishes.length > 0 ? (
+            <p className="mt-3 text-sm">
+              <span style={{ color: "var(--line-strong)" }}>Also available as: </span>
+              {relations.otherFinishes.map((p, i) => (
+                <span key={p.id}>
+                  {i > 0 ? " · " : null}
+                  <Link href={`/products/${p.slug}`} className="font-medium underline-offset-2 hover:underline" style={linkStyle}>
+                    {[p.sd_code, productFinishLabels(p).join(" / ")].filter(Boolean).join(" ")}
+                  </Link>
+                </span>
+              ))}
             </p>
           ) : null}
+        </div>
+
+        <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-2">
+          <ProductQuoteSection product={product} displayTitle={identity} />
+
           {product.description ? (
-            <div className="mt-4">
+            <div className="mt-6">
               <h2 className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
                 Product Description
               </h2>
               <p className="mt-2" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", whiteSpace: "pre-line" }}>
                 {product.description}
               </p>
-              {product.category === "Laminates" ? (
-                <div className="mt-2 flex flex-col gap-1">
-                  {product.brand === "Merino" ? (
-                    <Link href="/guides/merino-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                      See our full guide to Merino&rsquo;s finish range →
-                    </Link>
-                  ) : null}
-                  {product.brand === "Greenlam" ? (
-                    <Link href="/guides/greenlam-laminate-finishes-guide" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                      See our full guide to Greenlam&rsquo;s finish range →
-                    </Link>
-                  ) : null}
-                  <Link href="/guides/laminate-care-and-maintenance" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                    Laminate care &amp; maintenance guide →
-                  </Link>
-                </div>
-              ) : null}
-              {product.category === "Plywood" && product.brand === "Wigwam Excel" ? (
-                <div className="mt-2 flex flex-col gap-1">
-                  <Link href="/guides/why-calibrated-plywood-matters" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                    Why calibrated plywood matters →
-                  </Link>
-                </div>
-              ) : null}
-              {product.category === "Birch Plywood" ? (
-                <div className="mt-2 flex flex-col gap-1">
-                  <Link href="/comparisons/birch-ply-vs-standard-plywood" className="text-sm underline" style={{ color: "var(--burgundy)" }}>
-                    Birch Ply vs Standard Plywood — full comparison →
-                  </Link>
-                </div>
-              ) : null}
+            </div>
+          ) : null}
+
+          {guideLinks.length > 0 ? (
+            <div className="mt-3 flex flex-col gap-1">
+              {guideLinks.map((g) => (
+                <Link key={g.href} href={g.href} className="text-sm underline" style={linkStyle}>
+                  {g.label} →
+                </Link>
+              ))}
             </div>
           ) : null}
 
@@ -319,12 +388,16 @@ export function ProductPageView({
 
           {product.certifications?.length || product.warranty ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
+              {/* Not "In Stock" — EightxFour is a procurement platform and
+                  doesn't hold verified real-time inventory per SKU. Neutral
+                  wording here, and no `availability` claim in ProductSchema
+                  either (see components/schema/ProductSchema.tsx). */}
               <span
                 className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
                 style={{ background: "var(--burgundy)", color: "var(--paper)" }}
               >
                 <CheckIcon />
-                In Stock — Hyderabad
+                Check Availability — Hyderabad
               </span>
               {product.certifications?.map((cert) => (
                 <span
@@ -348,14 +421,8 @@ export function ProductPageView({
             </div>
           ) : null}
 
-          <div className="mt-5">
-            <ProductQuoteSection product={product} />
-          </div>
-
           <div className="mt-6">
             {[
-              [product.category === "Adhesive" ? "Pack Sizes" : "Thicknesses", product.variants ? null : product.thicknesses],
-              ["Also available in finishes", product.finishes],
               ["Applications", product.applications],
               ["Certifications", product.certifications],
             ]
@@ -435,6 +502,57 @@ export function ProductPageView({
         </div>
       </section>
 
+      {/* How pricing works, in three lines — the procurement side of the page:
+          project quantities, multi-brand quotes, Hyderabad delivery. Only
+          claims the business already makes elsewhere on the site. */}
+      <section className="px-7 pb-8" aria-labelledby="pricing-heading">
+        <div className="rounded-2xl p-6" style={{ background: "var(--paper-dim)" }}>
+          <h2 id="pricing-heading" className="serif" style={{ fontSize: "var(--fs-h3, 1.15rem)", color: "var(--burgundy)" }}>
+            Pricing, project orders &amp; delivery
+          </h2>
+          <ul className="mt-3 grid gap-4 text-sm sm:grid-cols-3" style={{ lineHeight: "var(--lh-normal)" }}>
+            <li>
+              <p className="font-medium">{price ? `Listed from ${displayPrice(price).netLabel}, excl. GST` : "Price on request"}</p>
+              <p style={{ color: "var(--line-strong)" }}>
+                The rate for a job depends on quantity, finish, thickness, availability and delivery location — we confirm today&rsquo;s price against your requirement.
+              </p>
+            </li>
+            <li>
+              <p className="font-medium">Better pricing on project quantities</p>
+              <p style={{ color: "var(--line-strong)" }}>
+                Ordering multiple sheets or a full BOQ? Send the list and it&rsquo;s quoted as one project order.
+              </p>
+            </li>
+            <li>
+              <p className="font-medium">Multi-brand sourcing, Hyderabad delivery</p>
+              <p style={{ color: "var(--line-strong)" }}>
+                Compare {product.brand} with other brands on the same quote, delivered to site across Hyderabad.
+              </p>
+            </li>
+          </ul>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <RequestQuoteButton label="Get Project Pricing" ctaLocation="product_pricing_band" prefill={identity} context={eventContext} />
+            <WhatsAppTrackedLink
+              href={buildWhatsAppUrl(`Hi, I'd like project pricing for ${identity}. Quantity: `)}
+              source="product_pricing_band"
+              context={{ ...eventContext, cta_location: "product_pricing_band" }}
+              className={buttonClasses("secondary", "md")}
+            >
+              WhatsApp for Quote
+            </WhatsAppTrackedLink>
+          </div>
+        </div>
+      </section>
+
+      <ProductExplore
+        product={product}
+        identity={identity}
+        relations={relations}
+        brand={brand}
+        categoryConfig={categoryConfig}
+        collectionLanding={collectionLanding}
+      />
+
       {product.how_to_apply?.length ? (
         <Reveal as="section" className="px-7 py-8">
           <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
@@ -513,56 +631,6 @@ export function ProductPageView({
         links={pricePagesForDbCategory(product.category, 5)}
         intro={`Comparing this against the rest of the ${product.category.toLowerCase()} range — current Hyderabad rates by grade, thickness and brand.`}
       />
-
-      {relatedProducts.length > 0 ? (
-        <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
-          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-            Related Products
-          </h2>
-          <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </Reveal>
-        </Reveal>
-      ) : null}
-
-      {brand && brandProducts && brandProducts.length > 0 ? (
-        <Reveal as="section" className="px-7 py-8">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
-              More from {brand.name}
-            </h2>
-            <Link href={`/brands/${brand.slug}`} className="shrink-0 text-sm underline">
-              View brand
-            </Link>
-          </div>
-          {brand.logo_url || brand.overview ? (
-            <div className="mt-3 flex items-center gap-4">
-              {brand.logo_url ? (
-                <Image
-                  src={brand.logo_url}
-                  alt={`${brand.name} logo`}
-                  width={140}
-                  height={40}
-                  className="h-8 w-auto object-contain"
-                  style={{ width: "auto", height: "32px" }}
-                />
-              ) : null}
-              {brand.overview ? (
-                <p className="text-sm" style={{ color: "var(--line-strong)" }}>
-                  {brand.overview}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-          <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {brandProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </Reveal>
-        </Reveal>
-      ) : null}
 
       {frequentlyBoughtWith.length > 0 ? (
         <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>

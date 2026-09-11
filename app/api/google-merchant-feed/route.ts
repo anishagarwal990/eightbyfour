@@ -38,12 +38,50 @@ const HEADERS = [
   "tax",
 ];
 
+/**
+ * Whether EightxFour's current commerce architecture makes ANY product
+ * eligible for a Google Merchant product feed, checked 2026-09-12:
+ *
+ *   - No product page has an "Add to cart" or "Buy" action anywhere on the
+ *     site — every CTA (Get Project Pricing / Get Today's Price / WhatsApp
+ *     for Quote / the BOQ-upload quote modal) leads to a lead-capture form
+ *     that inserts a row into Supabase `inquiries` and hands off to
+ *     WhatsApp. See ProductQuoteSection, QuoteRequestForm, QuoteModalContext.
+ *   - No checkout route exists. No payment gateway is wired in anywhere
+ *     (checked package.json and the full app/lib tree — no Stripe/Razorpay/
+ *     PayU/PayPal, no cart state, no order model).
+ *   - `price_table` holding a number means a rate is on file for quoting —
+ *     it is not a live, purchasable price a customer can act on without a
+ *     human confirming quantity, finish, thickness and delivery first (the
+ *     same "price on request" logic the product pages and Product schema
+ *     already use — a price alone does not make a SKU transactable).
+ *
+ * That is a quote/procurement flow end to end, not a direct-purchase one —
+ * Google Merchant Center's own policy requires a working checkout a
+ * customer can actually complete on click-through, which nothing here
+ * provides for any SKU. So today, correctly, NO product qualifies: the
+ * feed emits its header row and nothing else rather than assert an
+ * `availability` (in_stock/backorder/out_of_stock all equally invented,
+ * per lib/seoProtection.ts's sibling reasoning for schema.org) or a `price`
+ * a customer can't actually transact on right now.
+ *
+ * Flip this back on — per-row, not fleet-wide — only once a real checkout
+ * exists for at least some SKUs, and gate `isMerchantEligible` on that
+ * per-product signal rather than on `price_table` alone.
+ */
+// Unused today — the real per-product shape this will read once it can return true.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function isMerchantEligible(_product: ProductRow): boolean {
+  return false;
+}
+
 export async function GET() {
   const supabase = createServerSupabaseClient();
   const { data: products, error } = await supabase.from("products").select("*").not("price_table", "is", null);
   if (error) throw error;
 
   const rows = (products as ProductRow[])
+    .filter(isMerchantEligible)
     .map((p) => {
       const price = resolvePrice(p);
       if (price === null || !p.main_img_url) return null; // Merchant Center requires both
@@ -53,6 +91,10 @@ export async function GET() {
         p.description || `${p.brand} ${p.name} — available in Hyderabad from EightxFour.`,
         `${SITE_URL}/products/${p.slug}`,
         p.main_img_url,
+        // Left in place (not "in_stock"/"backorder") for when
+        // isMerchantEligible starts admitting real rows — see its comment.
+        // A row that reaches this line is, by construction, one where
+        // availability is genuinely known, not inferred from price alone.
         "in_stock",
         `${price.toFixed(2)} INR`,
         p.brand,

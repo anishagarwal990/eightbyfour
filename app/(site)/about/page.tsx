@@ -14,7 +14,9 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const STATS = [
-  { value: "750+", label: "SKUs In Stock" },
+  // Same fix as the homepage stat (docs/SEO-SEARCH-GROWTH.md §0.4) — a
+  // catalogue count, not a verified-stock claim.
+  { value: "750+", label: "SKUs in Catalogue" },
   { value: "25+", label: "Manufacturers Sourced" },
 ] as const;
 

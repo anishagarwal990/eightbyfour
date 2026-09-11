@@ -156,7 +156,7 @@ export function PricePageView({
             <SectionHeading>What to buy</SectionHeading>
             <p className="mt-2 max-w-2xl text-sm" style={{ color: "var(--line-strong)" }}>
               Each pick below is resolved from the table above, not chosen by hand — so it always matches what is actually
-              in stock and priced today.
+              available and priced today.
             </p>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {picks.map((pick) => (

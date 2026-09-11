@@ -6,7 +6,11 @@ import { CategoryTile, categoryMarkForDbCategory } from "@/components/CategoryMa
 import { displayPrice, resolvePrice } from "@/lib/pricing";
 import { productDisplayName } from "@/lib/productDisplay";
 
-export function ProductCard({ product }: { product: ProductRow }) {
+// Only the fields a card renders — full product rows and the lean rows the
+// relation engine and opportunity lists fetch (ProductSummary) both fit.
+type ProductCardProduct = Pick<ProductRow, "slug" | "main_img_url" | "brand" | "name" | "category" | "warranty" | "sd_code" | "size" | "price_table">;
+
+export function ProductCard({ product }: { product: ProductCardProduct }) {
   const price = resolvePrice(product);
   const categoryMarkSlug = categoryMarkForDbCategory(product.category);
   return (
@@ -19,7 +23,13 @@ export function ProductCard({ product }: { product: ProductRow }) {
         {product.main_img_url ? (
           <Image
             src={product.main_img_url}
-            alt={productDisplayName(product)}
+            alt={
+              // Ranges still on the brand-logo stand-in: say so, rather than
+              // describe a logo as the shade.
+              product.main_img_url.startsWith("/brand-logos/")
+                ? `${product.brand} logo`
+                : [productDisplayName(product), product.sd_code].filter(Boolean).join(" ")
+            }
             fill
             sizes="(max-width: 640px) 50vw, 25vw"
             className="object-cover transition-transform duration-500 [transition-timing-function:var(--ease-out-soft)] group-hover:scale-[1.06]"

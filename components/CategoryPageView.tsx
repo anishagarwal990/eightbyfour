@@ -21,6 +21,13 @@ import { CategoryTile, isCategoryMarkSlug } from "@/components/CategoryMark";
 import { PricePageLinks } from "@/components/PricePageLinks";
 import { pricePagesForDbCategory } from "@/lib/pricePages";
 import { BrandLogo } from "@/components/BrandLogo";
+import type { ProductSummary } from "@/lib/productRelations";
+import { collectionLandingsForCategory } from "@/lib/collectionLandings";
+import { productIdentity } from "@/lib/productSeo";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
+import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
+import { buttonClasses } from "@/components/ui/Button";
 
 // Brand pill in "Brands Available" — fixed-height box so every logo (odd
 // aspect ratios included) sits centered at the same scale, with a filled
@@ -59,6 +66,7 @@ export function CategoryPageView({
   page,
   totalPages,
   collection,
+  popularProducts,
 }: {
   category: CategoryConfig;
   products: ProductRow[];
@@ -68,6 +76,8 @@ export function CategoryPageView({
   page: number;
   totalPages: number;
   collection: string | null;
+  /** High-opportunity SKUs from the Search Console snapshot (lib/data/searchOpportunities.ts). */
+  popularProducts?: ProductSummary[];
 }) {
   const seo = categorySeo(category);
   const related = CATEGORIES.filter((c) => category.relatedCategorySlugs.includes(c.slug));
@@ -75,8 +85,18 @@ export function CategoryPageView({
   const singular = categorySingularName(category.name);
   const linkableBrands = brands.filter((b) => b.slug && b.name !== "EightByFour");
   const collectionAxis = COLLECTION_AXIS_LABEL[category.dbCategory] ?? "Range";
-  const showShopByCollection =
-    !collection && filterCounts.collections.length > 1 && filterCounts.collections.length <= SHOP_BY_COLLECTION_MAX;
+  // Every collection when there are few enough to list; otherwise only the
+  // ranges that have their own landing page (lib/collectionLandings.ts) —
+  // Laminates has 100+ collection values, and most are filters, not
+  // destinations. Hrefs come from categoryPageUrl, so landing ranges link to
+  // their clean /collections/ URL.
+  const landings = collectionLandingsForCategory(category.slug);
+  const landingName = (name: string) => landings.find((l) => l.collection === name)?.name;
+  const collectionLinks =
+    filterCounts.collections.length <= SHOP_BY_COLLECTION_MAX
+      ? filterCounts.collections
+      : filterCounts.collections.filter((c) => landingName(c.name));
+  const showShopByCollection = !collection && collectionLinks.length > 1;
 
   // Page 2+ of a category is a slice of the same catalogue — it self-canonicals
   // (see the route's generateMetadata) but must not re-serve the hub's whole
@@ -146,6 +166,20 @@ export function CategoryPageView({
           <p className="mt-4 max-w-3xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)" }}>
             {category.overview}
           </p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <RequestQuoteButton label="Get Project Pricing" ctaLocation="category_hero" context={{ category: category.dbCategory }} />
+            <WhatsAppTrackedLink
+              href={buildWhatsAppUrl(`Hi, I'd like project pricing for ${category.name.toLowerCase()}. Requirement: `)}
+              source="category_hero"
+              context={{ category: category.dbCategory, cta_location: "category_hero" }}
+              className={buttonClasses("secondary", "md")}
+            >
+              WhatsApp for Quote
+            </WhatsAppTrackedLink>
+          </div>
+          <p className="mt-2 text-sm" style={{ color: "var(--line-strong)" }}>
+            Project quantities or mixed brands? Send one list — it&rsquo;s quoted as a single project order, with delivery across Hyderabad.
+          </p>
         </section>
       )}
 
@@ -189,15 +223,37 @@ export function CategoryPageView({
         </Reveal>
       ) : null}
 
+      {/* Pages already on Google's page 1–2 for their code, linked from the
+          hub with the most internal authority — see lib/data/searchOpportunities.ts. */}
+      {!lean && popularProducts && popularProducts.length > 0 ? (
+        <Reveal as="section" className="px-7 py-6">
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            Most searched {category.name.toLowerCase()}
+          </h2>
+          <p className="mt-1 text-sm" style={{ color: "var(--line-strong)" }}>
+            The {singular.toLowerCase()} designs buyers look up most — by brand and shade code.
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {popularProducts.map((p) => (
+              <li key={p.id}>
+                <Link href={`/products/${p.slug}`} className={`inline-block ${CHIP_LINK_CLASS}`} style={{ background: "var(--paper-dim)" }}>
+                  {productIdentity(p)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      ) : null}
+
       {!lean && showShopByCollection ? (
         <Reveal as="section" className="px-7 py-6">
           <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
             Shop {category.name} by {collectionAxis}
           </h2>
           <div className="mt-3 flex flex-wrap gap-2">
-            {filterCounts.collections.map((c) => (
+            {collectionLinks.map((c) => (
               <Link key={c.name} href={categoryPageUrl(category.slug, 1, c.name)} className={CHIP_LINK_CLASS} style={{ background: "var(--paper-dim)" }}>
-                {c.name} ({c.count})
+                {landingName(c.name) ?? c.name} ({c.count})
               </Link>
             ))}
           </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { CATEGORIES, categorySeo, getCategoryBySlug } from "@/lib/categories";
-import { categoryPageUrl, parsePageParam } from "@/lib/categoryPagination";
+import { categoryPageUrl, firstSearchParam, parsePageParam } from "@/lib/categoryPagination";
+import { collectionLandingPath, getCollectionLanding } from "@/lib/collectionLandings";
 import {
   CATEGORY_PAGE_SIZE,
   getBrandsForCategory,
@@ -12,7 +13,7 @@ import { buildMetadata } from "@/lib/seo";
 import { CategoryPageView } from "@/components/CategoryPageView";
 
 type RouteParams = { slug: string; page: string };
-type CategorySearchParams = { collection?: string };
+type CategorySearchParams = { collection?: string | string[] };
 
 export async function generateStaticParams() {
   const params: RouteParams[] = [];
@@ -38,16 +39,22 @@ export async function generateMetadata({
   const page = parsePageParam(rawPage);
   if (!category || !page) return {};
 
-  const { collection } = await searchParams;
+  const collection = firstSearchParam((await searchParams).collection);
+  const landing = getCollectionLanding(category.slug, collection);
   const seo = categorySeo(category);
-  const scope = collection ? `${category.name} — ${collection}` : category.name;
+  const scope = collection && !landing ? `${category.name} — ${collection}` : category.name;
   return buildMetadata({
-    // Self-canonical (buildMetadata canonicals to this page's own URL, not
-    // page 1) with a page-numbered title so page N never competes with the
-    // hub for the head "{category}" / "{category} price" intent.
+    // Page N of the category self-canonicals (with a page-numbered title so it
+    // never competes with the hub for the head "{category}" intent) — that's
+    // what keeps the whole catalogue crawlable. Page N of a UX filter is a
+    // view of the category, so it canonicals to the category itself.
     title: `${scope} — Page ${page}`,
     description: `${seo.description} Page ${page} of the ${category.name.toLowerCase()} catalogue.`,
-    path: categoryPageUrl(category.slug, page, collection ?? null),
+    path: landing
+      ? collectionLandingPath(landing, page)
+      : collection
+        ? categoryPageUrl(category.slug, 1, null)
+        : categoryPageUrl(category.slug, page, null),
   });
 }
 
@@ -65,16 +72,18 @@ export default async function CategoryPaginatedPage({
   const page = parsePageParam(rawPage);
   if (!page) notFound();
 
-  const { collection } = await searchParams;
+  const collection = firstSearchParam((await searchParams).collection);
+  const landing = getCollectionLanding(category.slug, collection);
+  if (landing) permanentRedirect(collectionLandingPath(landing, page));
 
   // /page/1 is the same content as the base category URL — redirect instead
   // of serving a duplicate so there's exactly one canonical URL for it.
   if (page === 1) {
-    redirect(categoryPageUrl(category.slug, 1, collection ?? null));
+    permanentRedirect(categoryPageUrl(category.slug, 1, collection));
   }
 
   const [{ products, totalPages }, brands, filterCounts] = await Promise.all([
-    getProductsByCategoryPage(category.dbCategory, { page, collection: collection ?? null }),
+    getProductsByCategoryPage(category.dbCategory, { page, collection }),
     getBrandsForCategory(category.dbCategory),
     getCategoryFilterCounts(category.dbCategory),
   ]);
@@ -89,7 +98,7 @@ export default async function CategoryPaginatedPage({
       filterCounts={filterCounts}
       page={page}
       totalPages={totalPages}
-      collection={collection ?? null}
+      collection={collection}
     />
   );
 }

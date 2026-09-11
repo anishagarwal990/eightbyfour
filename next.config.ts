@@ -28,6 +28,12 @@ const CONTENT_SECURITY_POLICY = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // The sitemap route renders per request (so new products appear without a
+  // deploy) and reads content/*.mdx plus a few source files for lastmod. Ship
+  // them with its server bundle — see lib/sitemapData.ts.
+  outputFileTracingIncludes: {
+    "/sitemap/*": ["./content/**/*.mdx", "./lib/pricePages.ts", "./app/**/hyderabad/*/page.tsx"],
+  },
   async redirects() {
     return [
       // Merged into the guide (was near-duplicate content targeting the same

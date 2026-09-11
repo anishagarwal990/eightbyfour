@@ -16,8 +16,11 @@ export interface ListItem {
   qty: string;
 }
 
+type EventParams = Record<string, string | number | boolean | null | undefined>;
+
 interface QuoteModalContextValue {
-  openModal: (prefillDesc?: string, note?: string, title?: string) => void;
+  /** `context` (cta_location, product_slug…) rides on quote_modal_open and, if the visitor submits, on quote_request. */
+  openModal: (prefillDesc?: string, note?: string, title?: string, context?: EventParams) => void;
   items: ListItem[];
   addItem: (desc: string, qty?: string) => void;
   removeItem: (i: number) => void;
@@ -49,6 +52,9 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
   const [modalNote, setModalNote] = useState<string | null>(null);
   const [modalTitle, setModalTitle] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Where the open modal came from — attached to quote_request on submit, so
+  // a lead is attributable to the CTA (and product) that started it.
+  const openContext = useRef<EventParams>({});
 
   useEffect(() => {
     if (!open) return;
@@ -63,7 +69,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     };
   }, [open]);
 
-  function openModal(prefillDesc?: string, note?: string, title?: string) {
+  function openModal(prefillDesc?: string, note?: string, title?: string, context: EventParams = {}) {
     if (prefillDesc) {
       setItems((prev) => (prev.some((i) => i.desc === prefillDesc) ? prev : [...prev, { desc: prefillDesc, qty: "1" }]));
     }
@@ -74,7 +80,8 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
     // The gap between the two is the funnel step worth optimising for paid
     // traffic — a landing page can drive plenty of opens and still lose
     // everyone at the form.
-    trackEvent("quote_modal_open", { source: title ?? "unspecified", prefilled: prefillDesc ? 1 : 0 });
+    openContext.current = { modal_source: title ?? "unspecified", ...context };
+    trackEvent("quote_modal_open", { source: title ?? "unspecified", prefilled: prefillDesc ? 1 : 0, ...context });
   }
 
   function resetForm() {
@@ -186,6 +193,7 @@ export function QuoteModalProvider({ children }: { children: React.ReactNode }) 
       inquiry_ref: inquiryRef,
       inquiry_type: "list",
       item_count: items.length,
+      ...openContext.current,
       // Whether a BOQ document came with the request — the difference
       // between a one-line enquiry and a whole project's material list.
       has_attachment: file ? 1 : 0,

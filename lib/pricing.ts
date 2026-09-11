@@ -17,7 +17,7 @@ export function validDiscountPct(value: unknown): number | null {
   return typeof value === "number" && value > 0 && value < 100 ? value : null;
 }
 
-export function resolvePrice(product: ProductRow): PriceInfo | null {
+export function resolvePrice(product: Pick<ProductRow, "price_table">): PriceInfo | null {
   const table = product.price_table;
   if (!table) return null;
 
@@ -89,7 +89,9 @@ export function displayPrice(price: PriceInfo): DisplayPrice {
   const unit = unitLabel(price.unit);
   const format = (discounted: boolean) => {
     const at = (value: number) => (discounted ? applyDiscount(value, price.discountPct) : value);
-    return price.kind === "range" ? `₹${at(price.min)} – ₹${at(price.max)}/${unit}` : `₹${at(price.amount)}/${unit}`;
+    // A "range" stored with min === max is one rate — print "₹110/sq.ft", not "₹110 – ₹110/sq.ft".
+    if (price.kind === "range" && at(price.min) !== at(price.max)) return `₹${at(price.min)} – ₹${at(price.max)}/${unit}`;
+    return `₹${at(price.kind === "range" ? price.min : price.amount)}/${unit}`;
   };
   return {
     netLabel: format(true),

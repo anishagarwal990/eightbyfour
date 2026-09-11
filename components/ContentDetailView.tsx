@@ -13,6 +13,13 @@ import { FaqSchema } from "@/components/schema/FaqSchema";
 import { ServiceSchema } from "@/components/schema/ServiceSchema";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
+import type { CategoryConfig } from "@/lib/categories";
+import type { ProductSummary } from "@/lib/productRelations";
+import { getProductsForGuide } from "@/lib/data/products";
+import { getOpportunityProducts } from "@/lib/data/searchOpportunities";
+import { brandHubName } from "@/lib/brandSeo";
+import { ProductCard } from "@/components/ProductCard";
+import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 
 function resolveRelatedContent(type: ContentType, slugs: string[] | undefined): { slug: string; title: string }[] {
   if (!slugs?.length) return [];
@@ -89,6 +96,26 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
   const relatedComparisons = resolveRelatedContent("comparisons", frontmatter.relatedComparisonSlugs);
   const relatedHyderabad = resolveRelatedContent("hyderabad", frontmatter.relatedHyderabadSlugs);
 
+  // Guides and comparisons end in the products they discuss, instead of
+  // category chips alone: the SKUs already closest to page one first
+  // (lib/data/searchOpportunities.ts), topped up with priced products from the
+  // same categories/brands. Editorial pages rank for research queries; this is
+  // where that traffic reaches a product and a quote.
+  const categoryConfigs = relatedCategories.filter((c): c is CategoryConfig => Boolean(c));
+  let shopProducts: ProductSummary[] = [];
+  if (type === "guides" || type === "comparisons") {
+    const dbCategories = categoryConfigs.map((c) => c.dbCategory);
+    const brandNames = relatedBrands.map((b) => b.name);
+    const popular = await getOpportunityProducts({ brands: brandNames, dbCategories }, 8);
+    const fill = popular.length < 8 ? await getProductsForGuide({ dbCategories, brands: brandNames, limit: 8 }) : [];
+    const seen = new Set(popular.map((p) => p.slug));
+    shopProducts = [...popular, ...fill.filter((p) => !seen.has(p.slug))].slice(0, 8);
+  }
+  const shopHeading =
+    relatedBrands.length === 1 && categoryConfigs.length === 1
+      ? `Shop ${brandHubName(relatedBrands[0].name, categoryConfigs[0].name)}`
+      : `Shop the products in this ${type === "comparisons" ? "comparison" : "guide"}`;
+
   return (
     <main>
       <BreadcrumbSchema
@@ -138,6 +165,25 @@ export async function ContentDetailView({ type, entry }: { type: ContentType; en
       <Reveal as="section" className="max-w-3xl px-7 pb-8">
         <MdxContent source={body} />
       </Reveal>
+
+      {shopProducts.length > 0 ? (
+        <Reveal as="section" className="px-7 py-8" style={{ background: "var(--paper-dim)" }}>
+          <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+            {shopHeading}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm" style={{ color: "var(--line-strong)", lineHeight: "var(--lh-normal)" }}>
+            Pricing a job? Send your list — every line is quoted, across brands, with delivery across Hyderabad.
+          </p>
+          <Reveal stagger className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {shopProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </Reveal>
+          <div className="mt-5">
+            <RequestQuoteButton label="Get Project Pricing" ctaLocation={`${type}_products`} context={{ content_slug: entry.slug }} />
+          </div>
+        </Reveal>
+      ) : null}
 
       <RelatedContentSection heading="Related Guides" items={relatedGuides} basePath="/guides" />
       <RelatedContentSection heading="Related Applications" items={relatedApplications} basePath="/applications" />

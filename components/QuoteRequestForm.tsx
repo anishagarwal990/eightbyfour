@@ -21,7 +21,16 @@ export interface VariantSelection {
   unit: string;
 }
 
-export function QuoteRequestForm({ product, variantSelection }: { product: ProductRow; variantSelection?: VariantSelection }) {
+export function QuoteRequestForm({
+  product,
+  variantSelection,
+  ctaLocation,
+}: {
+  product: ProductRow;
+  variantSelection?: VariantSelection;
+  /** Which CTA opened the form — carried onto quote_request so a lead is attributable to it. */
+  ctaLocation?: string;
+}) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -119,7 +128,9 @@ export function QuoteRequestForm({ product, variantSelection }: { product: Produ
     trackEvent("quote_request", {
       inquiry_ref: inquiryRef,
       inquiry_type: "single",
+      cta_location: ctaLocation,
       product_id: product.id,
+      product_slug: product.slug,
       product_name: product.name,
       category: product.category,
       brand: product.brand,

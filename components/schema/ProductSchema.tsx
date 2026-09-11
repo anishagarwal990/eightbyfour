@@ -1,11 +1,16 @@
-import { SITE_URL } from "@/lib/seo";
+import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import type { ProductRow } from "@/lib/supabase/types";
 import type { ProductRatingSummary } from "@/lib/data/reviews";
-import { productDisplayName } from "@/lib/productDisplay";
 import { applyDiscount, resolvePrice } from "@/lib/pricing";
-import { bestProductImage } from "@/lib/productSeo";
+import { buildProductHeading, isNamedCollection, productFinishLabels, productImages } from "@/lib/productSeo";
 
 const MAX_REVIEWS_IN_SCHEMA = 20;
+
+/** Structured data wants absolute URLs; catalogue images are a mix of CDN URLs and site-relative paths. */
+function absoluteUrl(src: string): string {
+  if (/^https?:\/\//i.test(src)) return src;
+  return `${SITE_URL}${src.startsWith("/") ? "" : "/"}${src}`;
+}
 
 // Delegates to resolvePrice() (lib/pricing.ts) so schema pricing can never
 // drift from what's shown on the page — that function already handles the
@@ -14,10 +19,16 @@ const MAX_REVIEWS_IN_SCHEMA = 20;
 function buildOffers(product: ProductRow) {
   const price = resolvePrice(product);
   const url = `${SITE_URL}/products/${product.slug}`;
+  // No `availability` — EightxFour is a procurement platform and doesn't
+  // hold verified real-time inventory per SKU, so `InStock` would be an
+  // invented claim. `availability` is optional on schema.org's Offer; an
+  // Offer with a real price and no availability is still valid, it just
+  // isn't eligible for the subset of rich results that key off stock status
+  // — the correct outcome until real inventory data exists.
   const base = {
     priceCurrency: "INR",
-    availability: "https://schema.org/InStock",
     url,
+    seller: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
   };
   if (price?.kind === "range") {
     const table = product.price_table;
@@ -59,17 +70,24 @@ function buildOffers(product: ProductRow) {
 // Real spec fields only — never invent values the product row doesn't have.
 function buildAdditionalProperties(product: ProductRow) {
   const props: { "@type": "PropertyValue"; name: string; value: string }[] = [];
-  if (product.grade) props.push({ "@type": "PropertyValue", name: "Grade", value: product.grade });
-  if (product.core) props.push({ "@type": "PropertyValue", name: "Core", value: product.core });
-  if (product.certifications?.length) props.push({ "@type": "PropertyValue", name: "Certifications", value: product.certifications.join(", ") });
-  if (product.applications?.length) props.push({ "@type": "PropertyValue", name: "Applications", value: product.applications.join(", ") });
+  const add = (name: string, value: string | null | undefined) => {
+    if (value?.trim()) props.push({ "@type": "PropertyValue", name, value: value.trim() });
+  };
+  const finishes = productFinishLabels(product);
+  add(finishes.length > 1 ? "Available finishes" : "Finish", finishes.join(", "));
+  add("Thickness", product.thicknesses?.join(", "));
+  add("Sheet size", product.size);
+  if (isNamedCollection(product)) add("Range", product.collection);
+  add("Grade", product.grade);
+  add("Core", product.core);
+  add("Certifications", product.certifications?.join(", "));
+  add("Applications", product.applications?.join(", "));
   return props.length ? props : undefined;
 }
 
 export function ProductSchema({ product, ratings }: { product: ProductRow; ratings?: ProductRatingSummary }) {
   const hasRatings = !!ratings && ratings.count > 0;
   const offers = buildOffers(product);
-  const additionalProperty = buildAdditionalProperties(product);
 
   // Google requires at least one of offers/review/aggregateRating on a
   // Product. RFQ-priced SKUs (no fixed price_table) have none of the three —
@@ -80,10 +98,17 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
   // don't get flagged as errors the way invalid ones do.
   if (!offers && !hasRatings) return null;
 
+  // Real product photos only — the brand-logo stand-in some ranges show
+  // until their swatches are imported is not a picture of this product.
+  const images = productImages(product)
+    .filter((img) => !img.isPlaceholder)
+    .map((img) => absoluteUrl(img.src));
+
   const json = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: productDisplayName(product),
+    // Same string as the H1 — "Merino 22153 Saga Green Laminate".
+    name: buildProductHeading(product),
     // Real shade/decor code as the SKU/MPN when the row has one — that's the
     // identifier buyers and the manufacturer actually use ("Merino 22153"),
     // and what the decor-code searches this page targets are looking for. The
@@ -92,10 +117,10 @@ export function ProductSchema({ product, ratings }: { product: ProductRow; ratin
     mpn: product.sd_code || undefined,
     category: product.category,
     description: product.description || undefined,
-    image: bestProductImage(product)?.src,
+    image: images.length > 0 ? images : undefined,
     brand: { "@type": "Brand", name: product.brand },
     url: `${SITE_URL}/products/${product.slug}`,
-    additionalProperty,
+    additionalProperty: buildAdditionalProperties(product),
     offers,
     aggregateRating: hasRatings
       ? {

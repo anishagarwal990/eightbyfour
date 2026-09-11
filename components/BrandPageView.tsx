@@ -19,6 +19,11 @@ import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { buttonClasses } from "@/components/ui/Button";
 import { WhatsAppTrackedLink } from "@/components/WhatsAppTrackedLink";
+import type { ProductSummary } from "@/lib/productRelations";
+import { collectionLandingPath, collectionLandingsForBrand } from "@/lib/collectionLandings";
+import { getCategoryBySlug } from "@/lib/categories";
+import { productIdentity } from "@/lib/productSeo";
+import { brandHubName } from "@/lib/brandSeo";
 import {
   CategoryTile,
   CATEGORY_MARK_LABEL,
@@ -73,6 +78,7 @@ export function BrandPageView({
   allProducts,
   subBrandCounts,
   categoryFilter,
+  popularProducts,
 }: {
   brand: BrandRow;
   products: ProductRow[];
@@ -83,11 +89,13 @@ export function BrandPageView({
   /** Code+Finish shade picker (Virgo-style catalogues where finish is a per-SKU differentiator, not a minor filter). */
   shadeFinder?: ShadeEntry[];
   /** Full unpaginated product list for finish-filterable brands — renders in place of the plain paginated grid when present (page 1 only; paginated /page/N routes keep the server-paginated grid). */
-  allProducts?: ProductRow[];
+  allProducts?: ProductSummary[];
   /** EightByFour only — SKU counts per dbCategory, to show its three category sub-brands (Plywood Shop, Laminates, Veneers) under the hero. */
   subBrandCounts?: Record<string, number>;
   /** Set when the page was reached via a sub-brand tile (?category=) — narrows the product grid to that sub-brand's categories only. */
   categoryFilter?: CategoryMarkSlug;
+  /** This brand's high-opportunity SKUs from the Search Console snapshot (lib/data/searchOpportunities.ts). */
+  popularProducts?: ProductSummary[];
 }) {
   const relatedGuides = (BRAND_GUIDE_SLUGS[brand.slug] || [])
     .map((slug) => {
@@ -98,6 +106,13 @@ export function BrandPageView({
 
   const certifications = [...new Set(products.flatMap((p) => p.certifications || []))].slice(0, 6);
   const pricePages = pricePagesForBrandSlug(brand.slug);
+  // The brand's ranges that have their own landing page, narrowed to the
+  // sub-brand's categories when the page is filtered (?category=).
+  const filterDbCategories = categoryFilter ? CATEGORY_MARK_DB_CATEGORIES[categoryFilter] : null;
+  const brandLandings = collectionLandingsForBrand(brand.slug).filter(
+    (l) => !filterDbCategories || filterDbCategories.includes(getCategoryBySlug(l.categorySlug)?.dbCategory ?? "")
+  );
+  const popularAreCodes = (popularProducts ?? []).some((p) => p.sd_code);
 
   // Page 2+ of a brand catalogue is a slice of the same hub. It self-canonicals
   // to its own /page/N URL, but re-serving the whole hero + overview + FAQ +
@@ -115,7 +130,7 @@ export function BrandPageView({
     brand.slug === "eightbyfour"
       ? "EightxFour Products"
       : definedCategoryConfigs.length === 1
-        ? `${brand.name} ${definedCategoryConfigs[0].name}`
+        ? brandHubName(brand.name, definedCategoryConfigs[0].name)
         : `${brand.name} Products`;
 
   if (lean) {
@@ -274,17 +289,20 @@ export function BrandPageView({
           ) : null}
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <RequestQuoteButton label={`Get ${brand.name} Pricing`} />
+            <RequestQuoteButton label="Get Project Pricing" ctaLocation="brand_hero" context={{ brand: brand.name }} />
             <WhatsAppTrackedLink
-              href={buildWhatsAppUrl(`Hi, I'm interested in ${brand.name} products. Can you share pricing and availability?`)}
+              href={buildWhatsAppUrl(`Hi, I'd like project pricing for ${brand.name} products. Requirement: `)}
               source="brand_page"
-              context={{ brand: brand.name }}
+              context={{ brand: brand.name, cta_location: "brand_hero" }}
               className={buttonClasses("secondary", "md")}
             >
               <WhatsAppIcon />
-              WhatsApp
+              WhatsApp for Quote
             </WhatsAppTrackedLink>
           </div>
+          <p className="mt-3 max-w-2xl text-sm" style={{ color: "var(--line-strong)" }}>
+            Buying {brand.name} for a project? Send your list for project pricing — or compare it with other brands on the same quote.
+          </p>
         </div>
 
         {brand.range_image_url ? (
@@ -303,6 +321,54 @@ export function BrandPageView({
       {shadeFinder && shadeFinder.length > 0 ? (
         <Reveal as="section" className="px-7 py-6">
           <ShadeFinishPicker brandName={brand.name} shades={shadeFinder} />
+        </Reveal>
+      ) : null}
+
+      {/* Codes already on Google's page 1–2 get a link from their brand hub
+          (lib/data/searchOpportunities.ts), and ranges with their own landing
+          page are listed by name — the brand → range → SKU path. */}
+      {(popularProducts && popularProducts.length > 0) || brandLandings.length > 0 ? (
+        <Reveal as="section" className="px-7 py-6">
+          {popularProducts && popularProducts.length > 0 ? (
+            <div>
+              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                Most searched {brand.name} {popularAreCodes ? "codes" : "products"}
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {popularProducts.map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/products/${p.slug}`}
+                      className="inline-block rounded-full px-3.5 py-1.5 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                      style={{ background: "var(--paper-dim)" }}
+                    >
+                      {productIdentity(p)}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {brandLandings.length > 0 ? (
+            <div className={popularProducts && popularProducts.length > 0 ? "mt-6" : undefined}>
+              <h2 className="serif" style={{ fontSize: "var(--fs-h2)" }}>
+                {brand.name} ranges
+              </h2>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {brandLandings.map((l) => (
+                  <li key={`${l.categorySlug}/${l.slug}`}>
+                    <Link
+                      href={collectionLandingPath(l)}
+                      className="inline-block rounded-full px-3.5 py-1.5 text-sm transition-colors duration-150 hover:text-[var(--burgundy)]"
+                      style={{ background: "var(--paper-dim)" }}
+                    >
+                      {l.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </Reveal>
       ) : null}
 

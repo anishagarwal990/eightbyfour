@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllBrandsWithCounts, getBrandBySlug, getBrandCategories, getEightByFourCategoryCounts } from "@/lib/data/brands";
-import { getProductsByBrand, getProductsByBrandPage } from "@/lib/data/products";
-import type { ProductRow } from "@/lib/supabase/types";
+import { getBrandProductSummaries, getProductsByBrandPage } from "@/lib/data/products";
+import { getOpportunityProducts } from "@/lib/data/searchOpportunities";
+import type { ProductSummary } from "@/lib/productRelations";
 import type { ShadeEntry } from "@/components/ShadeFinishPicker";
 import { CATEGORIES } from "@/lib/categories";
 import { isCategoryMarkSlug, CATEGORY_MARK_DB_CATEGORIES } from "@/components/CategoryMark";
@@ -55,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 // product grid. See ShadeFinishPicker for why.
 const SHADE_FINDER_BRANDS = new Set(["virgo", "century-laminates"]);
 
-function buildShadeFinder(products: ProductRow[]): ShadeEntry[] {
+function buildShadeFinder(products: ProductSummary[]): ShadeEntry[] {
   const byCode = new Map<string, ShadeEntry>();
   for (const p of products) {
     if (!p.sd_code || !p.finish) continue;
@@ -98,11 +99,12 @@ export default async function BrandPage({
   const categoryFilter = category && isCategoryMarkSlug(category) ? category : undefined;
   const filterCategories = categoryFilter ? CATEGORY_MARK_DB_CATEGORIES[categoryFilter] : undefined;
 
-  const [{ products, totalPages }, categories, shadeFinderProducts, subBrandCounts] = await Promise.all([
+  const [{ products, totalPages }, categories, shadeFinderProducts, subBrandCounts, popularProducts] = await Promise.all([
     getProductsByBrandPage(brand.name, { page: 1, categories: filterCategories }),
     getBrandCategories(brand.name),
-    SHADE_FINDER_BRANDS.has(brand.slug) && !categoryFilter ? getProductsByBrand(brand.name) : Promise.resolve<ProductRow[]>([]),
+    SHADE_FINDER_BRANDS.has(brand.slug) && !categoryFilter ? getBrandProductSummaries(brand.name) : Promise.resolve<ProductSummary[]>([]),
     brand.slug === "eightbyfour" ? getEightByFourCategoryCounts() : Promise.resolve<Record<string, number>>({}),
+    getOpportunityProducts({ brands: [brand.name], dbCategories: filterCategories }, 12),
   ]);
   const relatedCategoryConfigs = categories
     .map((dbCategory) => CATEGORIES.find((c) => c.dbCategory === dbCategory))
@@ -123,6 +125,7 @@ export default async function BrandPage({
       allProducts={shadeFinderProducts.length > 0 ? shadeFinderProducts : undefined}
       subBrandCounts={brand.slug === "eightbyfour" ? subBrandCounts : undefined}
       categoryFilter={categoryFilter}
+      popularProducts={popularProducts}
     />
   );
 }

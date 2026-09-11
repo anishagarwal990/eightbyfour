@@ -1,6 +1,14 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { ProductRow } from "@/lib/supabase/types";
 import { CATEGORIES } from "@/lib/categories";
+import {
+  buildProductRelations,
+  PRODUCT_SUMMARY_COLUMNS,
+  shadeFamilyOf,
+  type ProductRelations,
+  type ProductSummary,
+} from "@/lib/productRelations";
+import { cachedPool } from "@/lib/data/poolCache";
 
 // Products/page for the paginated category grid — keeps each category page's
 // server-rendered payload to a few dozen products instead of the full
@@ -149,52 +157,169 @@ export async function getAllProductSlugsWithDates(): Promise<{ slug: string; cre
 }
 
 /**
- * Contextually-related products, best match first:
- *   1. same brand + same collection (a real "more of this range")
- *   2. same brand + same finish
- *   3. same brand
- *   4. same category (fallback)
- * All links are crawlable (rendered as ProductCard <Link>s). Two small
- * queries — same-brand and same-category candidate pools — scored and merged
- * in JS, rather than one ORDER BY brand slice that for a 2,400-row category
- * never actually surfaced a same-brand item.
+ * Every product of one brand in one category, lean columns only — the pool
+ * the relation engine picks "other finishes", "similar shades" and "same
+ * finish" links from. Shared by every product page of that brand+category,
+ * hence cached (see lib/data/poolCache.ts). Ordered by id so the pool, and
+ * with it every page's links, is stable between builds.
  */
-export async function getRelatedProducts(product: ProductRow, limit = 4): Promise<ProductRow[]> {
-  const supabase = createServerSupabaseClient();
-  const [brandRes, categoryRes] = await Promise.all([
-    supabase.from("products").select("*").eq("brand", product.brand).eq("category", product.category).neq("id", product.id).limit(40),
-    supabase.from("products").select("*").eq("category", product.category).neq("id", product.id).limit(40),
-  ]);
-  if (brandRes.error) throw brandRes.error;
-  if (categoryRes.error) throw categoryRes.error;
-
-  const score = (p: ProductRow): number => {
-    if (p.brand === product.brand && p.collection && p.collection === product.collection) return 4;
-    if (p.brand === product.brand && p.finish && p.finish === product.finish) return 3;
-    if (p.brand === product.brand) return 2;
-    return 1;
-  };
-
-  const seen = new Set<number>();
-  const merged: ProductRow[] = [];
-  for (const p of [...brandRes.data, ...categoryRes.data]) {
-    if (seen.has(p.id)) continue;
-    seen.add(p.id);
-    merged.push(p);
-  }
-  return merged.sort((a, b) => score(b) - score(a)).slice(0, limit);
+function getBrandCategoryPool(brand: string, category: string): Promise<ProductSummary[]> {
+  return cachedPool(`brand-category:${brand}|${category}`, async () => {
+    const supabase = createServerSupabaseClient();
+    const PAGE = 1000;
+    const rows: ProductSummary[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("products")
+        .select(PRODUCT_SUMMARY_COLUMNS)
+        .eq("brand", brand)
+        .eq("category", category)
+        .order("id")
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      rows.push(...(data as ProductSummary[]));
+      if (data.length < PAGE) break;
+    }
+    return rows;
+  });
 }
 
-export async function getProductsByBrand(brandName: string): Promise<ProductRow[]> {
+/**
+ * Cross-brand candidates for the "other brands" block: for a coded shade,
+ * every SKU in the category whose name carries a word of the same shade
+ * family ("green", "sage", "olive"…); for a code-less board, the category.
+ * The relation engine re-checks family membership on whole words.
+ */
+function getAlternativesPool(product: ProductRow): Promise<ProductSummary[]> {
+  const family = product.sd_code ? shadeFamilyOf(product.name) : null;
+  if (product.sd_code && !family) return Promise.resolve([]);
+  const key = family ? `family:${product.category}|${family.key}` : `category:${product.category}`;
+  return cachedPool(key, async () => {
+    const supabase = createServerSupabaseClient();
+    let query = supabase.from("products").select(PRODUCT_SUMMARY_COLUMNS).eq("category", product.category);
+    if (family) query = query.or(family.terms.map((term) => `name.ilike.%${term}%`).join(","));
+    const { data, error } = await query.order("id").limit(family ? 400 : 200);
+    if (error) throw error;
+    return data as ProductSummary[];
+  });
+}
+
+/** The product page's internal links — see lib/productRelations.ts for the rules. */
+export async function getProductRelations(product: ProductRow): Promise<ProductRelations> {
+  const [brandPool, altPool] = await Promise.all([getBrandCategoryPool(product.brand, product.category), getAlternativesPool(product)]);
+  return buildProductRelations(product, brandPool, altPool);
+}
+
+/** Every SKU of one range (category + exact collection value), lean — for a collection landing page's facts. */
+export function getCollectionPool(dbCategory: string, collection: string): Promise<ProductSummary[]> {
+  return cachedPool(`collection:${dbCategory}|${collection}`, async () => {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_SUMMARY_COLUMNS)
+      .eq("category", dbCategory)
+      .eq("collection", collection)
+      .order("id")
+      .limit(1000);
+    if (error) throw error;
+    return data as ProductSummary[];
+  });
+}
+
+/**
+ * Lean rows for a list of slugs, in the order given. Chunked so a long list
+ * never builds a PostgREST URL past proxy length limits.
+ */
+export async function fetchProductSummariesBySlugs(slugs: string[]): Promise<ProductSummary[]> {
+  if (slugs.length === 0) return [];
   const supabase = createServerSupabaseClient();
-  const { data, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("brand", brandName)
-    .order("category")
-    .order("name");
+  const CHUNK = 80;
+  const rows: ProductSummary[] = [];
+  for (let i = 0; i < slugs.length; i += CHUNK) {
+    const { data, error } = await supabase.from("products").select(PRODUCT_SUMMARY_COLUMNS).in("slug", slugs.slice(i, i + CHUNK));
+    if (error) throw error;
+    rows.push(...(data as ProductSummary[]));
+  }
+  const order = new Map(slugs.map((slug, i) => [slug, i]));
+  return rows.sort((a, b) => (order.get(a.slug) ?? 0) - (order.get(b.slug) ?? 0));
+}
+
+/**
+ * A handful of real products for a guide's "shop this" grid: priced first,
+ * from the guide's categories (and brands, when it's about one).
+ */
+export async function getProductsForGuide(opts: { dbCategories: string[]; brands?: string[]; limit: number }): Promise<ProductSummary[]> {
+  if (opts.dbCategories.length === 0) return [];
+  const supabase = createServerSupabaseClient();
+  let query = supabase.from("products").select(PRODUCT_SUMMARY_COLUMNS).in("category", opts.dbCategories);
+  if (opts.brands?.length) query = query.in("brand", opts.brands);
+  const { data, error } = await query.not("price_table", "is", null).order("id").limit(opts.limit);
   if (error) throw error;
-  return data;
+  return data as ProductSummary[];
+}
+
+export interface CatalogueFreshness {
+  byCategory: Map<string, Date>;
+  byBrand: Map<string, Date>;
+  /** Keyed `${dbCategory}|${collection}`. */
+  byCollection: Map<string, Date>;
+}
+
+/**
+ * Latest product edit per category, brand and range — the sitemap's
+ * lastModified for listing pages, which change when their products do, not
+ * on every request (a `new Date()` lastmod that moves on every crawl is one
+ * Google learns to ignore).
+ */
+export async function getCatalogueFreshness(): Promise<CatalogueFreshness> {
+  const supabase = createServerSupabaseClient();
+  const PAGE = 1000;
+  const freshness: CatalogueFreshness = { byCategory: new Map(), byBrand: new Map(), byCollection: new Map() };
+  const bump = (map: Map<string, Date>, key: string, date: Date) => {
+    const current = map.get(key);
+    if (!current || date > current) map.set(key, date);
+  };
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select("category, brand, collection, created_at, updated_at")
+      .order("id")
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    for (const row of data as { category: string; brand: string; collection: string | null; created_at: string; updated_at: string | null }[]) {
+      const date = new Date(row.updated_at || row.created_at);
+      if (Number.isNaN(date.getTime())) continue;
+      bump(freshness.byCategory, row.category, date);
+      bump(freshness.byBrand, row.brand, date);
+      if (row.collection) bump(freshness.byCollection, `${row.category}|${row.collection}`, date);
+    }
+    if (data.length < PAGE) break;
+  }
+  return freshness;
+}
+
+/**
+ * Every SKU of a brand, lean columns only — the brand page's code finder and
+ * finish-filterable grid (Virgo, Century Laminates) serialize this whole list
+ * to the browser, so it carries card fields and nothing heavier.
+ */
+export async function getBrandProductSummaries(brandName: string): Promise<ProductSummary[]> {
+  const supabase = createServerSupabaseClient();
+  const PAGE = 1000;
+  const rows: ProductSummary[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("products")
+      .select(PRODUCT_SUMMARY_COLUMNS)
+      .eq("brand", brandName)
+      .order("category")
+      .order("name")
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    rows.push(...(data as ProductSummary[]));
+    if (data.length < PAGE) break;
+  }
+  return rows;
 }
 
 export async function getProductsByBrandPage(

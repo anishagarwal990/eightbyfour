@@ -1,18 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ProductRow } from "@/lib/supabase/types";
+import type { ProductSummary } from "@/lib/productRelations";
 import { ProductCard } from "@/components/ProductCard";
 import { trackEvent } from "@/lib/analytics";
+import { finishLabel as glossaryFinishLabel } from "@/lib/finishGlossary";
 
 const PAGE_SIZE = 60;
 
-function finishLabel(product: ProductRow): string {
-  const row = product.spec_table?.find((r) => r.label === "Finish Name");
-  return row ? row.value : product.finish || "Other";
+// Finish names come from lib/finishGlossary.ts — for Virgo, the same
+// "Superlative High Gloss (SHG)" strings its spec_table carries — so this
+// grid only needs lean product rows. The whole brand list is serialized to
+// the browser, and full rows made the Century Laminates page ~1.7MB.
+function finishLabel(product: ProductSummary): string {
+  return product.finish ? glossaryFinishLabel(product.brand, product.finish) : "Other";
 }
 
-function countOptions(products: ProductRow[]): { value: string; label: string; count: number }[] {
+function countOptions(products: ProductSummary[]): { value: string; label: string; count: number }[] {
   const counts = new Map<string, { label: string; count: number }>();
   for (const p of products) {
     if (!p.finish) continue;
@@ -31,7 +35,7 @@ function countOptions(products: ProductRow[]): { value: string; label: string; c
 // not a minor attribute. Filtering client-side (rather than a server round
 // trip per chip click) keeps this snappy for a few hundred SKUs; see
 // PlywoodFilterableGrid for the same pattern applied to a different facet set.
-export function FinishFilterableGrid({ products, brandName }: { products: ProductRow[]; brandName: string }) {
+export function FinishFilterableGrid({ products, brandName }: { products: ProductSummary[]; brandName: string }) {
   const [selectedFinish, setSelectedFinish] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
