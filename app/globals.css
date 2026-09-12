@@ -439,28 +439,37 @@ textarea {
 /* ---------- Homepage hero: the material fan (components/home/MaterialFan.tsx) ----------
    A designer's sample fan, reloaded with one blade per catalogue category
    instead of laminate shades. The pivot geometry (rotate from a fixed origin,
-   staggered by --i) is the one thing here Tailwind can't express, so it lives
-   in plain CSS like .hero-track above; layout and type live on the component
-   as Tailwind + inline tokens. Below 1024px (Tailwind's `lg`) the stage drops
-   to a shorter, narrower sweep and the card moves into normal flow under it —
-   see MaterialFan.tsx, which doesn't absolutely-position the card at all on
-   that breakpoint. */
+   staggered by --i) is the one thing Tailwind can't express, so it lives here
+   like .hero-track above; layout and type live on the component.
+
+   Two rules keep the object from reading as clutter, both learned the hard way
+   on the live page:
+   1. Nothing overlaps the fan. The card sits under it in normal flow and is
+      never floated on top — a card over the blades hides the tags of every
+      blade behind it and leaves half-words poking out around its edges.
+   2. A blade carries a short name and nothing else. The visible sliver of an
+      overlapped blade is ~40px wide, so a full category name ("NFC (Natural
+      Fibre Composite) Boards") truncates into nonsense; the card underneath
+      carries the full name, the count, the spec and the brands. */
 .material-fan {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 .material-fan-stage {
   position: relative;
   width: 100%;
-  height: 300px;
+  /* Just taller than the arc reaches (the blade nearest vertical tops out at
+     ~170px above the pivot) — the old 292px left a band of dead white between
+     the brand belt and the fan on a phone. */
+  height: 206px;
 }
 .fan {
-  /* Angles run from -72deg (upper-left) to +12deg (last blade, 12 steps of
-     7deg) — kept mostly left-of-vertical on purpose: this stage sits at the
-     right edge of a 375px-wide column, and a sweep that leaned further right
-     (the original -60/10.5deg pair) pushed the last few blades' tips and tags
-     past the visible viewport edge on a real phone. */
+  /* Angles run from --start, one --step per blade. Kept mostly left of
+     vertical on purpose: the stage sits at the right edge of its column, and a
+     sweep leaning further right pushes the last blades past the viewport on a
+     phone. --len is clamped rather than fixed so the whole sweep still fits
+     the column at the 1024px breakpoint, where the column is narrowest. */
   --start: -72deg;
   --step: 7deg;
   --len: 190px;
@@ -511,53 +520,61 @@ textarea {
   left: 0;
   right: 0;
   top: 0;
-  height: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 5px 5px 0;
+  height: 26px;
+  padding: 5px 4px 0;
+  overflow: hidden;
   background: var(--paper);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 .fan-tag b {
   display: block;
-  font-size: 7.5px;
-  line-height: 1.15;
-  font-weight: 600;
+  font: 600 7.5px/1.15 var(--body);
   color: var(--line-strong);
-}
-.fan-tag span {
-  display: block;
-  margin-top: 1px;
-  font-size: 9px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
+  hyphens: manual;
+  /* Phone only: a blade shows ~21px of itself here, which fits about five
+     characters — thirteen rotated fragments ("Plywo", "Bl", "Harc") is the
+     exact noise this layout exists to avoid. Only the lifted blade is wide
+     enough to read, and the caption right below names it anyway. The white
+     tip still reads as the label end of a sample card. */
+  opacity: 0;
+  transition: opacity 0.25s var(--ease-out-soft);
 }
 .fan-blade--on .fan-tag b {
   color: var(--burgundy);
+  opacity: 1;
 }
 .fan-face {
   position: absolute;
   left: 0;
   right: 0;
-  top: 30px;
-  bottom: 24px;
+  top: 26px;
+  bottom: 22px;
+  background-color: var(--card);
   background-size: cover;
   background-position: center;
-  background-color: var(--card);
 }
-.fan-face--packshot {
-  background-size: 78%;
-  background-repeat: no-repeat;
-}
-.fan-face--drawn-panels {
+/* Ten faces are crops of real catalogue product photos, cut down to clean
+   material — a packshot cropped at random puts fragments of printed branding
+   and grade stamps on the blade, which is what made the first version read as
+   noise at 60px wide. The three categories with no product photo to crop
+   (wall panels, adhesives, hardware) get a drawn face instead. */
+.fan-face--plywood { background-image: url("/hero-fan/plywood.jpg"); }
+.fan-face--birch { background-image: url("/hero-fan/birch.jpg"); }
+.fan-face--blockboard { background-image: url("/hero-fan/blockboard.jpg"); }
+.fan-face--mdf { background-image: url("/hero-fan/mdf.jpg"); }
+.fan-face--boil { background-image: url("/hero-fan/boil.jpg"); }
+.fan-face--nfc { background-image: url("/hero-fan/nfc.jpg"); }
+.fan-face--cement { background-image: url("/hero-fan/cement.jpg"); }
+.fan-face--laminate { background-image: url("/hero-fan/laminate.jpg"); }
+.fan-face--solid { background-image: url("/hero-fan/solid.jpg"); }
+.fan-face--veneer { background-image: url("/hero-fan/veneer.jpg"); }
+.fan-face--panels {
   background-image: repeating-linear-gradient(90deg, #2a2724 0px, #4f4a43 5px, #6b6459 7px, #4f4a43 9px, #2a2724 12px);
 }
-.fan-face--drawn-adhesive {
+.fan-face--adhesive {
   background-image: repeating-linear-gradient(166deg, #f7f0dd 0 5px, #e6dabb 5px 8px, #fdfaf1 8px 11px);
 }
-.fan-face--drawn-hardware {
+.fan-face--hardware {
   background-image:
     radial-gradient(circle at 50% 26%, rgba(0, 0, 0, 0.3) 0 3px, rgba(0, 0, 0, 0.08) 4px, rgba(0, 0, 0, 0) 6px),
     radial-gradient(circle at 50% 72%, rgba(0, 0, 0, 0.3) 0 3px, rgba(0, 0, 0, 0.08) 4px, rgba(0, 0, 0, 0) 6px),
@@ -568,14 +585,14 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 24px;
+  height: 22px;
   background: var(--paper);
 }
 .fan-base::after {
   content: "";
   position: absolute;
   left: 50%;
-  bottom: 8px;
+  bottom: 7px;
   width: 8px;
   height: 8px;
   margin-left: -4px;
@@ -583,68 +600,85 @@ textarea {
   background: var(--card);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
+/* A caption under the fan, not a card on top of it — a hairline rule and text,
+   so the blades stay the only object in the block. min-height holds the box
+   steady as the tour cycles categories with different amounts to say. */
 .fan-card {
-  border-radius: var(--radius-xs);
-  background: var(--card);
-  padding: 16px 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
 }
 .fan-card-body {
+  min-height: 148px;
   transition: opacity 0.17s linear;
 }
 .fan-card-body--swap {
   opacity: 0;
 }
+.fan-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+}
+.fan-card-name {
+  font-size: 20px;
+  line-height: 1.14;
+}
+.fan-card-i {
+  font: 600 10.5px/1 var(--body);
+  letter-spacing: 0.14em;
+  color: var(--line-strong);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fan-card-spec {
+  margin-top: 5px;
+  font: 500 13px/1.35 var(--body);
+  color: var(--burgundy);
+  font-variant-numeric: tabular-nums;
+}
+.fan-card-brands {
+  margin-top: 9px;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.fan-card-req {
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--line-strong);
+}
+.fan-card-link {
+  margin-top: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 14px/1 var(--body);
+  color: var(--burgundy);
+}
 
 @media (min-width: 1024px) {
-  .material-fan {
-    position: relative;
-    display: block;
-    min-height: 380px;
-  }
-  .material-fan-stage {
-    height: 380px;
-  }
+  .material-fan { gap: 20px; }
+  .material-fan-stage { height: clamp(268px, 27vw, 336px); }
   .fan {
-    --start: -52deg;
-    --step: 7deg;
-    --len: 300px;
-    --w: 66px;
-    right: 14%;
+    --start: -60deg;
+    --step: 8.5deg;
+    --len: clamp(248px, 26vw, 308px);
+    --w: 62px;
+    left: 55%;
+    right: auto;
   }
-  .fan-blade {
-    transform-origin: 50% calc(100% - 20px);
-  }
-  .fan-tag {
-    height: 36px;
-    padding: 6px 6px 0;
-  }
-  .fan-tag b {
-    font-size: 8.5px;
-  }
-  .fan-tag span {
-    font-size: 10.5px;
-  }
-  .fan-face {
-    top: 36px;
-    bottom: 30px;
-  }
-  .fan-base {
-    height: 30px;
-  }
-  .fan-base::after {
-    width: 11px;
-    height: 11px;
-    margin-left: -5.5px;
-    bottom: 10px;
-  }
-  .fan-card {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 272px;
-    padding: 18px 20px;
-    box-shadow: 0 20px 40px -26px rgba(18, 18, 18, 0.4);
-  }
+  .fan-blade { transform-origin: 50% calc(100% - 20px); }
+  .fan-tag { height: 32px; padding: 6px 6px 0; }
+  /* Back on from the phone rule above: a blade shows ~40px here, enough for
+     every short tag, and reading the spread is the whole point of the fan. */
+  .fan-tag b { font-size: 8.5px; line-height: 1.16; opacity: 1; }
+  .fan-face { top: 32px; bottom: 26px; }
+  .fan-base { height: 26px; }
+  .fan-base::after { width: 10px; height: 10px; margin-left: -5px; bottom: 9px; }
+  .fan-card-body { min-height: 130px; }
+  .fan-card-head { justify-content: space-between; }
+  .fan-card-name { font-size: 23px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -653,4 +687,3 @@ textarea {
     transition-delay: 0s;
   }
 }
-

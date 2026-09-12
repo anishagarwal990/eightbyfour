@@ -35,9 +35,9 @@ const IMAGES_PER_TILE = 6;
 // The hero's material fan, one blade per catalogue section, in the order the
 // spread should read: boards, then surfaces, then adhesives and hardware last
 // — so the sweep itself says "everything", not just "laminates". Three
-// categories (wall-panels, hardware, and adhesive's drawn fallback) have no
-// product photo to show, so their blade face is drawn CSS instead — see
-// MaterialFan's `treatment` prop and .fan-face--drawn-* in globals.css.
+// categories (wall panels, adhesives, hardware) have no product photograph
+// worth cropping to a 60px blade, so their face is drawn instead — see
+// FAN_FACE below and .fan-face--* in globals.css.
 //
 // `spec` is a hand-checked snapshot of the live catalogue's thickness/unit
 // range per category (verified against Supabase directly, not derived at
@@ -74,20 +74,44 @@ const FAN_SPEC: Record<(typeof FAN_CATEGORY_SLUGS)[number], string> = {
   hardware: "sourced to order",
 };
 
-const FAN_TREATMENT: Record<(typeof FAN_CATEGORY_SLUGS)[number], FanBlade["treatment"]> = {
-  plywood: "packshot",
-  "birch-plywood": "surface",
-  blockboards: "packshot",
-  "mdf-and-hdhmr": "packshot",
-  "boil-boards": "packshot",
-  "nfc-boards": "surface",
-  "cement-boards": "packshot",
-  laminates: "surface",
-  "corian-acrylic-solid-surface": "surface",
-  veneers: "surface",
-  "wall-panels": "drawn-panels",
-  adhesive: "drawn-adhesive",
-  hardware: "drawn-hardware",
+// What a blade tip actually says. An overlapped blade shows roughly 40px of
+// itself, so the full category name is not an option there — "NFC (Natural
+// Fibre Composite) Boards" truncates into nonsense. The caption under the fan
+// carries the real name; these are just enough to read the spread. The soft
+// hyphen in Blockboard lets that one long word break across two lines.
+const FAN_TAG: Record<(typeof FAN_CATEGORY_SLUGS)[number], string> = {
+  plywood: "Plywood",
+  "birch-plywood": "Birch ply",
+  blockboards: "Block­board",
+  "mdf-and-hdhmr": "MDF",
+  "boil-boards": "Boil board",
+  "nfc-boards": "NFC board",
+  "cement-boards": "Cement board",
+  laminates: "Laminates",
+  "corian-acrylic-solid-surface": "Solid surface",
+  veneers: "Veneers",
+  "wall-panels": "Wall panels",
+  adhesive: "Adhesives",
+  hardware: "Hardware",
+};
+
+// The `.fan-face--*` modifier each blade wears (globals.css). Ten are crops of
+// real catalogue photos cut down to clean material; the three categories with
+// no product photograph to crop are drawn instead.
+const FAN_FACE: Record<(typeof FAN_CATEGORY_SLUGS)[number], string> = {
+  plywood: "plywood",
+  "birch-plywood": "birch",
+  blockboards: "blockboard",
+  "mdf-and-hdhmr": "mdf",
+  "boil-boards": "boil",
+  "nfc-boards": "nfc",
+  "cement-boards": "cement",
+  laminates: "laminate",
+  "corian-acrylic-solid-surface": "solid",
+  veneers: "veneer",
+  "wall-panels": "panels",
+  adhesive: "adhesive",
+  hardware: "hardware",
 };
 
 // Real marks a returning visitor recognises, shown quietly under the hero's
@@ -345,9 +369,8 @@ export default async function Home() {
   //
   // Ordering is derived from the slug, not randomised: a random pick during
   // render is impure, defeats caching, and makes a bad crop unreproducible
-  // when someone reports it. The hero and the category runway start from
-  // opposite ends of the same reel so the two sections aren't showing the
-  // visitor the same laminate at the same moment.
+  // when someone reports it. (The hero used to draw from the same reel; it now
+  // uses its own hand-cropped faces, so this feeds the runway alone.)
   const reelCategories = stockedCategories;
 
   const samples = await Promise.all(
@@ -362,12 +385,10 @@ export default async function Home() {
       const rotated = urls.map((_, i) => urls[(seed + i) % urls.length]);
       return {
         slug: category.slug,
-        hero: rotated.slice(0, IMAGES_PER_TILE),
         grid: [...rotated].reverse().slice(0, IMAGES_PER_TILE),
       };
     })
   );
-  const heroImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.hero]));
   const gridImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.grid]));
 
   // The hero's material fan: one blade per FAN_CATEGORY_SLUGS entry, built
@@ -383,14 +404,13 @@ export default async function Home() {
     return {
       slug,
       name: category.name,
-      tag: category.name,
+      tag: FAN_TAG[slug],
       href: `/products/${slug}`,
       count,
       spec: count > 0 ? `${count.toLocaleString("en-IN")} product${count === 1 ? "" : "s"} · ${spec}` : `No SKUs yet — ${spec}`,
       brands: categoryBrandNames[category.dbCategory] ?? [],
       sourcedOnRequest: getSourceOnlyBrandsByCategory(slug).map((b) => b.name),
-      image: heroImagesBySlug[slug]?.[0] ?? null,
-      treatment: FAN_TREATMENT[slug],
+      face: FAN_FACE[slug],
     };
   }).filter((b): b is FanBlade => b !== null);
 
@@ -441,7 +461,7 @@ export default async function Home() {
             // its content in the space rather than sitting against the top with
             // a void underneath.
             <div key="proposition" className="flex h-full items-center px-7 py-12 md:py-14">
-              <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1.1fr_0.9fr] lg:text-left">
+              <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1fr_0.95fr] lg:text-left">
                 <div>
                   <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
                     Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface

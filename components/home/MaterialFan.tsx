@@ -1,28 +1,25 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 export interface FanBlade {
   slug: string;
-  /** Full category name, used in the card. */
+  /** Full category name — card only. Several are far too long for a blade tip. */
   name: string;
-  /** Short label on the blade tip — same as `name` unless it would wrap badly at 10px. */
+  /** Short label printed on the blade tip, ~10 characters of room. */
   tag: string;
   href: string;
-  /** 0 means "no SKUs yet" — rendered as "on request" everywhere instead of "0". */
+  /** 0 means "no SKUs yet" — rendered as "on request" everywhere, never as "0". */
   count: number;
-  /** "29 products · 4–25 mm" or, for a zero-count category, "No SKUs yet — sourced to order". */
+  /** "29 products · 4–25 mm", or "No SKUs yet — sourced to order" for a zero-count category. */
   spec: string;
   /** Brands with live SKUs in this category, from getCategoryBrandNames(). */
   brands: string[];
   /** Source-only manufacturers mapped to this category (see SOURCE_ONLY_BRANDS). */
   sourcedOnRequest: string[];
-  /** A real product photo for the blade face, or null for the three categories with none. */
-  image: string | null;
-  /** How the face image is framed — mirrors lib/categoryArt.ts's surface/packshot split. */
-  treatment: "surface" | "packshot" | "drawn-panels" | "drawn-adhesive" | "drawn-hardware";
+  /** Blade face: a `.fan-face--*` modifier in globals.css (photo crop, or drawn). */
+  face: string;
 }
 
 // The blades open once on load, then walk this subset before settling — a
@@ -31,6 +28,15 @@ export interface FanBlade {
 // blade in order, which would take 30+ seconds to make its point.
 const TOUR_SLUGS = ["plywood", "mdf-and-hdhmr", "laminates", "corian-acrylic-solid-surface", "veneers", "hardware"];
 
+// Brand lists run from 1 name (Veneers) to 9 (Hardware). Capping them keeps the
+// caption a stable height as the tour cycles, so the hero doesn't jump.
+const MAX_BRANDS = 5;
+const MAX_ON_REQUEST = 4;
+
+function nameList(names: string[], max: number): string {
+  return names.length <= max ? names.join(", ") : `${names.slice(0, max).join(", ")} +${names.length - max}`;
+}
+
 function reduceMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
@@ -38,13 +44,20 @@ function reduceMotion(): boolean {
 /**
  * The homepage hero's opening object: a designer's own sample fan, reloaded
  * with categories instead of laminate shades. One blade per section of the
- * catalogue — boards, surfaces, adhesives, hardware — each naming its real
- * count and the brands behind it, so the first second says "everything we
- * carry" instead of "we sell laminates".
+ * catalogue — boards, surfaces, adhesives, hardware — so the first second says
+ * "everything we carry" instead of "we sell laminates".
  *
- * Opens once on load, auto-walks a handful of blades, then goes quiet the
- * moment a visitor hovers, focuses or clicks one. Rests fully open with no
- * tour under prefers-reduced-motion.
+ * The caption sits *under* the fan rather than over it, and a blade carries
+ * only a short name: an overlapped blade shows about 40px of itself, which is
+ * enough for "Plywood" and nothing more. Full name, count, spec and brands all
+ * live in the caption, which is also why it doesn't need aria-live — every
+ * blade is a button whose aria-label already carries its name and spec, so a
+ * screen reader gets the whole thing on focus instead of being interrupted six
+ * times by the opening tour.
+ *
+ * Opens once on load, auto-walks six categories, then goes quiet the moment a
+ * visitor hovers, focuses or clicks one. Rests fully open, no tour, under
+ * prefers-reduced-motion.
  */
 export function MaterialFan({ blades }: { blades: FanBlade[] }) {
   const [open, setOpen] = useState(false);
@@ -106,6 +119,12 @@ export function MaterialFan({ blades }: { blades: FanBlade[] }) {
   const current = blades[active];
   if (!current) return null;
 
+  // "Browse solid surface", not "browse nfc (natural fibre composite) boards".
+  // The escape is deliberate: tags carry a soft hyphen (U+00AD) so a single
+  // long word like "Blockboard" can break on the blade, and an invisible
+  // literal sitting inside a regex is a silent trap for the next reader.
+  const shortLabel = current.tag.replace(/\u00AD/g, "").toLowerCase();
+
   return (
     <div className="material-fan">
       <div className="material-fan-stage">
@@ -123,44 +142,29 @@ export function MaterialFan({ blades }: { blades: FanBlade[] }) {
             >
               <span className="fan-tag">
                 <b>{b.tag}</b>
-                <span>{b.count > 0 ? b.count.toLocaleString("en-IN") : "on request"}</span>
               </span>
-              <span className={`fan-face fan-face--${b.treatment}`}>
-                {b.image ? <Image src={b.image} alt="" fill sizes="120px" className="object-cover" /> : null}
-              </span>
+              <span className={`fan-face fan-face--${b.face}`} />
               <span className="fan-base" aria-hidden="true" />
             </button>
           ))}
         </div>
       </div>
 
-      <div className="fan-card" aria-live="polite">
+      <div className="fan-card">
         <div className={`fan-card-body${swap ? " fan-card-body--swap" : ""}`}>
-          <p className="tracked-caps" style={{ fontSize: 11, color: "var(--line-strong)" }}>
-            {String(active + 1).padStart(2, "0")} / {blades.length}
+          <p className="fan-card-head">
+            <span className="serif fan-card-name">{current.name}</span>
+            <span className="fan-card-i">
+              {String(active + 1).padStart(2, "0")} / {blades.length}
+            </span>
           </p>
-          <p className="serif mt-2" style={{ fontSize: 25, lineHeight: 1.1 }}>
-            {current.name}
-          </p>
-          <p className="mt-1" style={{ fontSize: 13, fontWeight: 500, color: "var(--burgundy)" }}>
-            {current.spec}
-          </p>
-          {current.brands.length > 0 && (
-            <p className="mt-2.5" style={{ fontSize: 13.5, lineHeight: 1.45 }}>
-              {current.brands.join(", ")}
-            </p>
-          )}
+          <p className="fan-card-spec">{current.spec}</p>
+          {current.brands.length > 0 && <p className="fan-card-brands">{nameList(current.brands, MAX_BRANDS)}</p>}
           {current.sourcedOnRequest.length > 0 && (
-            <p className="mt-1" style={{ fontSize: 12.5, lineHeight: 1.45, color: "var(--line-strong)" }}>
-              Sourced on request: {current.sourcedOnRequest.join(", ")}
-            </p>
+            <p className="fan-card-req">On request: {nameList(current.sourcedOnRequest, MAX_ON_REQUEST)}</p>
           )}
-          <Link
-            href={current.href}
-            className="mt-3 inline-flex items-center gap-1.5"
-            style={{ fontSize: 14, fontWeight: 500, color: "var(--burgundy)" }}
-          >
-            {current.count > 0 ? `Browse ${current.name.toLowerCase()}` : `Ask for ${current.name.toLowerCase()}`}
+          <Link href={current.href} className="fan-card-link">
+            {current.count > 0 ? `Browse ${shortLabel}` : `Ask for ${shortLabel}`}
             <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
