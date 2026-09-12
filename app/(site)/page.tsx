@@ -16,7 +16,7 @@ import { MaterialFan, type FanBlade } from "@/components/home/MaterialFan";
 import { HowItWorks } from "@/components/HowItWorks";
 import type { DiscoveryTile } from "@/components/home/MaterialDiscovery";
 import { ShopDiscovery } from "@/components/home/ShopDiscovery";
-import { CompareSlide } from "@/components/home/CompareSlide";
+import { ListSlide } from "@/components/home/ListSlide";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { isRepresentativeImage, treatmentForCategory } from "@/lib/categoryArt";
 import { UseCaseNav } from "@/components/UseCaseNav";
@@ -455,7 +455,7 @@ export default async function Home() {
           muddy rather than as glass. */}
       <section className="reveal is-visible relative">
         <HeroCarousel
-          labels={["Every material your project needs", "Stop chasing suppliers"]}
+          labels={["Every material your project needs", "Send us your list"]}
           slides={[
             // Both slides stretch to the taller of the two, so this one centres
             // its content in the space rather than sitting against the top with
@@ -523,7 +523,7 @@ export default async function Home() {
                 </div>
               </div>
             </div>,
-            <CompareSlide key="mechanic" />,
+            <ListSlide key="mechanic" manufacturerCount={totalManufacturerCount} />,
           ]}
         />
       </section>

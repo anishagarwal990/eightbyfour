@@ -11,6 +11,10 @@
   --accent-dark: #4f1520;
   --burgundy: #6e1f2e;
   --burgundy-dark: #4f1520;
+  /* Burgundy is unreadable on the near-black inverted surface (ListSlide, the
+     hero's second slide), so the accent lightens rather than disappearing.
+     Same hue, lifted until it carries on #121212. */
+  --accent-inverse: #e3a9b4;
   --line: rgba(0, 0, 0, 0.15);
   --line-strong: rgba(0, 0, 0, 0.35);
 
