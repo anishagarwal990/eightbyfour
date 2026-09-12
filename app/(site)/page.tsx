@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllBrandsWithCounts } from "@/lib/data/brands";
-import { getCategoryCounts, getCategorySampleProducts } from "@/lib/data/products";
+import { getCategoryBrandNames, getCategoryCounts, getCategorySampleProducts } from "@/lib/data/products";
 import { CATEGORIES } from "@/lib/categories";
-import { SOURCE_ONLY_BRANDS } from "@/lib/source-only-brands";
+import { SOURCE_ONLY_BRANDS, getSourceOnlyBrandsByCategory } from "@/lib/source-only-brands";
+import { BRAND_LOGOS } from "@/lib/brandLogos";
 import { getAllContent } from "@/lib/mdx";
 import { buildMetadata } from "@/lib/seo";
 import { Reveal } from "@/components/Reveal";
@@ -11,7 +12,7 @@ import { AnimatedStat } from "@/components/AnimatedStat";
 import { RequestQuoteButton } from "@/components/RequestQuoteButton";
 import { buttonClasses } from "@/components/ui/Button";
 import { HeroCTAs } from "@/components/HeroCTAs";
-import { HeroShowcase, type ShowcaseBrand, type ShowcaseTile } from "@/components/home/HeroShowcase";
+import { MaterialFan, type FanBlade } from "@/components/home/MaterialFan";
 import { HowItWorks } from "@/components/HowItWorks";
 import type { DiscoveryTile } from "@/components/home/MaterialDiscovery";
 import { ShopDiscovery } from "@/components/home/ShopDiscovery";
@@ -31,29 +32,68 @@ const HOMEPAGE_APPLICATION_SLUGS = ["modular-kitchen", "wardrobes", "commercial-
 // a dozen decoded frames in memory.
 const IMAGES_PER_TILE = 6;
 
-// The categories that carry the hero, in display order. Laminates, veneers,
-// solid surface and birch ply are surfaces shot as texture; plywood and MDF
-// are packshots and render contained on the neutral ground rather than
-// bleeding, which is what keeps the block quiet.
-const HERO_TILE_SLUGS = [
-  "laminates",
-  "veneers",
-  "corian-acrylic-solid-surface",
+// The hero's material fan, one blade per catalogue section, in the order the
+// spread should read: boards, then surfaces, then adhesives and hardware last
+// — so the sweep itself says "everything", not just "laminates". Three
+// categories (wall-panels, hardware, and adhesive's drawn fallback) have no
+// product photo to show, so their blade face is drawn CSS instead — see
+// MaterialFan's `treatment` prop and .fan-face--drawn-* in globals.css.
+//
+// `spec` is a hand-checked snapshot of the live catalogue's thickness/unit
+// range per category (verified against Supabase directly, not derived at
+// request time — a grouped min/max RPC would be the real fix if this drifts).
+const FAN_CATEGORY_SLUGS = [
   "plywood",
-  "mdf-and-hdhmr",
   "birch-plywood",
-];
+  "blockboards",
+  "mdf-and-hdhmr",
+  "boil-boards",
+  "nfc-boards",
+  "cement-boards",
+  "laminates",
+  "corian-acrylic-solid-surface",
+  "veneers",
+  "wall-panels",
+  "adhesive",
+  "hardware",
+] as const;
 
-// The full "Solid Surface / Corian" name fits a half-width tile; kept as an
-// explicit label so a later rename of the category name does not silently
-// change the hero caption.
-const HERO_TILE_LABELS: Partial<Record<string, string>> = {
-  "corian-acrylic-solid-surface": "Solid Surface / Corian",
+const FAN_SPEC: Record<(typeof FAN_CATEGORY_SLUGS)[number], string> = {
+  plywood: "4–25 mm",
+  "birch-plywood": "6–18 mm",
+  blockboards: "16–25 mm",
+  "mdf-and-hdhmr": "1.7–30 mm",
+  "boil-boards": "8–18 mm",
+  "nfc-boards": "4.5–25 mm",
+  "cement-boards": "6–40 mm",
+  laminates: "0.72–1.5 mm",
+  "corian-acrylic-solid-surface": "6 & 12 mm",
+  veneers: "natural veneer",
+  "wall-panels": "sourced to order",
+  adhesive: "tins & drums",
+  hardware: "sourced to order",
 };
 
-// Names a Hyderabad contractor recognises on sight, spanning boards,
-// laminates and adhesives — breadth is the point of the row, not a ranking.
-const HERO_BRAND_SLUGS = ["century", "merino", "greenlam", "fevicol"];
+const FAN_TREATMENT: Record<(typeof FAN_CATEGORY_SLUGS)[number], FanBlade["treatment"]> = {
+  plywood: "packshot",
+  "birch-plywood": "surface",
+  blockboards: "packshot",
+  "mdf-and-hdhmr": "packshot",
+  "boil-boards": "packshot",
+  "nfc-boards": "surface",
+  "cement-boards": "packshot",
+  laminates: "surface",
+  "corian-acrylic-solid-surface": "surface",
+  veneers: "surface",
+  "wall-panels": "drawn-panels",
+  adhesive: "drawn-adhesive",
+  hardware: "drawn-hardware",
+};
+
+// Real marks a returning visitor recognises, shown quietly under the hero's
+// CTAs — not a ranking, just proof the belt behind "+N more" is real brands.
+const HERO_BELT_SLUGS = ["century", "greenlam", "merino", "virgo", "fevicol"] as const;
+const HERO_BELT_SOURCE_ONLY = ["hettich", "hafele"] as const;
 
 // One-line reasons a category is worth opening, for the two lead tiles.
 const CATEGORY_BLURBS: Record<string, string> = {
@@ -271,9 +311,10 @@ export default async function Home() {
   // of sequential awaits means homepage TTFB is bounded by the slowest of them,
   // not their sum. Category counts come from one grouped RPC and are the single
   // source of truth for every count rendered on this page.
-  const [brands, categoryCounts, testimonials] = await Promise.all([
+  const [brands, categoryCounts, categoryBrandNames, testimonials] = await Promise.all([
     getAllBrandsWithCounts(),
     getCategoryCounts(),
+    getCategoryBrandNames(),
     getTestimonials(),
   ]);
 
@@ -329,25 +370,41 @@ export default async function Home() {
   const heroImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.hero]));
   const gridImagesBySlug = Object.fromEntries(samples.map((sample) => [sample.slug, sample.grid]));
 
-  const heroTiles: ShowcaseTile[] = HERO_TILE_SLUGS.map((slug): ShowcaseTile | null => {
+  // The hero's material fan: one blade per FAN_CATEGORY_SLUGS entry, built
+  // from the same counts/images every other section on this page uses — a
+  // zero-count category (wall-panels, hardware) gets "on request" everywhere
+  // instead of a fabricated number, and its blade face falls back to a drawn
+  // CSS treatment because there is no product photo to show.
+  const fanBlades: FanBlade[] = FAN_CATEGORY_SLUGS.map((slug): FanBlade | null => {
     const category = CATEGORIES.find((c) => c.slug === slug);
     if (!category) return null;
+    const count = categoryCounts[category.dbCategory] || 0;
+    const spec = FAN_SPEC[slug];
     return {
       slug,
       name: category.name,
-      label: HERO_TILE_LABELS[slug],
-      count: categoryCounts[category.dbCategory] || 0,
-      images: heroImagesBySlug[slug] ?? [],
-      treatment: treatmentForCategory(slug),
+      tag: category.name,
+      href: `/products/${slug}`,
+      count,
+      spec: count > 0 ? `${count.toLocaleString("en-IN")} product${count === 1 ? "" : "s"} · ${spec}` : `No SKUs yet — ${spec}`,
+      brands: categoryBrandNames[category.dbCategory] ?? [],
+      sourcedOnRequest: getSourceOnlyBrandsByCategory(slug).map((b) => b.name),
+      image: heroImagesBySlug[slug]?.[0] ?? null,
+      treatment: FAN_TREATMENT[slug],
     };
-  }).filter((t): t is ShowcaseTile => t !== null);
+  }).filter((b): b is FanBlade => b !== null);
 
-  const heroBrands: ShowcaseBrand[] = HERO_BRAND_SLUGS.map((slug) => {
-    const stocked = brands.find((b) => b.slug === slug);
-    if (stocked) return { name: stocked.name, slug: stocked.slug };
-    const sourceOnly = SOURCE_ONLY_BRANDS.find((b) => b.slug === slug);
-    return sourceOnly ? { name: sourceOnly.name, slug: sourceOnly.slug, file: sourceOnly.file } : null;
-  }).filter((b): b is ShowcaseBrand => b !== null);
+  const heroBelt = [
+    ...HERO_BELT_SLUGS.map((slug) => {
+      const b = brands.find((x) => x.slug === slug);
+      return b ? { name: b.name, src: BRAND_LOGOS[b.name] } : null;
+    }),
+    ...HERO_BELT_SOURCE_ONLY.map((slug) => {
+      const b = SOURCE_ONLY_BRANDS.find((x) => x.slug === slug);
+      return b ? { name: b.name, src: `/brand-logos/${b.file}` } : null;
+    }),
+  ].filter((b): b is { name: string; src: string } => b !== null && Boolean(b.src));
+  const heroBeltMoreCount = Math.max(0, brands.length + SOURCE_ONLY_BRANDS.length - heroBelt.length);
 
   const discoveryTiles: DiscoveryTile[] = stockedCategories.map((c) => ({
     slug: c.slug,
@@ -396,12 +453,13 @@ export default async function Home() {
                     className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
                     style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
                   >
-                    Give Us Your List.
-                    <br className="hidden sm:block" /> Get Your Quote.
+                    Plywood to Hinges.
+                    <br className="hidden sm:block" /> One Quote.
                   </h2>
                   <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-                    Send your BOQ, product list, drawings — or just tell us what you need. We&rsquo;ll organize the
-                    requirements, source across our network and come back with options you can compare.
+                    Boards, laminates, veneers, solid surface, adhesives and hardware —{" "}
+                    {totalSkuCount.toLocaleString("en-IN")} products from {brands.length} manufacturers in stock, and{" "}
+                    {SOURCE_ONLY_BRANDS.length} more we source on request. Send your list; we price every line.
                   </p>
                   <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
                     First response in under 15 minutes, during business hours.
@@ -412,9 +470,36 @@ export default async function Home() {
                       Browse Products
                     </Link>
                   </div>
+                  {heroBelt.length > 0 && (
+                    <div className="mt-7">
+                      <p className="tracked-caps mx-auto lg:mx-0" style={{ fontSize: 11, color: "var(--line-strong)" }}>
+                        Brands we stock and source
+                      </p>
+                      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 lg:justify-start">
+                        {heroBelt.map((b) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={b.name}
+                            src={b.src}
+                            alt={b.name}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-6 w-auto object-contain grayscale opacity-60 transition-[filter,opacity] duration-200 hover:grayscale-0 hover:opacity-100"
+                          />
+                        ))}
+                        {heroBeltMoreCount > 0 && (
+                          <Link href="/brands" className="text-sm font-medium" style={{ color: "var(--burgundy)" }}>
+                            +{heroBeltMoreCount} more
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-center lg:justify-end">
-                  <HeroShowcase tiles={heroTiles} brands={heroBrands} brandCount={brands.length + SOURCE_ONLY_BRANDS.length} />
+                <div className="flex justify-center lg:justify-end lg:pt-2">
+                  <div className="w-full max-w-md lg:max-w-none">
+                    <MaterialFan blades={fanBlades} />
+                  </div>
                 </div>
               </div>
             </div>,

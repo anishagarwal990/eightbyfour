@@ -378,6 +378,25 @@ export async function getCategoryCounts(): Promise<Record<string, number>> {
   return Object.fromEntries(CATEGORIES.map((c) => [c.dbCategory, counts[c.dbCategory] ?? 0]));
 }
 
+// Distinct brand names per category, for the homepage material fan
+// (MaterialFan) — it needs "who makes what's in Laminates" alongside the
+// count. There's no `get_category_counts`-style grouped RPC for this yet, so
+// it's one unfiltered (category, brand) select over the whole table: 3,100-
+// odd narrow rows is cheap enough for a homepage load, but if the catalogue
+// grows an order of magnitude this should become a grouped RPC like its
+// siblings above.
+export async function getCategoryBrandNames(): Promise<Record<string, string[]>> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase.from("products").select("category,brand");
+  if (error) throw error;
+  const byCategory = new Map<string, Set<string>>();
+  for (const row of data as { category: string; brand: string }[]) {
+    if (!byCategory.has(row.category)) byCategory.set(row.category, new Set());
+    byCategory.get(row.category)!.add(row.brand);
+  }
+  return Object.fromEntries(CATEGORIES.map((c) => [c.dbCategory, [...(byCategory.get(c.dbCategory) ?? [])].sort()]));
+}
+
 // Sample products for a category with no count query attached — for callers
 // (like the homepage grid) that already have the total from
 // getCategoryCounts() and only need a few representative rows, not another
