@@ -460,42 +460,60 @@ export default async function Home() {
             // Both slides stretch to the taller of the two, so this one centres
             // its content in the space rather than sitting against the top with
             // a void underneath.
-            <div key="proposition" className="flex h-full items-center px-7 py-12 md:py-14">
-              <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-12 text-center lg:grid-cols-[1fr_0.95fr] lg:text-left">
+            // Left-aligned on phones, not centred: this column carries a
+            // three-line headline, a sub, a claim and a logo belt, and centring
+            // that much copy gives every line a different starting edge, which
+            // is most of why the mobile hero read as a wall of text.
+            <div key="proposition" className="flex h-full items-center px-7 py-8 md:py-14">
+              <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-7 lg:grid-cols-[1fr_0.95fr] lg:gap-12">
                 <div>
-                  <p className="tracked-caps text-sm" style={{ color: "var(--accent)" }}>
+                  {/* Desktop only: three lines of all-caps burgundy on a phone,
+                      naming the same categories the fan spells out right above
+                      it. The fan is the better version of this line. */}
+                  <p className="tracked-caps hidden text-sm lg:block" style={{ color: "var(--accent)" }}>
                     Plywood &middot; Laminates &middot; Veneers &middot; Wall Panels &middot; Hardware &middot; Solid Surface
                   </p>
-                  <h1 className="mx-auto mt-2 max-w-md text-sm lg:mx-0" style={{ lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+                  {/* Stays in the DOM at every width — it is the page's real H1
+                      and carries the "in Hyderabad" intent — but it is support,
+                      not the headline, so it shrinks rather than taking two
+                      full-size lines above the thing people came to read. */}
+                  <h1 className="max-w-md text-[12.5px] lg:mt-2 lg:text-sm" style={{ lineHeight: 1.4, color: "var(--line-strong)" }}>
                     Interior &amp; Construction Material Procurement in Hyderabad
                   </h1>
                   <h2
-                    className="serif mx-auto mt-7 max-w-2xl lg:mx-0"
+                    className="serif mt-3 max-w-2xl lg:mt-7"
                     style={{ fontSize: "var(--fs-hero)", lineHeight: "var(--lh-tight)", letterSpacing: "-0.01em" }}
                   >
                     Plywood to Hinges.
                     <br className="hidden sm:block" /> One Quote.
                   </h2>
-                  <p className="mx-auto mt-4 max-w-xl lg:mx-0" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
-                    Boards, laminates, veneers, solid surface, adhesives and hardware —{" "}
-                    {totalSkuCount.toLocaleString("en-IN")} products from {brands.length} manufacturers in stock, and{" "}
-                    {SOURCE_ONLY_BRANDS.length} more we source on request. Send your list; we price every line.
+                  {/* The category list is what the fan already shows, so on a
+                      phone it drops and the numbers carry the line instead —
+                      four lines of sub-copy became two. */}
+                  <p className="mt-3 max-w-xl lg:mt-4" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", color: "var(--line-strong)" }}>
+                    <span className="hidden sm:inline">
+                      Boards, laminates, veneers, solid surface, adhesives and hardware —{" "}
+                    </span>
+                    {totalSkuCount.toLocaleString("en-IN")} products from {brands.length} manufacturers
+                    <span className="hidden sm:inline"> in stock</span>, and {SOURCE_ONLY_BRANDS.length} more
+                    <span className="hidden sm:inline"> we source</span> on request. Send your list; we price every
+                    line.
                   </p>
-                  <p className="tracked-caps mx-auto mt-4 text-xs lg:mx-0" style={{ color: "var(--burgundy)" }}>
+                  <p className="tracked-caps mt-3 text-xs lg:mt-4" style={{ color: "var(--burgundy)" }}>
                     First response in under 15 minutes, during business hours.
                   </p>
-                  <div className="mt-6 flex flex-wrap justify-center gap-3 lg:justify-start">
+                  <div className="mt-5 flex flex-wrap gap-3 lg:mt-6">
                     <RequestQuoteButton label="Get My Quote" />
                     <Link href="/products" className={buttonClasses("secondary")}>
                       Browse Products
                     </Link>
                   </div>
                   {heroBelt.length > 0 && (
-                    <div className="mt-7">
-                      <p className="tracked-caps mx-auto lg:mx-0" style={{ fontSize: 11, color: "var(--line-strong)" }}>
+                    <div className="mt-5 lg:mt-7">
+                      <p className="tracked-caps" style={{ fontSize: 11, color: "var(--line-strong)" }}>
                         Brands we stock and source
                       </p>
-                      <div className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 lg:justify-start">
+                      <div className="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-2.5 lg:mt-3 lg:gap-x-6 lg:gap-y-3">
                         {heroBelt.map((b) => (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -516,7 +534,12 @@ export default async function Home() {
                     </div>
                   )}
                 </div>
-                <div className="flex justify-center lg:justify-end lg:pt-2">
+                {/* order-first on phones: the fan used to start 741px down a
+                    1183px slide, which put the one thing worth looking at
+                    entirely below the fold behind a stack of copy. DOM order is
+                    unchanged, so the H1 and headline still come first for
+                    crawlers. */}
+                <div className="order-first flex justify-center lg:order-none lg:justify-end lg:pt-2">
                   <div className="w-full max-w-md lg:max-w-none">
                     <MaterialFan blades={fanBlades} />
                   </div>

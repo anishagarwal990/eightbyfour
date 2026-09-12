@@ -73,8 +73,14 @@ export function ListSlide({ manufacturerCount }: { manufacturerCount: number }) 
             Send us your material list. Get priced options back.
           </h2>
           <p className="mt-4 max-w-xl" style={{ fontSize: "var(--fs-body)", lineHeight: "var(--lh-normal)", opacity: 0.75 }}>
-            One list, every category on it. We price each line against a named brand and send back one document instead
-            of five vendor threads in five formats.
+            One list, every category on it.{" "}
+            {/* The second sentence costs four lines on a 375px screen, where it
+                sits between the headline and the pad — the thing worth seeing. */}
+            <span className="hidden sm:inline">
+              We price each line against a named brand and send back one document instead of five vendor threads in five
+              formats.
+            </span>
+            <span className="sm:hidden">Every line priced against a named brand.</span>
           </p>
         </div>
 
@@ -146,7 +152,12 @@ export function ListSlide({ manufacturerCount }: { manufacturerCount: number }) 
                       </span>
                       <span className="px-4 py-2.5 text-[14.5px] leading-snug">
                         {row.item}{" "}
-                        <small style={{ color: "var(--line-strong)" }}>· {row.note}</small>
+                        {/* Name + category + spec is three things in one cell, which
+                            wraps every other row to two lines on a phone. The
+                            category is the one a reader can infer from the name. */}
+                        <small className="hidden sm:inline" style={{ color: "var(--line-strong)" }}>
+                          · {row.note}
+                        </small>
                         <small className="sm:hidden" style={{ color: "var(--line-strong)" }}>
                           {row.spec === "—" ? "" : ` · ${row.spec}`}
                         </small>

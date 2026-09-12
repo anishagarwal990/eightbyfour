@@ -621,7 +621,10 @@ textarea {
 .fan-card-head {
   display: flex;
   align-items: baseline;
-  justify-content: center;
+  /* Was centred, from when the mobile hero centred its whole copy column. The
+     hero is left-aligned on phones now, and a centred name above a left-aligned
+     spec and brand list was the one line that still looked stray. */
+  justify-content: flex-start;
   gap: 10px;
 }
 .fan-card-name {
